@@ -42,11 +42,12 @@ class D:
             return ""
         return '<Array as="points">' + "".join(f'<mxPoint x="{a}" y="{b}"/>' for a, b in pts) + "</Array>"
 
-    def e(self, src, tgt, label="", style="", pts=None):
+    def e(self, src, tgt, label="", style="", pts=None, lx=None):
         cid = self.nid()
+        gx = f' x="{lx}"' if lx is not None else ""
         self.cells.append(
             f'<mxCell id="{cid}" value="{esc(label)}" style="{BASE_E}{F}html=1;{style}" edge="1" parent="1" source="{src}" target="{tgt}">'
-            f'<mxGeometry relative="1" as="geometry">{self._pts(pts)}</mxGeometry></mxCell>')
+            f'<mxGeometry{gx} relative="1" as="geometry">{self._pts(pts)}</mxGeometry></mxCell>')
 
     def pe(self, x1, y1, x2, y2, label="", style="", pts=None):
         cid = self.nid()
