@@ -1,0 +1,3 @@
+[submodule "docs/research/papers"]
+	path = docs/research/papers
+	url = https://github.com/JorisJonkers-dev/estate-kit-papers.git
