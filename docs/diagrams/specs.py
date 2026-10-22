@@ -204,3 +204,36 @@ grid("alignment",
       ("rust", "result", "writes", "exitX=0.25;exitY=1;entryX=0;entryY=0.5;"),
       ("result", "go", "generates", "exitX=1;exitY=0.5;entryX=0.75;entryY=1;")],
      cw=400, rh=130, w=250, h=60)
+
+# Hosts.
+seq("seq-host-rollout",
+    [("CI", "CI"), ("C", "binary cache"), ("S", "Service"), ("O", "ghcr"), ("A", "host applier"), ("K", "API server")],
+    [("CI", "C", "push signed closures", False), ("CI", "CI", "VM test per node class", False),
+     ("CI", "S", "host rollout (OIDC)", False), ("S", "O", "move host/&lt;node&gt;:prod", False),
+     ("A", "O", "poll pointer, verify", False), ("A", "C", "fetch closure", False),
+     ("A", "K", "take Lease, evict pods", False), ("A", "A", "switch; reboot only in window", False),
+     ("A", "K", "uncordon, release Lease", False)])
+grid("state-host-applier",
+     [("idle", "Current", "", 1, 0), ("fetch", "Fetched", "", 1, 1), ("wait", "Waiting for Lease", "", 1, 2),
+      ("drain", "Draining", "", 1, 3), ("switch", "Switching", "", 1, 4), ("reboot", "Awaiting window", WARN, 2, 4),
+      ("check", "Health check", "", 1, 5), ("done", "Current (new)", GOOD, 1, 6), ("back", "Rolled back", BAD, 0, 5)],
+     [("idle", "fetch", "new pointer"), ("fetch", "wait", "closure verified"), ("wait", "drain", "Lease held"),
+      ("drain", "switch", "pods evicted"), ("switch", "check", "no reboot needed"), ("switch", "reboot", "kernel changed"),
+      ("reboot", "check", "window opens", "exitX=0.5;exitY=1;entryX=1;entryY=0.5;"), ("check", "done", "healthy"),
+      ("check", "back", "unhealthy")],
+     cw=300, rh=110, w=200, h=56)
+grid("inputs-host",
+     [("ii", "Infrastructure Intent", DATA, 0, 0), ("pi", "Platform Intent", DATA, 0, 1), ("ver", "k3s and NixOS versions", DATA, 0, 2),
+      ("comp", "compile: host data", ACCENT, 1, 1), ("mods", "hand-written NixOS modules", DATA, 2, 0),
+      ("build", "CI: build closures, VM tests", ACCENT, 2, 1), ("cache", "signed binary cache", DATA, 2, 2),
+      ("svc", "service: move host tags", ACCENT, 3, 1), ("agent", "host applier", ACCENT, 3, 2)],
+     [("ii", "comp", "", "exitX=1;exitY=0.5;entryX=0.5;entryY=0;"), ("pi", "comp", ""),
+      ("ver", "comp", "", "exitX=1;exitY=0.5;entryX=0.5;entryY=1;"),
+      ("comp", "build", "host data"), ("mods", "build", ""), ("build", "cache", "pushes"), ("build", "svc", "passed"),
+      ("svc", "agent", "host tag"), ("cache", "agent", "closure")],
+     cw=320, rh=120, w=230, h=56)
+seq("seq-mailbox",
+    [("S", "Service"), ("F", "Flux"), ("K", "API server"), ("M", "mail provisioner"), ("ST", "Stalwart"), ("V", "Vault")],
+    [("S", "F", "Project render with Mailbox objects", False), ("F", "K", "apply Mailbox", False),
+     ("M", "K", "watch Mailboxes by label", False), ("M", "V", "read generated password", False),
+     ("M", "ST", "create or update account", False), ("M", "K", "write status", False)])

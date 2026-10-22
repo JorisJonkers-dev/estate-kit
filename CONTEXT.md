@@ -49,6 +49,14 @@ _Avoid_: generated config, node template
 The agent on each NixOS node that pulls its signed generation and switches to it, one node at a time.
 _Avoid_: deployer, updater
 
+**Host tag**:
+The signed registry tag `host/<node>:prod` that names the generation a node should run. The service moves it once the closures are built and the VM tests pass.
+_Avoid_: host pin, target generation
+
+**Node class**:
+A set of nodes that share one NixOS VM test: control plane, worker, GPU or utility.
+_Avoid_: node type, profile
+
 **Maintenance window**:
 The hours in which a node may reboot. Declared per site, and a node may override it.
 _Avoid_: reboot schedule, downtime window

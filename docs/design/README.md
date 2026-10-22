@@ -27,6 +27,16 @@ then normative over these pages.
   signed generation, takes a cluster-wide Lease, drains its node and switches.
   It reboots only inside its maintenance window, which Infrastructure Intent
   declares per site and a node may override.
+- **Host rollouts.**
+  - CI builds every node's closure and signs it into an off-cluster binary
+    cache, then runs a NixOS VM test per Node class.
+  - The service then moves each node's Host tag.
+  - Each applier copies its closure in before any node switches.
+  - Pods leave through the Eviction API, under a cluster-wide Lease.
+  - The order is derived from the change. A k3s version bump goes control
+    plane first, then a canary worker, then the remaining workers; any other
+    change goes canary worker first and control plane last.
+  - A check refuses any target that breaks the Kubernetes version skew policy.
 - **The control plane** is one node today. During its maintenance window the
   API pauses while workloads keep serving. Moving to three servers is a
   separate decision.
