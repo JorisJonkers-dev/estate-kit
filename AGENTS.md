@@ -51,7 +51,7 @@ what gets fixed.
 
 - Commit a paper or other third-party work here. Papers belong in the private
   `docs/research/papers` submodule.
-- Edit the generated wiki. It is published from `docs/`.
+- Edit the published site. It is built from `docs/` on every merge.
 - Push to `main`.
 
 ## Nested agent files
