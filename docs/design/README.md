@@ -1,52 +1,26 @@
 # Design
 
-The design is being worked out as a shared document, with one tab per concern:
+One page per concern. Decisions in [`../decisions/`](../decisions/README.md)
+are normative over these pages: where a page and a record disagree, the record
+wins and the page is what gets fixed. Diagrams come from
+[`../diagrams/`](../diagrams/README.md).
 
-- Overview
-- Where state lives
-- Releasing a Project
-- Operating the estate
-- Identity and access
-- Errors in CI
-- Inside the compiler
-- Inside the service
-- Code shape and speed
-- Choices made
-- Decision records
-- Lessons
+| Page | What it covers |
+| --- | --- |
+| [Overview](overview.md) | What estate-kit is, its parts, the C4 context and containers, the order of work, risks |
+| [Where state lives](where-state-lives.md) | Every fact and where it is kept; deployment; each stage's inputs; Platform Intent push; drift check |
+| [Releasing a Project](releasing.md) | `validate` and `deploy`, the dry-run, use cases 1 to 4, sequences, rollout states, failure paths |
+| [Operating the estate](operating.md) | Use cases 5 to 9: pause, roll back, admit, apply, gate; Project states |
+| [Hosts](hosts.md) | Infrastructure Intent, host data, the host applier, node order, maintenance windows, use cases 10 to 12 |
+| [Mail and components](mail-and-components.md) | The three components, Mailboxes, use case 13 |
+| [Identity and access](identity-and-access.md) | OIDC for every caller |
+| [Security](security.md) | Trust boundaries, STRIDE per boundary, the authorization matrix |
+| [Errors in CI](errors-in-ci.md) | How an error reaches its YAML line |
+| [Conventions](conventions.md) | API contract, errors, delivery semantics, primitives, retention, telemetry, configuration, contract evolution, bounded contexts |
+| [Models and metamodels](models-and-metamodels.md) | deploy-kit's metamodels, drawn per concept, marked with what changes |
+| [Inside the compiler](inside-the-compiler.md) | Crates, pipeline, types, alignment with YAML and Go, caching |
+| [Inside the service](inside-the-service.md) | Packages, the rollout core, the event log |
+| [Code shape and speed](code-shape-and-speed.md) | File rules, fakes, speed budgets, mutation testing |
 
-Each tab moves into this directory as a Markdown page once its decisions are
-settled. The decision register in [`../decisions/`](../decisions/README.md) is
-then normative over these pages.
-
-## Settled since the document
-
-- **Hosts.** One model and one compiler render both Kubernetes objects and
-  typed host data. Hand-written NixOS modules consume the host data. A
-  separate host applier runs on each node, outside Kubernetes. It pulls a
-  signed generation, takes a cluster-wide Lease, drains its node and switches.
-  It reboots only inside its maintenance window, which Infrastructure Intent
-  declares per site and a node may override.
-- **Host rollouts.**
-  - CI builds every node's closure and signs it into an off-cluster binary
-    cache, then runs a NixOS VM test per Node class.
-  - The service then moves each node's Host tag.
-  - Each applier copies its closure in before any node switches.
-  - Pods leave through the Eviction API, under a cluster-wide Lease.
-  - The order is derived from the change. A k3s version bump goes control
-    plane first, then a canary worker, then the remaining workers; any other
-    change goes canary worker first and control plane last.
-  - A check refuses any target that breaks the Kubernetes version skew policy.
-- **The control plane** is one node today. During its maintenance window the
-  API pauses while workloads keep serving. Moving to three servers is a
-  separate decision.
-- **Platform Intent** is pushed by the estate repository's release workflow
-  over OIDC, like any Project. The service keeps copies of every fragment and
-  of Platform Intent as a rebuildable cache. The registry stays the record,
-  and a nightly drift check compares git, the registry and the cache.
-- **Components** (the migration runner, the secret job and the mail
-  provisioner, ported to Go) are directories in this repository, in lockstep.
-- **Mailboxes.** An Application lists its addresses by local part. The same
-  local part within one Project names one shared Mailbox; the same local part
-  in two Projects is refused. Each Project renders its own Mailbox objects, a
-  custom resource, and the mail provisioner reconciles Stalwart from them.
+The [plan](../plan/port.md) orders the work, and the
+[lesson candidates](../lesson-candidates.md) feed the records.
