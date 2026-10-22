@@ -47,6 +47,21 @@ what gets fixed.
 - Branch off `main` and use a conventional-commit title. No agent attribution
   anywhere.
 
+## Checks
+
+`Pipeline Complete` in [`ci.yml`](.github/workflows/ci.yml) is the one
+required check on `main`. It holds these rules:
+
+| Rule | Job |
+| --- | --- |
+| Diagrams are regenerated, never hand-edited | Diagrams (`scripts/check_diagrams.py`) |
+| A record is cited by link | Record citations (`scripts/check_record_citations.py`) |
+| No paper is committed | Hygiene |
+| Conventional-commit title, no agent attribution | PR title |
+| Every relative link and anchor resolves | Links |
+
+Run a check locally with `python3 scripts/<check>.py`.
+
 ## Never
 
 - Commit a paper or other third-party work here. Papers belong in the private

@@ -1,11 +1,11 @@
 name: Site
 
+# Publishes the site on every merge. Pull requests build it in CI's Site job instead.
 on:
   push:
     branches: [main]
     paths: ["docs/**", "CONTEXT.md", "book.toml", ".github/workflows/site.yml"]
-  pull_request:
-    paths: ["docs/**", "CONTEXT.md", "book.toml", ".github/workflows/site.yml"]
+  workflow_dispatch:
 
 permissions:
   contents: read

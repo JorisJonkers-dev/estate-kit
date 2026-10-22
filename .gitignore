@@ -1,3 +1,6 @@
 __pycache__/
 .DS_Store
 book/
+.coverage
+.venv-tests/
+.idea/
