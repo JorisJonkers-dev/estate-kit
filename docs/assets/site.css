@@ -1,0 +1,10 @@
+/* mdBook caps the content column at 750px, which shrinks the diagrams and wraps the tables.
+   Widen it, but never past the window. */
+:root {
+  --content-max-width: min(1280px, 94vw);
+}
+
+.content img {
+  max-width: 100%;
+  height: auto;
+}

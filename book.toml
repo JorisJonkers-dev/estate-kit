@@ -7,3 +7,4 @@ language = "en"
 default-theme = "navy"
 preferred-dark-theme = "navy"
 git-repository-url = "https://github.com/JorisJonkers-dev/estate-kit"
+additional-css = ["docs/assets/site.css"]
