@@ -35,7 +35,7 @@ touches one module, and a change to a port touches one fake.
 
 | | Rust compiler | Go service |
 | --- | --- | --- |
-| Tool | cargo-mutants with nextest | gremlins, diff-scoped (estate ADR-0022) |
+| Tool | cargo-mutants with nextest | gremlins, diff-scoped ([workspace ADR-0022](https://github.com/JorisJonkers-dev/workspace/blob/main/docs/decisions/ADR-0022-tests-specify-behaviour.md)) |
 | Gate | 100% break score, as today | Report-only first, then a ratchet |
 | Cost model | One incremental build per mutant | One package rebuild per mutant |
 | What keeps it fast | One small crate per step; mold linker | Small packages; coverage-routed tests |

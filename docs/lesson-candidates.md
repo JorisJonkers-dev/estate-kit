@@ -173,7 +173,7 @@ Close runners-up: **MS-5** (render the live estate and diff it from the start),
 - **Evidence**:
   - UC checked 49 claims behind the map's settled decisions. Six failed: C4 (line 64, the wildcard has a second consumer), C8 (line 73, no live RabbitMQ dynamic credential exists), C17 (line 87, MetalLB cannot serve the Frankfurt node), C28 (line 108, Alloy is not host-privileged), C33 (line 118, low ports on k3s) and C43 (line 133, a dashboard without a `uid`). About 18 more hold only under a condition the decision never stated, for example C2 (Traefik ACME allows one replica) and C21 (`across: node` stalls a rollout that surges).
   - #373: "six of the claims the newest decisions rested on turned out to be false". #366 had to decide what each settled decision does about its failed claim.
-  - For the drills: the #373 section "Conditions that gate a step" (#369, #371, #372), and story 64. UC's "Settle by drill" table. UC notes C7 to C9 (lines 210 to 242): the RabbitMQ dynamic credential had already been dropped live after Vault revoked the user under a running pod, yet a decision adopted it again. The mesh direction (ADR 0112) ran lab drills in stage 1 before any cluster change (CS stories 42 to 55).
+  - For the drills: the #373 section "Conditions that gate a step" (#369, #371, #372), and story 64. UC's "Settle by drill" table. UC notes C7 to C9 (lines 210 to 242): the RabbitMQ dynamic credential had already been dropped live after Vault revoked the user under a running pod, yet a decision adopted it again. The mesh direction ([deploy-kit 0112](https://github.com/JorisJonkers-dev/deploy-kit/blob/main/docs/adr/model/0112-east-west-traffic-is-mutually-authenticated-by-an-ambient-mesh.md)) ran lab drills in stage 1 before any cluster change (CS stories 42 to 55).
 - **Applies to estate-kit as**: ADR process. The ADR lint requires every premise claim to carry a source link or a drill ticket. A `drill` issue template exists. `docs/research/` stays evidence, never decision.
 - **Proposed**: keep.
 
@@ -192,7 +192,7 @@ Close runners-up: **MS-5** (render the live estate and diff it from the start),
 - **Evidence**:
   - `deploy-kit/docs/adr/README.md`, lines 9 to 12: the register was rebuilt on 2026-09-29 by merging 141 records, "many of them reversed by dated notes", into 82.
   - #373 Step 3 adds a Retired-numbers table and three folds (0041 into 0092, 0029 into 0028, 0051 and 0083 into 0047). Step 7 adds another (0044 into 0032).
-  - CS line 202: ADR 0114 "was 0113 until #539 took that number". WS P3, "ADR numbers".
+  - CS line 202: [deploy-kit 0114](https://github.com/JorisJonkers-dev/deploy-kit/blob/main/docs/adr/model/0114-every-images-lock-entry-records-its-version.md) "was 0113 until #539 took that number". WS P3, "ADR numbers".
 - **Applies to estate-kit as**: ADR process and lint. A retired-numbers table, a gap check, and a number taken at merge (or a reservation file). A soft budget on how many records exist.
 - **Proposed**: keep.
 
