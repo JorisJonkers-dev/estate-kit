@@ -1,0 +1,60 @@
+# Agent contract
+
+The estate-wide conventions live in
+[`JorisJonkers-dev/workspace`'s CLAUDE.md](https://github.com/JorisJonkers-dev/workspace/blob/main/CLAUDE.md)
+and are not repeated here. This file holds only what the code cannot show you.
+
+## What this repository is
+
+estate-kit models the estate once and delivers it: Projects onto the
+Kubernetes cluster, and host configuration onto the NixOS nodes beneath it. It
+is in design. No code lives here yet; deploy-kit, delivery and
+estate-dashboard keep serving production until the cutover.
+
+## Where the truth lives
+
+| What | Where | Normative? |
+| --- | --- | --- |
+| Vocabulary | [`CONTEXT.md`](CONTEXT.md) | Yes: names in code use these words unchanged |
+| Decisions | [`docs/decisions/`](docs/decisions/README.md) | Yes |
+| Contracts (schemas, OpenAPI, error catalogue) | `contracts/` (not yet written) | Yes, once written |
+| Design pages and diagrams | [`docs/design/`](docs/design/README.md), [`docs/diagrams/`](docs/diagrams/README.md) | No: they explain, decisions rule |
+| Research | [`docs/research/`](docs/research/README.md) | No |
+
+Where a design page and a record disagree, the record wins and the page is
+what gets fixed.
+
+## Stop and ask
+
+- **A Locked record is not yours to change.** A Locked record names the check
+  that enforces it. If your change needs a Locked record to bend, stop and ask
+  the maintainer; never work around it, weaken its check, or delete its
+  fixture.
+- **Contracts are Locked by default.** That covers the committed schemas, the
+  OpenAPI file, the error catalogue and the `result.json` fixtures. Changing
+  one needs the maintainer's approval in the pull request.
+- **An unanswered design question is a Proposed record**, not an improvisation.
+  Write the record (see [`docs/decisions/template.md`](docs/decisions/template.md)),
+  open the pull request, and stop.
+
+## Always
+
+- Use the words in `CONTEXT.md`. A new concept gets its term there first.
+- Give every rule you add a check that fails when the rule is broken.
+- Keep a design page and its diagram in step: change a diagram's declaration in
+  `docs/diagrams/specs.py` and regenerate, never edit the exported XML.
+- Cite a record by link, never by bare number.
+- Branch off `main` and use a conventional-commit title. No agent attribution
+  anywhere.
+
+## Never
+
+- Commit a paper or other third-party work here. Papers belong in the private
+  `docs/research/papers` submodule.
+- Edit the published site. It is built from `docs/` on every merge.
+- Push to `main`.
+
+## Nested agent files
+
+Once code lands, `compiler/`, `service/` and `host-applier/` each get a short
+`AGENTS.md` holding only what applies inside them.

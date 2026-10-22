@@ -22,6 +22,7 @@ done
 | Prefix | Kind |
 | --- | --- |
 | `uc*` | One use case each |
+| `mm-*` | deploy-kit's metamodels, one concept each, marked with what estate-kit changes (from `metamodels.py`) |
 | `seq-*` | Sequence diagrams |
 | `state-*` | State machines |
 | `deploy-*`, `context` | Deployment and context |
