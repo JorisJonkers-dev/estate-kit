@@ -5,7 +5,7 @@ record, and a check enforces it.
 
 | Area | Convention | Enforced by |
 | --- | --- | --- |
-| Service API | OpenAPI 3.1 for every endpoint and SSE event type, referencing the committed JSON Schemas | Generated Go stubs; the Rust client checked against the file |
+| Service API | OpenAPI 3.1 for every endpoint and SSE event type, referencing the committed JSON Schemas | Generated Go stubs; the compiler's client checked against the file |
 | Errors | RFC 9457 problem+json; `type` names one code from the catalogue the compiler's diagnostics also use | A test that every code has a catalogue entry and a fixture |
 | Retries | A deploy call is idempotent on (project, fragment digest); no Idempotency-Key header | A test that a retry returns the same rollout |
 | Ordering | Events are ordered by sequence within one rollout | The event log's unique (rollout id, sequence) key |
@@ -38,8 +38,8 @@ record, and a check enforces it.
 - **Strictness.** Authored YAML rejects unknown keys. Payloads carry their
   contract version; the service accepts the current major and the one before.
 - **Consumer contract.** The service commits example `result.json` files
-  covering exactly the fields it reads; Rust CI checks its real output against
-  them.
+  covering exactly the fields it reads; the compiler's CI checks its real output
+  against them.
 - **Events.** Each event has a type and a version; old versions are upcast on
   read, never rewritten. Events hold no personal data: actors are ids, resolved
   at read time. The event log stays internal.

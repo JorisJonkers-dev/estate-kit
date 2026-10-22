@@ -1,83 +1,107 @@
-# Plan: port deploy-kit, delivery and estate-dashboard into estate-kit, then replace them
+# Plan: bring deploy-kit, delivery and estate-dashboard into estate-kit, then replace them
+
+The work is tracked as sub-issues of
+[epic #9](https://github.com/JorisJonkers-dev/estate-kit/issues/9). Each issue
+names the issues that block it; work the frontier, any issue whose blockers are
+all closed. This plan follows the [design review](../research/review/README.md)
+of 2026-10-22, whose decisions D1 to D12 reordered it.
 
 ## Problem
 
 Delivery tooling is spread over four repositories that drift apart. delivery
-vendors deploy-kit's schemas at v0.6.0 while the estate runs 0.30.0. The
+vendors deploy-kit's schemas at v0.6.0 while the estate runs 0.31.0. The
 estate repository holds a central list of what is deployed (the pin files),
 an images lock, the cluster state and a participants list, all outside the
-Projects they describe. The compiler runs on a TypeScript toolchain whose dev
-and CI tree is about 230 npm packages. It cannot ship as one binary, and its
-types do not exist at runtime.
+Projects they describe.
 
 ## Outcome
 
 One repository, `JorisJonkers-dev/estate-kit`, contains:
 
-- a Rust compiler, shipped as one static binary, used by every Project's
-  workflow (for offline validation) and by the service (to compose);
+- the TypeScript compiler, shipped as one executable behind a fixed CLI and
+  `result.json` contract, used by every Project's workflow (for offline
+  validation) and by the service (to compose);
 - an in-cluster Go service, grown from estate-dashboard and delivery, that
-  composes the estate, signs each render through Vault Transit, pushes it to
-  ghcr, moves the Project's `render/<p>:live` tag, and reports GitHub
-  Deployment status to the Project's repository;
+  composes the estate, dry-runs as its own identity, signs each changed render
+  with the render key in Vault Transit, pushes it to ghcr, moves the Project's
+  `render/<p>:prod` tag, and reports GitHub Deployment status to the Project's
+  repository;
+- a host applier on each NixOS node that pulls its signed `host/<node>:prod`
+  tag and switches one node at a time;
 - the Vue UI, with npm confined to building its static assets;
-- the spec, the schemas, the oracle files, and a new decision register with
+- the spec, the schemas, the oracle files, the decision records and
   `docs/lessons.md`.
 
-Every rollout is a GitHub Actions run in the Project's repository. A Project
-has two workflows: `validate` (ordinary pull requests: offline checks and a
-plan) and `deploy`. A release-please pull request runs `deploy` with
-`dry-run: true` as the required check `estate-kit / deploy (dry-run)`: it
-builds candidate images and the service dry-runs them against the API server
-with `dryRun=All`. On release, `deploy` promotes those same digests, and the
-service dry-runs again before it signs anything and moves `render/<p>:prod`.
-The deploy job streams the rollout live until the Release Unit settles.
-Errors land on their YAML lines: as log snippets, annotations, an
-`estate-kit` check run and a job summary. Every caller of the service
-authenticates by OIDC: Project CI by its GitHub token (`repository_id`, the
-pinned reusable workflow, the environment), people through auth-api, and
-in-cluster callers by projected service-account tokens.
+Flux stays the one applier, locked down per Project. No repository holds a list
+of what is deployed. An image's digest is sealed into the Intent Fragment and
+must have been registered by the Project's own build. Pause and Rollback state
+is one cluster object per Project, and a missing object reads as Paused. The
+estate repository keeps only Platform Intent (including the admitted Projects)
+and the node contract.
 
-Flux stays the one applier. No repository holds a list of what is deployed.
-An image's digest is sealed into the Intent Fragment. Pause and Rollback
-state is one cluster object per Project. The estate repository keeps only
-Platform Intent (including the admitted Projects) and the node contract.
+The full design, with the rejected alternatives: [`docs/design/`](../design/README.md).
 
-The full design, with the rejected alternatives:
-[`docs/design/`](../design/README.md)
+## What changed in the review
+
+- **The compiler stays TypeScript until model 1.0** (D1). The Go service cuts
+  over on today's compiler through the subprocess seam, so parity holds
+  trivially and the shadow tests what actually changes: the service, signing
+  and tags. The deploy-kit#373 rewrite happens in TypeScript, where its tests
+  and mutation setup live. A Rust port happens only if a record written after
+  1.0 justifies it, and then from the frozen 1.0 model.
+- **The host applier is built alongside the service** (D2), against the
+  review's recommendation to defer it. Break-glass stays on deploy-rs.
+- **Mechanisms the review found could not be built as written** are replaced:
+  a machine-account token for ghcr (D3), Flux lockdown and a dry-run-only
+  identity (D4), the Release Gate answered from cluster state (D9).
+- **Recovery work moves forward** and runs on today's estate: datastore
+  backups (D5) and Vault auto-unseal (D6) do not wait for estate-kit.
 
 ## Order of work
 
-The old repositories serve production and keep evolving until the last
-switch. Changes made to them meanwhile are ported forward before the shadow
-phase can close.
+Budgets are first estimates in maintainer hours, at a few hours a week. When a phase overruns its
+budget by half, stop and choose its fallback before going on.
 
-- [ ] Found estate-kit after the 2026-10-30 hand-in and the deletion of `emf/`.
-      Import deploy-kit, delivery and estate-dashboard with history. Merge the
-      founding ADRs and `docs/lessons.md`.
-- [ ] Port the compiler to Rust. Gate: every oracle file renders byte-identical
-      to the TypeScript compiler.
-- [ ] Merge the Go services: the dashboard becomes the service, delivery's
-      Release Gate and Collector join it, and Go types are generated from the
-      in-repo schemas.
-- [ ] Shadow: compose beside production from the same fragments, sign nothing
-      live, and diff the renders. Gate: renders identical for an agreed number
-      of days.
-- [ ] Switch the compiler.
-- [ ] Switch the pins from commits to signed registry tags.
-- [ ] Switch the dashboard.
-- [ ] Archive deploy-kit, delivery and estate-dashboard. Slim the estate
-      repository.
-- [ ] Rewrite the model (the #373 chain) in Rust, up to 1.0.
+| Phase | Issues | Budget | Exit | Fallback |
+| --- | --- | --- | --- | --- |
+| 1. Spikes | #10 to #18 | 20 h | Each spike's question answered in its issue | A spike that cannot answer reopens its decision as a Proposed record |
+| 2. Records, lessons, founding | #19 to #22 | 25 h | Records written; the imported trees build in estate-kit (after 2026-10-30) | Write only the records the next phase needs |
+| 3. Walking skeleton | #23 to #29 | 30 h | A deploy call composes through the TypeScript binary and writes a shadow tag | Keep delivery's Go code where it is and call it from the service |
+| 4. Deploy path | #30 to #39 | 45 h | A test cluster deploys, rolls back and pauses through the service, with Vault scaled to zero for rollback | Ship without provenance registration, behind a claim policy only |
+| 5. Recovery on the running estate | #40 to #42 | 15 h | Vault unseals itself; a datastore restore has been drilled | None: these are production risks today |
+| 6. Hosts | #43 to #49 | 50 h | A host rollout switches the fleet one node at a time under the Lease | Stay on deploy-rs from generated targets (#44) and leave the applier for later |
+| 7. Shadow and switch | #50 to #53 | 30 h | Every Project on signed tags; old repositories archived | Revert the last switched Project and keep the old stack serving |
+| 8. The model | #54 to #56 | open | Model 1.0 released; the Rust decision recorded | Stay on the current model |
+
+The shadow phase's exit rule (#50) is fixed before the shadow starts: the
+number of consecutive days of identical renders, and which Projects they must
+cover.
+
+Phases 1 and 5 can start now. Phase 2's founding import waits for 2026-10-30,
+the MDE course's Task 3 hand-in, and the deletion of deploy-kit's `emf/`.
+
+## Sequencing the model before the cutover
+
+The old repositories serve production and keep evolving until the last switch.
+Because the compiler is the same code on both sides, changes made to it
+meanwhile need no porting. Two kinds of change still need a rule:
+
+| Change | Before the cutover |
+| --- | --- |
+| Additive: a new concept, a new optional field, a new output | Allowed, in deploy-kit or estate-kit |
+| A change of meaning: removing or redefining a concept, a pinned input, an oracle | Waits for the #373 rewrite (#55), except the canonical render format (#54) |
 
 ## Gates
 
 - Lint, tests and contracts: under 2 minutes on a pull request.
 - Mutation: diff-scoped, under 5 minutes on a pull request; a full sharded
-  run nightly. Rust holds a 100% break score; Go starts report-only and
-  ratchets.
+  run nightly. The TypeScript compiler keeps its 100% Stryker break score; Go
+  starts report-only and ratchets.
 
 ## Not in scope
 
 - Replacing Flux. The signed per-Project artifact keeps that possible later.
-- Changing what the model means before the cutover.
+- Changing what the model means before the cutover, beyond the canonical
+  render format.
+- A second control-plane server. The single control plane gets a restore path
+  (#41) instead; high availability is a separate decision.

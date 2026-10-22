@@ -4,7 +4,7 @@ sequenceDiagram
     participant CI as estate repo CI
     participant O as ghcr
     participant S as estate-kit service
-    participant R as Rust binary
+    participant R as compiler binary
     CI->>R: validate Platform Intent
     CI->>O: publish the platform fragment
     CI->>S: deploy (GitHub OIDC token, platform)

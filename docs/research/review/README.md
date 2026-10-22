@@ -125,6 +125,8 @@ them are Proposed until they are written and accepted.
 | D11: how a node switches and reboots | Decide the reboot before the Lease, stage with `boot`, test-then-boot for live changes, per-bootloader fallbacks, minor k3s bumps behind a snapshot and approval | No |
 | D12: what defines a render's bytes | A canonical YAML style, specified on one page and introduced in deploy-kit#373's contract pull request | No |
 
+The work they cause is tracked as sub-issues of [epic #9](https://github.com/JorisJonkers-dev/estate-kit/issues/9), and [`plan/port.md`](../../plan/port.md), the decision register and the design pages are updated to match.
+
 D1 and D2 pull against each other: D1 drops the Rust port to save effort,
 while D2 adds the largest bespoke component back into the early phases. The
 plan has to budget for the host applier explicitly.

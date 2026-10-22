@@ -7,6 +7,6 @@ sequenceDiagram
     CI->>GO: request an ID token, audience estate-kit
     GO-->>CI: JWT
     CI->>S: deploy, Bearer JWT
-    S->>S: repository_id admitted?
-    S->>S: pinned workflow and environment?
+    S->>S: repository_id and owner id admitted?
+    S->>S: claim policy: event_name, job_workflow_sha, ref_type, runner, environment
     S-->>CI: rollout id

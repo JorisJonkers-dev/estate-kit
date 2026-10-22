@@ -2,18 +2,19 @@
 sequenceDiagram
     autonumber
     participant S as estate-kit service
-    participant R as Rust binary
+    participant R as compiler binary
     participant K as API server
     participant V as Vault Transit
     participant O as ghcr
     S->>O: pull the admitted fragments
+    S->>S: every digest registered by its Project?
     S->>R: compose the estate
     R-->>S: renders, diagnostics
-    S->>K: apply, dryRun=All
+    S->>K: apply, dryRun=All, as the dry-run identity
     alt dry-run accepted
         K-->>S: accepted
-        S->>V: sign the render
-        S->>O: push the render, move the prod tag
+        S->>V: sign with the render key
+        S->>O: push, move the prod tag (compare-and-swap)
     else dry-run rejected
         K-->>S: rejected
         Note right of S: Project isolated, prod tag unchanged

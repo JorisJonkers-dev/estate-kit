@@ -2,7 +2,10 @@
 
 The same model and compiler that render Projects also render each NixOS node's
 configuration. A separate host applier on every node switches it, one node at a
-time, and reboots only inside its maintenance window.
+time, and reboots only inside its maintenance window. It is built alongside the
+service, by the maintainer's choice against the [review](../research/review/README.md)'s advice to defer it (D2);
+break-glass and enrolment stay on deploy-rs and nixos-anywhere, generated from
+the same host data.
 
 ## One model, two appliers
 
@@ -26,18 +29,33 @@ still work when the cluster is down.
 ## A host rollout
 
 CI builds and signs every node's closure into an off-cluster binary cache and
-runs the VM tests. Then the service moves the host tags. Each applier fetches
-its closure first, which disrupts nothing. Only the switch and the reboot are
-serialised, under a cluster-wide Lease, with pods leaving through the Eviction
-API so PodDisruptionBudgets hold.
+runs the VM tests. The cache's signing key is an environment-scoped secret,
+limited to main with a reviewer (D10). Then the service moves the host tags,
+signed with the host key; each tag binds its closure's store path. Each applier
+fetches and verifies its closure first, which disrupts nothing. Only the switch
+and the reboot are serialised, under a cluster-wide Lease, with pods leaving
+through the Eviction API so PodDisruptionBudgets hold. Each applier has its own
+credential, and a ValidatingAdmissionPolicy limits its evictions to its own
+node.
 
 ![Sequence: a host rollout](../diagrams/png/seq-host-rollout.png)
 
 ## States of the host applier
 
-A reboot is needed only when the new generation's kernel or initrd differs from
-the booted one. The maintenance window gates when a reboot starts. An unhealthy
-node boots its previous generation and halts the rollout.
+The applier decides whether a change needs a reboot before it takes the Lease,
+by comparing the fetched closure's kernel, initrd, kernel modules, kernel
+parameters and device trees with the booted ones (D11).
+
+- **A reboot change** is staged with `switch-to-configuration boot`. The Lease
+  and the drain happen only once the window opens, so no node sits drained
+  waiting for it.
+- **A live change** goes `test`, then a health check, then `boot`, so a failed
+  health check leaves the previous generation as the boot default.
+- **Falling back** depends on the bootloader: the saved default and
+  `grub-reboot` with GRUB on the Contabo VPS, boot counting with systemd-boot,
+  and a documented reflash on the Raspberry Pis, which have no boot assessment.
+
+An unhealthy node returns to its previous generation and halts the rollout.
 
 ![States of the host applier](../diagrams/png/state-host-applier.png)
 
@@ -46,7 +64,9 @@ node boots its previous generation and halts the rollout.
 The order is derived from what the rollout changes:
 
 - **The k3s version changes:** the control plane first, inside its window, then
-  one canary worker, then the remaining workers.
+  one canary worker, then the remaining workers. A minor bump on the control
+  plane needs a fresh datastore snapshot and an Operator's approval first,
+  because rolling back the generation does not roll back the datastore.
 - **Only the OS or host services change:** one canary worker, then the
   remaining workers, then the control plane last.
 
@@ -62,12 +82,18 @@ likewise upgrades servers before agents.
 
 `frankfurt-contabo-1` is the only control-plane node. While it switches or
 reboots, inside its window, the API pauses: workloads keep serving, but Flux,
-Flagger and the service wait. Moving to three servers is a separate decision.
+Flagger and the service wait. Its k3s datastore is one SQLite file; a timer
+copies a backup of it, with the server token, off the provider, and a restore
+runbook rebuilt on nixos-anywhere has been drilled in a VM (D5). Vault on the
+same node unseals itself through a cloud KMS (D6). Moving to three servers is a
+separate decision.
 
 ## When the cluster is down
 
-The host tags cannot move, and the Lease cannot be taken. A documented
-break-glass command switches one node to a given generation by hand.
+The host tags cannot move, and the Lease cannot be taken. Break-glass uses
+deploy-rs, with targets generated from host data, to switch one node to a
+signed generation; nixos-anywhere enrols or rebuilds a node from the same
+targets.
 
 ## Where the host parts run
 

@@ -1,14 +1,15 @@
-%% title: Reuse a render from the registry
+%% title: Skip publishing an unchanged render
 sequenceDiagram
     autonumber
     participant S as estate-kit service
+    participant R as compiler binary
     participant O as ghcr
-    participant R as Rust binary
-    S->>S: render key from the input digests
-    S->>O: a render with this key?
-    alt found
-        O-->>S: reuse it
-    else not found
-        O-->>S: no such render
-        S->>R: render this Project
+    S->>R: render this Project
+    R-->>S: render, digest
+    S->>O: digest behind render/#lt#59;p#gt#59;:prod?
+    O-->>S: current digest
+    alt same digest
+        S->>S: publish nothing, move nothing, record why
+    else different digest
+        S->>O: push, sign, move the tag after the dry-run
     end

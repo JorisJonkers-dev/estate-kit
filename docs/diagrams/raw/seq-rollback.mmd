@@ -1,13 +1,19 @@
-%% title: Roll back a Project from the UI
+%% title: Roll back a Project: the fast path signs and composes nothing
 sequenceDiagram
     autonumber
     actor Op as Operator
     participant S as estate-kit service
+    participant K as API server
+    participant O as ghcr
     participant GH as GitHub
-    participant CI as deploy job, watch mode
-    Op->>S: roll back, with notes
-    S->>GH: dispatch deploy
-    GH->>CI: run starts
-    CI->>S: watch (GitHub OIDC token)
-    S-->>CI: events until settled
-    CI->>GH: Deployment status
+    Op->>S: roll back
+    S->>K: dry-run the last Serving render
+    alt dry-run accepted
+        K-->>S: accepted
+        S->>O: move the prod tag back (compare-and-swap)
+        S->>K: set the Project to Paused
+        S-->>Op: rolled back, Paused
+    else dry-run rejected
+        K-->>S: rejected
+        S->>GH: dispatch deploy in watch mode: re-compose
+    end

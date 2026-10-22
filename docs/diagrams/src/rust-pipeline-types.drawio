@@ -141,7 +141,7 @@
             </mxGeometry>
           </mxCell>
         </UserObject>
-        <mxCell id="header" value="Rust: the types that cross the pipeline's seams" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=light-dark(#1a1a1a,#e8e8e8);fontFamily=Helvetica;" vertex="1" parent="1">
+        <mxCell id="header" value="Rust: the types that cross the pipeline's seams (a possible 1.0 port)" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=light-dark(#1a1a1a,#e8e8e8);fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="8" y="-56" width="1489" height="36" as="geometry" />
         </mxCell>
       </root>

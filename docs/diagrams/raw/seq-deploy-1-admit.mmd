@@ -2,7 +2,7 @@
 sequenceDiagram
     autonumber
     participant CI as deploy job
-    participant R as Rust binary
+    participant R as compiler binary
     participant O as ghcr
     participant S as estate-kit service
     CI->>R: validate offline
