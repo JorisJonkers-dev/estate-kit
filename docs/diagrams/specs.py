@@ -329,3 +329,75 @@ grid("components",
       ("service", "ui", "serves"), ("applier", "nodes", "switches"), ("service", "applier", "host tags, pulled")],
      boxes=[("components, one image each", 0, 3, 2, 3)],
      cw=320, rh=120, w=220, h=56)
+
+# C4 level 1: the system and everything around it.
+grid("c4-context",
+     [("author", "Application author", "", 0, 0), ("gh", "GitHub: repos, Actions, Deployments", "", 1, 0), ("ghcr", "ghcr", DATA, 2, 0),
+      ("op", "Operator, Admin", "", 0, 1), ("ek", "estate-kit", ACCENT, 1, 1), ("vault", "Vault", "", 2, 1),
+      ("idp", "auth-api", "", 0, 2), ("k8s", "Kubernetes: Flux, Flagger, API", "", 1, 2), ("stal", "Stalwart", "", 2, 2),
+      ("cache", "binary cache", DATA, 0, 3), ("nodes", "NixOS nodes", "", 1, 3), ("obs", "Tempo, Loki, Grafana: traces, logs", "", 2, 3)],
+     [("author", "gh", "pushes, releases"), ("gh", "ek", "deploy calls (OIDC)"), ("op", "ek", "UI"),
+      ("idp", "ek", "sign-in", "exitX=1;exitY=0.5;entryX=0;entryY=0.85;"),
+      ("ek", "ghcr", "renders, tags", "exitX=1;exitY=0.15;entryX=0;entryY=0.5;"),
+      ("vault", "ek", "signs", "exitX=0;exitY=0.5;entryX=1;entryY=0.5;"),
+      ("ek", "stal", "mailboxes", "exitX=1;exitY=0.85;entryX=0;entryY=0.5;"),
+      ("ek", "k8s", "dry-run, status"), ("k8s", "nodes", "runs on"), ("cache", "nodes", "closures")],
+     cw=380, rh=130, w=250, h=60)
+
+# C4 level 2: the containers and the protocol on each edge.
+grid("c4-containers",
+     [("pg", "Postgres: event log", DATA, 0, 0), ("ui", "UI (Vue, embedded)", "", 1, 0), ("ghcr", "ghcr", DATA, 2, 0),
+      ("cli", "estate-kit CLI (Rust) in CI", "", 0, 1), ("svc", "service (Go)", ACCENT, 1, 1), ("comp", "compiler subprocess (Rust)", "", 2, 1),
+      ("applier", "host applier (Go, systemd)", "", 0, 2), ("api", "Kubernetes API", "", 1, 2), ("vault", "Vault Transit", "", 2, 2),
+      ("comps", "components: migration-runner, secret-job, mail-provisioner", "", 1, 3)],
+     [("cli", "svc", "HTTPS + SSE (OpenAPI 3.1)"), ("ui", "svc", "HTTPS, same origin"),
+      ("svc", "comp", "exec: dir in, result.json out"), ("svc", "api", "dry-run, status"),
+      ("svc", "pg", "SQL", "exitX=0;exitY=0.15;entryX=1;entryY=0.5;"),
+      ("svc", "ghcr", "OCI distribution", "exitX=1;exitY=0.15;entryX=0;entryY=0.5;"),
+      ("svc", "vault", "Transit sign", "exitX=1;exitY=0.85;entryX=0;entryY=0.5;"),
+      ("applier", "api", "Lease, Eviction API"), ("comps", "api", "watch custom resources")],
+     cw=490, rh=140, w=270, h=60)
+
+# Trust boundaries.
+grid("trust-boundaries",
+     [("runner", "GitHub runner", "", 0, 0), ("browser", "operator's browser", "", 0, 1),
+      ("edge", "Traefik edge", "", 1, 0), ("svc", "service", ACCENT, 2, 0), ("vault", "Vault", "", 3, 0),
+      ("api", "Kubernetes API", "", 2, 1), ("node", "host applier", "", 2, 2),
+      ("ghcr", "ghcr", DATA, 4, 1), ("cache", "binary cache", DATA, 4, 2)],
+     [("runner", "edge", "GitHub OIDC JWT"), ("browser", "edge", "auth-api session", "exitX=1;exitY=0.5;entryX=0.5;entryY=1;"),
+      ("edge", "svc", "TLS"), ("svc", "vault", "SA token"), ("svc", "api", "SA token"),
+      ("svc", "ghcr", "App token", "exitX=1;exitY=0.85;entryX=0;entryY=0.5;"),
+      ("node", "api", "node identity"), ("node", "cache", "Nix signature check")],
+     boxes=[("internet", 0, 0, 0, 1), ("cluster", 1, 0, 3, 2), ("outside the cluster", 4, 1, 4, 2)],
+     cw=360, rh=130, w=210, h=56)
+
+# Failure paths.
+seq("seq-fail-retry",
+    [("CI", "deploy job"), ("S", "Service"), ("DB", "event log")],
+    [("CI", "S", "deploy (project, fragment digest)", False), ("S", "DB", "rollout created", False),
+     ("S", "CI", "response lost (timeout)", True), ("CI", "S", "retry: same project and digest", False),
+     ("S", "DB", "find existing rollout", False), ("S", "CI", "same rollout id, no second run", True)])
+seq("seq-fail-stream",
+    [("CI", "deploy job"), ("S", "Service"), ("DB", "event log")],
+    [("S", "CI", "events 1 to 41", True), ("CI", "CI", "connection drops", False),
+     ("CI", "S", "watch, resume after 41", False), ("S", "DB", "events since 41", False),
+     ("S", "CI", "events 42 onwards (duplicates dropped)", True)])
+seq("seq-fail-dryrun",
+    [("S", "Service"), ("K", "API server"), ("DB", "event log"), ("CI", "deploy job")],
+    [("S", "K", "apply, dryRun=All", False), ("K", "S", "rejected: immutable field", True),
+     ("S", "DB", "Refused event, Project isolated", False), ("S", "CI", "problem+json, model path", True),
+     ("CI", "CI", "annotate the YAML line, fail the job", False)])
+seq("seq-fail-host-crash",
+    [("A", "host applier"), ("K", "API server"), ("A2", "host applier (restarted)")],
+    [("A", "K", "take Lease, cordon, evict", False), ("A", "A", "crashes before switching", False),
+     ("A2", "K", "Lease still mine? node cordoned?", False), ("A2", "A2", "resume: switch, health check", False),
+     ("A2", "K", "uncordon, release Lease", False)])
+
+# Bounded contexts and how they relate.
+grid("context-map",
+     [("compiler", "Compiler context: the model", ACCENT, 0, 0), ("service", "Service context: rollouts", ACCENT, 1, 0),
+      ("applier", "Host applier context: generations", ACCENT, 1, 1), ("components", "Component contexts: migrations, secrets, mail", ACCENT, 0, 1)],
+     [("compiler", "service", "result.json (customer/supplier)"),
+      ("compiler", "applier", "host data via anticorruption layer", "exitX=1;exitY=0.85;entryX=0;entryY=0.5;"),
+      ("compiler", "components", "rendered custom resources")],
+     cw=520, rh=170, w=300, h=70)
