@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import io
 import struct
 import tempfile
@@ -11,9 +12,12 @@ from pathlib import Path
 
 from scripts.check_diagrams import PNG_SIGNATURE, check, embedded_xml, main, regenerate, same_xml
 
-SOURCE = '<mxfile><diagram name="a"><mxGraphModel><root><mxCell id="0"/></root></mxGraphModel></diagram></mxfile>'
+SOURCE = "sequenceDiagram\n    A->>B: hello\n"
+BUILT = '<mxfile><diagram name="a"><mxGraphModel><root><mxCell id="0"/></root></mxGraphModel></diagram></mxfile>'
 SPECS = f"""
-open("a.drawio", "w").write({SOURCE!r})
+import os
+os.makedirs("raw", exist_ok=True)
+open("raw/a.mmd", "w").write({SOURCE!r})
 """
 
 
@@ -21,25 +25,36 @@ def chunk(kind: bytes, data: bytes) -> bytes:
     return struct.pack(">I", len(data)) + kind + data + b"\0\0\0\0"
 
 
-def png(xml: str | None, keyword: bytes = b"mxGraphModel") -> bytes:
-    """A PNG as draw.io exports it: the XML URL-encoded, raw-deflated, in a zTXt chunk."""
+def png(xml: str | None, keyword: bytes = b"mxGraphModel", raw_deflate: bool = False) -> bytes:
+    """A PNG as draw.io exports it: the XML URL-encoded and compressed in a zTXt chunk."""
     body = chunk(b"IHDR", b"\0" * 13)
     if xml is not None:
-        deflate = zlib.compressobj(wbits=-15)
-        packed = deflate.compress(urllib.parse.quote(xml).encode()) + deflate.flush()
+        data = urllib.parse.quote(xml).encode()
+        if raw_deflate:
+            deflate = zlib.compressobj(wbits=-15)
+            packed = deflate.compress(data) + deflate.flush()
+        else:
+            packed = zlib.compress(data)
         body += chunk(b"zTXt", keyword + b"\0\0" + packed)
     return PNG_SIGNATURE + body + chunk(b"IEND", b"")
 
 
+def sha(text: str) -> str:
+    return hashlib.sha256(text.encode()).hexdigest()
+
+
 class ReadingAnExport(unittest.TestCase):
     def test_the_embedded_xml_is_read_back(self) -> None:
-        self.assertEqual(embedded_xml(png(SOURCE)), SOURCE)
+        self.assertEqual(embedded_xml(png(BUILT)), BUILT)
+
+    def test_a_raw_deflate_stream_from_older_draw_io_is_read_back(self) -> None:
+        self.assertEqual(embedded_xml(png(BUILT, raw_deflate=True)), BUILT)
 
     def test_a_png_without_the_chunk_embeds_nothing(self) -> None:
         self.assertIsNone(embedded_xml(png(None)))
 
     def test_a_ztxt_chunk_under_another_keyword_is_not_the_diagram(self) -> None:
-        self.assertIsNone(embedded_xml(png(SOURCE, keyword=b"Comment")))
+        self.assertIsNone(embedded_xml(png(BUILT, keyword=b"Comment")))
 
     def test_a_file_that_is_not_a_png_embeds_nothing(self) -> None:
         self.assertIsNone(embedded_xml(b"GIF89a"))
@@ -56,55 +71,87 @@ class Diagrams(unittest.TestCase):
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
         self.dir = Path(tmp.name)
-        (self.dir / "src").mkdir()
-        (self.dir / "png").mkdir()
+        for sub in ("raw", "src", "png"):
+            (self.dir / sub).mkdir()
         (self.dir / "specs.py").write_text(SPECS)
-        self.write("a", SOURCE, png(SOURCE))
+        self.add("a", ".mmd", SOURCE, BUILT)
 
-    def write(self, name: str, source: str | None, image: bytes | None) -> None:
-        if source is not None:
-            (self.dir / "src" / f"{name}.drawio").write_text(source)
-        if image is not None:
-            (self.dir / "png" / f"{name}.png").write_bytes(image)
+    def add(self, stem: str, suffix: str, source: str, built: str, lock: bool = True) -> None:
+        (self.dir / "raw" / f"{stem}{suffix}").write_text(source)
+        (self.dir / "src" / f"{stem}.drawio").write_text(built)
+        (self.dir / "png" / f"{stem}.png").write_bytes(png(built))
+        if lock:
+            with (self.dir / "diagrams.lock").open("a") as f:
+                f.write(f"{stem} {sha(source)} {sha(built)}\n")
 
-    def failures(self) -> list[str]:
-        return check(self.dir, regenerate(self.dir))
+    def failures(self) -> str:
+        return "\n".join(check(self.dir, regenerate(self.dir)))
 
     def test_diagrams_in_step_pass(self) -> None:
-        self.assertEqual(self.failures(), [])
+        self.assertEqual(self.failures(), "")
 
-    def test_a_hand_edited_source_fails(self) -> None:
-        self.write("a", SOURCE.replace('id="0"', 'id="9"'), None)
-        [failure] = [f for f in self.failures() if "src" in f and "differs" in f]
-        self.assertIn("never edit the XML", failure)
+    def test_a_lock_comment_is_ignored(self) -> None:
+        with (self.dir / "diagrams.lock").open("a") as f:
+            f.write("# a comment\n\n")
+        self.assertEqual(self.failures(), "")
+
+    def test_a_source_edited_by_hand_fails(self) -> None:
+        (self.dir / "raw" / "a.mmd").write_text(SOURCE + "    B->>A: hi\n")
+        failures = self.failures()
+        self.assertIn("differs from what specs.py generates", failures)
+        self.assertIn("changed since build.py last ran", failures)
 
     def test_a_declared_source_not_committed_fails(self) -> None:
-        (self.dir / "src" / "a.drawio").unlink()
-        self.assertIn("not committed", " ".join(self.failures()))
+        (self.dir / "raw" / "a.mmd").unlink()
+        self.assertIn("not committed", self.failures())
 
     def test_a_source_specs_does_not_declare_fails(self) -> None:
-        self.write("b", SOURCE, png(SOURCE))
-        self.assertIn("does not declare it", " ".join(self.failures()))
+        self.add("b", ".drawio", BUILT, BUILT)
+        self.assertIn("does not declare it", self.failures())
 
     def test_a_metamodel_source_need_not_be_declared(self) -> None:
-        self.write("mm-core", SOURCE, png(SOURCE))
-        self.assertEqual(self.failures(), [])
+        self.add("mm-core", ".mmd", SOURCE, BUILT)
+        self.assertEqual(self.failures(), "")
+
+    def test_a_source_never_built_fails(self) -> None:
+        self.add("mm-new", ".mmd", SOURCE, BUILT, lock=False)
+        self.assertIn("not in diagrams.lock", self.failures())
+
+    def test_a_missing_built_file_fails(self) -> None:
+        (self.dir / "src" / "a.drawio").unlink()
+        self.assertIn("missing; run build.py", self.failures())
+
+    def test_a_built_file_edited_by_hand_fails(self) -> None:
+        edited = BUILT.replace('id="0"', 'id="9"')
+        (self.dir / "src" / "a.drawio").write_text(edited)
+        (self.dir / "png" / "a.png").write_bytes(png(edited))
+        self.assertIn("never edit the XML", self.failures())
+
+    def test_a_lock_entry_without_a_source_fails(self) -> None:
+        with (self.dir / "diagrams.lock").open("a") as f:
+            f.write(f"gone {sha('x')} {sha('y')}\n")
+        self.assertIn("gone has no source", self.failures())
+
+    def test_a_built_file_without_a_source_fails(self) -> None:
+        (self.dir / "src" / "c.drawio").write_text(BUILT)
+        (self.dir / "png" / "c.png").write_bytes(png(BUILT))
+        self.assertIn("c.drawio: has no source", self.failures())
 
     def test_a_missing_png_fails(self) -> None:
         (self.dir / "png" / "a.png").unlink()
-        self.assertIn("missing; export it", " ".join(self.failures()))
+        self.assertIn("a.png: missing", self.failures())
 
     def test_a_png_without_embedded_xml_fails(self) -> None:
-        self.write("a", None, png(None))
-        self.assertIn("embeds no draw.io XML", " ".join(self.failures()))
+        (self.dir / "png" / "a.png").write_bytes(png(None))
+        self.assertIn("embeds no draw.io XML", self.failures())
 
     def test_a_stale_png_fails(self) -> None:
-        self.write("a", None, png(SOURCE.replace('id="0"', 'id="9"')))
-        self.assertIn("shows a different diagram", " ".join(self.failures()))
+        (self.dir / "png" / "a.png").write_bytes(png(BUILT.replace('id="0"', 'id="9"')))
+        self.assertIn("shows a different diagram", self.failures())
 
-    def test_a_png_without_a_source_fails(self) -> None:
-        self.write("c", None, png(SOURCE))
-        self.assertIn("has no source", " ".join(self.failures()))
+    def test_a_png_without_a_built_file_fails(self) -> None:
+        (self.dir / "png" / "d.png").write_bytes(png(BUILT))
+        self.assertIn("d.png: has no source", self.failures())
 
     def test_main_reports_failures_as_error_annotations(self) -> None:
         (self.dir / "png" / "a.png").unlink()
@@ -118,6 +165,16 @@ class Diagrams(unittest.TestCase):
         with redirect_stdout(out):
             self.assertEqual(main(["--dir", str(self.dir)]), 0)
         self.assertIn("1 diagrams are in step", out.getvalue())
+
+
+class AnEmptyDirectory(unittest.TestCase):
+    def test_no_raw_directory_reports_every_declared_source_missing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            (d / "specs.py").write_text(SPECS)
+            (d / "src").mkdir()
+            (d / "png").mkdir()
+            self.assertIn("not committed", "\n".join(check(d, regenerate(d))))
 
 
 if __name__ == "__main__":

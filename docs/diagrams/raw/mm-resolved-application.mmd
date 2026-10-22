@@ -1,0 +1,61 @@
+%% title: Resolved Deployment: an Application and its Release Gate
+classDiagram
+    direction LR
+    class ResolvedApplication {
+        id: String
+        revision: String
+        project: String
+        namespace: String
+        alertClass: String
+        secretStore: String
+        reconcileUnit: ReconcileUnit [1]
+    }
+    class ResolvedScrape {
+        surface: String
+        path: String
+        interval: String
+        timeout: String
+        process: ResolvedProcess [1]
+    }
+    class ResolvedMigration {
+        runner: String
+        runnerVersion: String
+        testedAgainst: String
+        nonTransactional: BoolObject
+        uid: Int
+        gid: Int
+        identity: String
+        deadline: String
+    }
+    class MigratedDatabase {
+        host: String
+        port: Int
+        name: String
+    }
+    class ReleaseGate {
+        endpoint: String
+        deadline: String
+    }
+    class GateMigration {
+        identity: String
+        testedAgainst: String
+        nonTransactional: BoolObject
+    }
+    class GateAnalysis {
+        interval: String
+        iterations: Int
+        threshold: Int
+        errorRate: String
+        latency: String
+    }
+    class GateMember {
+        checks: AnalysisCheck [*]
+        process: ResolvedProcess [1]
+    }
+    ResolvedApplication *-- "0..1" ReleaseGate : releaseGate
+    ResolvedApplication *-- "0..1" ResolvedMigration : migration
+    ResolvedApplication *-- "0..1" ResolvedScrape : scrape
+    ResolvedMigration *-- "1" MigratedDatabase : database
+    ReleaseGate *-- "1" GateAnalysis : analysis
+    ReleaseGate *-- "1..*" GateMember : members
+    ReleaseGate *-- "0..1" GateMigration : migration

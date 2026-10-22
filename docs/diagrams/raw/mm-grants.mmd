@@ -1,0 +1,47 @@
+%% title: Project Intent: grants
+classDiagram
+    direction LR
+    class Grant {
+        <<abstract>>
+        delivery: Delivery
+        mountAt: String
+        fileMode: String
+    }
+    class KvGrant {
+        path: String
+        access: AccessTier
+    }
+    class KvKey {
+        <<abstract>>
+        name: String
+    }
+    class PlainKey {
+    }
+    class GeneratedKey {
+    }
+    class Generate {
+        bytes: IntegerObject
+        encoding: KeyEncoding
+        adopt: String
+    }
+    class DatabaseGrant {
+        engine: DatabaseEngine
+        role: String
+    }
+    class TransitGrant {
+        engine: TransitEngine
+        key: String
+        operations: TransitOp [*]
+    }
+    class Rotation {
+        tolerates: Tolerance
+        maxAge: String
+    }
+    Grant *-- "1" Rotation : rotation
+    KvGrant *-- "1..*" KvKey : keys
+    KvGrant --|> Grant
+    PlainKey --|> KvKey
+    GeneratedKey *-- "1" Generate : generate
+    GeneratedKey --|> KvKey
+    DatabaseGrant --|> Grant
+    TransitGrant --|> Grant

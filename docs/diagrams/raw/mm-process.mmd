@@ -1,0 +1,53 @@
+%% title: Project Intent: what a Process needs
+classDiagram
+    direction LR
+    class Process {
+        extends SharedIntent
+        name: String
+        lifecycle: Lifecycle
+        image: String
+        runtime: Runtime
+        engine: Engine
+    }
+    class Surface {
+        key: String
+        value: IntegerObject
+    }
+    class Placement {
+        memory: String
+        cpu: String
+        arch: Arch [*]
+        site: String
+        capabilities: String [*]
+    }
+    class DiskRequest {
+        media: Media [*]
+    }
+    class GpuRequest {
+        class: String
+        memory: String
+        vendor: String [*]
+        model: String [*]
+    }
+    class Sidecar {
+        name: String
+        image: String
+        memory: String
+        cpu: String
+    }
+    class Volume {
+        claim: String
+        mountAt: String
+        size: String
+        durability: DurabilityClass
+    }
+    class Capacity {
+        count: IntegerObject
+        reason: String
+    }
+    Process *-- "0..*" Surface : provides
+    Process *-- "0..*" Sidecar : sidecars
+    Process *-- "0..*" Volume : volumes
+    Process *-- "0..1" Capacity : replicas
+    Placement *-- "0..1" DiskRequest : disk
+    Placement *-- "0..1" GpuRequest : gpu

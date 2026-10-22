@@ -1,0 +1,32 @@
+%% title: New: host data, rendered per node
+classDiagram
+    direction LR
+    class HostNode {
+        name: NodeName
+        arch: Arch
+        roles: HostRole [*]
+        totals, reserve
+        capabilities, taints
+    }
+    class HostData {
+        node: NodeName
+        roles, labels, taints
+        services: HostService [*]
+        window: MaintenanceWindow
+        rebootPolicy: RebootPolicy
+    }
+    class MaintenanceWindow {
+        start: LocalTime
+        end: LocalTime
+        days: Weekday [*]
+    }
+    HostNode *-- "0..1" MaintenanceWindow : window
+    HostData --> "1" HostNode : from
+    note for HostNode "new: added by estate-kit"
+    note for HostData "new: added by estate-kit"
+    note for MaintenanceWindow "new: added by estate-kit"
+    note "Key: amber is changed, red is removed, green is new#59; the rest carries over"
+    classDef good fill:#0000a3,stroke:#0000b3
+    class HostNode:::good
+    class HostData:::good
+    class MaintenanceWindow:::good

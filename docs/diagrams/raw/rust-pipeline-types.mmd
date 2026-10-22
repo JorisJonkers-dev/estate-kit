@@ -1,0 +1,41 @@
+%% title: Rust: the types that cross the pipeline's seams
+classDiagram
+    direction TB
+    class PinnedInputSet {
+        fragments: BTreeMap#lt;ProjectName, Pinned#lt;ProjectIntent#gt;#gt;
+        platform: Pinned#lt;PlatformIntent#gt;
+        cluster_state: Pinned#lt;ClusterState#gt;
+        render_key(project) RenderKey
+    }
+    class Hasher {
+        <<trait>>
+        digest(bytes) Digest
+    }
+    class ResolvedDeployment {
+        applications: BTreeMap#lt;ApplicationId, ResolvedApplication#gt;
+        trace: Trace
+    }
+    class Adapter {
+        <<trait>>
+        render(ResolvedDeployment) Result#lt;Vec#lt;Deliverable#gt;, Vec#lt;Diagnostic#gt;#gt;
+    }
+    class Deliverable {
+        path: OutputPath
+        object: KubeObject
+        source: ElementRef
+    }
+    class Diagnostic {
+        code: Code
+        severity: Severity
+        file: SourceFile
+        path: ModelPath
+        message: String
+        help: String
+    }
+    PinnedInputSet ..> Hasher : digests through
+    Adapter ..> ResolvedDeployment : reads
+    Adapter ..> Deliverable : emits
+    Adapter ..> Diagnostic : or reports
+    classDef accent fill:#0000a1,stroke:#0000b1
+    class Hasher:::accent
+    class Adapter:::accent

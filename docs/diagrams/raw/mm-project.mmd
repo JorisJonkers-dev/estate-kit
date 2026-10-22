@@ -1,0 +1,35 @@
+%% title: Project Intent: Project, Application, Process
+classDiagram
+    direction LR
+    class Project {
+        apiVersion: String
+        kind: String
+        schemaVersion: String
+        project: String
+        owner: String
+    }
+    class Application {
+        id: String
+    }
+    class Process {
+        name: String
+        lifecycle: Lifecycle
+        image: String
+        runtime: Runtime
+        engine: Engine
+    }
+    class SharedIntent {
+        <<abstract>>
+        writablePaths: String [*]
+        startupBudget: String
+        cutover: Cutover
+    }
+    Project *-- "1..*" Application : applications
+    Project --|> SharedIntent
+    Application *-- "1..*" Process : processes
+    Application --|> SharedIntent
+    Process --|> SharedIntent
+    note for Application "changed: gains mail: the Mailboxes it declares"
+    note "Key: amber is changed, red is removed, green is new#59; the rest carries over"
+    classDef warn fill:#0000a5,stroke:#0000b5
+    class Application:::warn

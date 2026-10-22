@@ -1,0 +1,43 @@
+%% title: Rust: the authored model, as the read step produces it
+classDiagram
+    direction TB
+    class Project {
+        name: ProjectName
+        applications: BTreeMap#lt;ApplicationId, Application#gt;
+    }
+    class Application {
+        id: ApplicationId
+        processes: BTreeMap#lt;ProcessName, Process#gt;
+        exposures: Vec#lt;Exposure#gt;
+        dependencies: Vec#lt;DependencyEdge#gt;
+    }
+    class Process {
+        name: ProcessName
+        image: ImageAlias
+        lifecycle: Lifecycle
+        engine: Option#lt;Engine#gt;
+    }
+    class Exposure {
+        host: Hostname
+        audience: Audience
+        routes: Vec#lt;Route#gt;
+    }
+    class DependencyEdge {
+        to: ApplicationId
+        surface: SurfaceName
+    }
+    class Surface {
+        name: SurfaceName
+        port: Port
+    }
+    class Grant {
+        path: SecretPath
+        tier: AccessTier
+        delivery: Delivery
+    }
+    Project *-- "1..*" Application
+    Application *-- "1..*" Process
+    Application *-- "0..*" Exposure
+    Application *-- "0..*" DependencyEdge
+    Process *-- "0..*" Surface
+    Process *-- "0..*" Grant

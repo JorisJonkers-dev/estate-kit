@@ -1,0 +1,60 @@
+%% title: Resolved Deployment: a Process
+classDiagram
+    direction LR
+    class ResolvedProcess {
+        name: String
+        identity: String
+        lifecycle: String
+        image: String
+        imageVersion: String
+        uid: Int
+        gid: Int
+        cutover: Cutover
+    }
+    class ResolvedSurface {
+        name: String
+        port: Int
+    }
+    class ResolvedPlacement {
+        eligibleNodes: String [*]
+        boundTo: String
+        from: PinnedInput
+    }
+    class ResolvedVolume {
+        claim: String
+        mountAt: String
+        size: String
+        durability: DurabilityClass
+    }
+    class BackupPlan {
+        schedule: String
+        retain: Int
+        offCluster: String
+        method: String
+        methodVersion: String
+        uid: Int
+        gid: Int
+        identity: String
+    }
+    class BackupPeer {
+        host: String
+        port: Int
+    }
+    class ResolvedSidecar {
+        name: String
+        image: String
+        imageVersion: String
+        memory: String
+        cpu: String
+    }
+    class WritablePath {
+        path: String
+        size: String
+    }
+    ResolvedProcess *-- "0..*" ResolvedSurface : surfaces
+    ResolvedProcess *-- "1" ResolvedPlacement : placement
+    ResolvedProcess *-- "0..*" ResolvedVolume : volumes
+    ResolvedProcess *-- "0..*" ResolvedSidecar : sidecars
+    ResolvedProcess *-- "0..*" WritablePath : writablePaths
+    ResolvedVolume *-- "0..1" BackupPlan : backup
+    BackupPlan *-- "0..1" BackupPeer : peer

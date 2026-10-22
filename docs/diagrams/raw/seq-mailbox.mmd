@@ -1,0 +1,15 @@
+%% title: Provision a Mailbox
+sequenceDiagram
+    autonumber
+    participant S as estate-kit service
+    participant F as Flux
+    participant K as API server
+    participant M as mail provisioner
+    participant ST as Stalwart
+    participant V as Vault
+    S->>F: Project render with Mailbox objects
+    F->>K: apply the Mailbox
+    M->>K: watch Mailboxes by label
+    M->>V: read the generated password
+    M->>ST: create or update the account
+    M->>K: write status

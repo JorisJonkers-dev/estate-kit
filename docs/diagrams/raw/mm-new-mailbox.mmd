@@ -1,0 +1,39 @@
+%% title: New: Mailboxes
+classDiagram
+    direction LR
+    class Application {
+        extends SharedIntent
+        id: String
+    }
+    class Mailbox {
+        local: LocalPart
+    }
+    class ResolvedMailbox {
+        address: EmailAddress
+        sharedBy: ApplicationId [*]
+    }
+    class ResolvedGeneratedKey {
+        path: String
+        key: String
+        bytes: Int
+        encoding: String
+        adoptPath: String
+        adoptKey: String
+    }
+    class MailboxFile {
+        extends Deliverable
+        a Mailbox custom resource
+    }
+    Application *-- "*" Mailbox : mail
+    ResolvedMailbox --> "1" ResolvedGeneratedKey : password
+    note for Application "changed: gains mail: the Mailboxes it declares"
+    note for Mailbox "new: added by estate-kit"
+    note for ResolvedMailbox "new: added by estate-kit"
+    note for MailboxFile "new: added by estate-kit"
+    note "Key: amber is changed, red is removed, green is new#59; the rest carries over"
+    classDef good fill:#0000a3,stroke:#0000b3
+    classDef warn fill:#0000a5,stroke:#0000b5
+    class Application:::warn
+    class Mailbox:::good
+    class ResolvedMailbox:::good
+    class MailboxFile:::good

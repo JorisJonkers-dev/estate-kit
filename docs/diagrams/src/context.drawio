@@ -1,1 +1,76 @@
-<mxfile><diagram name="context"><mxGraphModel background="#1e1e1e"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="c1" value="Project CI" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;" vertex="1" parent="1"><mxGeometry x="155.0" y="95.0" width="200" height="60" as="geometry"/></mxCell><mxCell id="c2" value="estate-kit service" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;fillColor=#1f3a5f;strokeColor=#7aa7e0;" vertex="1" parent="1"><mxGeometry x="585.0" y="95.0" width="200" height="60" as="geometry"/></mxCell><mxCell id="c3" value="ghcr" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;fillColor=#3a3220;strokeColor=#c9a74a;" vertex="1" parent="1"><mxGeometry x="1015.0" y="95.0" width="200" height="60" as="geometry"/></mxCell><mxCell id="c4" value="Flux" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;" vertex="1" parent="1"><mxGeometry x="1445.0" y="95.0" width="200" height="60" as="geometry"/></mxCell><mxCell id="c5" value="estate repo" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;" vertex="1" parent="1"><mxGeometry x="585.0" y="225.0" width="200" height="60" as="geometry"/></mxCell><mxCell id="c6" value="Project workloads" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;" vertex="1" parent="1"><mxGeometry x="1445.0" y="225.0" width="200" height="60" as="geometry"/></mxCell><mxCell id="c7" value="deploy (OIDC)" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;edgeStyle=orthogonalEdgeStyle;rounded=1;endArrow=block;endFill=1;endSize=9;" edge="1" parent="1" source="c1" target="c2"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="c8" value="signed render, prod tag" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;edgeStyle=orthogonalEdgeStyle;rounded=1;endArrow=block;endFill=1;endSize=9;" edge="1" parent="1" source="c2" target="c3"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="c9" value="pulls" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;edgeStyle=orthogonalEdgeStyle;rounded=1;endArrow=block;endFill=1;endSize=9;" edge="1" parent="1" source="c4" target="c3"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="c10" value="Platform Intent" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;edgeStyle=orthogonalEdgeStyle;rounded=1;endArrow=block;endFill=1;endSize=9;" edge="1" parent="1" source="c5" target="c2"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="c11" value="applies" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;edgeStyle=orthogonalEdgeStyle;rounded=1;endArrow=block;endFill=1;endSize=9;" edge="1" parent="1" source="c4" target="c6"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell></root></mxGraphModel></diagram></mxfile>
+<mxfile>
+  <diagram name="context" id="context">
+    <mxGraphModel grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="0" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ci" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="Project CI" vertex="1">
+          <mxGeometry height="56" width="160" x="21" y="12" as="geometry" />
+        </mxCell>
+        <mxCell id="estate" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="estate repository" vertex="1">
+          <mxGeometry height="56" width="169" x="12" y="108" as="geometry" />
+        </mxCell>
+        <mxCell id="svc" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="estate-kit service" vertex="1">
+          <mxGeometry height="56" width="176" x="445" y="21" as="geometry" />
+        </mxCell>
+        <mxCell id="ghcr" parent="1" style="shape=cylinder3;size=10;boundedLbl=1;backgroundOutline=1;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="ghcr" vertex="1">
+          <mxGeometry height="74" width="150" x="930" y="24" as="geometry" />
+        </mxCell>
+        <mxCell id="flux" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="Flux" vertex="1">
+          <mxGeometry height="56" width="160" x="461" y="117" as="geometry" />
+        </mxCell>
+        <mxCell id="work" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="Project workloads" vertex="1">
+          <mxGeometry height="56" width="169" x="930" y="138" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="ci" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.5;entryX=0;entryY=0.3393;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="svc" value="deploy (OIDC)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="313" y="40" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="estate" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.5;entryX=0;entryY=0.6607;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="svc" value="Platform Intent">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-39" as="offset" />
+            <Array as="points">
+              <mxPoint x="371" y="136" />
+              <mxPoint x="371" y="58" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="svc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.5;entryX=0;entryY=0.3378;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="ghcr" value="signed render, prod tag">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="775.5" y="49" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="flux" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.3393;entryX=0;entryY=0.6622;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="ghcr" value="pulls">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-8.5" as="offset" />
+            <Array as="points">
+              <mxPoint x="637" y="136" />
+              <mxPoint x="637" y="113" />
+              <mxPoint x="856" y="113" />
+              <mxPoint x="856" y="73" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="flux" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.6607;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="work" value="applies">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="6" as="offset" />
+            <Array as="points">
+              <mxPoint x="637" y="154" />
+              <mxPoint x="637" y="166" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="header" value="Context: how a release reaches the cluster" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=light-dark(#1a1a1a,#e8e8e8);fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="12" y="-52" width="1087" height="36" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

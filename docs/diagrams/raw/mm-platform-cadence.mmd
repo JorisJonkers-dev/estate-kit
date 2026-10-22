@@ -1,0 +1,35 @@
+%% title: Platform Intent: cadences
+classDiagram
+    direction LR
+    class Platform {
+        apiVersion: String
+        kind: String
+        schemaVersion: String
+        owner: String
+        hardening: HardeningClass
+        secretStore: Application [0..1]
+    }
+    class MonitorCadence {
+        interval: String
+        timeout: String
+    }
+    class TelemetryPolicy {
+        collector: Application [1]
+        metrics: Application [1]
+    }
+    class ProbeCadence {
+        period: String
+        timeout: String
+        failures: IntegerObject
+    }
+    class EphemeralPolicy {
+        size: String
+    }
+    Platform *-- "1" MonitorCadence : monitors
+    Platform *-- "0..1" TelemetryPolicy : telemetry
+    Platform *-- "1" ProbeCadence : probes
+    Platform *-- "1" EphemeralPolicy : ephemeral
+    note for Platform "changed: gains admittedProjects and uiRoles"
+    note "Key: amber is changed, red is removed, green is new#59; the rest carries over"
+    classDef warn fill:#0000a5,stroke:#0000b5
+    class Platform:::warn

@@ -1,0 +1,14 @@
+%% title: Nightly drift check
+sequenceDiagram
+    autonumber
+    participant S as estate-kit service, nightly
+    participant G as GitHub
+    participant O as ghcr
+    participant DB as service cache
+    S->>G: latest release of each admitted repository
+    S->>O: latest fragment and prod tag
+    S->>DB: cached copies
+    S->>S: compare all three
+    opt they differ
+        S->>G: report the drift as an issue or a check
+    end

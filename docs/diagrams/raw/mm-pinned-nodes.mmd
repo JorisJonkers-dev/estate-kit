@@ -1,0 +1,40 @@
+%% title: Pinned inputs: the node contract
+classDiagram
+    direction LR
+    class NodeContract {
+        apiVersion: String
+        kind: String
+        schemaVersion: String
+        cluster: String
+        labelPrefix: String
+    }
+    class Node {
+        name: String
+        site: String
+        arch: String
+        capabilities: String [*]
+    }
+    class Allocatable {
+        cpu: String
+        memory: String
+    }
+    class Gpu {
+        vendor: String
+        model: String
+        class: String
+        memoryMib: Int
+    }
+    class Disk {
+        media: String
+        usableGib: Int
+    }
+    NodeContract *-- "1..*" Node : nodes
+    Node *-- "1" Allocatable : allocatable
+    Node *-- "0..*" Gpu : gpus
+    Node *-- "0..*" Disk : disks
+    note for NodeContract "changed: derived from Infrastructure Intent"
+    note for Node "changed: derived from Infrastructure Intent"
+    note "Key: amber is changed, red is removed, green is new#59; the rest carries over"
+    classDef warn fill:#0000a5,stroke:#0000b5
+    class NodeContract:::warn
+    class Node:::warn

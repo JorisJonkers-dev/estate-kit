@@ -1,0 +1,18 @@
+%% title: Roll out a host change, one node at a time
+sequenceDiagram
+    autonumber
+    participant CI as CI
+    participant C as binary cache
+    participant S as estate-kit service
+    participant O as ghcr
+    participant A as host applier
+    participant K as API server
+    CI->>C: push signed closures
+    CI->>CI: VM test per node class
+    CI->>S: host rollout (GitHub OIDC token)
+    S->>O: move host/#lt#59;node#gt#59;:prod
+    A->>O: poll the tag, verify it
+    A->>C: fetch the closure
+    A->>K: take the Lease, evict pods
+    A->>A: switch#59; reboot only inside the window
+    A->>K: uncordon, release the Lease

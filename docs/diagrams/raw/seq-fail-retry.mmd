@@ -1,0 +1,12 @@
+%% title: Failure: the deploy response is lost and the job retries
+sequenceDiagram
+    autonumber
+    participant CI as deploy job
+    participant S as estate-kit service
+    participant DB as event log
+    CI->>S: deploy (Project, fragment digest)
+    S->>DB: rollout created
+    S-->>CI: response lost (timeout)
+    CI->>S: retry: same Project and digest
+    S->>DB: find the existing rollout
+    S-->>CI: same rollout id, no second run

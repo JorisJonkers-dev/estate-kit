@@ -1,0 +1,12 @@
+%% title: Authenticate a deploy call with a GitHub OIDC token
+sequenceDiagram
+    autonumber
+    participant CI as deploy job
+    participant GO as GitHub OIDC
+    participant S as estate-kit service
+    CI->>GO: request an ID token, audience estate-kit
+    GO-->>CI: JWT
+    CI->>S: deploy, Bearer JWT
+    S->>S: repository_id admitted?
+    S->>S: pinned workflow and environment?
+    S-->>CI: rollout id

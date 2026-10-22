@@ -1,0 +1,28 @@
+%% title: Project Intent: configuration
+classDiagram
+    direction LR
+    class EnvFile {
+        cluster: String
+    }
+    class EnvVariable {
+        name: String
+    }
+    class EnvValue {
+        <<abstract>>
+    }
+    class EnvLiteral {
+        text: String
+    }
+    class Placeholder {
+        kind: PlaceholderKind
+        source: String
+        suffix: String
+    }
+    class Asset {
+        from: String
+        mountAt: String
+    }
+    EnvFile *-- "0..*" EnvVariable : entries
+    EnvVariable *-- "1" EnvValue : value
+    EnvLiteral --|> EnvValue
+    Placeholder --|> EnvValue

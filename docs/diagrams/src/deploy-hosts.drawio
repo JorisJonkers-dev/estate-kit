@@ -1,1 +1,131 @@
-<mxfile><diagram name="deploy-hosts"><mxGraphModel background="#1e1e1e"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="c1" value="node A" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;arcSize=4;verticalAlign=top;align=left;spacingLeft=12;spacingTop=8;fontStyle=1;fillColor=#242424;strokeColor=#5c5c5c;dashed=1;" vertex="1" parent="1"><mxGeometry x="61.0" y="288.0" width="278.0" height="244.0" as="geometry"/></mxCell><mxCell id="c2" value="node B" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;arcSize=4;verticalAlign=top;align=left;spacingLeft=12;spacingTop=8;fontStyle=1;fillColor=#242424;strokeColor=#5c5c5c;dashed=1;" vertex="1" parent="1"><mxGeometry x="701.0" y="288.0" width="278.0" height="244.0" as="geometry"/></mxCell><mxCell id="c3" value="CI: build closures, VM tests" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;" vertex="1" parent="1"><mxGeometry x="85.0" y="92.0" width="230" height="56" as="geometry"/></mxCell><mxCell id="c4" value="signed binary cache" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;fillColor=#3a3220;strokeColor=#c9a74a;" vertex="1" parent="1"><mxGeometry x="405.0" y="92.0" width="230" height="56" as="geometry"/></mxCell><mxCell id="c5" value="ghcr: host tags" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;fillColor=#3a3220;strokeColor=#c9a74a;" vertex="1" parent="1"><mxGeometry x="725.0" y="92.0" width="230" height="56" as="geometry"/></mxCell><mxCell id="c6" value="host applier (systemd)" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;fillColor=#1f3a5f;strokeColor=#7aa7e0;" vertex="1" parent="1"><mxGeometry x="85.0" y="332.0" width="230" height="56" as="geometry"/></mxCell><mxCell id="c7" value="k3s" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;" vertex="1" parent="1"><mxGeometry x="85.0" y="452.0" width="230" height="56" as="geometry"/></mxCell><mxCell id="c8" value="host applier (systemd)" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;fillColor=#1f3a5f;strokeColor=#7aa7e0;" vertex="1" parent="1"><mxGeometry x="725.0" y="332.0" width="230" height="56" as="geometry"/></mxCell><mxCell id="c9" value="k3s" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;" vertex="1" parent="1"><mxGeometry x="725.0" y="452.0" width="230" height="56" as="geometry"/></mxCell><mxCell id="c10" value="Lease in the API server" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;" vertex="1" parent="1"><mxGeometry x="405.0" y="332.0" width="230" height="56" as="geometry"/></mxCell><mxCell id="c11" value="pushes" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;edgeStyle=orthogonalEdgeStyle;rounded=1;endArrow=block;endFill=1;endSize=9;" edge="1" parent="1" source="c3" target="c4"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="c12" value="closure" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;edgeStyle=orthogonalEdgeStyle;rounded=1;endArrow=block;endFill=1;endSize=9;exitX=0.25;exitY=1;entryX=0.75;entryY=0;" edge="1" parent="1" source="c4" target="c6"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="c13" value="pointer" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;edgeStyle=orthogonalEdgeStyle;rounded=1;endArrow=block;endFill=1;endSize=9;" edge="1" parent="1" source="c5" target="c8"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="c14" value="" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;edgeStyle=orthogonalEdgeStyle;rounded=1;endArrow=block;endFill=1;endSize=9;" edge="1" parent="1" source="c6" target="c10"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="c15" value="" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;edgeStyle=orthogonalEdgeStyle;rounded=1;endArrow=block;endFill=1;endSize=9;" edge="1" parent="1" source="c8" target="c10"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="c16" value="drains, restarts" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;edgeStyle=orthogonalEdgeStyle;rounded=1;endArrow=block;endFill=1;endSize=9;" edge="1" parent="1" source="c6" target="c7"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="c17" value="drains, restarts" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;edgeStyle=orthogonalEdgeStyle;rounded=1;endArrow=block;endFill=1;endSize=9;" edge="1" parent="1" source="c8" target="c9"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell></root></mxGraphModel></diagram></mxfile>
+<mxfile>
+  <diagram name="deploy-hosts" id="deploy-hosts">
+    <mxGraphModel grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="0" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ci" parent="1" style="swimlane;startSize=30;rounded=1;arcSize=4;absoluteArcSize=1;container=1;collapsible=0;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fontStyle=1;fillColor=none;swimlaneFillColor=none;strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="«execution environment» GitHub Actions" vertex="1">
+          <mxGeometry height="106" width="242" x="29" y="12" as="geometry" />
+        </mxCell>
+        <mxCell id="build" parent="ci" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="build closures, VM tests" vertex="1">
+          <mxGeometry height="56" width="222" x="10" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cache" parent="1" style="shape=cylinder3;size=10;boundedLbl=1;backgroundOutline=1;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="signed binary cache" vertex="1">
+          <mxGeometry height="74" width="184" x="58" y="293" as="geometry" />
+        </mxCell>
+        <mxCell id="ghcr" parent="1" style="shape=cylinder3;size=10;boundedLbl=1;backgroundOutline=1;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="ghcr: host tags" vertex="1">
+          <mxGeometry height="74" width="154" x="282" y="293" as="geometry" />
+        </mxCell>
+        <mxCell id="cp" parent="1" style="swimlane;startSize=30;rounded=1;arcSize=4;absoluteArcSize=1;container=1;collapsible=0;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fontStyle=1;fillColor=none;swimlaneFillColor=none;strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="«device» control-plane node" vertex="1">
+          <mxGeometry height="332" width="238" x="40" y="542" as="geometry" />
+        </mxCell>
+        <mxCell id="agentcp" parent="cp" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="host applier (systemd)" vertex="1">
+          <mxGeometry height="56" width="207" x="10" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="k3scp" parent="cp" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="k3s server" vertex="1">
+          <mxGeometry height="56" width="160" x="68" y="266" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="cp" source="agentcp" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.6667;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="k3scp" value="drains, restarts">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="148" y="181" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="worker" parent="1" style="swimlane;startSize=30;rounded=1;arcSize=4;absoluteArcSize=1;container=1;collapsible=0;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fontStyle=1;fillColor=none;swimlaneFillColor=none;strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="«device» worker node" vertex="1">
+          <mxGeometry height="332" width="238" x="318" y="542" as="geometry" />
+        </mxCell>
+        <mxCell id="agentw" parent="worker" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="host applier (systemd)" vertex="1">
+          <mxGeometry height="56" width="207" x="10" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="k3sw" parent="worker" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="k3s agent" vertex="1">
+          <mxGeometry height="56" width="160" x="68" y="266" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="worker" source="agentw" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.6667;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="k3sw" value="drains, restarts">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="148" y="181" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lease" parent="1" style="shape=cylinder3;size=10;boundedLbl=1;backgroundOutline=1;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="Lease, in the API server" vertex="1">
+          <mxGeometry height="74" width="222" x="23" y="1049" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="build" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="cache" value="pushes">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint y="7.5" as="offset" />
+            <Array as="points">
+              <mxPoint x="150" y="123" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="cache" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.3315;exitY=1;entryX=0.3333;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="agentcp" value="closure">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint y="-22.5" as="offset" />
+            <Array as="points">
+              <mxPoint x="119" y="537" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="ghcr" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.3312;exitY=1;entryX=0.6667;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="agentcp" value="host tag">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="47" y="-41" as="offset" />
+            <Array as="points">
+              <mxPoint x="333" y="383" />
+              <mxPoint x="326" y="383" />
+              <mxPoint x="326" y="493" />
+              <mxPoint x="188" y="493" />
+              <mxPoint x="188" y="537" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="cache" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.6685;exitY=1;entryX=0.3333;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="agentw" value="closure">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-99.5" y="-31" as="offset" />
+            <Array as="points">
+              <mxPoint x="181" y="483" />
+              <mxPoint x="397" y="483" />
+              <mxPoint x="397" y="537" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="ghcr" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.6688;exitY=1;entryX=0.6667;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="agentw" value="host tag">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint y="18" as="offset" />
+            <Array as="points">
+              <mxPoint x="385" y="383" />
+              <mxPoint x="466" y="383" />
+              <mxPoint x="466" y="537" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="agentcp" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.3333;exitY=1;entryX=0.3333;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="lease" value="holds">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint y="131.5" as="offset" />
+            <Array as="points">
+              <mxPoint x="119" y="654" />
+              <mxPoint x="97" y="654" />
+              <mxPoint x="97" y="879" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="agentw" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.3333;exitY=1;entryX=0.6667;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="lease" value="holds">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-164.5" y="69" as="offset" />
+            <Array as="points">
+              <mxPoint x="397" y="654" />
+              <mxPoint x="375" y="654" />
+              <mxPoint x="375" y="895" />
+              <mxPoint x="171" y="895" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="header" value="Deployment: the hosts and what each node runs" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=light-dark(#1a1a1a,#e8e8e8);fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="23" y="-52" width="533" height="36" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

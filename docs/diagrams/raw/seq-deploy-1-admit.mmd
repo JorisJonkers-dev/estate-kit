@@ -1,0 +1,12 @@
+%% title: Deploy, step 1 of 3: the deploy job hands a release to the service
+sequenceDiagram
+    autonumber
+    participant CI as deploy job
+    participant R as Rust binary
+    participant O as ghcr
+    participant S as estate-kit service
+    CI->>R: validate offline
+    R-->>CI: no diagnostics
+    CI->>O: promote digests, publish the Intent Fragment
+    CI->>S: deploy (GitHub OIDC token)
+    S-->>CI: rollout id, event stream opens

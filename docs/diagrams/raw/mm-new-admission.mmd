@@ -1,0 +1,31 @@
+%% title: New: admission and UI roles
+classDiagram
+    direction LR
+    class Platform {
+        apiVersion: String
+        kind: String
+        schemaVersion: String
+        owner: String
+        hardening: HardeningClass
+        secretStore: Application [0..1]
+    }
+    class AdmittedProject {
+        project: ProjectName
+        repositoryId: RepositoryId
+        workflow: WorkflowRef
+    }
+    class UiRole {
+        group: IdpGroup
+        role: Viewer | Operator | Admin
+    }
+    Platform *-- "*" AdmittedProject : admittedProjects
+    Platform *-- "*" UiRole : uiRoles
+    note for Platform "changed: gains admittedProjects and uiRoles"
+    note for AdmittedProject "new: added by estate-kit"
+    note for UiRole "new: added by estate-kit"
+    note "Key: amber is changed, red is removed, green is new#59; the rest carries over"
+    classDef good fill:#0000a3,stroke:#0000b3
+    classDef warn fill:#0000a5,stroke:#0000b5
+    class Platform:::warn
+    class AdmittedProject:::good
+    class UiRole:::good

@@ -1,0 +1,16 @@
+%% title: Project Intent: migration
+classDiagram
+    direction LR
+    class Migration {
+        <<abstract>>
+    }
+    class ManagedMigration {
+        changelog: String
+    }
+    class SelfMigration {
+    }
+    class NoMigration {
+    }
+    ManagedMigration --|> Migration
+    SelfMigration --|> Migration
+    NoMigration --|> Migration

@@ -1,1 +1,102 @@
-<mxfile><diagram name="deploy-in-cluster"><mxGraphModel background="#1e1e1e"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="c1" value="Postgres event log" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;fillColor=#3a3220;strokeColor=#c9a74a;" vertex="1" parent="1"><mxGeometry x="90.0" y="102.0" width="200" height="56" as="geometry"/></mxCell><mxCell id="c2" value="Flagger" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;" vertex="1" parent="1"><mxGeometry x="390.0" y="102.0" width="200" height="56" as="geometry"/></mxCell><mxCell id="c3" value="Vault Transit" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;" vertex="1" parent="1"><mxGeometry x="690.0" y="102.0" width="200" height="56" as="geometry"/></mxCell><mxCell id="c4" value="estate-kit service" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;fillColor=#1f3a5f;strokeColor=#7aa7e0;" vertex="1" parent="1"><mxGeometry x="390.0" y="242.0" width="200" height="56" as="geometry"/></mxCell><mxCell id="c5" value="API server" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;" vertex="1" parent="1"><mxGeometry x="690.0" y="242.0" width="200" height="56" as="geometry"/></mxCell><mxCell id="c6" value="Flux" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;" vertex="1" parent="1"><mxGeometry x="990.0" y="242.0" width="200" height="56" as="geometry"/></mxCell><mxCell id="c7" value="Project objects" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;" vertex="1" parent="1"><mxGeometry x="90.0" y="382.0" width="200" height="56" as="geometry"/></mxCell><mxCell id="c8" value="auth-api" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;rounded=1;" vertex="1" parent="1"><mxGeometry x="690.0" y="382.0" width="200" height="56" as="geometry"/></mxCell><mxCell id="c9" value="webhook" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;edgeStyle=orthogonalEdgeStyle;rounded=1;endArrow=block;endFill=1;endSize=9;" edge="1" parent="1" source="c2" target="c4"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="c10" value="dry-run, read" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;edgeStyle=orthogonalEdgeStyle;rounded=1;endArrow=block;endFill=1;endSize=9;" edge="1" parent="1" source="c4" target="c5"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="c11" value="applies" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;edgeStyle=orthogonalEdgeStyle;rounded=1;endArrow=block;endFill=1;endSize=9;" edge="1" parent="1" source="c6" target="c5"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="c12" value="sign" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;edgeStyle=orthogonalEdgeStyle;rounded=1;endArrow=block;endFill=1;endSize=9;exitX=1;exitY=0.15;entryX=0;entryY=0.5;" edge="1" parent="1" source="c4" target="c3"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="c13" value="sign-in" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;edgeStyle=orthogonalEdgeStyle;rounded=1;endArrow=block;endFill=1;endSize=9;exitX=1;exitY=0.85;entryX=0;entryY=0.5;" edge="1" parent="1" source="c4" target="c8"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="c14" value="appends" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;edgeStyle=orthogonalEdgeStyle;rounded=1;endArrow=block;endFill=1;endSize=9;exitX=0;exitY=0.15;entryX=1;entryY=0.5;" edge="1" parent="1" source="c4" target="c1"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="c15" value="writes" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;edgeStyle=orthogonalEdgeStyle;rounded=1;endArrow=block;endFill=1;endSize=9;exitX=0;exitY=0.85;entryX=1;entryY=0.5;" edge="1" parent="1" source="c4" target="c7"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell></root></mxGraphModel></diagram></mxfile>
+<mxfile>
+  <diagram name="deploy-in-cluster" id="deploy-in-cluster">
+    <mxGraphModel grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="0" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="cluster" parent="1" style="swimlane;startSize=30;rounded=1;arcSize=4;absoluteArcSize=1;container=1;collapsible=0;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fontStyle=1;fillColor=none;swimlaneFillColor=none;strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="«execution environment» Kubernetes cluster" vertex="1">
+          <mxGeometry height="517.33" width="1098" x="12" y="12" as="geometry" />
+        </mxCell>
+        <mxCell id="svc" parent="cluster" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="estate-kit service" vertex="1">
+          <mxGeometry height="56" width="176" x="481" y="241.33" as="geometry" />
+        </mxCell>
+        <mxCell id="pg" parent="cluster" style="shape=cylinder3;size=10;boundedLbl=1;backgroundOutline=1;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="Postgres event log" vertex="1">
+          <mxGeometry height="74" width="176" x="912" y="433.33" as="geometry" />
+        </mxCell>
+        <mxCell id="flagger" parent="cluster" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="Flagger" vertex="1">
+          <mxGeometry height="56" width="160" x="10" y="241.33" as="geometry" />
+        </mxCell>
+        <mxCell id="vault" parent="cluster" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="Vault Transit" vertex="1">
+          <mxGeometry height="56" width="160" x="912" y="145.33" as="geometry" />
+        </mxCell>
+        <mxCell id="api" parent="cluster" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="API server" vertex="1">
+          <mxGeometry height="56" width="160" x="912" y="49.33" as="geometry" />
+        </mxCell>
+        <mxCell id="flux" parent="cluster" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="Flux" vertex="1">
+          <mxGeometry height="56" width="160" x="497" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="obj" parent="cluster" style="shape=note;size=14;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="Project objects" vertex="1">
+          <mxGeometry height="56" width="160" x="912" y="337.33" as="geometry" />
+        </mxCell>
+        <mxCell id="idp" parent="cluster" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="auth-api" vertex="1">
+          <mxGeometry height="56" width="160" x="912" y="241.33" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="cluster" source="flagger" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="svc" value="Release Gate webhook">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="325.5" y="269.33" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="cluster" source="svc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.1668;entryX=0;entryY=0.6668;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="api" value="dry-run, read">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="59.67" as="offset" />
+            <Array as="points">
+              <mxPoint x="673" y="250.67" />
+              <mxPoint x="673" y="109" />
+              <mxPoint x="838" y="109" />
+              <mxPoint x="838" y="86.67" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="cluster" source="svc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.3334;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="vault" value="sign">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="43.34" as="offset" />
+            <Array as="points">
+              <mxPoint x="683" y="260" />
+              <mxPoint x="683" y="173.33" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="cluster" source="svc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="idp" value="sign-in">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="784.5" y="269.33" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="cluster" source="svc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.8334;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="pg" value="appends">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="91.16" as="offset" />
+            <Array as="points">
+              <mxPoint x="673" y="288" />
+              <mxPoint x="673" y="470.33" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="cluster" source="svc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.6668;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="obj" value="writes">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="43.33" as="offset" />
+            <Array as="points">
+              <mxPoint x="683" y="278.67" />
+              <mxPoint x="683" y="365.33" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="cluster" source="flux" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.5;entryX=0;entryY=0.3334;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="api" value="applies">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="784.5" y="68" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="header" value="Deployment: inside the cluster" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=light-dark(#1a1a1a,#e8e8e8);fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="12" y="-52" width="1098" height="36" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

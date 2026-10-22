@@ -1,0 +1,11 @@
+%% title: Failure: the event stream drops and resumes
+sequenceDiagram
+    autonumber
+    participant CI as deploy job
+    participant S as estate-kit service
+    participant DB as event log
+    S-->>CI: events 1 to 41
+    CI->>CI: connection drops
+    CI->>S: watch, resume after 41
+    S->>DB: events since 41
+    S-->>CI: events 42 onwards, duplicates dropped

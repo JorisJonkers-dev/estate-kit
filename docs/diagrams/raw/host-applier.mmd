@@ -1,0 +1,47 @@
+%% title: Host applier: one reconcile step and the ports it drives
+classDiagram
+    direction TB
+    class Agent {
+        node: NodeName
+        run() one reconcile step
+    }
+    class PointerSource {
+        <<interface>>
+        Current(node) HostTag
+    }
+    class ClosureFetcher {
+        <<interface>>
+        Fetch(storePath) error
+    }
+    class Lease {
+        <<interface>>
+        Acquire() error
+        Release() error
+    }
+    class Evictor {
+        <<interface>>
+        Drain(node) error
+        Uncordon(node) error
+    }
+    class Switcher {
+        <<interface>>
+        Switch(generation) error
+        NeedsReboot(generation) bool
+    }
+    class WindowPolicy {
+        <<interface>>
+        Open(now) bool
+    }
+    Agent ..> PointerSource
+    Agent ..> ClosureFetcher
+    Agent ..> Lease
+    Agent ..> Evictor
+    Agent ..> Switcher
+    Agent ..> WindowPolicy
+    classDef accent fill:#0000a1,stroke:#0000b1
+    class PointerSource:::accent
+    class ClosureFetcher:::accent
+    class Lease:::accent
+    class Evictor:::accent
+    class Switcher:::accent
+    class WindowPolicy:::accent

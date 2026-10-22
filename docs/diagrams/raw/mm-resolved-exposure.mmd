@@ -1,0 +1,32 @@
+%% title: Resolved Deployment: exposure
+classDiagram
+    direction LR
+    class ResolvedExposure {
+        name: String
+        host: String
+        tier: String
+        listener: String
+        certificates: String
+        proxyApplication: String
+        proxyNamespace: String
+    }
+    class ResolvedRoute {
+        path: String
+        match: Match
+        audience: String
+        precedence: Int
+        surface: String
+        process: ResolvedProcess [1]
+    }
+    class MiddlewareStep {
+        kind: MiddlewareKind
+        contentPolicy: String
+        endpoint: String
+        redirectTo: String
+        allowance: IntegerObject
+        per: String
+        burst: IntegerObject
+        clientAddress: String
+    }
+    ResolvedExposure *-- "1..*" ResolvedRoute : routes
+    ResolvedRoute *-- "0..*" MiddlewareStep : middleware

@@ -1,0 +1,26 @@
+%% title: Project Intent: probes
+classDiagram
+    direction LR
+    class ProbePolicy {
+        <<abstract>>
+    }
+    class Probes {
+    }
+    class NoProbes {
+    }
+    class Probe {
+        <<abstract>>
+    }
+    class HttpProbe {
+        path: String
+        port: IntegerObject
+    }
+    class TcpProbe {
+        tcp: IntegerObject
+    }
+    Probes *-- "0..1" Probe : readiness
+    Probes *-- "0..1" Probe : liveness
+    Probes --|> ProbePolicy
+    NoProbes --|> ProbePolicy
+    HttpProbe --|> Probe
+    TcpProbe --|> Probe

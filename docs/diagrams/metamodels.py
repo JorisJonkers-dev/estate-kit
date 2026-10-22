@@ -1,14 +1,13 @@
 """Class diagrams of deploy-kit's Ecore metamodels, one per concept, marked with
 what estate-kit changes. Run from this directory with the deploy-kit checkout
-path:  python3 metamodels.py ../../../deploy-kit"""
+path, then build.py:  python3 metamodels.py ../../../deploy-kit"""
 import sys
 import xml.etree.ElementTree as ET
 
-from gen import D, ACCENT, BAD, GOOD, WARN, esc
+from gen import Graph, classes as classes_diagram, write_all
 
 XT = "{http://www.w3.org/2001/XMLSchema-instance}type"
-STATUS = {"changed": WARN, "removed": BAD, "new": GOOD}
-MIXINS = {"SharedIntent"}  # shown as an "extends" line, not an edge
+TONE = {"changed": "warn", "removed": "bad", "new": "good"}
 
 # What estate-kit does to each class; anything unlisted is carried over as is.
 CHANGES = {
@@ -153,7 +152,7 @@ def parse(path):
                 .replace("EBoolean", "Bool").replace("ELong", "Long")
             up = s.get("upperBound")
             lo = s.get("lowerBound", "0")
-            mult = "*" if up == "-1" else ("1" if lo == "1" else "0..1")
+            mult = ("1..*" if lo == "1" else "0..*") if up == "-1" else ("1" if lo == "1" else "0..1")
             if s.get(XT) == "ecore:EReference":
                 refs.append((s.get("name"), t, s.get("containment") == "true", mult))
             else:
@@ -163,98 +162,61 @@ def parse(path):
     return out
 
 
-def draw(name, title, names, classes, extra_refs=None, compact=False):
-    d = D()
+def draw(name, title, names, classes, extra_refs=None, direction="LR"):
     extra_refs = extra_refs or {}
     members = [n for n in names if n in classes]
     present = set(members)
-    # Tree layout: containment and inheritance edges go one column to the right.
-    children = {n: [] for n in members}
-    edges = []
+    body, relations, tones, notes = [], [], {}, []
     for n in members:
-        for rname, t, cont, mult in classes[n]["refs"] + extra_refs.get(n, []):
+        c = classes[n]
+        lines = list(c["attrs"][:8])
+        for rname, t, cont, mult in c["refs"] + extra_refs.get(n, []):
             if t in present and t != n:
-                edges.append((n, t, f"{rname} {mult}", "comp" if cont else "dep"))
-                children[n].append(t)
-        for s in classes[n]["super"]:
-            if s in present and s not in MIXINS:
-                edges.append((n, s, "", "inherit"))
-                children[s].append(n)
-    level, order = {}, []
-    for n in members:
-        if n in level:
-            continue
-        level[n] = 0 if not any(n in v for v in children.values()) else level.get(n, 0)
-        stack = [n]
-        while stack:
-            p = stack.pop(0)
-            if p not in order:
-                order.append(p)
-            for c in children[p]:
-                if c not in level or level[c] <= level[p]:
-                    if c not in order:
-                        level[c] = level[p] + 1
-                        stack.append(c)
-    cols = {}
-    for n in order:
-        cols.setdefault(level[n], []).append(n)
-    ids = {}
-    W, GAP, VGAP = (220, 70, 18) if compact else (330, 150, 26)
-    d.v(title, "text;fontSize=18;fontStyle=1;align=left;", 20, 10, 900, 30)
-    ncols = max(cols) + 1 if cols else 1
-    if compact:
-        # A hierarchy with many leaves: the parent on top, leaves in a grid.
-        per_row = 5
-        leaves = [n for n in order if level[n] > 0]
-        top = [n for n in order if level[n] == 0]
-        for i, n in enumerate(top):
-            ids[n] = box(d, n, classes[n], 20 + 2 * (W + GAP), 60, W)
-        for i, n in enumerate(leaves):
-            ids[n] = box(d, n, classes[n], 20 + (i % per_row) * (W + GAP), 220 + (i // per_row) * 80, W, names_only=True)
-    else:
-        for c in range(ncols):
-            y = 60
-            for n in cols.get(c, []):
-                ids[n] = box(d, n, classes[n], 20 + c * (W + GAP), y, W)
-                y += height(classes[n]) + VGAP
-    styles = {
-        "comp": "edgeStyle=orthogonalEdgeStyle;rounded=1;startArrow=diamondThin;startFill=1;startSize=16;endArrow=open;endSize=10;fontSize=12;",
-        "dep": "edgeStyle=orthogonalEdgeStyle;rounded=1;endArrow=open;dashed=1;endSize=10;fontSize=12;",
-        "inherit": "edgeStyle=orthogonalEdgeStyle;rounded=1;endArrow=block;endFill=0;endSize=14;",
-    }
-    for a, b, label, kind in edges:
-        if a in ids and b in ids:
-            if kind == "inherit":
-                d.e(ids[a], ids[b], "", styles[kind] + ("exitX=0.5;exitY=0;entryX=0.5;entryY=1;" if compact else "exitX=0;exitY=0.5;entryX=1;entryY=0.5;"))
+                relations.append((n, t, "comp" if cont else "assoc", rname, mult))
+            elif not cont:
+                lines.append(f"{rname}: {t} [{mult}]")
+        for sup in c["super"]:
+            if sup in present:
+                relations.append((n, sup, "inherit"))
             else:
-                d.e(ids[a], ids[b], label, styles[kind] + "exitX=1;exitY=0.5;entryX=0;entryY=0.5;", lx=0.75)
-    legend(d, 20 + max(ncols, 1) * (W + GAP) if not compact else 20 + 5 * (W + GAP), 60)
-    d.save(name)
+                lines.insert(0, f"extends {sup}")
+        body.append((n, "abstract" if c["abstract"] else None, lines))
+        status = CHANGES.get(n) or (("new", "added by estate-kit") if n in NEW else None)
+        if status:
+            tones[n] = TONE[status[0]]
+            notes.append((n, f"{status[0]}: {status[1]}"))
+    if tones:
+        notes.append(("", "Key: amber is changed, red is removed, green is new; the rest carries over"))
+    classes_diagram(name, title, body, relations, tones=tones, direction=direction, notes=notes)
 
 
-def height(c):
-    lines = len(c["attrs"][:8]) + len([r for r in c["refs"] if not r[2]][:4]) + (1 if c["super"] else 0)
-    return 44 + lines * 20 + (16 if lines else 0)
-
-
-def box(d, n, c, x, y, w, names_only=False):
-    status = CHANGES.get(n) or (("new", "added by estate-kit") if n in NEW else None)
-    head = ("&lt;&lt;abstract&gt;&gt;<br>" if c["abstract"] else "") + "<b>" + n + "</b>"
-    if names_only:
-        style = "rounded=0;" + (STATUS[status[0]] if status else "")
-        return d.v(head, style, x, y, w, 56)
-    lines = (["<i>extends " + ", ".join(c["super"]) + "</i>"] if c["super"] else []) + [esc(a) for a in c["attrs"][:8]] + [esc(f"{r[0]}: {r[1]} {r[3]}") for r in c["refs"] if not r[2]][:4]
-    if status:
-        lines.append("<i>" + esc(status[0] + ": " + status[1]) + "</i>")
-    label = head + ("<hr>" + "<br>".join(lines) if lines else "")
-    style = "rounded=0;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontSize=13;" + (STATUS[status[0]] if status else "")
-    return d.v(label, style, x, y, w, height(c) + (20 if status else 0))
-
-
-def legend(d, x, y):
-    d.v("<b>Legend</b><br>carried over<br>changed<br>removed<br>new", "rounded=0;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontSize=13;", x, y, 140, 112)
-    for i, (k, s) in enumerate([("changed", WARN), ("removed", BAD), ("new", GOOD)]):
-        d.v("", "rounded=0;" + s, x + 150, y + 44 + i * 20, 18, 14)
+def draw_hierarchy(name, title, names, classes, per_row=6):
+    """A parent with many subclasses: the parent on top and the subclasses in a grid below it,
+    every generalization sharing one trunk. A layered layout would put them all in one rank."""
+    g = Graph(name, title, placed=True)
+    parent, leaves = names[0], [n for n in names[1:] if n in classes]
+    w, gap = 230, 30
+    width = per_row * w + (per_row - 1) * gap
+    c = classes[parent]
+    g.uml_class(parent, parent, c["attrs"], (width - w) // 2, 0, w, "abstract" if c["abstract"] else None)
+    # Every generalization leaves its class on the left, just under the name, runs up the gap
+    # left of its column to a bus under the parent, and joins the parent from below.
+    bus, centre = 170, width / 2
+    y = 220
+    for row in range(0, len(leaves), per_row):
+        chunk = leaves[row:row + per_row]
+        tallest = 0
+        for i, n in enumerate(chunk):
+            lines = classes[n]["attrs"][:6]
+            status = CHANGES.get(n) or (("new", "added by estate-kit") if n in NEW else None)
+            x = i * (w + gap)
+            g.uml_class(n, n, lines, x, y, w, tone=TONE[status[0]] if status else "plain")
+            h = 28 + 22 * max(1, len(lines)) + 8
+            channel = x - gap / 2
+            g.generalize(n, parent, [(channel, y + 14), (channel, bus), (centre, bus)], exit_y=14 / h)
+            tallest = max(tallest, h)
+        y += tallest + 40
+    g.done()
 
 
 if __name__ == "__main__":
@@ -264,7 +226,11 @@ if __name__ == "__main__":
         classes = parse(base + f)
         every.update(classes)
         for name, title, names in groups:
-            draw(name, title, names, classes, compact=(name == "mm-deliverables"))
+            if name == "mm-deliverables":
+                draw_hierarchy(name, title, names, classes)
+            else:
+                draw(name, title, names, classes)
     every.update(NEW)
     for name, title, names, extra in NEW_GROUPS:
         draw(name, title, names, every, extra)
+    write_all("raw")

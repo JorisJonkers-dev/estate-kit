@@ -1,0 +1,27 @@
+%% title: State machine: the host applier on one node
+%% layout: [{"layout":"elkLayered","config":{"elk.layered.crossingMinimization.forceNodeModelOrder":true,"elk.direction":"DOWN","elk.spacing.nodeNode":50,"elk.layered.spacing.nodeNodeBetweenLayers":70,"elk.spacing.edgeLabel":6,"elk.layered.nodePlacement.strategy":"NETWORK_SIMPLEX","elk.layered.considerModelOrder.strategy":"NODES_AND_EDGES","elk.hierarchyHandling":"INCLUDE_CHILDREN","elk.nodeSize.constraints":"","edgeStyle":"orthogonal","corners":"rounded"}}]
+stateDiagram-v2
+    direction TB
+    state "Waiting for the Lease" as WaitingForLease
+    state "Awaiting the window" as AwaitingWindow
+    state "Health check" as HealthCheck
+    state "Current (new generation)" as CurrentNew
+    state "Rolled back" as RolledBack
+    [*] --> Current
+    Current --> Fetched: new host tag
+    Fetched --> WaitingForLease: closure verified
+    WaitingForLease --> Draining: Lease held
+    Draining --> Switching: pods evicted
+    Switching --> HealthCheck: no reboot needed
+    Switching --> AwaitingWindow: kernel changed
+    AwaitingWindow --> HealthCheck: window opens, rebooted
+    HealthCheck --> CurrentNew: healthy
+    HealthCheck --> RolledBack: unhealthy
+    CurrentNew --> [*]
+    RolledBack --> [*]
+    classDef bad fill:#0000a4,stroke:#0000b4
+    classDef good fill:#0000a3,stroke:#0000b3
+    classDef warn fill:#0000a5,stroke:#0000b5
+    class CurrentNew good
+    class RolledBack bad
+    class AwaitingWindow warn

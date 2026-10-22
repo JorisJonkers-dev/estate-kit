@@ -1,0 +1,13 @@
+%% title: Roll back a Project from the UI
+sequenceDiagram
+    autonumber
+    actor Op as Operator
+    participant S as estate-kit service
+    participant GH as GitHub
+    participant CI as deploy job, watch mode
+    Op->>S: roll back, with notes
+    S->>GH: dispatch deploy
+    GH->>CI: run starts
+    CI->>S: watch (GitHub OIDC token)
+    S-->>CI: events until settled
+    CI->>GH: Deployment status
