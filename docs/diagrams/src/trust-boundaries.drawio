@@ -61,7 +61,7 @@
           <mxGeometry height="56" width="160" x="10" y="40" as="geometry" />
         </mxCell>
         <mxCell id="outside" parent="1" style="swimlane;startSize=30;rounded=1;arcSize=4;absoluteArcSize=1;container=1;collapsible=0;dashed=1;dashPattern=8 4;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fontStyle=1;fillColor=none;swimlaneFillColor=none;strokeColor=light-dark(#b85450,#d47a7a);fontFamily=Helvetica;" value="outside the cluster" vertex="1">
-          <mxGeometry height="238" width="170" x="1820" y="100" as="geometry" />
+          <mxGeometry height="238" width="170" x="1850" y="100" as="geometry" />
         </mxCell>
         <mxCell id="ghcr" parent="outside" style="shape=cylinder3;size=10;boundedLbl=1;backgroundOutline=1;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="ghcr" vertex="1">
           <mxGeometry height="74" width="150" x="10" y="40" as="geometry" />
@@ -89,15 +89,15 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e6" edge="1" parent="1" source="svc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.25;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="ghcr" value="GitHub App token">
+        <mxCell id="e6" edge="1" parent="1" source="svc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.25;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="ghcr" value="machine-account token">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="219.41" as="offset" />
             <Array as="points">
               <mxPoint x="1073" y="152.83" />
               <mxPoint x="1073" y="62" />
-              <mxPoint x="1741" y="62" />
-              <mxPoint x="1741" y="177" />
-              <mxPoint x="1815" y="177" />
+              <mxPoint x="1771" y="62" />
+              <mxPoint x="1771" y="177" />
+              <mxPoint x="1845" y="177" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -116,17 +116,17 @@
         </mxCell>
         <mxCell id="e8" edge="1" parent="1" source="node" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.6607;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="cache" value="Nix signature check">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="22.5" as="offset" />
+            <mxPoint x="7.5" as="offset" />
             <Array as="points">
               <mxPoint x="213" y="331" />
               <mxPoint x="239" y="331" />
               <mxPoint x="239" y="291" />
-              <mxPoint x="1815" y="291" />
+              <mxPoint x="1845" y="291" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="header" value="Trust boundaries: what crosses each one, and with which credential" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=light-dark(#1a1a1a,#e8e8e8);fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="12" y="-52" width="1978" height="36" as="geometry" />
+          <mxGeometry x="12" y="-52" width="2008" height="36" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

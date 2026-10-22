@@ -74,7 +74,7 @@
             </mxGeometry>
           </mxCell>
         </UserObject>
-        <mxCell id="12" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=16;fontColor=light-dark(#333333,#cccccc);fontFamily=Helvetica;" value="repository_id admitted?" vertex="1">
+        <mxCell id="12" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=16;fontColor=light-dark(#333333,#cccccc);fontFamily=Helvetica;" value="repository_id and owner id admitted?" vertex="1">
           <mxGeometry height="18" width="200" x="516" y="223" as="geometry" />
         </mxCell>
         <mxCell id="13" parent="1" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;fontFamily=Helvetica;" value="4" vertex="1">
@@ -93,7 +93,7 @@
             </mxGeometry>
           </mxCell>
         </UserObject>
-        <mxCell id="15" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=16;fontColor=light-dark(#333333,#cccccc);fontFamily=Helvetica;" value="pinned workflow and environment?" vertex="1">
+        <mxCell id="15" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=16;fontColor=light-dark(#333333,#cccccc);fontFamily=Helvetica;" value="claim policy: event_name, job_workflow_sha, ref_type, runner, environment" vertex="1">
           <mxGeometry height="18" width="200" x="516" y="299" as="geometry" />
         </mxCell>
         <mxCell id="16" parent="1" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;fontFamily=Helvetica;" value="5" vertex="1">

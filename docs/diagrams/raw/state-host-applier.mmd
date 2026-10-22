@@ -3,19 +3,18 @@
 stateDiagram-v2
     direction TB
     state "Waiting for the Lease" as WaitingForLease
-    state "Awaiting the window" as AwaitingWindow
     state "Health check" as HealthCheck
     state "Current (new generation)" as CurrentNew
-    state "Rolled back" as RolledBack
+    state "Rolled back to the previous generation" as RolledBack
     [*] --> Current
-    Current --> Fetched: new host tag
-    Fetched --> WaitingForLease: closure verified
+    Current --> Fetched: new host tag, closure verified
+    Fetched --> Staged: reboot needed: stage with boot
+    Staged --> WaitingForLease: window opens
+    Fetched --> WaitingForLease: live change
     WaitingForLease --> Draining: Lease held
     Draining --> Switching: pods evicted
-    Switching --> HealthCheck: no reboot needed
-    Switching --> AwaitingWindow: kernel changed
-    AwaitingWindow --> HealthCheck: window opens, rebooted
-    HealthCheck --> CurrentNew: healthy
+    Switching --> HealthCheck: switched with test, or rebooted
+    HealthCheck --> CurrentNew: healthy: boot default set
     HealthCheck --> RolledBack: unhealthy
     CurrentNew --> [*]
     RolledBack --> [*]
@@ -24,4 +23,4 @@ stateDiagram-v2
     classDef warn fill:#0000a5,stroke:#0000b5
     class CurrentNew good
     class RolledBack bad
-    class AwaitingWindow warn
+    class Staged warn

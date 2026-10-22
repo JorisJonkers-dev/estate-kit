@@ -5,83 +5,83 @@
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="cluster" parent="1" style="swimlane;startSize=30;rounded=1;arcSize=4;absoluteArcSize=1;container=1;collapsible=0;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fontStyle=1;fillColor=none;swimlaneFillColor=none;strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="«execution environment» Kubernetes cluster" vertex="1">
-          <mxGeometry height="517.33" width="1098" x="12" y="12" as="geometry" />
+          <mxGeometry height="522.33" width="1226" x="12" y="12" as="geometry" />
         </mxCell>
         <mxCell id="svc" parent="cluster" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="estate-kit service" vertex="1">
-          <mxGeometry height="56" width="176" x="481" y="241.33" as="geometry" />
+          <mxGeometry height="56" width="176" x="534.33" y="246.33" as="geometry" />
         </mxCell>
-        <mxCell id="pg" parent="cluster" style="shape=cylinder3;size=10;boundedLbl=1;backgroundOutline=1;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="Postgres event log" vertex="1">
-          <mxGeometry height="74" width="176" x="912" y="433.33" as="geometry" />
+        <mxCell id="pg" parent="cluster" style="shape=cylinder3;size=10;boundedLbl=1;backgroundOutline=1;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="platform-postgres: event log" vertex="1">
+          <mxGeometry height="74" width="240" x="976" y="438.33" as="geometry" />
         </mxCell>
         <mxCell id="flagger" parent="cluster" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="Flagger" vertex="1">
-          <mxGeometry height="56" width="160" x="10" y="241.33" as="geometry" />
+          <mxGeometry height="56" width="160" x="10" y="246.33" as="geometry" />
         </mxCell>
         <mxCell id="vault" parent="cluster" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="Vault Transit" vertex="1">
-          <mxGeometry height="56" width="160" x="912" y="145.33" as="geometry" />
+          <mxGeometry height="56" width="160" x="976" y="150.33" as="geometry" />
         </mxCell>
         <mxCell id="api" parent="cluster" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="API server" vertex="1">
-          <mxGeometry height="56" width="160" x="912" y="49.33" as="geometry" />
+          <mxGeometry height="56" width="160" x="976" y="54.33" as="geometry" />
         </mxCell>
-        <mxCell id="flux" parent="cluster" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="Flux" vertex="1">
-          <mxGeometry height="56" width="160" x="497" y="40" as="geometry" />
+        <mxCell id="flux" parent="cluster" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="Flux, locked down per Project" vertex="1">
+          <mxGeometry height="66" width="240" x="481" y="40" as="geometry" />
         </mxCell>
         <mxCell id="obj" parent="cluster" style="shape=note;size=14;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="Project objects" vertex="1">
-          <mxGeometry height="56" width="160" x="912" y="337.33" as="geometry" />
+          <mxGeometry height="56" width="160" x="976" y="342.33" as="geometry" />
         </mxCell>
         <mxCell id="idp" parent="cluster" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="auth-api" vertex="1">
-          <mxGeometry height="56" width="160" x="912" y="241.33" as="geometry" />
+          <mxGeometry height="56" width="160" x="976" y="246.33" as="geometry" />
         </mxCell>
         <mxCell id="e1" edge="1" parent="cluster" source="flagger" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="svc" value="Release Gate webhook">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint x="-26.67" as="offset" />
             <Array as="points">
-              <mxPoint x="325.5" y="269.33" />
+              <mxPoint x="352.17" y="274.33" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="e2" edge="1" parent="cluster" source="svc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.1668;entryX=0;entryY=0.6668;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="api" value="dry-run, read">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="59.67" as="offset" />
+            <mxPoint x="65.01" as="offset" />
             <Array as="points">
-              <mxPoint x="673" y="250.67" />
-              <mxPoint x="673" y="109" />
-              <mxPoint x="838" y="109" />
-              <mxPoint x="838" y="86.67" />
+              <mxPoint x="737" y="255.67" />
+              <mxPoint x="737" y="114" />
+              <mxPoint x="902" y="114" />
+              <mxPoint x="902" y="91.67" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="e4" edge="1" parent="cluster" source="svc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.3334;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="vault" value="sign">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="43.34" as="offset" />
+            <mxPoint x="48.67" as="offset" />
             <Array as="points">
-              <mxPoint x="683" y="260" />
-              <mxPoint x="683" y="173.33" />
+              <mxPoint x="747" y="265" />
+              <mxPoint x="747" y="178.33" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="e5" edge="1" parent="cluster" source="svc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="idp" value="sign-in">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint as="offset" />
+            <mxPoint x="5.34" as="offset" />
             <Array as="points">
-              <mxPoint x="784.5" y="269.33" />
+              <mxPoint x="843.17" y="274.33" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="e6" edge="1" parent="cluster" source="svc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.8334;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="pg" value="appends">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="91.16" as="offset" />
+            <mxPoint x="96.5" as="offset" />
             <Array as="points">
-              <mxPoint x="673" y="288" />
-              <mxPoint x="673" y="470.33" />
+              <mxPoint x="737" y="293" />
+              <mxPoint x="737" y="475.33" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="e7" edge="1" parent="cluster" source="svc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.6668;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="obj" value="writes">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="43.33" as="offset" />
+            <mxPoint x="48.66" as="offset" />
             <Array as="points">
-              <mxPoint x="683" y="278.67" />
-              <mxPoint x="683" y="365.33" />
+              <mxPoint x="747" y="283.67" />
+              <mxPoint x="747" y="370.33" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -89,12 +89,12 @@
           <mxGeometry relative="1" as="geometry">
             <mxPoint as="offset" />
             <Array as="points">
-              <mxPoint x="784.5" y="68" />
+              <mxPoint x="848.5" y="73" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="header" value="Deployment: inside the cluster" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=light-dark(#1a1a1a,#e8e8e8);fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="12" y="-52" width="1098" height="36" as="geometry" />
+          <mxGeometry x="12" y="-52" width="1226" height="36" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

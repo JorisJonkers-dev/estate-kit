@@ -20,9 +20,9 @@ use_case("uc4-watch", "Use case 4: watch a rollout live", ["Application author",
          "Watch the rollout live", ["Resume from the last event"])
 use_case("uc5-pause", "Use case 5: pause or resume a Project", ["Operator"], "Pause or resume a Project",
          ["Sign in through auth-api", "Write the Project object"])
-use_case("uc6-rollback", "Use case 6: roll back a Project", ["Operator"], "Roll back a Project",
-         ["Sign in through auth-api", "Dispatch deploy in watch mode", "Server-side apply dry-run",
-          "Sign and move the prod tag"], secondary=[(1, "GitHub")])
+use_case("uc6-rollback", "Use case 6: roll back a Project, on the fast path", ["Operator"], "Roll back a Project",
+         ["Sign in through auth-api", "Dry-run the last Serving render", "Move the prod tag back",
+          "Set the Project to Paused", "Re-compose only if the dry-run fails"], secondary=[(1, "API server")])
 use_case("uc7-admit", "Use case 7: admit a Project", ["Admin"], "Admit a Project",
          ["Edit Platform Intent", "Derive the Flux source"])
 use_case("uc8-apply", "Use case 8: pull and apply a render", ["Flux"], "Pull and apply a render",
@@ -45,16 +45,18 @@ use_case("uc13-mailbox", "Use case 13: declare a Mailbox", ["Application author"
 # ---------------------------------------------------------------------------------------------
 
 sequence("seq-deploy-1-admit", "Deploy, step 1 of 3: the deploy job hands a release to the service",
-         [("CI", "deploy job"), ("R", "Rust binary"), ("O", "ghcr"), ("S", "estate-kit service")],
+         [("CI", "deploy job"), ("R", "compiler binary"), ("O", "ghcr"), ("S", "estate-kit service")],
          [("CI", "R", "validate offline"), ("R", "CI", "no diagnostics", "reply"),
           ("CI", "O", "promote digests, publish the Intent Fragment"),
           ("CI", "S", "deploy (GitHub OIDC token)"), ("S", "CI", "rollout id, event stream opens", "reply")])
 sequence("seq-deploy-2-dryrun", "Deploy, step 2 of 3: compose, dry-run, sign and move the prod tag",
-         [("S", "estate-kit service"), ("R", "Rust binary"), ("K", "API server"), ("V", "Vault Transit"), ("O", "ghcr")],
-         [("S", "O", "pull the admitted fragments"), ("S", "R", "compose the estate"),
-          ("R", "S", "renders, diagnostics", "reply"), ("S", "K", "apply, dryRun=All"),
+         [("S", "estate-kit service"), ("R", "compiler binary"), ("K", "API server"), ("V", "Vault Transit"), ("O", "ghcr")],
+         [("S", "O", "pull the admitted fragments"), ("S", "S", "every digest registered by its Project?"),
+          ("S", "R", "compose the estate"),
+          ("R", "S", "renders, diagnostics", "reply"), ("S", "K", "apply, dryRun=All, as the dry-run identity"),
           ("alt", "dry-run accepted",
-           [("K", "S", "accepted", "reply"), ("S", "V", "sign the render"), ("S", "O", "push the render, move the prod tag")],
+           [("K", "S", "accepted", "reply"), ("S", "V", "sign with the render key"),
+            ("S", "O", "push, move the prod tag (compare-and-swap)")],
            "dry-run rejected",
            [("K", "S", "rejected", "reply"), ("note", "S", "Project isolated, prod tag unchanged")])])
 sequence("seq-deploy-3-switch", "Deploy, step 3 of 3: Flux applies and Flagger switches traffic",
@@ -67,27 +69,33 @@ sequence("seq-dry-run", "Dry-run of a release pull request",
          [("CI", "CI", "build candidate images"), ("CI", "S", "deploy, dry-run (GitHub OIDC token)"),
           ("S", "K", "compose, apply dryRun=All"), ("K", "S", "accepted or rejected", "reply"),
           ("S", "CI", "diagnostics, render diff", "reply"), ("CI", "GH", "annotations, check run, job summary")])
-sequence("seq-rollback", "Roll back a Project from the UI",
-         [("@Op", "Operator"), ("S", "estate-kit service"), ("GH", "GitHub"), ("CI", "deploy job, watch mode")],
-         [("@Op", "S", "roll back, with notes"), ("S", "GH", "dispatch deploy"), ("GH", "CI", "run starts"),
-          ("CI", "S", "watch (GitHub OIDC token)"), ("S", "CI", "events until settled", "reply"),
-          ("CI", "GH", "Deployment status")])
+sequence("seq-rollback", "Roll back a Project: the fast path signs and composes nothing",
+         [("@Op", "Operator"), ("S", "estate-kit service"), ("K", "API server"), ("O", "ghcr"), ("GH", "GitHub")],
+         [("@Op", "S", "roll back"), ("S", "K", "dry-run the last Serving render"),
+          ("alt", "dry-run accepted",
+           [("K", "S", "accepted", "reply"), ("S", "O", "move the prod tag back (compare-and-swap)"),
+            ("S", "K", "set the Project to Paused"), ("S", "@Op", "rolled back, Paused", "reply")],
+           "dry-run rejected",
+           [("K", "S", "rejected", "reply"), ("S", "GH", "dispatch deploy in watch mode: re-compose")])])
 sequence("seq-auth", "Authenticate a deploy call with a GitHub OIDC token",
          [("CI", "deploy job"), ("GO", "GitHub OIDC"), ("S", "estate-kit service")],
          [("CI", "GO", "request an ID token, audience estate-kit"), ("GO", "CI", "JWT", "reply"),
-          ("CI", "S", "deploy, Bearer JWT"), ("S", "S", "repository_id admitted?"),
-          ("S", "S", "pinned workflow and environment?"), ("S", "CI", "rollout id", "reply")])
-sequence("seq-cache", "Reuse a render from the registry",
-         [("S", "estate-kit service"), ("O", "ghcr"), ("R", "Rust binary")],
-         [("S", "S", "render key from the input digests"), ("S", "O", "a render with this key?"),
-          ("alt", "found", [("O", "S", "reuse it", "reply")],
-           "not found", [("O", "S", "no such render", "reply"), ("S", "R", "render this Project")])])
+          ("CI", "S", "deploy, Bearer JWT"), ("S", "S", "repository_id and owner id admitted?"),
+          ("S", "S", "claim policy: event_name, job_workflow_sha, ref_type, runner, environment"),
+          ("S", "CI", "rollout id", "reply")])
+sequence("seq-cache", "Skip publishing an unchanged render",
+         [("S", "estate-kit service"), ("R", "compiler binary"), ("O", "ghcr")],
+         [("S", "R", "render this Project"), ("R", "S", "render, digest", "reply"),
+          ("S", "O", "digest behind render/<p>:prod?"), ("O", "S", "current digest", "reply"),
+          ("alt", "same digest", [("S", "S", "publish nothing, move nothing, record why")],
+           "different digest", [("S", "O", "push, sign, move the tag after the dry-run")])])
 sequence("seq-host-rollout", "Roll out a host change, one node at a time",
          [("CI", "CI"), ("C", "binary cache"), ("S", "estate-kit service"), ("O", "ghcr"), ("A", "host applier"), ("K", "API server")],
          [("CI", "C", "push signed closures"), ("CI", "CI", "VM test per node class"),
           ("CI", "S", "host rollout (GitHub OIDC token)"), ("S", "O", "move host/<node>:prod"),
-          ("A", "O", "poll the tag, verify it"), ("A", "C", "fetch the closure"),
-          ("A", "K", "take the Lease, evict pods"), ("A", "A", "switch; reboot only inside the window"),
+          ("A", "O", "poll the tag, verify it"), ("A", "C", "fetch and verify the closure"),
+          ("A", "A", "reboot needed? stage with boot, wait for the window"),
+          ("A", "K", "take the Lease, evict pods"), ("A", "A", "switch or reboot, health check"),
           ("A", "K", "uncordon, release the Lease")])
 sequence("seq-mailbox", "Provision a Mailbox",
          [("S", "estate-kit service"), ("F", "Flux"), ("K", "API server"), ("M", "mail provisioner"), ("ST", "Stalwart"), ("V", "Vault")],
@@ -95,7 +103,7 @@ sequence("seq-mailbox", "Provision a Mailbox",
           ("M", "K", "watch Mailboxes by label"), ("M", "V", "read the generated password"),
           ("M", "ST", "create or update the account"), ("M", "K", "write status")])
 sequence("seq-platform-push", "Push Platform Intent like any Project",
-         [("CI", "estate repo CI"), ("O", "ghcr"), ("S", "estate-kit service"), ("R", "Rust binary")],
+         [("CI", "estate repo CI"), ("O", "ghcr"), ("S", "estate-kit service"), ("R", "compiler binary")],
          [("CI", "R", "validate Platform Intent"), ("CI", "O", "publish the platform fragment"),
           ("CI", "S", "deploy (GitHub OIDC token, platform)"), ("S", "S", "cache the new copy"),
           ("S", "R", "compose the estate"), ("S", "CI", "rollout stream", "reply")])
@@ -140,14 +148,15 @@ states("state-project", "State machine: a Project",
        [("[*]", "Active", "admitted"), ("Active", "Paused", "pause"), ("Paused", "Active", "resume"),
         ("Active", "RolledBack", "roll back"), ("RolledBack", "Active", "next release")])
 states("state-host-applier", "State machine: the host applier on one node",
-       [("[*]", "Current", ""), ("Current", "Fetched", "new host tag"), ("Fetched", "WaitingForLease", "closure verified"),
-        ("WaitingForLease", "Draining", "Lease held"), ("Draining", "Switching", "pods evicted"),
-        ("Switching", "HealthCheck", "no reboot needed"), ("Switching", "AwaitingWindow", "kernel changed"),
-        ("AwaitingWindow", "HealthCheck", "window opens, rebooted"), ("HealthCheck", "CurrentNew", "healthy"),
-        ("HealthCheck", "RolledBack", "unhealthy"), ("CurrentNew", "[*]", ""), ("RolledBack", "[*]", "")],
-       labels={"WaitingForLease": "Waiting for the Lease", "AwaitingWindow": "Awaiting the window",
-               "HealthCheck": "Health check", "CurrentNew": "Current (new generation)", "RolledBack": "Rolled back"},
-       tones={"CurrentNew": "good", "RolledBack": "bad", "AwaitingWindow": "warn"})
+       [("[*]", "Current", ""), ("Current", "Fetched", "new host tag, closure verified"),
+        ("Fetched", "Staged", "reboot needed: stage with boot"), ("Staged", "WaitingForLease", "window opens"),
+        ("Fetched", "WaitingForLease", "live change"), ("WaitingForLease", "Draining", "Lease held"),
+        ("Draining", "Switching", "pods evicted"), ("Switching", "HealthCheck", "switched with test, or rebooted"),
+        ("HealthCheck", "CurrentNew", "healthy: boot default set"), ("HealthCheck", "RolledBack", "unhealthy"),
+        ("CurrentNew", "[*]", ""), ("RolledBack", "[*]", "")],
+       labels={"WaitingForLease": "Waiting for the Lease", "HealthCheck": "Health check",
+               "CurrentNew": "Current (new generation)", "RolledBack": "Rolled back to the previous generation"},
+       tones={"CurrentNew": "good", "RolledBack": "bad", "Staged": "warn"})
 states("state-mailbox", "State machine: a Mailbox",
        [("[*]", "Declared", ""), ("Declared", "Provisioned", "account created"),
         ("Declared", "Refused", "local part claimed by another Project"),
@@ -160,7 +169,7 @@ states("state-mailbox", "State machine: a Mailbox",
 # Class diagrams of the internals.
 # ---------------------------------------------------------------------------------------------
 
-classes("rust-authored-model", "Rust: the authored model, as the read step produces it",
+classes("rust-authored-model", "Rust: the authored model, as the read step produces it (a possible 1.0 port)",
         [("Project", None, ["name: ProjectName", "applications: BTreeMap<ApplicationId, Application>"]),
          ("Application", None, ["id: ApplicationId", "processes: BTreeMap<ProcessName, Process>",
                                 "exposures: Vec<Exposure>", "dependencies: Vec<DependencyEdge>"]),
@@ -172,7 +181,7 @@ classes("rust-authored-model", "Rust: the authored model, as the read step produ
         [("Project", "Application", "comp", "", "1..*"), ("Application", "Process", "comp", "", "1..*"),
          ("Application", "Exposure", "comp", "", "0..*"), ("Application", "DependencyEdge", "comp", "", "0..*"),
          ("Process", "Surface", "comp", "", "0..*"), ("Process", "Grant", "comp", "", "0..*")])
-classes("rust-pipeline-types", "Rust: the types that cross the pipeline's seams",
+classes("rust-pipeline-types", "Rust: the types that cross the pipeline's seams (a possible 1.0 port)",
         [("PinnedInputSet", None, ["fragments: BTreeMap<ProjectName, Pinned<ProjectIntent>>",
                                    "platform: Pinned<PlatformIntent>", "cluster_state: Pinned<ClusterState>",
                                    "render_key(project) RenderKey"]),
@@ -250,11 +259,11 @@ g = Graph("c4-containers", "C4 level 2: estate-kit's containers and the protocol
 g.person("ci", "Project CI", "A GitHub Actions deploy job")
 g.person("op", "Operator", "In a browser")
 g.group("ek", "estate-kit")
-g.system("cli", "estate-kit CLI", "Validates and plans offline", kind="container", tech="Rust", parent="ek")
+g.system("cli", "estate-kit CLI", "Validates and plans offline", kind="container", tech="TypeScript, one binary", parent="ek")
 g.system("ui", "UI", "Rollouts, Projects, hosts", kind="container", tech="Vue, embedded", parent="ek")
 g.system("svc", "service", "Composes, dry-runs, signs, streams rollouts", kind="container", tech="Go", parent="ek")
-g.system("comp", "compiler", "Validates and composes the estate", kind="container", tech="Rust subprocess", parent="ek")
-g.system("pg", "event log", "Append-only rollout events", kind="database", tech="Postgres 17", parent="ek")
+g.system("comp", "compiler", "Validates and composes the estate", kind="container", tech="TypeScript subprocess", parent="ek")
+g.system("pg", "event log", "Append-only rollout events", kind="database", tech="platform-postgres", parent="ek")
 g.system("applier", "host applier", "Switches one node at a time", kind="container", tech="Go, systemd", parent="ek")
 g.system("comps", "components", "migration-runner, secret-job, mail-provisioner", kind="container", tech="Go", parent="ek")
 g.system("api", "Kubernetes API", "Dry-runs and status", kind="external")
@@ -266,7 +275,7 @@ g.c4_edge("op", "ui", "uses", "HTTPS")
 g.c4_edge("ui", "svc", "calls", "HTTPS, same origin")
 g.c4_edge("svc", "comp", "runs", "exec: directory in, result.json out")
 g.c4_edge("svc", "pg", "appends, reads", "SQL")
-g.c4_edge("svc", "ghcr", "pushes renders, moves tags", "OCI distribution")
+g.c4_edge("svc", "ghcr", "pushes renders, moves tags", "OCI, machine-account token")
 g.c4_edge("svc", "vault", "signs", "Transit")
 g.c4_edge("svc", "api", "dry-runs, reads status", "HTTPS")
 g.c4_edge("applier", "api", "Lease, Eviction API", "HTTPS")
@@ -305,11 +314,11 @@ g.done()
 g = Graph("deploy-in-cluster", "Deployment: inside the cluster")
 g.group("cluster", "«execution environment» Kubernetes cluster", kind="node")
 g.box("svc", "estate-kit service", tone="accent", parent="cluster")
-g.store("pg", "Postgres event log", parent="cluster")
+g.store("pg", "platform-postgres: event log", parent="cluster")
 g.box("flagger", "Flagger", parent="cluster")
 g.box("vault", "Vault Transit", parent="cluster")
 g.box("api", "API server", parent="cluster")
-g.box("flux", "Flux", parent="cluster")
+g.box("flux", "Flux, locked down per Project", parent="cluster")
 g.artifact("obj", "Project objects", parent="cluster")
 g.box("idp", "auth-api", parent="cluster")
 g.edge("flagger", "svc", "Release Gate webhook")
@@ -412,7 +421,7 @@ for a, b, label in [("ii", "comp", ""), ("pi", "comp", ""), ("ver", "comp", ""),
     g.edge(a, b, label)
 g.done()
 
-g = Graph("rust-pipeline", "Rust: each step and the typed model it produces", wrap=True)
+g = Graph("rust-pipeline", "Rust: each step and the typed model it produces (a possible 1.0 port)", wrap=True)
 g.artifact("yaml", "YAML, env files")
 g.box("read", "read", tone="accent")
 g.artifact("intent", "ProjectIntent, PlatformIntent")
@@ -434,7 +443,7 @@ for a, b in [("yaml", "read"), ("read", "intent"), ("intent", "check"), ("intent
 g.edge("check", "diag", "reports", kind="dashed")
 g.done()
 
-g = Graph("rust-crates", "Rust: the crates and what each depends on", direction="DOWN")
+g = Graph("rust-crates", "Rust: the crates and what each depends on (a possible 1.0 port)", direction="DOWN")
 g.package("cli", "cli", tone="accent")
 g.package("app", "compose (use cases)")
 g.group("steps", "step crates: no step depends on another")
@@ -457,8 +466,8 @@ g.package("api", "api: HTTP, SSE", tone="accent")
 g.package("auth", "auth: OIDC verifiers")
 g.package("ui", "ui: embedded Vue")
 g.package("rollout", "rollout: state machine, queue")
-for pkg, label in [("compose", "compose: the Rust binary"), ("registry", "registry: oras-go"), ("signer", "signer: Vault"),
-                   ("cluster", "cluster: client-go"), ("github", "github: the App"), ("store", "store: Postgres")]:
+for pkg, label in [("compose", "compose: the compiler binary"), ("registry", "registry: oras-go"), ("signer", "signer: Vault"),
+                   ("cluster", "cluster: client-go"), ("github", "github: the App"), ("store", "store: platform-postgres")]:
     g.package(pkg, label, tone="data" if pkg == "store" else "plain")
 g.edge("api", "auth", kind="dashed")
 g.edge("api", "ui", kind="dashed")
@@ -467,10 +476,10 @@ for pkg in ("compose", "registry", "signer", "cluster", "github", "store"):
     g.edge("rollout", pkg, kind="dashed")
 g.done()
 
-g = Graph("alignment", "Alignment: how YAML, the schemas, Rust and Go stay in step", direction="DOWN")
+g = Graph("alignment", "Alignment: how YAML, the schemas, the compiler and Go stay in step", direction="DOWN")
 g.artifact("yaml", "authored YAML")
 g.artifact("schemas", "committed JSON Schemas", tone="accent")
-g.box("rust", "Rust serde types")
+g.box("rust", "compiler types (zod)")
 g.box("go", "Go types, generated")
 g.artifact("corpus", "shared corpus: valid and invalid YAML")
 g.artifact("result", "compose-result schema", tone="accent")
@@ -486,7 +495,7 @@ g.done()
 g = Graph("flow-host-order", "Flow: deriving the node order for a host rollout", direction="DOWN", layer_gap=60)
 g.terminal("start", "host rollout accepted")
 g.decision("q", "k3s version changes?")
-g.box("cp1", "control plane, in its window", tone="warn")
+g.box("cp1", "control plane, in its window, after a snapshot and approval", tone="warn")
 g.box("can1", "canary worker")
 g.box("w1", "remaining workers")
 g.box("can2", "canary worker")
@@ -506,7 +515,7 @@ g = Graph("components", "Components: the parts of estate-kit (blue) and what eac
 # would run backwards.
 g.artifact("intent", "authored intent")
 g.box("service", "service (Go)", tone="accent")
-g.box("compiler", "compiler (Rust)", tone="accent")
+g.box("compiler", "compiler (TypeScript)", tone="accent")
 g.box("ui", "ui (Vue)", tone="accent")
 g.box("applier", "host applier (Go)", tone="accent")
 g.artifact("renders", "renders, host data")
@@ -552,7 +561,7 @@ g.edge("browser", "edge", "auth-api session")
 g.edge("edge", "svc", "TLS")
 g.edge("svc", "vault", "service-account token")
 g.edge("svc", "api", "service-account token")
-g.edge("svc", "ghcr", "GitHub App token")
+g.edge("svc", "ghcr", "machine-account token")
 g.edge("node", "api", "node identity")
 g.edge("node", "cache", "Nix signature check")
 g.done()

@@ -11,14 +11,14 @@ one hand-written fake.
 | Package | Holds | Outside system |
 | --- | --- | --- |
 | `api` | HTTP handlers and the SSE event stream | None |
-| `auth` | GitHub OIDC, auth-api and service-account token verifiers | OIDC discovery endpoints |
+| `auth` | GitHub OIDC with the claim policy, and auth-api sessions | OIDC discovery endpoints |
 | `rollout` | The rollout state machine and the composition queue | None |
-| `compose` | Runs the Rust binary, reads `result.json` | The binary |
-| `registry` | Fragments, renders, tags, cache lookup | ghcr, through oras-go |
-| `signer` | Signs a render digest | Vault Transit |
-| `cluster` | Server-side dry-run, release status | API server, through client-go |
+| `compose` | Runs the compiler binary, reads `result.json` | The binary |
+| `registry` | Fragments, renders, tags, registered digests | ghcr, through oras-go, with a machine account's token from Vault |
+| `signer` | Signs a render or host tag with its own key | Vault Transit |
+| `cluster` | Server-side dry-run as the service's own identity, Flux and Flagger status, the writer Lease | API server, through client-go |
 | `github` | Deployment status, check runs, workflow dispatch | GitHub App |
-| `store` | The append-only rollout event log | Postgres |
+| `store` | The append-only rollout event log | A database on the shared platform-postgres |
 | `ui` | The embedded Vue assets | None |
 
 ## The rollout core
@@ -32,13 +32,26 @@ which composition carries its fragment.
 
 ## The event log
 
-One Postgres table of rollout events: rollout id, sequence, type, version,
-time, payload. A deploy job's stream resumes from a sequence number, and the UI
-reads history from the same table. Pause and held state stay in the Project's
-cluster object.
+One table of rollout events in a database on the shared platform-postgres:
+rollout id, sequence, type, version, time, payload. The existing dump and
+restore check covers it. A deploy job's stream resumes from a sequence number,
+and the UI reads history from the same table. Pause and held state stay in the
+Project's cluster object.
 
-## One replica
+## One writer
 
-The service runs as one replica, with no leader election. If it restarts
-mid-rollout, the event log says where each rollout stood, and Flux keeps
-serving the last tags.
+The service runs one pod with strategy Recreate, so an update never runs two,
+and it takes a coordination Lease right before it signs or moves a tag, so a
+stray second pod cannot write ([review](../research/review/README.md) D9). On
+startup it does not trust the log alone: it rebuilds each unfinished rollout
+from the Project's tag in ghcr and from Flux and Flagger status, or ends it
+with an Abandoned event. Flux keeps serving the last tags meanwhile.
+
+## What it reads from the cluster
+
+The service follows Flux by watching Kustomization and OCIRepository status,
+not by taking Flux events: Flux and Flagger cannot send projected
+service-account tokens. The Release Gate answers Flagger from cluster state
+only, so no unauthenticated request can change anything. The service dry-runs
+as its own identity; a ValidatingAdmissionPolicy refuses any write from that
+identity unless `dryRun` is set ([security](security.md)).

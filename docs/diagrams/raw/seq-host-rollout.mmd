@@ -12,7 +12,8 @@ sequenceDiagram
     CI->>S: host rollout (GitHub OIDC token)
     S->>O: move host/#lt#59;node#gt#59;:prod
     A->>O: poll the tag, verify it
-    A->>C: fetch the closure
+    A->>C: fetch and verify the closure
+    A->>A: reboot needed? stage with boot, wait for the window
     A->>K: take the Lease, evict pods
-    A->>A: switch#59; reboot only inside the window
+    A->>A: switch or reboot, health check
     A->>K: uncordon, release the Lease

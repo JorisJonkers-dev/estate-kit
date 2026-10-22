@@ -5,8 +5,8 @@ touches one module, and a change to a port touches one fake.
 
 ## Rules for files
 
-- **One concept, one module.** Each model concept gets one Rust module, and one
-  Go package where the service needs it. One public type per file.
+- **One concept, one module.** Each model concept gets one compiler module, and
+  one Go package where the service needs it. One public type per file.
 - **Fakes, not mocks.** The pure core needs no test doubles. Each port
   (registry, cluster, Vault, GitHub, event store) has exactly one hand-written
   in-memory fake, in its own file beside the port, shared by every test. No
@@ -27,20 +27,20 @@ touches one module, and a change to a port touches one fake.
 
 | Gate | Budget | How |
 | --- | --- | --- |
-| Lint, tests, contracts on a PR | Under 2 minutes | Small crates and packages; Cargo and Go build caches |
+| Lint, tests, contracts on a PR | Under 2 minutes | Small modules and packages; npm and Go build caches |
 | Mutation on a PR | Under 5 minutes | Only the changed lines, sharded across runners |
 | Full mutation | Nightly | 8 to 32 shards |
 
 ## Mutation testing
 
-| | Rust compiler | Go service |
+| | TypeScript compiler | Go service |
 | --- | --- | --- |
-| Tool | cargo-mutants with nextest | gremlins, diff-scoped ([workspace ADR-0022](https://github.com/JorisJonkers-dev/workspace/blob/main/docs/decisions/ADR-0022-tests-specify-behaviour.md)) |
+| Tool | Stryker, incremental and diff-scoped | gremlins, diff-scoped ([workspace ADR-0022](https://github.com/JorisJonkers-dev/workspace/blob/main/docs/decisions/ADR-0022-tests-specify-behaviour.md)) |
 | Gate | 100% break score, as today | Report-only first, then a ratchet |
-| Cost model | One incremental build per mutant | One package rebuild per mutant |
-| What keeps it fast | One small crate per step; mold linker | Small packages; coverage-routed tests |
+| Cost model | Compiled once; mutants switched at runtime | One package rebuild per mutant |
+| What keeps it fast | Incremental reports; coverage-routed tests | Small packages; coverage-routed tests |
 
 Stryker is fast because it compiles once and switches between mutants at
-runtime. cargo-mutants rebuilds for each mutant, so the crate layout decides
-the speed. Go's mutation tools are immature, and no estate Go repository wires
+runtime. Should the 1.0 model ever be ported to Rust, cargo-mutants rebuilds
+for each mutant, and one small crate per step would keep it fast. Go's mutation tools are immature, and no estate Go repository wires
 one today.

@@ -15,7 +15,9 @@ check.
 ## What a dry-run is
 
 The service composes, then sends every changed object to the live API server
-with `dryRun=All` under Flux's field manager. Nothing persists. A dry-run
+with `dryRun=All` under Flux's field manager, as its own identity. A
+ValidatingAdmissionPolicy refuses that identity any request without `dryRun`,
+so the dry-run identity cannot write ([review](../research/review/README.md) D4). Nothing persists. A dry-run
 catches admission webhooks, CRD schemas, immutable fields, quota and field
 conflicts, as well as every model error. It must pass twice: on the
 release-please PR, and again right before any tag moves.
@@ -25,8 +27,8 @@ release-please PR, and again right before any tag moves.
 | Trigger | Workflow | Check | What it does |
 | --- | --- | --- | --- |
 | Ordinary pull request | `validate` | `estate-kit / validate` | Offline checks, then a plan from the service: cross-Project errors and the render diff |
-| Release-please pull request | `deploy`, `dry-run: true` | `estate-kit / deploy (dry-run)`, required | Builds candidate images by digest; full dry-run against the cluster; no Deployment record |
-| Release published | `deploy`, environment `production` | `estate-kit / deploy` | Promotes the candidate digests; the service dry-runs again, signs, moves `render/<p>:prod`, and streams the rollout |
+| Release-please pull request | `deploy`, `dry-run: true` | `estate-kit / deploy (dry-run)`, required | A build job builds candidate images by digest; a separate job registers those digests with the service and runs the full dry-run against the cluster; no Deployment record |
+| Release published | `deploy`, environment `production` | `estate-kit / deploy` | Promotes the candidate digests; the service checks every digest was registered by this Project (D8), dry-runs again, signs with the render key, moves `render/<p>:prod` with compare-and-swap, and streams the rollout |
 
 Cancelling a deploy job only detaches it; the rollout continues. Stopping a
 rollout is a Pause or a Rollback. A dropped stream resumes from its last event.
@@ -61,7 +63,10 @@ stream.
 ![Deploy, step 1: admission](../diagrams/png/seq-deploy-1-admit.png)
 
 **Step 2, dry-run and signing.** Nothing is signed unless the API server
-accepts the dry-run.
+accepts the dry-run. A render whose digest is unchanged is not published
+again. The tag is moved with a machine account's token from Vault, because ghcr
+refuses GitHub App tokens (D3), and only by the pod holding the writer Lease
+(D9).
 
 ![Deploy, step 2: dry-run and signing](../diagrams/png/seq-deploy-2-dryrun.png)
 
@@ -100,3 +105,9 @@ last sequence number it saw and drops any duplicates.
 and the job fails with the error on its YAML line.
 
 ![Failure: the dry-run is rejected](../diagrams/png/seq-fail-dryrun.png)
+
+**Vault is sealed or down.** Nothing new is signed, so deploys fail loudly with
+a problem that names Vault, and resume once it returns. Vault unseals itself
+through a cloud KMS after a restart, and a VaultSealed alert fires meanwhile
+([review](../research/review/README.md) D6). Serving is unaffected, and a rollback still works, because it signs
+nothing.

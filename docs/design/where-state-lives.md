@@ -8,16 +8,16 @@ history by its own repository.
 
 | Fact | Today | estate-kit |
 | --- | --- | --- |
-| Image digests | `images.lock.yml` in estate, plus each build's share | Sealed into the signed Intent Fragment at release; no file in git |
+| Image digests | `images.lock.yml` in estate, plus each build's share | Sealed into the signed Intent Fragment at release, each registered by the Project's own build; no file in git |
 | Current render of a Project | Pin commit in `estate/projects/<p>/source.yaml` | Signed registry tag `render/<p>:prod` that the service moves |
 | What runs | Flux status, read back via the estate repo | Flux and Kubernetes object status, read live |
-| Release history | Pin commits plus GitHub Deployments | GitHub Deployments on each Project's repository, and the service's event log |
-| Paused, rolled back to X | Pin commits by `pause.yml` and `rollback.yml` | One cluster object per Project, written only by the service |
-| ClusterState | `cluster-state.yml`, committed by the Collector | Read live; each snapshot digested into the render key |
+| Release history | Pin commits plus GitHub Deployments | GitHub Deployments on each Project's repository, and the service's event log on the shared platform-postgres |
+| Paused, rolled back to X | Pin commits by `pause.yml` and `rollback.yml` | One cluster object per Project, written only by the service; a missing object reads as Paused |
+| ClusterState | `cluster-state.yml`, committed by the Collector | Read live; each snapshot digested into the render key, kept as provenance |
 | Which Projects may deploy | `participants.yml` | Admitted Projects, declared in Platform Intent |
 | Estate-wide policy | `platform.intent.yml` and the node contract in estate | Same, in the thin estate repo |
 | Toolchain config | Copied per repository | Central in estate-kit, inherited through presets and reusable workflows |
-| Rendered files | Signed OCI artifacts in ghcr | Same; ghcr is also the render cache, keyed by input digest |
+| Rendered files | Signed OCI artifacts in ghcr | Same, kept with their signatures; no render cache, and an unchanged render is not published again |
 | Per-Project Flux sources | Rendered from the pin files | Derived from the admitted Projects into one platform render |
 
 ## Where each part runs
@@ -29,8 +29,9 @@ cluster.
 
 ## Inside the cluster
 
-The service talks to Vault, the API server, auth-api and its own Postgres. Flux
-alone applies.
+The service talks to Vault, the API server, auth-api and the shared
+platform-postgres. Flux alone applies, locked down so each Project's
+Kustomization runs as that Project's service account in its own namespace.
 
 ![Deployment: inside the cluster](../diagrams/png/deploy-in-cluster.png)
 
