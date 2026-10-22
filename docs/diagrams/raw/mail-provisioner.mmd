@@ -1,0 +1,26 @@
+%% title: Mail provisioner: the reconciler and its ports
+classDiagram
+    direction TB
+    class MailboxReconciler {
+        reconcile(Mailbox) Status
+    }
+    class MailboxSource {
+        <<interface>>
+        Watch(labelSelector)
+    }
+    class Stalwart {
+        <<interface>>
+        EnsureAccount() error
+        RemoveAccount() error
+    }
+    class Secrets {
+        <<interface>>
+        Password(mailbox) Secret
+    }
+    MailboxReconciler ..> MailboxSource
+    MailboxReconciler ..> Stalwart
+    MailboxReconciler ..> Secrets
+    classDef accent fill:#0000a1,stroke:#0000b1
+    class MailboxSource:::accent
+    class Stalwart:::accent
+    class Secrets:::accent

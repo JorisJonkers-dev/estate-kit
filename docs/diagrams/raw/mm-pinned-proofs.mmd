@@ -1,0 +1,19 @@
+%% title: Pinned inputs: proofs and assets
+classDiagram
+    direction LR
+    class MigrationProof {
+        apiVersion: String
+        kind: String
+        schemaVersion: String
+    }
+    class ProvenApplication {
+        id: String
+        testedAgainst: String
+        nonTransactional: BoolObject
+    }
+    class AssetFile {
+        project: String
+        from: String
+        content: String
+    }
+    MigrationProof *-- "0..*" ProvenApplication : applications

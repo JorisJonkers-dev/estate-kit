@@ -1,0 +1,83 @@
+%% title: Platform Intent: the document
+classDiagram
+    direction LR
+    class Platform {
+        apiVersion: String
+        kind: String
+        schemaVersion: String
+        owner: String
+        hardening: HardeningClass
+        secretStore: Application [0..1]
+    }
+    class PlatformMetadata {
+        cluster: String
+        project: String
+        nodeContract: String
+    }
+    class Substrate {
+        kubernetesVersion: String
+        datastore: Datastore
+        serverCount: IntegerObject
+        secretsEncryption: BoolObject
+        cni: String
+        networkPolicyController: PolicyController
+        clusterDns: String
+        imagePull: String
+    }
+    class Bootstrap {
+        crds: String [*]
+    }
+    class HandoverLedger {
+        retireBy: String
+        legacy: String [*]
+        estate: String [*]
+    }
+    class ServingLocation {
+        application: String
+        namespace: String
+        instance: String
+    }
+    class AdminLogin {
+        path: String
+        user: String
+        password: String
+    }
+    class FluxSource {
+        sourceRef: String
+    }
+    class RenderedArtifacts {
+        repository: String
+        pullSecret: String
+    }
+    class ArtifactSigner {
+        issuer: String
+        subject: String
+    }
+    class VaultState {
+        unsealed: BoolObject
+    }
+    Platform *-- "1" PlatformMetadata : metadata
+    Platform *-- "1" Substrate : substrate
+    Platform *-- "1" Bootstrap : bootstrap
+    Platform *-- "0..1" HandoverLedger : handover
+    Bootstrap *-- "1" FluxSource : flux
+    Bootstrap *-- "1" VaultState : vault
+    HandoverLedger *-- "0..*" ServingLocation : serving
+    ServingLocation *-- "0..1" AdminLogin : admin
+    FluxSource *-- "1" RenderedArtifacts : artifacts
+    RenderedArtifacts *-- "1" ArtifactSigner : signer
+    note for Platform "changed: gains admittedProjects and uiRoles"
+    note for HandoverLedger "removed: no legacy path after the cutover"
+    note for ServingLocation "removed: no legacy path after the cutover"
+    note for FluxSource "changed: one prod tag per Project"
+    note for RenderedArtifacts "changed: the registry is also the render cache"
+    note for ArtifactSigner "changed: a Vault Transit key"
+    note "Key: amber is changed, red is removed, green is new#59; the rest carries over"
+    classDef bad fill:#0000a4,stroke:#0000b4
+    classDef warn fill:#0000a5,stroke:#0000b5
+    class Platform:::warn
+    class HandoverLedger:::bad
+    class ServingLocation:::bad
+    class FluxSource:::warn
+    class RenderedArtifacts:::warn
+    class ArtifactSigner:::warn

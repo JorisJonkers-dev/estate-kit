@@ -1,0 +1,13 @@
+%% title: Dry-run of a release pull request
+sequenceDiagram
+    autonumber
+    participant CI as deploy job, dry-run
+    participant S as estate-kit service
+    participant K as API server
+    participant GH as GitHub
+    CI->>CI: build candidate images
+    CI->>S: deploy, dry-run (GitHub OIDC token)
+    S->>K: compose, apply dryRun=All
+    K-->>S: accepted or rejected
+    S-->>CI: diagnostics, render diff
+    CI->>GH: annotations, check run, job summary

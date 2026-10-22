@@ -1,0 +1,56 @@
+%% title: Resolved Deployment: what a Process reaches
+classDiagram
+    direction LR
+    class ResolvedProcess {
+        name: String
+        identity: String
+        lifecycle: String
+        image: String
+        imageVersion: String
+        uid: Int
+        gid: Int
+        cutover: Cutover
+    }
+    class ResolvedVpn {
+        image: String
+        imageVersion: String
+        memory: String
+        cpu: String
+        forwardedPort: Bool
+    }
+    class ResolvedGpu {
+        resource: String
+        runtimeClass: String
+    }
+    class ResolvedLibraryMount {
+        library: String
+        claim: String
+        volume: String
+        node: String
+        path: String
+        gid: Int
+        mountAt: String
+        subPath: String
+    }
+    class InternetEgress {
+        reason: String
+    }
+    class ResolvedApiAccess {
+        reason: String
+    }
+    class ResolvedApiRule {
+        group: String
+        objects: String [*]
+        verbs: String [*]
+    }
+    class AdmittedRange {
+        cidr: String
+        port: Int
+    }
+    ResolvedProcess *-- "0..1" ResolvedGpu : gpu
+    ResolvedProcess *-- "0..1" ResolvedVpn : vpn
+    ResolvedProcess *-- "0..1" ResolvedApiAccess : api
+    ResolvedProcess *-- "0..1" InternetEgress : internetEgress
+    ResolvedProcess *-- "0..*" ResolvedLibraryMount : libraries
+    ResolvedApiAccess *-- "1..*" ResolvedApiRule : rules
+    ResolvedApiAccess *-- "1..*" AdmittedRange : server

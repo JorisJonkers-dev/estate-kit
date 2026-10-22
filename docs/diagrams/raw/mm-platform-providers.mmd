@@ -1,0 +1,46 @@
+%% title: Platform Intent: providers, VPN and GPUs
+classDiagram
+    direction LR
+    class Platform {
+        apiVersion: String
+        kind: String
+        schemaVersion: String
+        owner: String
+        hardening: HardeningClass
+        secretStore: Application [0..1]
+    }
+    class Provider {
+        name: String
+        address: String
+    }
+    class ProviderSurface {
+        key: String
+        value: IntegerObject
+    }
+    class VpnPolicy {
+        image: String
+        credential: String
+        memory: String
+        cpu: String
+    }
+    class VpnSetting {
+        key: String
+        value: String
+    }
+    class GpuVendor {
+        key: String
+    }
+    class GpuVendorPolicy {
+        resource: String
+        runtimeClass: String
+    }
+    Platform *-- "0..*" Provider : providers
+    Platform *-- "0..*" GpuVendor : gpus
+    Platform *-- "0..1" VpnPolicy : vpn
+    Provider *-- "1..*" ProviderSurface : surfaces
+    VpnPolicy *-- "0..*" VpnSetting : settings
+    GpuVendor *-- "1" GpuVendorPolicy : value
+    note for Platform "changed: gains admittedProjects and uiRoles"
+    note "Key: amber is changed, red is removed, green is new#59; the rest carries over"
+    classDef warn fill:#0000a5,stroke:#0000b5
+    class Platform:::warn

@@ -1,0 +1,56 @@
+%% title: Resolved Deployment: grants, edges and environment
+classDiagram
+    direction LR
+    class ResolvedGrant {
+        path: String
+        keys: String [*]
+        access: String
+        engine: String
+        delivery: String
+        destination: String
+        mountAt: String
+        fileMode: String
+    }
+    class ResolvedGeneratedKey {
+        path: String
+        key: String
+        bytes: Int
+        encoding: String
+        adoptPath: String
+        adoptKey: String
+    }
+    class PolicyPath {
+        path: String
+        allows: String [*]
+    }
+    class ResolvedEdge {
+        application: String
+        surface: String
+        address: String
+        target: String
+    }
+    class PolicyPeer {
+        rule: String
+        namespace: String
+        consumes: String
+        process: String
+        port: Int
+    }
+    class EnvEntry {
+        name: String
+        value: String
+    }
+    class SecretReference {
+        path: String
+        key: String
+    }
+    class ResolvedAsset {
+        name: String
+        from: String
+        mountAt: String
+        content: String
+    }
+    ResolvedGrant *-- "0..*" PolicyPath : paths
+    ResolvedGrant *-- "0..*" ResolvedGeneratedKey : generated
+    ResolvedEdge *-- "0..*" PolicyPeer : peers
+    EnvEntry *-- "0..1" SecretReference : secret

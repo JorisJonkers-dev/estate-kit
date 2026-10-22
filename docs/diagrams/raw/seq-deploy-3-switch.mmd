@@ -1,0 +1,14 @@
+%% title: Deploy, step 3 of 3: Flux applies and Flagger switches traffic
+sequenceDiagram
+    autonumber
+    participant F as Flux
+    participant O as ghcr
+    participant K as API server
+    participant FG as Flagger
+    participant S as estate-kit service
+    participant CI as deploy job
+    F->>O: pull the prod tag, verify its signature
+    F->>K: apply
+    FG->>S: Release Gate webhook
+    S-->>FG: promote once every member is healthy
+    S-->>CI: settled: Serving or Held

@@ -1,0 +1,20 @@
+%% title: Effective Intent: after lowering
+classDiagram
+    direction LR
+    class EffectiveProject {
+        project: String
+        owner: String
+    }
+    class EffectiveApplication {
+        id: String
+    }
+    class Process {
+        extends SharedIntent
+        name: String
+        lifecycle: Lifecycle
+        image: String
+        runtime: Runtime
+        engine: Engine
+    }
+    EffectiveProject *-- "1..*" EffectiveApplication : applications
+    EffectiveApplication *-- "1..*" Process : processes

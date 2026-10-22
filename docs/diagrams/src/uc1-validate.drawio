@@ -1,1 +1,76 @@
-<mxfile><diagram name="uc1-validate"><mxGraphModel background="#1e1e1e"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="c1" value="Validate a change" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;ellipse;fontStyle=1;fillColor=#1f3a5f;strokeColor=#7aa7e0;" vertex="1" parent="1"><mxGeometry x="260" y="130.0" width="260" height="80" as="geometry"/></mxCell><mxCell id="c2" value="Application author" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;fillColor=none;" vertex="1" parent="1"><mxGeometry x="80" y="35.0" width="40" height="70" as="geometry"/></mxCell><mxCell id="c3" value="" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;endArrow=none;" edge="1" parent="1" source="c2" target="c1"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="c4" value="Project CI" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;fillColor=none;" vertex="1" parent="1"><mxGeometry x="80" y="205.0" width="40" height="70" as="geometry"/></mxCell><mxCell id="c5" value="" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;endArrow=none;" edge="1" parent="1" source="c4" target="c1"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="c6" value="Validate offline" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;ellipse;" vertex="1" parent="1"><mxGeometry x="700" y="26.0" width="280" height="68" as="geometry"/></mxCell><mxCell id="c7" value="«include»" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;dashed=1;endArrow=open;endSize=10;labelPosition=center;" edge="1" parent="1" source="c1" target="c6"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="c8" value="Plan without the cluster" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;ellipse;" vertex="1" parent="1"><mxGeometry x="700" y="136.0" width="280" height="68" as="geometry"/></mxCell><mxCell id="c9" value="«include»" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;dashed=1;endArrow=open;endSize=10;labelPosition=center;" edge="1" parent="1" source="c1" target="c8"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="c10" value="Resolve model paths to lines" style="fillColor=#2b2b2b;strokeColor=#a8a8a8;fontColor=#e8e8e8;fontSize=15;fontFamily=Helvetica;html=1;whiteSpace=wrap;ellipse;" vertex="1" parent="1"><mxGeometry x="700" y="246.0" width="280" height="68" as="geometry"/></mxCell><mxCell id="c11" value="«include»" style="strokeColor=#a8a8a8;fontColor=#e8e8e8;labelBackgroundColor=#1e1e1e;strokeWidth=1.5;fontSize=15;fontFamily=Helvetica;html=1;dashed=1;endArrow=open;endSize=10;labelPosition=center;" edge="1" parent="1" source="c1" target="c10"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell></root></mxGraphModel></diagram></mxfile>
+<mxfile>
+  <diagram name="uc1-validate" id="uc1-validate">
+    <mxGraphModel grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="0" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="sys" parent="1" style="swimlane;startSize=30;rounded=1;arcSize=4;absoluteArcSize=1;container=1;collapsible=0;dashed=1;dashPattern=8 4;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fontStyle=1;fillColor=none;swimlaneFillColor=none;strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="estate-kit" vertex="1">
+          <mxGeometry height="350" width="757" x="221" y="12" as="geometry" />
+        </mxCell>
+        <mxCell id="uc" parent="sys" style="ellipse;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="Validate a change" vertex="1">
+          <mxGeometry height="70" width="220" x="10" y="57.5" as="geometry" />
+        </mxCell>
+        <mxCell id="i0" parent="sys" style="ellipse;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="Validate offline" vertex="1">
+          <mxGeometry height="70" width="220" x="467" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="i1" parent="sys" style="ellipse;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="Plan without the cluster" vertex="1">
+          <mxGeometry height="70" width="242" x="467" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="i2" parent="sys" style="ellipse;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="Resolve model paths to YAML lines" vertex="1">
+          <mxGeometry height="80" width="280" x="467" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="sys" source="uc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;noEdgeStyle=1;orthogonal=1;curved=0;exitX=0.9331;exitY=0.25;entryX=0;entryY=0.5;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="i0" value="«include»">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="230" y="75" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="sys" source="uc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="i1" value="«include»">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="46.25" as="offset" />
+            <Array as="points">
+              <mxPoint x="256" y="92.5" />
+              <mxPoint x="256" y="185" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="sys" source="uc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;noEdgeStyle=1;orthogonal=1;curved=0;exitX=0.9331;exitY=0.75;entryX=0;entryY=0.5;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="i2" value="«include»">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="95" as="offset" />
+            <Array as="points">
+              <mxPoint x="246" y="110" />
+              <mxPoint x="246" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a0" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#ffffff,#1e1e1e);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="Application author" vertex="1">
+          <mxGeometry height="76" width="40" x="49" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="a1" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#ffffff,#1e1e1e);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="Project CI" vertex="1">
+          <mxGeometry height="76" width="40" x="74.5" y="195" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="a0" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=none;noEdgeStyle=1;orthogonal=1;curved=0;exitX=1;exitY=0.4978;entryX=0.0286;entryY=0.3333;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="uc" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="216" y="92.83" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="a1" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=none;noEdgeStyle=1;orthogonal=1;curved=0;exitX=1;exitY=0.5;entryX=0.0286;entryY=0.6667;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="uc" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="142" y="233" />
+              <mxPoint x="142" y="116" />
+              <mxPoint x="216" y="116.17" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="header" value="Use case 1: validate a change" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=light-dark(#1a1a1a,#e8e8e8);fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="49" y="-52" width="929" height="36" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

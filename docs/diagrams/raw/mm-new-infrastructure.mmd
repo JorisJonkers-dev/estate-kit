@@ -1,0 +1,50 @@
+%% title: New: Infrastructure Intent
+classDiagram
+    direction LR
+    class InfrastructureIntent {
+        labelPrefix: String
+    }
+    class Site {
+        name: SiteName
+        timezone: TimeZone
+    }
+    class HostNode {
+        name: NodeName
+        arch: Arch
+        roles: HostRole [*]
+        totals, reserve
+        capabilities, taints
+    }
+    class MaintenanceWindow {
+        start: LocalTime
+        end: LocalTime
+        days: Weekday [*]
+    }
+    class GpuSpec {
+        vendor, model, class
+        memoryMib: Int
+    }
+    class DiskSpec {
+        media: Media
+        usableGib: Int
+    }
+    InfrastructureIntent *-- "1..*" Site : sites
+    Site *-- "1..*" HostNode : nodes
+    Site *-- "1" MaintenanceWindow : window
+    HostNode *-- "*" GpuSpec : gpus
+    HostNode *-- "*" DiskSpec : disks
+    HostNode *-- "0..1" MaintenanceWindow : window
+    note for InfrastructureIntent "new: added by estate-kit"
+    note for Site "new: added by estate-kit"
+    note for HostNode "new: added by estate-kit"
+    note for MaintenanceWindow "new: added by estate-kit"
+    note for GpuSpec "new: added by estate-kit"
+    note for DiskSpec "new: added by estate-kit"
+    note "Key: amber is changed, red is removed, green is new#59; the rest carries over"
+    classDef good fill:#0000a3,stroke:#0000b3
+    class InfrastructureIntent:::good
+    class Site:::good
+    class HostNode:::good
+    class MaintenanceWindow:::good
+    class GpuSpec:::good
+    class DiskSpec:::good

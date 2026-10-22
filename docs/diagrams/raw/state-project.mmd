@@ -1,0 +1,9 @@
+%% title: State machine: a Project
+%% layout: [{"layout":"elkLayered","config":{"elk.layered.crossingMinimization.forceNodeModelOrder":true,"elk.direction":"DOWN","elk.spacing.nodeNode":50,"elk.layered.spacing.nodeNodeBetweenLayers":70,"elk.spacing.edgeLabel":6,"elk.layered.nodePlacement.strategy":"NETWORK_SIMPLEX","elk.layered.considerModelOrder.strategy":"NODES_AND_EDGES","elk.hierarchyHandling":"INCLUDE_CHILDREN","elk.nodeSize.constraints":"","edgeStyle":"orthogonal","corners":"rounded"}}]
+stateDiagram-v2
+    direction TB
+    [*] --> Active: admitted
+    Active --> Paused: pause
+    Paused --> Active: resume
+    Active --> RolledBack: roll back
+    RolledBack --> Active: next release

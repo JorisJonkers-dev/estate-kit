@@ -1,0 +1,14 @@
+%% title: Reuse a render from the registry
+sequenceDiagram
+    autonumber
+    participant S as estate-kit service
+    participant O as ghcr
+    participant R as Rust binary
+    S->>S: render key from the input digests
+    S->>O: a render with this key?
+    alt found
+        O-->>S: reuse it
+    else not found
+        O-->>S: no such render
+        S->>R: render this Project
+    end

@@ -1,0 +1,37 @@
+%% title: Project Intent: what a Process reaches
+classDiagram
+    direction LR
+    class Process {
+        extends SharedIntent
+        name: String
+        lifecycle: Lifecycle
+        image: String
+        runtime: Runtime
+        engine: Engine
+    }
+    class VpnAttachment {
+        forwardedPort: BoolObject
+    }
+    class Egress {
+        to: EgressTarget
+        reason: String
+    }
+    class LibraryMount {
+        library: String
+        mountAt: String
+        subPath: String
+        access: LibraryAccess
+    }
+    class ApiAccess {
+        reason: String
+    }
+    class ApiRule {
+        group: String
+        objects: String [*]
+        verbs: ApiVerb [*]
+    }
+    Process *-- "0..1" ApiAccess : api
+    Process *-- "0..*" LibraryMount : libraries
+    Process *-- "0..1" Egress : egress
+    Process *-- "0..1" VpnAttachment : vpn
+    ApiAccess *-- "1..*" ApiRule : rules

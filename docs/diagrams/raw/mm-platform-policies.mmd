@@ -1,0 +1,57 @@
+%% title: Platform Intent: policies
+classDiagram
+    direction LR
+    class Platform {
+        apiVersion: String
+        kind: String
+        schemaVersion: String
+        owner: String
+        hardening: HardeningClass
+        secretStore: Application [0..1]
+    }
+    class Tier {
+        name: String
+        audiences: Audience [*]
+        listener: Listener
+        certificates: CertificateSource
+        forwardAuth: String
+        proxiedBy: ProxiedBy
+        traefik: Application [1]
+    }
+    class DurabilityPolicies {
+    }
+    class DurabilityPolicy {
+        schedule: String
+        retain: IntegerObject
+    }
+    class OffClusterCopy {
+        destination: String
+        credential: String
+    }
+    class DestinationRange {
+        cidr: String
+        port: IntegerObject
+    }
+    class EnginePolicies {
+    }
+    class EnginePolicy {
+        backup: String
+        surface: String
+        catalog: String
+    }
+    Platform *-- "1..*" Tier : tiers
+    Platform *-- "1" DurabilityPolicies : durability
+    Platform *-- "1" EnginePolicies : engines
+    DurabilityPolicies *-- "0..1" DurabilityPolicy : reconstructible
+    DurabilityPolicies *-- "0..1" DurabilityPolicy : recoverable
+    DurabilityPolicies *-- "0..1" DurabilityPolicy : irreplaceable
+    DurabilityPolicy *-- "0..1" OffClusterCopy : offCluster
+    OffClusterCopy *-- "1..*" DestinationRange : egress
+    EnginePolicies *-- "0..1" EnginePolicy : postgres
+    EnginePolicies *-- "0..1" EnginePolicy : rabbitmq
+    EnginePolicies *-- "0..1" EnginePolicy : valkey
+    EnginePolicies *-- "0..1" EnginePolicy : files
+    note for Platform "changed: gains admittedProjects and uiRoles"
+    note "Key: amber is changed, red is removed, green is new#59; the rest carries over"
+    classDef warn fill:#0000a5,stroke:#0000b5
+    class Platform:::warn

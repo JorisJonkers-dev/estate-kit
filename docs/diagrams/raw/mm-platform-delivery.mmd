@@ -1,0 +1,52 @@
+%% title: Platform Intent: delivery and jobs
+classDiagram
+    direction LR
+    class Platform {
+        apiVersion: String
+        kind: String
+        schemaVersion: String
+        owner: String
+        hardening: HardeningClass
+        secretStore: Application [0..1]
+    }
+    class DeliveryPolicy {
+        machinery: Application [1..*]
+        gate: Application [1]
+        reporter: Application [0..1]
+    }
+    class ApiAccessPolicy {
+        holders: Application [1..*]
+    }
+    class AnalysisPolicy {
+        interval: String
+        iterations: IntegerObject
+        threshold: IntegerObject
+        errorRate: String
+        latency: String
+    }
+    class VaultPolicyJob {
+        image: String
+        role: String
+        memory: String
+        cpu: String
+        deadline: String
+    }
+    class MigrationPolicy {
+        runner: String
+        deadline: String
+        memory: String
+        cpu: String
+    }
+    Platform *-- "0..1" MigrationPolicy : migration
+    Platform *-- "0..1" DeliveryPolicy : delivery
+    Platform *-- "0..1" ApiAccessPolicy : apiAccess
+    Platform *-- "0..1" VaultPolicyJob : policyJob
+    DeliveryPolicy *-- "1" AnalysisPolicy : analysis
+    note for Platform "changed: gains admittedProjects and uiRoles"
+    note for VaultPolicyJob "changed: built as the secret-job component"
+    note for MigrationPolicy "changed: runner built as the migration-runner component"
+    note "Key: amber is changed, red is removed, green is new#59; the rest carries over"
+    classDef warn fill:#0000a5,stroke:#0000b5
+    class Platform:::warn
+    class VaultPolicyJob:::warn
+    class MigrationPolicy:::warn

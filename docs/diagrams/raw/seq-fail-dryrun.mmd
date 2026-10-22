@@ -1,0 +1,12 @@
+%% title: Failure: the API server rejects the dry-run
+sequenceDiagram
+    autonumber
+    participant S as estate-kit service
+    participant K as API server
+    participant DB as event log
+    participant CI as deploy job
+    S->>K: apply, dryRun=All
+    K-->>S: rejected: immutable field
+    S->>DB: Refused event, Project isolated
+    S-->>CI: problem+json with the model path
+    CI->>CI: annotate the YAML line, fail the job

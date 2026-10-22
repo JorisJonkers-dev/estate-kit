@@ -1,0 +1,27 @@
+%% title: Resolved Deployment: probes
+classDiagram
+    direction LR
+    class ResolvedProbe {
+        period: String
+        timeout: String
+        failures: Int
+    }
+    class StartupProbe {
+        period: String
+        timeout: String
+        failures: Int
+    }
+    class ProbeTarget {
+        <<abstract>>
+    }
+    class HttpTarget {
+        path: String
+        port: Int
+    }
+    class TcpTarget {
+        tcp: Int
+    }
+    ResolvedProbe *-- "1" ProbeTarget : target
+    StartupProbe *-- "1" ProbeTarget : target
+    HttpTarget --|> ProbeTarget
+    TcpTarget --|> ProbeTarget

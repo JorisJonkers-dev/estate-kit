@@ -1,0 +1,53 @@
+%% title: Project Intent: exposure and edges
+classDiagram
+    direction LR
+    class Application {
+        extends SharedIntent
+        id: String
+    }
+    class Exposure {
+        name: String
+        host: String
+        audience: Audience
+        contentPolicy: ContentPolicy
+    }
+    class Route {
+        path: String
+        match: Match
+        audience: Audience
+        redirectTo: String
+        process: Process [1]
+        surface: Surface [1]
+    }
+    class RateLimit {
+        requests: IntegerObject
+        per: String
+    }
+    class DependencyEdge {
+        application: String
+        surface: String
+        required: BoolObject
+    }
+    class Credentials {
+        delivery: Delivery
+        mountAt: String
+        fileMode: String
+    }
+    class Observability {
+        alertClass: AlertClass
+    }
+    class Scrape {
+        path: String
+        process: Process [1]
+        surface: Surface [1]
+    }
+    Application *-- "0..1" Observability : observability
+    Application *-- "0..*" Exposure : exposure
+    Exposure *-- "1..*" Route : routes
+    Route *-- "0..1" RateLimit : rateLimit
+    DependencyEdge *-- "0..1" Credentials : credentials
+    Observability *-- "0..1" Scrape : scrape
+    note for Application "changed: gains mail: the Mailboxes it declares"
+    note "Key: amber is changed, red is removed, green is new#59; the rest carries over"
+    classDef warn fill:#0000a5,stroke:#0000b5
+    class Application:::warn

@@ -1,0 +1,31 @@
+%% title: Resolved Deployment: the database catalog
+classDiagram
+    direction LR
+    class ResolvedCatalogJob {
+        identity: String
+        namespace: String
+        image: String
+        imageVersion: String
+        uid: Int
+        gid: Int
+        role: String
+        address: String
+    }
+    class ResolvedCatalog {
+        host: String
+        port: Int
+        connection: String
+    }
+    class CatalogAdmin {
+        path: String
+        user: String
+        password: String
+    }
+    class CatalogDatabase {
+        name: String
+        owner: String
+        data: String
+    }
+    ResolvedCatalogJob *-- "1" ResolvedCatalog : catalog
+    ResolvedCatalog *-- "1" CatalogAdmin : admin
+    ResolvedCatalog *-- "1..*" CatalogDatabase : databases

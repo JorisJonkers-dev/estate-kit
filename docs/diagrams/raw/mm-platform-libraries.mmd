@@ -1,0 +1,30 @@
+%% title: Platform Intent: libraries
+classDiagram
+    direction LR
+    class Platform {
+        apiVersion: String
+        kind: String
+        schemaVersion: String
+        owner: String
+        hardening: HardeningClass
+        secretStore: Application [0..1]
+    }
+    class Library {
+        key: String
+    }
+    class LibraryDeclaration {
+        node: String
+        path: String
+        gid: IntegerObject
+    }
+    class LibraryGrant {
+        key: String
+        value: LibraryAccess
+    }
+    Platform *-- "0..*" Library : libraries
+    Library *-- "1" LibraryDeclaration : value
+    LibraryDeclaration *-- "1..*" LibraryGrant : grants
+    note for Platform "changed: gains admittedProjects and uiRoles"
+    note "Key: amber is changed, red is removed, green is new#59; the rest carries over"
+    classDef warn fill:#0000a5,stroke:#0000b5
+    class Platform:::warn

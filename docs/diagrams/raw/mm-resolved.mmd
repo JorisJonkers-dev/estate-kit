@@ -1,0 +1,60 @@
+%% title: Resolved Deployment: the root
+classDiagram
+    direction LR
+    class ResolvedDeployment {
+        apiVersion: String
+        kind: String
+    }
+    class Provenance {
+        renderHash: String
+        schemaPackageIntegrity: String
+    }
+    class InputDigest {
+        input: PinnedInput
+        name: String
+        digest: String
+    }
+    class ReconcileUnit {
+        name: String
+        after: ReconcileUnit [0..*]
+    }
+    class ResolvedEvents {
+        namespace: String
+        address: String
+    }
+    class ResolvedPolicyJob {
+        identity: String
+        namespace: String
+        image: String
+        imageVersion: String
+        uid: Int
+        gid: Int
+        role: String
+        address: String
+    }
+    class ResolvedCatalogJob {
+        identity: String
+        namespace: String
+        image: String
+        imageVersion: String
+        uid: Int
+        gid: Int
+        role: String
+        address: String
+    }
+    ResolvedDeployment *-- "1" Provenance : provenance
+    ResolvedDeployment *-- "1..*" ReconcileUnit : reconcileUnits
+    ResolvedDeployment *-- "0..1" ResolvedPolicyJob : policyJob
+    ResolvedDeployment *-- "0..*" ResolvedCatalogJob : catalogJobs
+    ResolvedDeployment *-- "0..1" ResolvedEvents : events
+    Provenance *-- "1..*" InputDigest : inputDigests
+    note for Provenance "changed: becomes the render key"
+    note for InputDigest "changed: becomes the render key"
+    note for ResolvedEvents "changed: one per Project, in its own unit (#544)"
+    note for ResolvedPolicyJob "changed: one per Project, in its own unit (#544)"
+    note "Key: amber is changed, red is removed, green is new#59; the rest carries over"
+    classDef warn fill:#0000a5,stroke:#0000b5
+    class Provenance:::warn
+    class InputDigest:::warn
+    class ResolvedEvents:::warn
+    class ResolvedPolicyJob:::warn

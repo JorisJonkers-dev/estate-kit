@@ -1,0 +1,20 @@
+%% title: Deploy, step 2 of 3: compose, dry-run, sign and move the prod tag
+sequenceDiagram
+    autonumber
+    participant S as estate-kit service
+    participant R as Rust binary
+    participant K as API server
+    participant V as Vault Transit
+    participant O as ghcr
+    S->>O: pull the admitted fragments
+    S->>R: compose the estate
+    R-->>S: renders, diagnostics
+    S->>K: apply, dryRun=All
+    alt dry-run accepted
+        K-->>S: accepted
+        S->>V: sign the render
+        S->>O: push the render, move the prod tag
+    else dry-run rejected
+        K-->>S: rejected
+        Note right of S: Project isolated, prod tag unchanged
+    end

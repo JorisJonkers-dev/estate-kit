@@ -1,0 +1,54 @@
+%% title: Pinned inputs: images lock and ClusterState
+classDiagram
+    direction LR
+    class ImagesLock {
+        apiVersion: String
+        kind: String
+        schemaVersion: String
+        name: String
+    }
+    class LockedImage {
+        alias: String
+        repository: String
+        digest: String
+        uid: Int
+        gid: Int
+        version: String
+    }
+    class ClusterState {
+        apiVersion: String
+        kind: String
+        schemaVersion: String
+        cluster: String
+        capturedAt: String
+    }
+    class Binding {
+        claim: String
+        node: String
+    }
+    class CurrentPlacement {
+        process: String
+        node: String
+    }
+    class RollbackBackup {
+        request: String
+        project: String
+        job: String
+        outcome: BackupOutcome
+        finishedAt: String
+    }
+    ImagesLock *-- "0..*" LockedImage : images
+    ClusterState *-- "0..*" Binding : bindings
+    ClusterState *-- "0..*" CurrentPlacement : placements
+    ClusterState *-- "0..*" RollbackBackup : backups
+    note for ImagesLock "removed: digests are sealed into the Intent Fragment"
+    note for LockedImage "removed: digests are sealed into the Intent Fragment"
+    note for ClusterState "changed: read live, digested into the render key"
+    note for RollbackBackup "removed: a Rollback relies on the scheduled backups (#557)"
+    note "Key: amber is changed, red is removed, green is new#59; the rest carries over"
+    classDef bad fill:#0000a4,stroke:#0000b4
+    classDef warn fill:#0000a5,stroke:#0000b5
+    class ImagesLock:::bad
+    class LockedImage:::bad
+    class ClusterState:::warn
+    class RollbackBackup:::bad

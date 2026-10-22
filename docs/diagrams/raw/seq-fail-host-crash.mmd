@@ -1,0 +1,11 @@
+%% title: Failure: the host applier crashes mid-switch and resumes
+sequenceDiagram
+    autonumber
+    participant A as host applier
+    participant K as API server
+    participant A2 as host applier, restarted
+    A->>K: take the Lease, cordon, evict
+    A->>A: crashes before switching
+    A2->>K: Lease still mine? node cordoned?
+    A2->>A2: resume: switch, health check
+    A2->>K: uncordon, release the Lease
