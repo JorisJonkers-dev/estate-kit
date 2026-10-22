@@ -19,6 +19,6 @@ without a working check is a defect.
 ## Writing order
 
 The founding records are written once the candidate lessons are curated. The
-working list of records and their status is kept in the design documents until
-each record lands here. The model's own records (engines, grants, exposure and
+planned list of records and their status is [`register.md`](register.md), and
+every choice behind them is in [`choices.md`](choices.md). The model's own records (engines, grants, exposure and
 the rest) are rewritten after the cutover and take the numbers that follow.
