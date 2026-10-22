@@ -237,3 +237,95 @@ seq("seq-mailbox",
     [("S", "F", "Project render with Mailbox objects", False), ("F", "K", "apply Mailbox", False),
      ("M", "K", "watch Mailboxes by label", False), ("M", "V", "read generated password", False),
      ("M", "ST", "create or update account", False), ("M", "K", "write status", False)])
+
+# Hosts: use cases.
+uc("uc10-declare-node", ["Admin"], "Declare a node",
+   ["Edit Infrastructure Intent", "Render host data", "Build and VM-test its class"])
+uc("uc11-roll-out-hosts", ["Project CI", "Host applier"], "Roll out a host change",
+   ["Derive the node order", "Take the Lease, evict pods", "Switch the generation", "Reboot inside the window"],
+   side=[(1, "API server")])
+uc("uc12-break-glass", ["Operator"], "Switch a node by hand",
+   ["Verify the closure signature", "Switch without the Lease"])
+uc("uc13-mailbox", ["Application author"], "Declare a Mailbox",
+   ["Generate its password", "Provision the account"], side=[(1, "Stalwart")])
+
+# Hosts: deployment.
+grid("deploy-hosts",
+     [("ci", "CI: build closures, VM tests", "", 0, 0), ("cache", "signed binary cache", DATA, 1, 0),
+      ("ghcr", "ghcr: host tags", DATA, 2, 0),
+      ("agent1", "host applier (systemd)", ACCENT, 0, 2), ("k3s1", "k3s", "", 0, 3),
+      ("agent2", "host applier (systemd)", ACCENT, 2, 2), ("k3s2", "k3s", "", 2, 3),
+      ("lease", "Lease in the API server", "", 1, 2)],
+     [("ci", "cache", "pushes"), ("cache", "agent1", "closure", "exitX=0.25;exitY=1;entryX=0.75;entryY=0;"),
+      ("ghcr", "agent2", "pointer"), ("agent1", "lease", ""), ("agent2", "lease", ""),
+      ("agent1", "k3s1", "drains, restarts"), ("agent2", "k3s2", "drains, restarts")],
+     boxes=[("node A", 0, 2, 0, 3), ("node B", 2, 2, 2, 3)],
+     cw=320, rh=120, w=230, h=56)
+
+# Hosts: deriving the node order.
+grid("flow-host-order",
+     [("start", "Host rollout accepted", "", 1, 0), ("q", "k3s version changes?", "rhombus;", 1, 1),
+      ("cp1", "Control plane, in its window", WARN, 0, 2), ("can1", "Canary worker", "", 0, 3), ("w1", "Remaining workers", "", 0, 4),
+      ("can2", "Canary worker", "", 2, 2), ("w2", "Remaining workers", "", 2, 3), ("cp2", "Control plane, in its window", WARN, 2, 4)],
+     [("start", "q", ""), ("q", "cp1", "yes", "exitX=0;exitY=0.5;entryX=0.5;entryY=0;"),
+      ("q", "can2", "no", "exitX=1;exitY=0.5;entryX=0.5;entryY=0;"),
+      ("cp1", "can1", ""), ("can1", "w1", ""), ("can2", "w2", ""), ("w2", "cp2", "")],
+     cw=320, rh=110, w=230, h=56)
+
+# Hosts: the host applier's internals.
+cls("host-applier", [
+    ("ptr", "PointerSource", "interface", ["Current(node) HostTag"], 0, 0),
+    ("fetch", "ClosureFetcher", "interface", ["Fetch(storePath) error"], 1, 0),
+    ("lease", "Lease", "interface", ["Acquire(), Release()"], 2, 0),
+    ("agent", "Agent", None, ["node: NodeName", "run(): one reconcile step"], 1, 1),
+    ("evict", "Evictor", "interface", ["Drain(node), Uncordon(node)"], 0, 2),
+    ("switch", "Switcher", "interface", ["Switch(gen), NeedsReboot(gen) bool"], 1, 2),
+    ("window", "WindowPolicy", "interface", ["Open(now) bool"], 2, 2)],
+    [("agent", "ptr", "", "dep", "exitX=0.15;exitY=0;entryX=0.5;entryY=1;"),
+     ("agent", "fetch", "", "dep", "exitX=0.5;exitY=0;entryX=0.5;entryY=1;"),
+     ("agent", "lease", "", "dep", "exitX=0.85;exitY=0;entryX=0.5;entryY=1;"),
+     ("agent", "evict", "", "dep", "exitX=0.15;exitY=1;entryX=0.5;entryY=0;"),
+     ("agent", "switch", "", "dep", "exitX=0.5;exitY=1;entryX=0.5;entryY=0;"),
+     ("agent", "window", "", "dep", "exitX=0.85;exitY=1;entryX=0.5;entryY=0;")],
+    cw=400, rh=190)
+
+# Platform Intent and drift.
+seq("seq-platform-push",
+    [("CI", "estate repo CI"), ("O", "ghcr"), ("S", "Service"), ("R", "Rust binary")],
+    [("CI", "R", "validate Platform Intent", False), ("CI", "O", "publish platform fragment", False),
+     ("CI", "S", "deploy (OIDC, platform)", False), ("S", "S", "cache the new copy", False),
+     ("S", "R", "compose the estate", False), ("S", "CI", "rollout stream", True)])
+seq("seq-drift-check",
+    [("S", "Service (nightly)"), ("G", "GitHub"), ("O", "ghcr"), ("DB", "service cache")],
+    [("S", "G", "latest release of each admitted repo", False), ("S", "O", "latest fragment and prod tag", False),
+     ("S", "DB", "cached copies", False), ("S", "S", "compare all three", False),
+     ("S", "G", "report drift as an issue or check", False)])
+
+# Mail.
+grid("state-mailbox",
+     [("dec", "Declared", "", 0, 0), ("prov", "Provisioned", GOOD, 1, 0), ("rot", "Rotating password", "", 2, 0),
+      ("ref", "Refused: claimed by another Project", BAD, 0, 1), ("gone", "Removed", "", 1, 1)],
+     [("dec", "prov", "account created"), ("prov", "rot", "rotation due", "exitX=1;exitY=0.3;entryX=0;entryY=0.3;"),
+      ("rot", "prov", "new password delivered", "exitX=0;exitY=0.7;entryX=1;entryY=0.7;"),
+      ("dec", "ref", "contention"), ("prov", "gone", "dropped from intent")],
+     cw=480, rh=130, w=250, h=60)
+cls("mail-provisioner", [
+    ("rec", "MailboxReconciler", None, ["reconcile(Mailbox) Status"], 1, 0),
+    ("watch", "MailboxSource", "interface", ["Watch(labelSelector)"], 0, 1),
+    ("st", "Stalwart", "interface", ["EnsureAccount, RemoveAccount"], 1, 1),
+    ("vault", "Secrets", "interface", ["Password(mailbox) Secret"], 2, 1)],
+    [("rec", "watch", "", "dep", "exitX=0;exitY=0.5;entryX=0.5;entryY=0;"), ("rec", "st", "", "dep"),
+     ("rec", "vault", "", "dep", "exitX=1;exitY=0.5;entryX=0.5;entryY=0;")],
+    cw=400, rh=170)
+
+# The parts of estate-kit and what each acts on.
+grid("components",
+     [("compiler", "compiler (Rust)", ACCENT, 1, 0), ("service", "service (Go)", ACCENT, 1, 1),
+      ("applier", "host applier", ACCENT, 1, 2),
+      ("intent", "authored intent", DATA, 0, 0), ("renders", "renders, host data", DATA, 2, 0),
+      ("mig", "migration-runner", "", 0, 3), ("sec", "secret-job", "", 1, 3), ("mail", "mail-provisioner", "", 2, 3),
+      ("ui", "ui (Vue)", "", 2, 1), ("nodes", "NixOS nodes", "", 2, 2)],
+     [("intent", "compiler", "reads"), ("compiler", "renders", "writes"), ("service", "compiler", "runs"),
+      ("service", "ui", "serves"), ("applier", "nodes", "switches"), ("service", "applier", "host tags, pulled")],
+     boxes=[("components, one image each", 0, 3, 2, 3)],
+     cw=320, rh=120, w=220, h=56)
