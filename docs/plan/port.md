@@ -117,7 +117,7 @@ them after the first chapter lands and note the revision here.
 | Render and serialize (W3) | 504 rendered files, in structure, then the one rewrite into the canonical format | 40 h |
 
 A chapter group that overruns its hours by half stops the phase, like any
-other. The stop rule is record 67's, not a fallback: until the Rust compiler
+other. The stop rule comes from [record 67](../decisions/0067-the-compiler-is-written-to-the-1-0-contract.md), not from a fallback: until the Rust compiler
 meets every oracle of the latest deploy-kit release, deploy-kit keeps
 releasing additive changes for the #373 handovers, specification first; after
 that, it takes no new concepts.
