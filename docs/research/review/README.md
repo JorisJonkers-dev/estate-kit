@@ -110,6 +110,11 @@ The maintainer decided all twelve on 2026-10-22. Each changes or adds to a
 choice in [`choices.md`](../../decisions/choices.md); the records that carry
 them are Proposed until they are written and accepted.
 
+D1 was reversed on 2026-10-29 by
+[record 13](../../decisions/0013-every-program-is-rust.md): every program is
+Rust, and the TypeScript compiler is not kept. That design was reviewed
+separately; see [Review of the all-Rust redesign](../rust-redesign-review.md).
+
 | Decision | Chosen | Against the recommendation? |
 | --- | --- | --- |
 | D1: order of the cutover and the compiler language | TypeScript to 1.0 through the subprocess seam; a Rust port of the frozen 1.0 model only if a later record justifies it | No |
