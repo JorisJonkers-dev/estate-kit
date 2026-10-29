@@ -77,7 +77,10 @@ composition runs normally.
 The service follows Flux by watching Kustomization and OCIRepository status,
 not by taking Flux events: Flux and Flagger cannot send projected
 service-account tokens. The Release Gate answers Flagger from cluster state
-only, so no unauthenticated request can change anything. The service dry-runs
+only, so no unauthenticated request can change anything. Its two writes, the
+unsuspend of a migration Job and the Application's record, are made by the
+service's reconcile under the writer Lease with a service account of their own
+([record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)). The service dry-runs
 as its own identity; a ValidatingAdmissionPolicy refuses any write from that
 identity unless `dryRun` is set ([security](security.md)).
 
@@ -86,5 +89,6 @@ identity unless `dryRun` is set ([security](security.md)).
 The dashboard's read views (units, pods, containers, alerts and silences,
 logs, health, checks) are a separate context in the same binary: the
 `observation-app` crate and one adapter per source. They hold no credential
-that can deploy, pause or roll back, and a source that is down greys out its
+that can deploy, pause or roll back, and one write: Alertmanager silences, with a
+credential for that API alone ([record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)), and a source that is down greys out its
 panel without touching a rollout.

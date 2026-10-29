@@ -14,7 +14,8 @@ components. The inventory of 2026-10-29 found the dashboard's read views
 (units, pods, containers, alerts and silences, logs, health, checks) with no
 context; the earlier plan would have put them in the service, beside the
 rollout core. estate-dashboard today holds no credential that can deploy,
-pause or roll back, and its value is that it stays read-only.
+pause or roll back, and its value is that it stays read-only apart from one
+named write, Alertmanager silences ([record 74](0074-the-release-gate-and-observation-each-have-a-named-write.md)).
 
 ## Decision
 
@@ -25,7 +26,7 @@ Five bounded contexts, each a set of crates in the layers of
 | --- | --- | --- |
 | Compiler | The model | Its application crate's use cases |
 | Service | Rollouts, compositions, admission, Pause and Rollback, the Release Gate | The compiler's use cases, in-process |
-| Observation | What runs and how it is doing, read only | Rollout events, read through a query port |
+| Observation | What runs and how it is doing; read only except Alertmanager silences ([record 74](0074-the-release-gate-and-observation-each-have-a-named-write.md)) | Rollout events, read through a query port |
 | Hosts | Generations and their rollout across nodes | Signed host tags only |
 | Components | Migrations, secret grants, catalogs, backups, Mailboxes | Rendered objects only |
 
@@ -38,7 +39,7 @@ is the normative list of edges.
 
 | Option | Cost if taken | Why rejected |
 | --- | --- | --- |
-| Four contexts, the read views inside the service | Prometheus, Loki and Alertmanager clients beside the rollout core; read code near credentials that write | The read side holds no write credential |
+| Four contexts, the read views inside the service | Prometheus, Loki and Alertmanager clients beside the rollout core; read code near credentials that write | The read side holds no credential that can deploy; its one write is silences, under its own narrow credential |
 | One context | Nothing stops the host applier importing model types | The applier must work when the cluster and the compiler are not there |
 
 ## Consequences
