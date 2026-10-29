@@ -1,7 +1,7 @@
 ---
 status: proposed  # proposed | accepted | locked
 date: 2026-10-29
-rests-on: [16, 64, 67, 68]
+rests-on: [15, 64, 67, 68]
 lessons: [MD-1, TM-1, TM-2]
 ---
 
@@ -20,7 +20,7 @@ another language that reads renders.
 
 Any further implementation of the model, in any language, is held to the
 same contract as the Rust compiler and nothing else: the committed schemas and
-their corpus verdicts ([record 15](0015-the-rust-types-agree-with-the-committed-schemas-on-their-corpus.md)),
+their corpus verdicts and diagnostic sets ([record 15](0015-the-rust-types-agree-with-the-committed-schemas-on-their-corpus.md)),
 every refusal oracle's code and path, the expected models as parsed JSON, and
 the rendered files in the canonical format ([record 64](register.md)), compared
 structure first, then bytes. Oracles are never regenerated from either

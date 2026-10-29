@@ -2,6 +2,8 @@
 
 Six helpers are estate-kit components: Rust binaries that build their own
 images in the same lockstep version ([record 13](../decisions/0013-every-program-is-rust.md)).
+They are ported after the cutover, one at a time; each keeps running as its
+Go or Python program until its rewrite is due.
 Each Project renders the objects they act on, so a Project controls everything
 about itself. They share one reconcile loop: read what a render declares,
 compare it with one outside system, change what differs, and never delete what
@@ -35,7 +37,7 @@ applications:
 - **Within one Project**, the same local part names one shared Mailbox.
 - **Across Projects**, the same local part is refused with a contention
   diagnostic that points at both YAML lines, the other as a related location
-  ([record 71](../decisions/0071-every-diagnostic-names-its-locations-and-every-output-traces-to-its-source.md)). Each Mailbox has exactly one
+  ([record 71](../decisions/0071-a-diagnostic-is-a-coded-problem-with-typed-locations.md)). Each Mailbox has exactly one
   owning Project.
 - **Open:** how a Mailbox is shared beyond its Project, if ever, needs its own
   design so that it stays easy to read and short to write.
