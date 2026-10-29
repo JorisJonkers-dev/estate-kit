@@ -1,0 +1,59 @@
+%% title: Rust: the rollout decider and the ports its use cases drive
+classDiagram
+    direction TB
+    class Rollout {
+        id: RolloutId
+        project: ProjectName
+        fragment: Digest
+        state: RolloutState
+    }
+    class RolloutEvent {
+        <<enum>>
+        rollout: RolloutId
+        seq: Seq
+        at: Timestamp
+        version: u16
+    }
+    class Decider {
+        decide(State, Command) Result#lt;Vec#lt;RolloutEvent#gt;, Refusal#gt;
+        evolve(State, RolloutEvent) State
+    }
+    class Ports {
+        <<trait>>
+        type EventStore
+        type Registry
+        type Signer
+        type Cluster
+    }
+    class EventStore {
+        <<trait>>
+        append(Vec#lt;RolloutEvent#gt;) Result
+        since(RolloutId, Seq) Result#lt;Vec#lt;RolloutEvent#gt;#gt;
+    }
+    class Registry {
+        <<trait>>
+        fragment(Digest) Result
+        push_render(Render) Result#lt;Digest#gt;
+        move_tag(Tag, from, to) Result
+    }
+    class Signer {
+        <<trait>>
+        sign(Digest, Key) Result#lt;Signature#gt;
+    }
+    class Cluster {
+        <<trait>>
+        dry_run(Objects) Result#lt;Vec#lt;Diagnostic#gt;#gt;
+        observe(ProjectName) Result#lt;Observation#gt;
+    }
+    Decider ..> Rollout : folds events into
+    Rollout --> "0..*" RolloutEvent : is the fold of
+    Ports ..> EventStore
+    Ports ..> Registry
+    Ports ..> Signer
+    Ports ..> Cluster
+    classDef accent fill:#0000a1,stroke:#0000b1
+    class Ports:::accent
+    class EventStore:::accent
+    class Registry:::accent
+    class Signer:::accent
+    class Cluster:::accent

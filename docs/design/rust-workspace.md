@@ -7,11 +7,6 @@ crates in each, the patterns the code uses, and the rules that keep it fast to
 build. [Transformations without a DSL](transformations.md) covers the
 compiler's inside, and [Testing and speed](code-shape-and-speed.md) the gates.
 
-> The diagrams `rust-crates`, `go-packages` and `go-rollout` still show the
-> earlier TypeScript and Go design. They are redrawn from `specs.py` once
-> draw.io 32 is available to rebuild them; until then this page's tables are
-> the reference.
-
 ## What we carry over, and from where
 
 | Lesson | Source | Here |
@@ -68,8 +63,9 @@ compiler; a Rollout is the aggregate root in the service.
 | Hosts | Generations and their rollout across nodes | NodeRollout | Signed host tags only; never a model type |
 | Components | Migrations, secret grants, database and bucket catalogs, backups, Mailboxes | One per component: MigrationRun, SecretGrant, DatabaseGrant, BucketGrant, BackupGeneration, Mailbox | Rendered objects only |
 
-The context map is the earlier one, with the result.json edge replaced by an
-in-process call:
+The context map, with the result.json edge replaced by an in-process call:
+
+![Context map](../diagrams/png/context-map.png)
 
 | Upstream | Downstream | Relationship | Published language |
 | --- | --- | --- | --- |
@@ -84,6 +80,8 @@ in-process call:
 Each crate is in one context and one layer
 ([record 65](../decisions/0065-the-workspace-is-layered-and-the-crate-graph-is-checked.md)).
 Dependencies point inward and downward only.
+
+![The workspace's layers](../diagrams/png/rust-layers.png)
 
 | Layer | May depend on | Holds | Forbidden |
 | --- | --- | --- | --- |

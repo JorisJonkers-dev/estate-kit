@@ -8,11 +8,9 @@ hand-written fake that passes the same contract suite as its adapter
 ([record 68](../decisions/0068-every-fake-passes-its-port-s-contract-suite.md)).
 [End to end, crate by crate](end-to-end.md) follows a deploy through them.
 
-> The `go-packages` and `go-rollout` diagrams describe the earlier Go design
-> and are no longer shown here; they are redrawn as Rust when draw.io 32 is
-> available. The tables below are current.
-
 ## Crates
+
+![The service's crates](../diagrams/png/rust-service-crates.png)
 
 | Crate | Layer | Holds | Outside system |
 | --- | --- | --- | --- |
@@ -39,6 +37,8 @@ the log. `rollout::decide(&State, Command) -> Result<Vec<Event>, Refusal>`
 and `rollout::evolve(State, &Event) -> State` are pure, and they are the
 mutation-tested heart of the service. The use case loads the events, decides,
 appends, and only then acts on the outside world.
+
+![Class diagram: the rollout decider and its ports](../diagrams/png/rust-rollout.png)
 
 The queue runs one composition at a time; triggers that arrive meanwhile merge
 into the next composition, and each waiting deploy job learns which

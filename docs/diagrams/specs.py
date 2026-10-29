@@ -169,7 +169,7 @@ states("state-mailbox", "State machine: a Mailbox",
 # Class diagrams of the internals.
 # ---------------------------------------------------------------------------------------------
 
-classes("rust-authored-model", "Rust: the authored model, as the read step produces it (a possible 1.0 port)",
+classes("rust-authored-model", "Rust: the authored model, as the read step produces it",
         [("Project", None, ["name: ProjectName", "applications: BTreeMap<ApplicationId, Application>"]),
          ("Application", None, ["id: ApplicationId", "processes: BTreeMap<ProcessName, Process>",
                                 "exposures: Vec<Exposure>", "dependencies: Vec<DependencyEdge>"]),
@@ -181,47 +181,50 @@ classes("rust-authored-model", "Rust: the authored model, as the read step produ
         [("Project", "Application", "comp", "", "1..*"), ("Application", "Process", "comp", "", "1..*"),
          ("Application", "Exposure", "comp", "", "0..*"), ("Application", "DependencyEdge", "comp", "", "0..*"),
          ("Process", "Surface", "comp", "", "0..*"), ("Process", "Grant", "comp", "", "0..*")])
-classes("rust-pipeline-types", "Rust: the types that cross the pipeline's seams (a possible 1.0 port)",
+classes("rust-pipeline-types", "Rust: the types that cross the pipeline's seams",
         [("PinnedInputSet", None, ["fragments: BTreeMap<ProjectName, Pinned<ProjectIntent>>",
                                    "platform: Pinned<PlatformIntent>", "cluster_state: Pinned<ClusterState>",
                                    "render_key(project) RenderKey"]),
          ("Hasher", "trait", ["digest(bytes) Digest"]),
          ("ResolvedDeployment", None, ["applications: BTreeMap<ApplicationId, ResolvedApplication>", "trace: Trace"]),
-         ("Adapter", "trait", ["render(ResolvedDeployment) Result<Vec<Deliverable>, Vec<Diagnostic>>"]),
-         ("Deliverable", None, ["path: OutputPath", "object: KubeObject", "source: ElementRef"]),
+         ("Renderer", "trait", ["render(ResolvedDeployment) Result<Vec<Deliverable>, Vec<Diagnostic>>"]),
+         ("Deliverable", None, ["path: OutputPath", "owner: ProjectName", "object: DeliverableObject",
+                                "sources: Vec<ModelPath>"]),
          ("Diagnostic", None, ["code: Code", "severity: Severity", "file: SourceFile", "path: ModelPath", "message: String",
                                "help: String"])],
-        [("PinnedInputSet", "Hasher", "dep", "digests through"), ("Adapter", "ResolvedDeployment", "dep", "reads"),
-         ("Adapter", "Deliverable", "dep", "emits"), ("Adapter", "Diagnostic", "dep", "or reports")],
-        tones={"Hasher": "accent", "Adapter": "accent"})
-classes("go-rollout", "Go: the rollout core and the ports it drives",
-        [("Rollout", None, ["ID, Project, Fragment", "State", "Apply(Event) Rollout"]),
-         ("Event", None, ["RolloutID, Seq", "Type, At, Payload"]),
-         ("EventStore", "interface", ["Append(Event) error", "Since(RolloutID, Seq) []Event"]),
-         ("Queue", None, ["Submit(Trigger) CompositionID", "single-flight, coalescing"]),
-         ("Composer", "interface", ["Compose(ctx, Inputs) Result"]),
-         ("Registry", "interface", ["FindRender(RenderKey)", "PushRender()", "MoveTag()"]),
-         ("Signer", "interface", ["Sign(Digest) Signature"]),
-         ("Cluster", "interface", ["DryRun(objects) []Diagnostic", "WatchRelease(Project)"])],
-        [("Rollout", "Event", "assoc", "folds", "0..*"), ("Rollout", "EventStore", "dep", "persists through"),
-         ("Queue", "Rollout", "assoc", "starts"), ("Queue", "Composer", "dep"), ("Queue", "Registry", "dep"),
-         ("Queue", "Signer", "dep"), ("Queue", "Cluster", "dep")],
-        tones={n: "accent" for n in ("EventStore", "Composer", "Registry", "Signer", "Cluster")})
+        [("PinnedInputSet", "Hasher", "dep", "digests through"), ("Renderer", "ResolvedDeployment", "dep", "reads"),
+         ("Renderer", "Deliverable", "dep", "emits"), ("Renderer", "Diagnostic", "dep", "or reports")],
+        tones={"Hasher": "accent", "Renderer": "accent"})
+classes("rust-rollout", "Rust: the rollout decider and the ports its use cases drive",
+        [("Rollout", None, ["id: RolloutId", "project: ProjectName", "fragment: Digest", "state: RolloutState"]),
+         ("RolloutEvent", "enum", ["rollout: RolloutId", "seq: Seq", "at: Timestamp", "version: u16"]),
+         ("Decider", None, ["decide(State, Command) Result<Vec<RolloutEvent>, Refusal>",
+                            "evolve(State, RolloutEvent) State"]),
+         ("Ports", "trait", ["type EventStore", "type Registry", "type Signer", "type Cluster"]),
+         ("EventStore", "trait", ["append(Vec<RolloutEvent>) Result", "since(RolloutId, Seq) Result<Vec<RolloutEvent>>"]),
+         ("Registry", "trait", ["fragment(Digest) Result", "push_render(Render) Result<Digest>",
+                                "move_tag(Tag, from, to) Result"]),
+         ("Signer", "trait", ["sign(Digest, Key) Result<Signature>"]),
+         ("Cluster", "trait", ["dry_run(Objects) Result<Vec<Diagnostic>>", "observe(ProjectName) Result<Observation>"])],
+        [("Decider", "Rollout", "dep", "folds events into"), ("Rollout", "RolloutEvent", "assoc", "is the fold of", "0..*"),
+         ("Ports", "EventStore", "dep"), ("Ports", "Registry", "dep"), ("Ports", "Signer", "dep"),
+         ("Ports", "Cluster", "dep")],
+        tones={n: "accent" for n in ("Ports", "EventStore", "Registry", "Signer", "Cluster")})
 classes("host-applier", "Host applier: one reconcile step and the ports it drives",
-        [("Agent", None, ["node: NodeName", "run() one reconcile step"]),
-         ("PointerSource", "interface", ["Current(node) HostTag"]),
-         ("ClosureFetcher", "interface", ["Fetch(storePath) error"]),
-         ("Lease", "interface", ["Acquire() error", "Release() error"]),
-         ("Evictor", "interface", ["Drain(node) error", "Uncordon(node) error"]),
-         ("Switcher", "interface", ["Switch(generation) error", "NeedsReboot(generation) bool"]),
-         ("WindowPolicy", "interface", ["Open(now) bool"])],
+        [("Agent", None, ["node: NodeName", "step() one reconcile step"]),
+         ("PointerSource", "trait", ["current(NodeName) Result<HostTag>"]),
+         ("ClosureFetcher", "trait", ["fetch(StorePath) Result"]),
+         ("Lease", "trait", ["acquire() Result", "release() Result"]),
+         ("Evictor", "trait", ["drain(NodeName) Result", "uncordon(NodeName) Result"]),
+         ("Switcher", "trait", ["switch(Generation) Result", "needs_reboot(Generation) bool"]),
+         ("WindowPolicy", "trait", ["open(Timestamp) bool"])],
         [("Agent", p, "dep") for p in ("PointerSource", "ClosureFetcher", "Lease", "Evictor", "Switcher", "WindowPolicy")],
         tones={n: "accent" for n in ("PointerSource", "ClosureFetcher", "Lease", "Evictor", "Switcher", "WindowPolicy")})
 classes("mail-provisioner", "Mail provisioner: the reconciler and its ports",
         [("MailboxReconciler", None, ["reconcile(Mailbox) Status"]),
-         ("MailboxSource", "interface", ["Watch(labelSelector)"]),
-         ("Stalwart", "interface", ["EnsureAccount() error", "RemoveAccount() error"]),
-         ("Secrets", "interface", ["Password(mailbox) Secret"])],
+         ("MailboxSource", "trait", ["watch(LabelSelector)"]),
+         ("Stalwart", "trait", ["ensure_account(Mailbox) Result", "remove_account(Mailbox) Result"]),
+         ("Secrets", "trait", ["password(Mailbox) Result<SecretRef>"])],
         [("MailboxReconciler", p, "dep") for p in ("MailboxSource", "Stalwart", "Secrets")],
         tones={n: "accent" for n in ("MailboxSource", "Stalwart", "Secrets")})
 
@@ -259,13 +262,14 @@ g = Graph("c4-containers", "C4 level 2: estate-kit's containers and the protocol
 g.person("ci", "Project CI", "A GitHub Actions deploy job")
 g.person("op", "Operator", "In a browser")
 g.group("ek", "estate-kit")
-g.system("cli", "estate-kit CLI", "Validates and plans offline", kind="container", tech="TypeScript, one binary", parent="ek")
+g.system("cli", "estate-kit CLI", "Validates and plans offline", kind="container", tech="Rust, one binary", parent="ek")
 g.system("ui", "UI", "Rollouts, Projects, hosts", kind="container", tech="Vue, embedded", parent="ek")
-g.system("svc", "service", "Composes, dry-runs, signs, streams rollouts", kind="container", tech="Go", parent="ek")
-g.system("comp", "compiler", "Validates and composes the estate", kind="container", tech="TypeScript subprocess", parent="ek")
+g.system("svc", "service", "Composes, dry-runs, signs, streams rollouts; serves the Observation views", kind="container",
+         tech="Rust, links the compiler", parent="ek")
 g.system("pg", "event log", "Append-only rollout events", kind="database", tech="platform-postgres", parent="ek")
-g.system("applier", "host applier", "Switches one node at a time", kind="container", tech="Go, systemd", parent="ek")
-g.system("comps", "components", "migration-runner, secret-job, mail-provisioner", kind="container", tech="Go", parent="ek")
+g.system("applier", "host applier", "Switches one node at a time", kind="container", tech="Rust, systemd", parent="ek")
+g.system("comps", "components", "Six reconcilers: migrations, secret grants, database and bucket catalogs, backups, Mailboxes",
+         kind="container", tech="Rust, one image each", parent="ek")
 g.system("api", "Kubernetes API", "Dry-runs and status", kind="external")
 g.system("ghcr", "ghcr", "Fragments, renders, tags", kind="external")
 g.system("vault", "Vault Transit", "Signing key", kind="external")
@@ -273,7 +277,6 @@ g.c4_edge("ci", "cli", "runs")
 g.c4_edge("cli", "svc", "deploy, watch", "HTTPS + SSE, OpenAPI 3.1")
 g.c4_edge("op", "ui", "uses", "HTTPS")
 g.c4_edge("ui", "svc", "calls", "HTTPS, same origin")
-g.c4_edge("svc", "comp", "runs", "exec: directory in, result.json out")
 g.c4_edge("svc", "pg", "appends, reads", "SQL")
 g.c4_edge("svc", "ghcr", "pushes renders, moves tags", "OCI, machine-account token")
 g.c4_edge("svc", "vault", "signs", "Transit")
@@ -421,75 +424,108 @@ for a, b, label in [("ii", "comp", ""), ("pi", "comp", ""), ("ver", "comp", ""),
     g.edge(a, b, label)
 g.done()
 
-g = Graph("rust-pipeline", "Rust: each step and the typed model it produces (a possible 1.0 port)", wrap=True)
+g = Graph("rust-pipeline", "Rust: each step and the typed model it produces", wrap=True)
 g.artifact("yaml", "YAML, env files")
-g.box("read", "read", tone="accent")
-g.artifact("intent", "ProjectIntent, PlatformIntent")
-g.box("check", "check", tone="accent")
+g.box("read", "read: schema, then types", tone="accent")
+g.artifact("raw", "Raw Intent, with model paths")
+g.box("link", "link: scope table", tone="accent")
+g.artifact("linked", "Linked Intent")
+g.box("check", "check: invariant table", tone="accent")
 g.artifact("diag", "Diagnostic list", tone="bad")
+g.artifact("checked", "Checked Intent")
 g.box("lower", "lower", tone="accent")
 g.artifact("eff", "EffectiveIntent")
+g.box("compose", "compose", tone="accent")
+g.artifact("set", "ComposedSet")
 g.artifact("pinned", "PinnedInputSet")
-g.box("resolve", "resolve", tone="accent")
+g.box("resolve", "resolve, through the Trace", tone="accent")
 g.artifact("res", "ResolvedDeployment")
-g.box("adapt", "adapter crates", tone="accent")
+g.box("render", "render crates", tone="accent")
 g.artifact("del", "DeliverableSet")
 g.box("ser", "serialize", tone="accent")
-g.artifact("out", "renders/, result.json")
-for a, b in [("yaml", "read"), ("read", "intent"), ("intent", "check"), ("intent", "lower"), ("lower", "eff"),
-             ("eff", "resolve"), ("pinned", "resolve"), ("resolve", "res"), ("res", "adapt"), ("adapt", "del"),
+g.artifact("out", "renders in the canonical format")
+for a, b in [("yaml", "read"), ("read", "raw"), ("raw", "link"), ("link", "linked"), ("linked", "check"),
+             ("check", "checked"), ("checked", "lower"), ("lower", "eff"), ("eff", "compose"), ("compose", "set"),
+             ("set", "resolve"), ("pinned", "resolve"), ("resolve", "res"), ("res", "render"), ("render", "del"),
              ("del", "ser"), ("ser", "out")]:
     g.edge(a, b)
-g.edge("check", "diag", "reports", kind="dashed")
+g.edge("check", "diag", "read, link and check report", kind="dashed")
 g.done()
 
-g = Graph("rust-crates", "Rust: the crates and what each depends on (a possible 1.0 port)", direction="DOWN")
-g.package("cli", "cli", tone="accent")
-g.package("app", "compose (use cases)")
-g.group("steps", "step crates: no step depends on another")
-STEPS = {"read": "read", "check": "check", "lower": "lower", "resolve": "resolve",
-         "adapters": "adapter-* (7 crates)", "serialize": "serialize"}
+g = Graph("rust-crates", "Rust: the compiler's crates and what each depends on", direction="DOWN")
+g.package("cli", "bins/estate-kit", tone="accent")
+g.package("svc", "service-app")
+g.package("app", "compiler (use cases)")
+g.group("steps", "step and render crates: none depends on another")
+STEPS = {"read": "step-read", "check": "step-check", "lower": "step-lower", "compose": "step-compose",
+         "resolve": "step-resolve", "outputs": "step-outputs", "render": "render-* (8 crates)", "serialize": "serialize"}
 for crate, label in STEPS.items():
     g.package(crate, label, parent="steps")
-g.package("model", "model", tone="data")
-g.package("objects", "objects", tone="data")
+g.package("models", "model-intent, model-effective, model-resolved", tone="data")
+g.package("deliverable", "deliverable", tone="data")
+g.package("foundation", "foundation: diagnostics, yaml-source, canonical, trace", tone="data")
 g.edge("cli", "app", "depends on", kind="dashed")
+g.edge("svc", "app", "links", kind="dashed")
 for crate in STEPS:
     g.edge("app", crate, kind="dashed")
-    g.edge(crate, "model", kind="dashed")
-g.edge("adapters", "objects", "builds", kind="dashed")
-g.edge("serialize", "objects", "writes", kind="dashed")
+    g.edge(crate, "models", kind="dashed")
+g.edge("render", "deliverable", "builds", kind="dashed")
+g.edge("serialize", "deliverable", "writes", kind="dashed")
+g.edge("models", "foundation", kind="dashed")
 g.done()
 
-g = Graph("go-packages", "Go: the service's packages and what each depends on", direction="DOWN")
-g.package("api", "api: HTTP, SSE", tone="accent")
-g.package("auth", "auth: OIDC verifiers")
-g.package("ui", "ui: embedded Vue")
-g.package("rollout", "rollout: state machine, queue")
-for pkg, label in [("compose", "compose: the compiler binary"), ("registry", "registry: oras-go"), ("signer", "signer: Vault"),
-                   ("cluster", "cluster: client-go"), ("github", "github: the App"), ("store", "store: platform-postgres")]:
-    g.package(pkg, label, tone="data" if pkg == "store" else "plain")
-g.edge("api", "auth", kind="dashed")
-g.edge("api", "ui", kind="dashed")
-g.edge("api", "rollout", kind="dashed")
-for pkg in ("compose", "registry", "signer", "cluster", "github", "store"):
-    g.edge("rollout", pkg, kind="dashed")
+g = Graph("rust-service-crates", "Rust: the service's crates and what each depends on", direction="DOWN")
+g.package("bin", "bins/estate-kit-service", tone="accent")
+g.package("api", "http-api: axum, SSE, problem+json")
+g.package("obs", "observation-app")
+g.package("app", "service-app: use cases, ports, fakes")
+g.package("rollout", "rollout: the decider", tone="data")
+g.package("gate", "release-gate", tone="data")
+g.package("compiler", "compiler (use cases)", tone="data")
+for crate, label in [("oidc", "adapter-github-oidc"), ("ghcr", "adapter-ghcr: oci-client"),
+                     ("vault", "adapter-vault: Transit"), ("kube", "adapter-kube: kube-rs"),
+                     ("github", "adapter-github: the App"), ("pg", "adapter-postgres: sqlx")]:
+    g.package(crate, label)
+g.edge("bin", "api", kind="dashed")
+g.edge("api", "app", kind="dashed")
+g.edge("api", "obs", kind="dashed")
+g.edge("app", "rollout", kind="dashed")
+g.edge("app", "gate", kind="dashed")
+g.edge("app", "compiler", "links", kind="dashed")
+for crate in ("oidc", "ghcr", "vault", "kube", "github", "pg"):
+    g.edge("bin", crate, "wires", kind="dashed")
+    g.edge(crate, "app", "implements a port of", kind="dashed")
 g.done()
 
-g = Graph("alignment", "Alignment: how YAML, the schemas, the compiler and Go stay in step", direction="DOWN")
+g = Graph("rust-layers", "Rust: the workspace's layers; every dependency points down", direction="DOWN", layer_gap=70)
+g.box("binary", "binary: estate-kit, estate-kit-service, host applier, one per component", tone="accent")
+g.box("adapter", "adapter: one outside system each; kube, sqlx, axum, oci-client live only here")
+g.box("application", "application: use cases, port traits, one fake per port")
+g.box("domain", "domain: models, steps, deciders, invariants; no I/O, no async, no clock")
+g.box("foundation", "foundation: diagnostics, yaml-source, canonical, trace, reconcile, testkit", tone="data")
+g.edge("binary", "adapter", "wires")
+g.edge("adapter", "application", "implements ports")
+g.edge("application", "domain", "drives")
+g.edge("domain", "foundation", "uses")
+g.edge("binary", "application", "calls", kind="dashed")
+g.done()
+
+g = Graph("alignment", "Alignment: how YAML, the schemas, the Rust types and the UI stay in step", direction="DOWN")
 g.artifact("yaml", "authored YAML")
 g.artifact("schemas", "committed JSON Schemas", tone="accent")
-g.box("rust", "compiler types (zod)")
-g.box("go", "Go types, generated")
-g.artifact("corpus", "shared corpus: valid and invalid YAML")
-g.artifact("result", "compose-result schema", tone="accent")
-g.edge("yaml", "schemas", "validated by")
-g.edge("rust", "schemas", "drift test", kind="dashed")
-g.edge("schemas", "go", "generates")
-g.edge("corpus", "rust", "runs through")
-g.edge("corpus", "go", "runs through")
-g.edge("rust", "result", "writes")
-g.edge("result", "go", "generates")
+g.artifact("corpus", "accept and refuse corpus")
+g.box("read", "step-read: validate, then convert")
+g.box("types", "Rust model types")
+g.artifact("openapi", "committed OpenAPI document", tone="accent")
+g.box("api", "http-api routes")
+g.box("ui", "Vue client, generated")
+g.edge("yaml", "read", "read by")
+g.edge("read", "schemas", "validates against")
+g.edge("read", "types", "converts into")
+g.edge("corpus", "schemas", "same verdict", kind="dashed")
+g.edge("corpus", "types", "same verdict", kind="dashed")
+g.edge("api", "openapi", "matches, by test", kind="dashed")
+g.edge("openapi", "ui", "generates")
 g.done()
 
 g = Graph("flow-host-order", "Flow: deriving the node order for a host rollout", direction="DOWN", layer_gap=60)
@@ -514,32 +550,35 @@ g = Graph("components", "Components: the parts of estate-kit (blue) and what eac
 # boundary groups the parts: draw.io lays a container out on its own, so edges that leave it
 # would run backwards.
 g.artifact("intent", "authored intent")
-g.box("service", "service (Go)", tone="accent")
-g.box("compiler", "compiler (TypeScript)", tone="accent")
+g.box("service", "service (Rust)", tone="accent")
+g.box("compiler", "compiler crates (Rust)", tone="accent")
 g.box("ui", "ui (Vue)", tone="accent")
-g.box("applier", "host applier (Go)", tone="accent")
+g.box("applier", "host applier (Rust)", tone="accent")
 g.artifact("renders", "renders, host data")
-for comp in ("migration-runner", "secret-job", "mail-provisioner"):
+COMPONENTS = ("migration-runner", "secret-grant", "database-catalog", "bucket-catalog", "backup", "mail-provisioner")
+for comp in COMPONENTS:
     g.box(comp, f"component: {comp}", tone="accent")
 g.box("nodes", "NixOS nodes", tone="external")
 g.edge("intent", "compiler", "reads")
-g.edge("service", "compiler", "runs")
+g.edge("service", "compiler", "links")
 g.edge("service", "ui", "serves")
 g.edge("service", "applier", "host tags, pulled")
 g.edge("compiler", "renders", "writes")
-for comp in ("migration-runner", "secret-job", "mail-provisioner"):
-    g.edge("renders", comp, "custom resources")
+for comp in COMPONENTS:
+    g.edge("renders", comp, "rendered objects")
 g.edge("applier", "nodes", "switches")
 g.done()
 
 g = Graph("context-map", "Context map: the bounded contexts and how they relate")
 g.box("compiler", "Compiler context: the model", tone="accent")
 g.box("service", "Service context: rollouts", tone="accent")
-g.box("applier", "Host applier context: generations", tone="accent")
-g.box("components", "Component contexts: migrations, secrets, mail", tone="accent")
-g.edge("compiler", "service", "result.json (customer, supplier)")
+g.box("observation", "Observation context: what runs", tone="accent")
+g.box("applier", "Hosts context: generations", tone="accent")
+g.box("components", "Component contexts: migrations, secrets, catalogs, backups, mail", tone="accent")
+g.edge("compiler", "service", "use cases, in-process (customer, supplier)")
+g.edge("service", "observation", "rollout events (published language)")
 g.edge("compiler", "applier", "host data through an anticorruption layer")
-g.edge("compiler", "components", "rendered custom resources")
+g.edge("compiler", "components", "rendered objects")
 g.done()
 
 g = Graph("trust-boundaries", "Trust boundaries: what crosses each one, and with which credential")

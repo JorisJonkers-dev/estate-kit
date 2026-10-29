@@ -188,7 +188,7 @@
         <mxCell id="47" parent="46" style="edgeLabel;resizable=0;fontSize=11;spacing=8;align=left;verticalAlign=bottom;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" value="0..*" vertex="1">
           <mxGeometry relative="1" x="1" as="geometry" />
         </mxCell>
-        <mxCell id="header" value="Rust: the authored model, as the read step produces it (a possible 1.0 port)" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=light-dark(#1a1a1a,#e8e8e8);fontFamily=Helvetica;" vertex="1" parent="1">
+        <mxCell id="header" value="Rust: the authored model, as the read step produces it" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=light-dark(#1a1a1a,#e8e8e8);fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="8" y="-56" width="908" height="36" as="geometry" />
         </mxCell>
       </root>

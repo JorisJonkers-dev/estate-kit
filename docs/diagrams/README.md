@@ -59,6 +59,6 @@ generated file edited by hand, fails the job.
 | `c4-*`, `context`, `context-map` | Context, containers and bounded contexts |
 | `deploy-*` | Deployment |
 | `inputs-*`, `flow-*` | Where each stage's inputs come from, and decisions |
-| `rust-*`, `go-*`, `host-applier`, `mail-provisioner`, `components` | The internals |
+| `rust-*`, `host-applier`, `mail-provisioner`, `components` | The internals |
 | `alignment`, `trust-boundaries` | How the contracts stay aligned, and what crosses each trust boundary |
 | `mm-*` | deploy-kit's metamodels |

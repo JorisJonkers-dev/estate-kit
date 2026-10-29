@@ -10,10 +10,6 @@ service in the cluster ([record 18](../decisions/0018-the-service-links-the-comp
 How each step carries the MDE course's lessons is
 [Transformations without a DSL](transformations.md).
 
-> The `rust-*` diagrams below still carry the title "a possible 1.0 port" and
-> the earlier crate list; they are redrawn when draw.io 32 is available.
-> [The crates](rust-workspace.md#the-crates) is the current list.
-
 ## Crates
 
 One crate per step and one per render target. A step crate depends only on
@@ -68,7 +64,11 @@ The committed JSON Schemas and their accept/refuse corpus are the contract
 The read step validates against the schemas; a corpus-agreement test runs
 every corpus document through the schema and through the typed conversion and
 requires the same verdict. No language generates its types from the schemas,
-and no test compares generated schema bytes.
+and no test compares generated schema bytes. The service's routes are held to
+the committed OpenAPI document the same way, and the Vue client is generated
+from it.
+
+![How YAML, the schemas, the Rust types and the UI stay aligned](../diagrams/png/alignment.png)
 
 ## The CLI's output
 
