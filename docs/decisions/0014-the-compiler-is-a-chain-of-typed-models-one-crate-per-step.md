@@ -1,7 +1,7 @@
 ---
 status: accepted  # proposed | accepted | locked
 date: 2026-10-29
-rests-on: [3, 5, 6, 13, 65]
+rests-on: [3, 5, 6, 13, 50]
 lessons: [CS-1, CS-2, CS-3, CS-4, MD-2, MD-3, MD-4, MS-1]
 ---
 
@@ -31,7 +31,7 @@ hexagonal rings, of which three rings and three of four declared ports stayed
 empty while ledger rows enforced rules over nothing.
 
 In Rust a crate is the unit of compilation, of visibility and of a mutant's
-rebuild ([record 65](0065-the-workspace-is-layered-and-the-crate-graph-is-checked.md)).
+rebuild ([record 50](0050-five-bounded-contexts.md)).
 Visibility stops at the crate edge, so a phase type cannot be sealed by a
 constructor hidden from other crates without making one step depend on
 another. The maintainer wants the lessons without the tools and without a

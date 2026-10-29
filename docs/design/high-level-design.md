@@ -5,7 +5,8 @@ the classes inside each step, in the order a reader needs them. Each section
 links to the page that holds the detail. The decisions behind it are
 [record 13](../decisions/0013-every-program-is-rust.md),
 [record 18](../decisions/0018-the-service-links-the-compiler.md) and
-[records 65 to 71](../decisions/register.md), all accepted.
+[record 50](../decisions/0050-five-bounded-contexts.md) and
+[records 67 to 71](../decisions/register.md), all accepted.
 
 ## 1. The whole system
 
@@ -24,7 +25,7 @@ The same system at C4 level 2, with the protocol on each edge:
 
 **By layer.** Every crate is in one layer, and every dependency points down.
 `cargo xtask check-layers` refuses any other edge
-([record 65](../decisions/0065-the-workspace-is-layered-and-the-crate-graph-is-checked.md)).
+([record 50](../decisions/0050-five-bounded-contexts.md)).
 
 ![The workspace's layers](../diagrams/png/rust-layers.png)
 

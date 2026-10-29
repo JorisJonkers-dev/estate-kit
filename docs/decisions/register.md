@@ -55,7 +55,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 47 | Schemas evolve additively within a major version, checked in CI | Accepted |
 | 48 | [The CLI's JSON output has a committed schema that the reusable workflows read](0048-the-cli-s-json-output-has-a-committed-schema.md) | Accepted |
 | 49 | Events are versioned and upcast on read, and hold no personal data | Accepted |
-| 50 | [Five bounded contexts, each boundary its own record: compiler, service, observation, hosts, components](0050-five-bounded-contexts.md) | Accepted |
+| 50 | [The workspace is five bounded contexts in five layers, and a check holds the crate graph to both](0050-five-bounded-contexts.md) | Accepted |
 | 51 | History is kept 400 days; renders are kept by count, age and tag | Accepted |
 | 52 | Three service levels: deploy p95, availability, drift detection | Accepted |
 | 53 | Traces go to Tempo and logs to Loki, keyed by rollout id | Accepted |
@@ -70,7 +70,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 62 | [ghcr tags move with a machine account's token kept in Vault](0062-ghcr-tags-move-with-a-machine-account-token-kept-in-vault.md) | Proposed |
 | 63 | [The service has one writer and reconciles from observed state](0063-the-service-has-one-writer-and-reconciles-from-observed-state.md) | Accepted |
 | 64 | [Renders use a canonical YAML style specified on one page](0064-renders-use-a-canonical-yaml-style-specified-on-one-page.md) | Proposed |
-| 65 | [The workspace is layered by crate, and a check holds the crate graph to the layer table](0065-the-workspace-is-layered-and-the-crate-graph-is-checked.md) | Accepted |
+| 65 | The workspace is layered by crate, and a check holds the crate graph to the layer table | Merged into 50 |
 | 66 | Transformations are plain Rust: typed steps, one trace, an invariant table, and no DSL | Merged into 14 |
 | 67 | [The Rust compiler implements the 1.0 specification, and the shadow compares structure](0067-the-compiler-is-written-to-the-1-0-contract.md) | Accepted |
 | 68 | [One concept per module, one fake per port that passes its contract suite, oracles only at the seams](0068-every-fake-passes-its-port-s-contract-suite.md) | Accepted |

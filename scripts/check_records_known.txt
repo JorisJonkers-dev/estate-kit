@@ -7,7 +7,6 @@ accepted-on-proposed 69 61
 cycle 17,18
 cycle 21,30,31
 cycle 28,61
-cycle 50,65
 no-file 1
 no-file 2
 no-file 3

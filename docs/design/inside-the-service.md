@@ -24,7 +24,7 @@ hand-written fake that passes the same contract suite as its adapter
 | `adapter-github` | adapter | Deployment status, check runs | GitHub App |
 | `adapter-postgres` | adapter | The append-only rollout event log and the job table | A database on the shared platform-postgres |
 | `http-api` | adapter | axum routes from the OpenAPI document, SSE, problem+json, authentication layers | None |
-| `bins/estate-kit-service` | binary | Configuration, wiring, the embedded Vue assets | None |
+| `bins/estate-kit-service` | binary | Configuration and wiring. It serves no UI: Observation's binary does | None |
 
 The use cases take one `P: Ports` type parameter whose associated types name
 each port, so `main` wires the real adapters and tests wire the fakes with no
@@ -51,7 +51,7 @@ rollout id, sequence, type, version, time, payload. Its schema ships as a
 changelog in a migration image that alone holds the owner role, as every
 estate service's does ([workspace ADR-0021](https://github.com/JorisJonkers-dev/workspace/blob/main/docs/decisions/ADR-0021-liquibase-runner-is-the-one-migration-path.md)); the service never migrates its own
 database. The existing dump and restore check covers it. A deploy job's stream
-resumes from a sequence number, and the UI reads history from the same table.
+resumes from a sequence number, and the UI reads history through the service's API, never the table.
 Pause and held state stay in the Project's cluster object.
 
 ## One writer
@@ -87,8 +87,25 @@ identity unless `dryRun` is set ([security](security.md)).
 ## The Observation views
 
 The dashboard's read views (units, pods, containers, alerts and silences,
-logs, health, checks) are a separate context in the same binary: the
-`observation-app` crate and one adapter per source. They hold no credential
-that can deploy, pause or roll back, and one write: Alertmanager silences, with a
-credential for that API alone ([record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)), and a source that is down greys out its
-panel without touching a rollout.
+logs, health, checks) are a separate context in a separate process
+([record 50](../decisions/0050-five-bounded-contexts.md)): the
+`observation-app` crate and one adapter per source, wired by
+`bins/estate-kit-observation`, which runs as its own Deployment. It does not
+link `adapter-kube`, `adapter-vault` or `adapter-ghcr`; it has its own kube
+adapter, `adapter-observation-kube`, with a service account that can only read.
+It holds no Vault, ghcr or signing credential and none that can deploy, pause
+or roll back. It has one write: Alertmanager silences, with a credential for
+that API alone ([record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)).
+A source that is down greys out its panel without touching a rollout.
+
+Observation reads rollout history and events from the service's HTTP API
+through `adapter-service-api`, so the service's event store stays private to
+the service.
+
+**The UI.** The Vue UI is embedded in the Observation binary, because most of
+its views are Observation's. The browser reaches the service's API directly,
+on the service's own route behind the same Gate; Observation's binary does not
+proxy it. A Pause or Rollback therefore carries the signed-in Operator's
+Principal to the service, which authorizes it, and Observation never holds a
+credential that could do it for them. If the service is down, the rollout
+panels grey out and the rest of the UI keeps working.

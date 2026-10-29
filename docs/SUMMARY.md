@@ -50,7 +50,6 @@
   - [62. ghcr tags and the machine token](decisions/0062-ghcr-tags-move-with-a-machine-account-token-kept-in-vault.md)
   - [63. The service has one writer](decisions/0063-the-service-has-one-writer-and-reconciles-from-observed-state.md)
   - [64. The canonical YAML style](decisions/0064-renders-use-a-canonical-yaml-style-specified-on-one-page.md)
-  - [65. The workspace is layered](decisions/0065-the-workspace-is-layered-and-the-crate-graph-is-checked.md)
   - [67. The compiler implements 1.0](decisions/0067-the-compiler-is-written-to-the-1-0-contract.md)
   - [68. One concept per module, one fake per port, oracles only at the seams](decisions/0068-every-fake-passes-its-port-s-contract-suite.md)
   - [69. The deploy path is tested end to end](decisions/0069-the-deploy-path-is-tested-end-to-end.md)
