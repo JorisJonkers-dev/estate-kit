@@ -102,7 +102,7 @@ Cargo.toml                    virtual manifest: members, [workspace.dependencies
 crates/layers.toml            the layer table check-layers reads
 crates/
   foundation/
-    diagnostics/              Diagnostic, Code, Severity, ModelPath (RFC 6901), Diagnostics accumulator
+    diagnostics/              Diagnostic, Code, Severity, Location, ModelPath (RFC 6901), ElementRef, Diagnostics accumulator
     yaml-source/              spanned YAML 1.2 reading with budgets; refuses anchors, aliases, tags, duplicate keys
     canonical/                the canonical YAML and JSON emitters (record 64), and Digest
     trace/                    the trace store: source element to produced element, create-then-link
@@ -235,7 +235,7 @@ Patterns we do not use, and why:
 
 | Kind | Type | Where it ends |
 | --- | --- | --- |
-| Authored input is wrong | `Diagnostic` with a `RefusalCode`, a file and a model path, collected in a list | A YAML line in CI ([Errors in CI](errors-in-ci.md)); a problem+json `type` from the catalogue |
+| Authored input is wrong | `Diagnostic` with a `RefusalCode`, a primary location and any related ones ([record 71](../decisions/0071-every-diagnostic-names-its-locations-and-every-output-traces-to-its-source.md)), collected in a list | A YAML line in CI ([Errors in CI](errors-in-ci.md)); a problem+json `type` from the catalogue |
 | An outside system failed | A port error (`Unavailable`, `Conflict`, `NotFound`) via `thiserror` | A retry in the adapter if the call is idempotent; otherwise a rollout event and a 503 |
 | Our code is wrong | A panic | A failed composition with an internal problem; a test that reproduces it |
 

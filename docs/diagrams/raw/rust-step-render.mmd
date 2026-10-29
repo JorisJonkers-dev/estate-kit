@@ -25,11 +25,12 @@ classDiagram
         path: OutputPath
         owner: ProjectName
         object: DeliverableObject
-        sources: Vec#lt;ModelPath#gt;
+        provenance: BTreeMap#lt;FieldPath, ElementRef#gt;
     }
     class DeliverableObject {
         <<enum>>
         only the fields the estate sets
+        set(field, value, from: ElementRef)
     }
     class Serializer {
         write(DeliverableSet) Result#lt;Vec#lt;RenderedFile#gt;, Vec#lt;Diagnostic#gt;#gt;

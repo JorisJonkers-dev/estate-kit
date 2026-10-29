@@ -23,20 +23,43 @@ classDiagram
         path: OutputPath
         owner: ProjectName
         object: DeliverableObject
-        sources: Vec#lt;ModelPath#gt;
+        provenance: BTreeMap#lt;FieldPath, ElementRef#gt;
     }
     class Diagnostic {
         code: Code
         severity: Severity
-        file: SourceFile
-        path: ModelPath
+        primary: Location
+        related: Vec#lt;Related#gt;
         message: String
         help: String
+    }
+    class Location {
+        <<enum>>
+        Authored: ProjectName, Document, ModelPath
+        Platform: ModelPath
+        ClusterFact: FactKey
+    }
+    class Related {
+        location: Location
+        label: String
+    }
+    class ElementRef {
+        project: ProjectName
+        element: names, by identity
+        field: Option#lt;FieldName#gt;
+        to_model_path(Document) ModelPath
     }
     PinnedInputSet ..> Hasher : digests through
     Renderer ..> ResolvedDeployment : reads
     Renderer ..> Deliverable : emits
     Renderer ..> Diagnostic : or reports
+    Diagnostic --> Location : primary at
+    Diagnostic *-- "0..*" Related
+    Related --> Location : at
+    Deliverable --> ElementRef : traces each field to
     classDef accent fill:#0000a1,stroke:#0000b1
+    classDef data fill:#0000a2,stroke:#0000b2
     class Hasher:::accent
     class Renderer:::accent
+    class ElementRef:::data
+    class Location:::data

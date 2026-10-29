@@ -7,9 +7,9 @@ classDiagram
         read-only for every mapping
     }
     class Trace {
-        allocate(source: ModelPath) Id#lt;T#gt;
-        resolve_one(source: ModelPath) Result#lt;Id#lt;T#gt;#gt;
-        sources_of(target: TargetRef) Vec#lt;ModelPath#gt;
+        allocate(source: ElementRef) Id#lt;T#gt;
+        resolve_one(source: ElementRef) Result#lt;Id#lt;T#gt;#gt;
+        sources_of(target: TargetRef) Vec#lt;ElementRef#gt;
     }
     class mappings {
         <<module>>

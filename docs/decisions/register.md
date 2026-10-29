@@ -2,7 +2,7 @@
 
 The records to be written, in reading order, with their current status. Each title becomes a file `NNNN-<slug>.md` here when written, from [the template](template.md). Records 42 onwards are placed into reading order when the register is written; the model's own records follow after the cutover.
 
-The [design review](../research/review/README.md) of 2026-10-22 changed or added the rows marked Proposed; they stay Proposed until their records are written and accepted ([#20](https://github.com/JorisJonkers-dev/estate-kit/issues/20)). The move to an all-Rust workspace on 2026-10-29 changed rows 13 to 18, 48, 50 and 55 and added 65 to 70; the records already written are linked.
+The [design review](../research/review/README.md) of 2026-10-22 changed or added the rows marked Proposed; they stay Proposed until their records are written and accepted ([#20](https://github.com/JorisJonkers-dev/estate-kit/issues/20)). The move to an all-Rust workspace on 2026-10-29 changed rows 13 to 18, 48, 50 and 55 and added 65 to 71; the records already written are linked.
 
 | # | Record | Status |
 | --- | --- | --- |
@@ -76,3 +76,4 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 68 | [Every port has one fake, and the fake passes the same contract suite as its adapter](0068-every-fake-passes-its-port-s-contract-suite.md) | Proposed |
 | 69 | The deploy path is tested end to end on a throwaway k3s cluster, nightly and before every release | Proposed |
 | 70 | Shared Rust code moves to rust-commons on its third consumer; the sign-in kit is the first | Proposed |
+| 71 | [Every diagnostic names all its locations, and every rendered field traces back to its source](0071-every-diagnostic-names-its-locations-and-every-output-traces-to-its-source.md) | Proposed |

@@ -35,6 +35,24 @@ _Avoid_: test deploy, rehearsal
 One entry in a rollout's append-only log; a rollout's state is the fold of its events.
 _Avoid_: status update, log line
 
+## Diagnostics and traceability
+
+**Model path**:
+The RFC 6901 pointer to a node of an authored document, by position (`/applications/0/processes/1/image`). It exists to find a line at a commit.
+_Avoid_: path, location
+
+**Element reference**:
+The identity of a model element and field, keyed by names (Project, Application, Process, then the field). It survives reordering, and is what the trace, provenance and live objects use.
+_Avoid_: id path, source id
+
+**Location**:
+Where a diagnostic points: an authored location (Project, document, model path), a Platform Intent location, or a ClusterState fact. A diagnostic has one primary location and any number of related ones.
+_Avoid_: position, span
+
+**Provenance**:
+For one rendered field, the element reference that caused its value.
+_Avoid_: origin, lineage
+
 ## Hosts
 
 **Infrastructure Intent**:

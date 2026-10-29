@@ -176,7 +176,7 @@ identifier" (CS-1).
 | Polymorphic templates per type | An exhaustive `match` on the Deliverable's kind; a new kind without a renderer does not compile |
 | Queries in templates | None; renderers read finished values only |
 | `[file(path)]` blocks | `Deliverable { path, owner, kind, sources }`, planned by `step-resolve`; `serialize` checks that each path lies inside its owner's directory, not only that paths are unique |
-| `[trace]` blocks | Each Deliverable's `sources`, written to the CLI's JSON output, and shown by `estate-kit explain <path>` |
+| `[trace]` blocks | Provenance per rendered field, written to the CLI's JSON output, and shown by `estate-kit explain` (see [Traceability in both directions](#traceability-in-both-directions)) |
 | `[protected]` areas | None. Generated files are never hand-edited; generated host data and hand-written Nix modules are separate files ([record 29](../decisions/register.md)) |
 | Text templates | None for Kubernetes or host data. Renderers build objects of the narrow `deliverable` model, and one canonical emitter writes the bytes. `generate` (App Roles in five languages) is the one text output, and its templates take a prepared view struct with no logic |
 
@@ -187,6 +187,39 @@ deploy-kit: every field is settable, "so an adapter can invent a decision"
 Conformance to the target comes from a test that validates every rendered
 object against pinned Kubernetes and CRD schemas (TM-6), then from the
 server-side dry-run.
+
+## Traceability in both directions
+
+The course treated traceability as the reason transformations keep links at
+all: so that changes, and the errors they cause, can be followed from source
+to target and back. Each tool offered part of it, and named its own gap.
+
+| Tool | What it traced | The gap it names | Rust |
+| --- | --- | --- | --- |
+| Xtext | Each model object to the text it was parsed from; validation names an object and a feature | References linked by plain strings lose "unknown reference here" (the 2024 project) | Model path per node; the link step's scope table gives every unknown name a location |
+| OCL and EMF diagnostics | The object to fix, with a computed message and severity; a diagnostic may carry several objects | A guard on `allInstances()` passes silently on one file | A primary location and labelled related locations; invariants scoped to the input set |
+| QVT-O | Every mapping's inputs to its outputs; `resolve` forwards, `invresolve` backwards, `late resolve` after all mappings | Objects built in helpers or nested expressions get no trace (QVT 1.3 §8.1.11.1) | Every rendered field has provenance, because the narrow object model's setters take the element reference that caused the value |
+| ATL | Matched rules, automatically; `resolveTemp` for non-default targets | Iterative target patterns break the trace | One `Trace`; no construction outside it |
+| MOFM2T | `[trace]` ties text regions to model elements; file blocks have ids derived from element identifiers, so a file survives a rename | Protected areas preserved hand edits | Element references keyed by identity, not position; no hand edits |
+| QVT Relations | Check-only mode: are two existing models related? | | The drift check: each difference between a live object and its render is reported on the source line |
+
+So the trace is used in both directions on purpose
+([record 71](../decisions/0071-every-diagnostic-names-its-locations-and-every-output-traces-to-its-source.md)):
+
+- **Backwards.** A field refused by the dry-run, an admission webhook or a
+  CRD schema becomes a diagnostic on the authored line that set it. A live
+  object's annotation (Project and element reference) leads the UI from a pod
+  or an alert to the element that configured it.
+- **Forwards.** `estate-kit explain <element>` lists what an element
+  produces, and `estate-kit explain <file>` what produced a file. A plan shows
+  each changed object with the lines that changed it.
+- **Across Projects.** A conflict's diagnostic has the other Project's
+  declaration as a related location, linked at that repository's commit.
+
+Two references keep this stable. The positional **model path** finds a line
+at a commit; the id-keyed **element reference** is what the trace and the live
+annotations hold, so reordering a list changes neither the annotations nor the
+render.
 
 ## Testing a transformation
 
@@ -204,7 +237,8 @@ mutation tools (MD-4); Rust is not.
 | Determinism (property test) | Rendering twice, and with the input documents permuted, gives the same bytes | `compiler` |
 | Locality (property test) | Adding an unrelated Project leaves another Project's render unchanged (DO-1) | `compiler` |
 | Idempotent lowering | `lower(lower(x)) == lower(x)` | `step-lower` |
-| Trace completeness | Every Deliverable has a source; every authored Process and Exposure is the source of something; nothing is dropped silently | `compiler` |
+| Trace completeness | Every rendered field has an element reference; every authored Process and Exposure is the source of something; nothing is dropped silently | `compiler` |
+| Stable references | Reordering every list in an example changes no annotation and no render digest | `compiler` |
 | Contracts over source and target | Every allowed egress has a matching ingress (MS-9); every resolved Process has an eligible node or the run failed | `step-resolve` |
 | Specification coverage | Every schema type and enum variant is instantiated by some fixture | `testkit` |
 | Oracles at the seams | Parsed structure first, then bytes, then digest (TM-2); oracles are read-only to tests and labelled independent or regression (TM-1) | `oracles/` |
