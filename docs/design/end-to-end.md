@@ -32,11 +32,15 @@ call the `compiler` crate.
 1. An Operator signed in to the UI (rust-commons' sign-in kit; group claims map
    to roles in Platform Intent) presses Roll back. `http-api` checks the route's
    authorization row.
-2. `service-app::Rollback` reads the last Serving render from the event log,
-   dry-runs it (`adapter-kube`), moves the tag back (`adapter-ghcr`) and writes
-   the Project's Pause object (`adapter-kube`). It signs nothing new, so it
-   works with Vault down ([record 61](../decisions/register.md)).
-3. If that dry-run fails, it composes again from step 5 above.
+2. `service-app::Rollback` takes the writer Lease (`adapter-kube`), finds the
+   last Serving render from the registry (`adapter-ghcr`), not from Postgres or
+   the event log, and dry-runs it (`adapter-kube`). It moves the tag back by
+   read, verify, write and re-reads it (`adapter-ghcr`, with the token from the
+   mounted Secret), then writes the Project's Pause object (`adapter-kube`). It
+   signs nothing and reads nothing from Vault or Postgres, so it works with
+   Vault down ([record 28](../decisions/0028-pause-and-rollback-are-a-cluster-object-per-project.md)).
+3. If that dry-run fails, it composes again from step 5 above, which is a
+   Deploy and waits for Vault.
 
 ## A host rollout
 

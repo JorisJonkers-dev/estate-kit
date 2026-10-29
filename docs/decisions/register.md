@@ -14,7 +14,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 6 | Every render is a function of pinned inputs | Accepted |
 | 7 | A Project's state lives with the Project | Accepted |
 | 8 | [An image's digest is sealed into the Intent Fragment, and its build registered it](0008-an-image-digest-is-sealed-into-the-fragment-and-registered-by-its-build.md) | Proposed |
-| 9 | The live render is a signed registry tag per Project and environment | Accepted |
+| 9 | [The live render is a signed registry tag per Project and environment](0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md) | Accepted |
 | 10 | Platform Intent admits the Projects | Accepted |
 | 11 | Platform Intent is pushed like any Project; the service's copies are a cache | Accepted |
 | 12 | Infrastructure Intent declares sites, nodes and maintenance windows | Accepted |
@@ -66,8 +66,8 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 58 | [Flux is locked down per Project, and the service dry-runs as an identity that cannot write](0058-flux-is-locked-down-per-project-and-the-service-dry-runs-as-an-identity-that-cannot-write.md) | Proposed |
 | 59 | [Vault unseals itself through a cloud KMS](0059-vault-unseals-itself-through-a-cloud-kms.md) | Proposed |
 | 60 | [The API server's datastore is backed up off the provider, and its restore is drilled](0060-the-api-server-datastore-is-backed-up-off-the-provider-and-its-restore-is-drilled.md) | Proposed |
-| 61 | [A rollback moves the tag back to the last Serving render without composing](0061-a-rollback-moves-the-tag-back-to-the-last-serving-render-without-composing.md) | Proposed |
-| 62 | [ghcr tags move with a machine account's token kept in Vault](0062-ghcr-tags-move-with-a-machine-account-token-kept-in-vault.md) | Proposed |
+| 61 | A rollback moves the tag back to the last Serving render without composing | Merged into 28 |
+| 62 | ghcr tags move with a machine account's token kept in Vault | Merged into 9 |
 | 63 | [The service has one writer and reconciles from observed state](0063-the-service-has-one-writer-and-reconciles-from-observed-state.md) | Accepted |
 | 64 | [Renders use a canonical YAML style specified on one page](0064-renders-use-a-canonical-yaml-style-specified-on-one-page.md) | Proposed |
 | 65 | [The workspace is layered by crate, and a check holds the crate graph to the layer table](0065-the-workspace-is-layered-and-the-crate-graph-is-checked.md) | Accepted |

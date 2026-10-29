@@ -1,7 +1,7 @@
 ---
 status: accepted  # proposed | accepted | locked
 date: 2026-10-29
-rests-on: [25, 61, 68]
+rests-on: [25, 68]
 lessons: [DO-4, TM-6, MD-5]
 ---
 
@@ -14,7 +14,7 @@ port's contract suite against the real system in a container
 ([record 68](0068-every-fake-passes-its-port-s-contract-suite.md)). None of
 them proves that the parts work together: that Flux pulls the tag the service
 moved, that Flagger asks the Release Gate, that a rollback works with Vault
-down, or that a restarted service resumes from observed state. Those are the
+down (it reads no secret from Vault: the token is a Kubernetes Secret), or that a restarted service resumes from observed state. Those are the
 behaviours the design review's scenarios rank highest, and a Ready condition
 alone has proved nothing before (DO-4).
 
@@ -24,14 +24,16 @@ A suite in `e2e/` runs the deploy path the way production does, with nothing
 faked except GitHub:
 
 - a k3s cluster in CI with Flux, Flagger and the ValidatingAdmissionPolicies;
-- zot standing in for ghcr, Vault in dev mode with the render and host Transit
+- zot standing in for ghcr, requiring the machine account's token as ghcr
+  does (no unauthenticated registry), so a Rollback that secretly needs Vault
+  for it fails here; Vault in dev mode with the render and host Transit
   keys, Postgres, and the service image built from the change;
 - a fixture Project whose `deploy` job the test runner replays with a minted
   OIDC token.
 
 Its scenarios are the use cases: validate and plan; dry-run; deploy to
-Serving; a refused deploy; Pause and Resume; Rollback with Vault scaled to
-zero; a service restart mid-rollout; an unchanged render that publishes
+Serving; a refused deploy; Pause and Resume; Rollback with Vault sealed or scaled to
+zero ([record 28](0028-pause-and-rollback-are-a-cluster-object-per-project.md)); a service restart mid-rollout; an unchanged render that publishes
 nothing. Each asserts a value a consumer reads (the tag, the object in the
 cluster, the Deployment status), never only a condition. The suite runs
 nightly and is required before a release, within 15 minutes. The scenarios are

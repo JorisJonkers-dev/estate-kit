@@ -64,7 +64,7 @@ stream.
 
 **Step 2, dry-run and signing.** Nothing is signed unless the API server
 accepts the dry-run. A render whose digest is unchanged is not published
-again. The tag is moved with a machine account's token from Vault, because ghcr
+again. The tag is moved with a machine account's token, synced by the Vault Secrets Operator into a Kubernetes Secret the service mounts, because ghcr
 refuses GitHub App tokens (D3), and only by the pod holding the writer Lease
 (D9).
 
