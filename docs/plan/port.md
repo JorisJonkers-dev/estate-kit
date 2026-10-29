@@ -95,13 +95,32 @@ on.
 | 1. Spikes | #10 to #17, plus the Rust YAML reader spike in place of #18 | 25 h | Each spike's question answered in its issue | A spike that cannot answer reopens its decision as a Proposed record |
 | 2. Records, lessons, founding | #19 to #22 | 25 h | Records written; the specification, oracles and old code imported with history (after 2026-10-30) | Write only the records the next phase needs |
 | 3. Workspace and walking skeleton | W0, then a thin slice of W1 to W5 and W11 | 40 h | `minimal` rendered by the Rust compiler, composed by the Rust service against fakes, and written as a shadow tag on a test cluster; every gate in CI with a failing fixture (MD-5) | Narrow the slice, never skip a gate |
-| 4. The compiler to 1.0 | W1 to W3 | open, measured per chapter | Every language-neutral 1.0 oracle met; every rendered oracle met in structure | Hold deploy-kit's additive releases until the Rust side catches up |
-| 5. Deploy path | W4 to W6, #30 to #39 | 45 h | A test cluster deploys, rolls back and pauses through the service, with Vault scaled to zero for rollback | Ship without provenance registration, behind a claim policy only |
+| 4. The compiler to 1.0 | W1 to W3 | 95 h, split per chapter [below](#phase-4-budget) | Every language-neutral 1.0 oracle met; every rendered oracle met in structure | None to ship less; [record 67](../decisions/0067-the-compiler-is-written-to-the-1-0-contract.md)'s stop rule governs: deploy-kit takes no new concepts once the Rust compiler meets the oracles of its latest release, and handovers continue until then |
+| 5. Deploy path | W4 to W6, #30 to #39 | 45 h | A test cluster deploys, rolls back and pauses through the service, with Vault scaled to zero for rollback | None: if the phase overruns, it stops, and the maintainer chooses what to cut from the phase's issues; provenance registration stays in |
 | 6. Recovery on the running estate | #40 to #42 | 15 h | Vault unseals itself; a datastore restore has been drilled | None: these are production risks today |
 | 7. Observation | W7 | 15 h | The UI serves every page the dashboard does | Keep the old dashboard serving |
 | 8. Hosts | W9, #43 to #49 | 50 h | A host rollout switches the fleet one node at a time under the Lease | Stay on deploy-rs from generated targets (#44) |
 | 9. Shadow and switch (the cutover) | #50 to #53 | 30 h | Every Project on signed tags with no unexplained structural difference; old repositories archived | Revert the last switched Project and keep the old stack serving |
 | 10. Components, after cutover | W8 (#66 to #71), one at a time | 25 h | Each component passes its characterization and replaces its old image | Keep the old component running; nothing else waits for it |
+
+### Phase 4 budget
+
+Phase 4 is budgeted per chapter group, against the oracle counts that
+[record 67](../decisions/0067-the-compiler-is-written-to-the-1-0-contract.md)
+lists. The hours are a first estimate, set before any chapter is built; revise
+them after the first chapter lands and note the revision here.
+
+| Chapters (workstream) | Oracles to meet | First estimate |
+| --- | --- | --- |
+| Read and check (W1) | 196 refusal oracles and 41 schema-refusal oracles, by code and path, plus the corpus | 30 h |
+| Lower, compose and resolve (W2) | 19 expected models, compared as parsed JSON | 25 h |
+| Render and serialize (W3) | 504 rendered files, in structure, then the one rewrite into the canonical format | 40 h |
+
+A chapter group that overruns its hours by half stops the phase, like any
+other. The stop rule comes from [record 67](../decisions/0067-the-compiler-is-written-to-the-1-0-contract.md), not from a fallback: until the Rust compiler
+meets every oracle of the latest deploy-kit release, deploy-kit keeps
+releasing additive changes for the #373 handovers, specification first; after
+that, it takes no new concepts.
 
 The shadow phase's exit rule (#50) is fixed before the shadow starts: the
 number of consecutive days with no unexplained difference, and which Projects
