@@ -14,7 +14,7 @@ port's contract suite against the real system in a container
 ([record 68](0068-every-fake-passes-its-port-s-contract-suite.md)). None of
 them proves that the parts work together: that Flux pulls the tag the service
 moved, that Flagger asks the Release Gate, that a rollback works with Vault
-down (it reads no secret from Vault: the token is a Kubernetes Secret), or that a restarted service resumes from observed state. Those are the
+down (it reads no secret from Vault: the token is a Kubernetes Secret), or that a restarted service resumes from observed state, and that a waiting deploy job keeps authenticating across an upgrade. Those are the
 behaviours the design review's scenarios rank highest, and a Ready condition
 alone has proved nothing before (DO-4).
 
@@ -33,7 +33,7 @@ faked except GitHub:
 
 Its scenarios are the use cases: validate and plan; dry-run; deploy to
 Serving; a refused deploy; Pause and Resume; Rollback with Vault sealed or scaled to
-zero ([record 28](0028-pause-and-rollback-are-a-cluster-object-per-project.md)); a service restart mid-rollout; an unchanged render that publishes
+zero ([record 28](0028-pause-and-rollback-are-a-cluster-object-per-project.md)); a service restart mid-rollout; a service upgraded mid-rollout (the deploy job re-requests a GitHub OIDC token and resumes its stream by sequence); an unchanged render that publishes
 nothing. Each asserts a value a consumer reads (the tag, the object in the
 cluster, the Deployment status), never only a condition. The suite runs
 nightly and is required before a release, within 15 minutes. The scenarios are

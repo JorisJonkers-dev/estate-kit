@@ -62,7 +62,9 @@ faked except GitHub:
 
 Its scenarios are the use cases: validate and plan; dry-run; deploy to
 Serving; a refused deploy; Pause and Resume; Rollback with Vault scaled to
-zero; a service restart mid-rollout that resumes from observed state; an
+zero; a service restart mid-rollout that resumes from observed state; a service
+upgraded mid-rollout, after which the waiting deploy job re-requests a GitHub
+OIDC token and resumes by sequence; an
 unchanged render that publishes nothing. Each scenario asserts what a
 consumer sees (the tag, the object in the cluster, the Deployment status),
 never only a Ready condition (DO-4).
