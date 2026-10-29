@@ -58,7 +58,8 @@ Pause and held state stay in the Project's cluster object.
 
 The service runs one pod with strategy Recreate, so an update never runs two,
 and it takes a coordination Lease right before it signs or moves a tag, so a
-stray second pod cannot write ([review](../research/review/README.md) D9). On
+stray second pod cannot write ([review](../research/review/README.md) D9,
+[record 63](../decisions/0063-the-service-has-one-writer-and-reconciles-from-observed-state.md)). On
 startup it does not trust the log alone: it rebuilds each unfinished rollout
 from the Project's tag in ghcr and from Flux and Flagger status, or ends it
 with an Abandoned event. Flux keeps serving the last tags meanwhile.

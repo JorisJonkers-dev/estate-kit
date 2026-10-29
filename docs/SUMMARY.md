@@ -35,6 +35,7 @@
   - [48. The CLI's JSON output has a schema](decisions/0048-the-cli-s-json-output-has-a-committed-schema.md)
   - [50. Five bounded contexts](decisions/0050-five-bounded-contexts.md)
   - [55. Characterize before rewriting](decisions/0055-every-go-and-python-program-is-characterized-before-it-is-rewritten.md)
+  - [63. The service has one writer](decisions/0063-the-service-has-one-writer-and-reconciles-from-observed-state.md)
   - [65. The workspace is layered](decisions/0065-the-workspace-is-layered-and-the-crate-graph-is-checked.md)
   - [66. Transformations are plain Rust](decisions/0066-transformations-are-plain-rust.md)
   - [67. The compiler implements 1.0](decisions/0067-the-compiler-is-written-to-the-1-0-contract.md)

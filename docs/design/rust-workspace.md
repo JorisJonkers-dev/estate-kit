@@ -285,4 +285,4 @@ uses.
 - **Where the composition queue lives.** In memory with the single writer, or
   as rows in Postgres like blueshell's job table. The row survives a restart;
   the single writer already reconciles from observed state
-  ([record 63](../decisions/register.md)).
+  ([record 63](../decisions/0063-the-service-has-one-writer-and-reconciles-from-observed-state.md)).
