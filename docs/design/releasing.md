@@ -28,7 +28,7 @@ release-please PR, and again right before any tag moves.
 | --- | --- | --- | --- |
 | Ordinary pull request | `validate` | `estate-kit / validate` | Offline checks, then a plan from the service: cross-Project errors and the render diff |
 | Release-please pull request | `deploy`, `dry-run: true` | `estate-kit / deploy (dry-run)`, required | A build job builds candidate images by digest; a separate job registers those digests with the service and runs the full dry-run against the cluster; no Deployment record |
-| Release published | `deploy`, environment `production` | `estate-kit / deploy` | Promotes the candidate digests; the service checks every digest was registered by this Project (D8), dry-runs again, signs with the render key, moves `render/<p>:prod` with compare-and-swap, and streams the rollout |
+| Release published | `deploy`, environment `production` | `estate-kit / deploy` | Promotes the candidate digests; the service checks every digest was registered by this Project (D8), dry-runs again, signs with the render signing key, moves `render/<p>:prod` with compare-and-swap, and streams the rollout |
 
 Cancelling a deploy job only detaches it; the rollout continues. Stopping a
 rollout is a Pause or a Rollback. A dropped stream resumes from its last event.
