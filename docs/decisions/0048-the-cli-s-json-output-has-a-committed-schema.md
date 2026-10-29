@@ -1,7 +1,7 @@
 ---
 status: accepted  # proposed | accepted | locked
 date: 2026-10-29
-rests-on: [18, 27, 47]
+rests-on: [18, 47, 71]
 lessons: [CS-6]
 ---
 

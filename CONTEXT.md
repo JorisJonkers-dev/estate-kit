@@ -102,7 +102,7 @@ The RFC 6901 pointer to a node of an authored document, by position (`/applicati
 _Avoid_: path, location
 
 **Element reference**:
-The identity of a model element and field, keyed by names (Project, Application, Process, then the field). It survives reordering, and is what the trace, provenance and live objects use.
+The identity of a model element and field, keyed by names (Project, Application, Process, then the field). It survives reordering, and names an element outside the run that found it.
 _Avoid_: id path, source id
 
 **Location**:
@@ -110,7 +110,7 @@ Where a diagnostic points: an authored location (Project, document, model path),
 _Avoid_: position, span
 
 **Provenance**:
-For one rendered field, the element reference that caused its value.
+For one rendered field, the set of element references that caused its value. Deferred ([record 72](docs/decisions/0072-per-field-provenance-and-explain-are-deferred.md)).
 _Avoid_: origin, lineage
 
 ## Hosts

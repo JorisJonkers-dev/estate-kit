@@ -55,7 +55,7 @@ and the decision review, raised it independently and the skeptic kept it.
   agreement should be one-directional and assert every diagnostic, not only
   the verdict; spike #18 should also settle how the schema validator's
   `required` errors map to model paths.
-- [Record 71](../decisions/0071-every-diagnostic-names-its-locations-and-every-output-traces-to-its-source.md)'s
+- [Record 71](../decisions/0071-a-diagnostic-is-a-coded-problem-with-typed-locations.md)'s
   per-field provenance is one element reference per field, while a merged
   field has several; its reorder test is wrong for ordered lists.
 - "Render key" means the input digest in `CONTEXT.md` and

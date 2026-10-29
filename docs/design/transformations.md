@@ -197,7 +197,7 @@ identifier" (CS-1).
 | Polymorphic templates per type | An exhaustive `match` on the Deliverable's kind; a new kind without a renderer does not compile |
 | Queries in templates | None; renderers read finished values only |
 | `[file(path)]` blocks | `Deliverable { path, owner, kind, sources }`, planned by `step-resolve`; `serialize` checks that each path lies inside its owner's directory, not only that paths are unique |
-| `[trace]` blocks | Provenance per rendered field, written to the CLI's JSON output, and shown by `estate-kit explain` (see [Traceability in both directions](#traceability-in-both-directions)) |
+| `[trace]` blocks | The `Trace`: each Deliverable keeps the model paths of the elements it came from, written to the CLI's JSON output (see [Traceability in both directions](#traceability-in-both-directions)). Per-field provenance and `estate-kit explain` are deferred ([record 72](../decisions/0072-per-field-provenance-and-explain-are-deferred.md)) |
 | `[protected]` areas | None. Generated files are never hand-edited; generated host data and hand-written Nix modules are separate files ([record 29](../decisions/register.md)) |
 | Text templates | None for Kubernetes or host data. Renderers build objects of the narrow `deliverable` model, and one canonical emitter writes the bytes. `generate` (App Roles in five languages) is the one text output, and its templates take a prepared view struct with no logic |
 
@@ -219,28 +219,27 @@ to target and back. Each tool offered part of it, and named its own gap.
 | --- | --- | --- | --- |
 | Xtext | Each model object to the text it was parsed from; validation names an object and a feature | References linked by plain strings lose "unknown reference here" (the 2024 project) | Model path per node; the link step's scope table gives every unknown name a location |
 | OCL and EMF diagnostics | The object to fix, with a computed message and severity; a diagnostic may carry several objects | A guard on `allInstances()` passes silently on one file | A primary location and labelled related locations; invariants scoped to the input set |
-| QVT-O | Every mapping's inputs to its outputs; `resolve` forwards, `invresolve` backwards, `late resolve` after all mappings | Objects built in helpers or nested expressions get no trace (QVT 1.3 §8.1.11.1) | Every rendered field has provenance, because the narrow object model's setters take the element reference that caused the value |
+| QVT-O | Every mapping's inputs to its outputs; `resolve` forwards, `invresolve` backwards, `late resolve` after all mappings | Objects built in helpers or nested expressions get no trace (QVT 1.3 §8.1.11.1) | Every Deliverable keeps the model paths it came from; per-field provenance is deferred ([record 72](../decisions/0072-per-field-provenance-and-explain-are-deferred.md)) |
 | ATL | Matched rules, automatically; `resolveTemp` for non-default targets | Iterative target patterns break the trace | One `Trace`; no construction outside it |
-| MOFM2T | `[trace]` ties text regions to model elements; file blocks have ids derived from element identifiers, so a file survives a rename | Protected areas preserved hand edits | Element references keyed by identity, not position; no hand edits |
-| QVT Relations | Check-only mode: are two existing models related? | | The drift check: each difference between a live object and its render is reported on the source line |
+| MOFM2T | `[trace]` ties text regions to model elements; file blocks have ids derived from element identifiers, so a file survives a rename | Protected areas preserved hand edits | Element references keyed by identity, not position, to name an element outside the run; no hand edits |
+| QVT Relations | Check-only mode: are two existing models related? | | The drift check reports each difference between a live object and its render on the object; on the source line only if [record 72](../decisions/0072-per-field-provenance-and-explain-are-deferred.md) returns |
 
-So the trace is used in both directions on purpose
-([record 71](../decisions/0071-every-diagnostic-names-its-locations-and-every-output-traces-to-its-source.md)):
+So the trace is used where it has a job
+([record 71](../decisions/0071-a-diagnostic-is-a-coded-problem-with-typed-locations.md)):
 
-- **Backwards.** A field refused by the dry-run, an admission webhook or a
-  CRD schema becomes a diagnostic on the authored line that set it. A live
-  object's annotation (Project and element reference) leads the UI from a pod
-  or an alert to the element that configured it.
-- **Forwards.** `estate-kit explain <element>` lists what an element
-  produces, and `estate-kit explain <file>` what produced a file. A plan shows
-  each changed object with the lines that changed it.
+- **Backwards, per object.** An error from the dry-run, an admission webhook
+  or a CRD schema on a rendered object is shown against the elements that
+  object came from, as a whole.
 - **Across Projects.** A conflict's diagnostic has the other Project's
   declaration as a related location, linked at that repository's commit.
+- **Deferred.** Mapping a refused field to the line that set it,
+  `estate-kit explain`, annotations on live objects and drift on the source
+  line need provenance on every setter. They wait for a scenario that needs
+  them ([record 72](../decisions/0072-per-field-provenance-and-explain-are-deferred.md)).
 
-Two references keep this stable. The positional **model path** finds a line
-at a commit; the id-keyed **element reference** is what the trace and the live
-annotations hold, so reordering a list changes neither the annotations nor the
-render.
+Two references keep names stable. The positional **model path** finds a line
+at a commit; the id-keyed **element reference** names an element outside the
+run that found it, and survives reordering a list.
 
 ## Testing a transformation
 

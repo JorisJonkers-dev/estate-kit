@@ -4,7 +4,7 @@ Every error points at a line in the Project's YAML, whether the binary found it
 offline or the service found it during composition or the dry-run. An error
 that is wrong *in relation to* something else points there too, even in
 another Project's repository
-([record 71](../decisions/0071-every-diagnostic-names-its-locations-and-every-output-traces-to-its-source.md)).
+([record 71](../decisions/0071-a-diagnostic-is-a-coded-problem-with-typed-locations.md)).
 
 ## What a diagnostic holds
 
@@ -29,11 +29,11 @@ A location is one of three kinds:
 - The **model path** is an RFC 6901 pointer by position. It exists to find a
   line: the binary in CI resolves it from the checkout at the fragment's
   source commit, and the UI through GitHub at the same commit. The fragment
-  never carries source positions ([record 27](../decisions/register.md)).
+  never carries source positions ([record 71](../decisions/0071-a-diagnostic-is-a-coded-problem-with-typed-locations.md)).
 - The **element reference** names the element by identity (`notes` /
-  `api` / `worker` / `image`). It survives reordering, and it is what the
-  trace, provenance and the annotations on live objects use. Within one run
-  the compiler maps each to the other.
+  `api` / `worker` / `image`). It survives reordering, and it names an
+  element outside the run that found it. Within one run the compiler maps
+  each to the other.
 
 This is Xtext's split: a validation names an object and a feature, and the
 node model gives the line. It also settles the review's finding that the
@@ -43,10 +43,11 @@ exist, for different jobs.
 ## Errors the API server finds
 
 A server-side dry-run, an admission webhook or a CRD schema refuses a field of
-a rendered object. Every rendered field carries its provenance, set when the
-renderer wrote it, so the service maps the refused field to the element
-reference that set it, and that to a model path and a line. When a field has
-several sources (a merged list, say), every one becomes a related location.
+a rendered object. Each Deliverable keeps the model paths of the elements it
+came from, so the service shows the refusal against those elements, as a
+whole. Mapping the refused field to the one line that set it needs
+per-field provenance, which is deferred
+([record 72](../decisions/0072-per-field-provenance-and-explain-are-deferred.md)).
 
 ## Who is told
 
@@ -65,15 +66,14 @@ several sources (a merged list, say), every one becomes a related location.
 | Workflow annotations | The first errors, inline on the PR's YAML; related locations in the same repository as their own annotations | GitHub drops any beyond 10 per step and 50 per job |
 | Check run `estate-kit` | Every error as an annotation on its line, posted in batches | None in practice |
 | Job summary | A table per Project file: code, line, message, help, and each related location as a link pinned to its commit (another repository's links go to that repository) | None |
-| Sticky PR comment | The render diff, each changed object with the lines that changed it, and the error count | One comment, updated in place |
+| Sticky PR comment | The render diff, each changed object with the elements it came from, and the error count | One comment, updated in place |
 
 ## Following a live object back
 
-Every rendered object carries an annotation with its Project and element
-reference. It never holds a commit or a positional path, so it changes only
-when its source element does, and an unchanged render stays unchanged. The
-Observation views use it to go from a pod, an alert or a drifted object to the
-element and, at the commit behind the current tag, to its line.
+Deferred. Annotating each live object with its Project and element reference,
+so the Observation views can lead from a pod, an alert or a drifted object to
+the element and its line, depends on per-field provenance
+([record 72](../decisions/0072-per-field-provenance-and-explain-are-deferred.md)).
 
 ## What counts as an error code
 
