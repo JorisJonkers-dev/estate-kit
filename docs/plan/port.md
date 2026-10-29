@@ -7,7 +7,7 @@ all closed. This plan follows the [design review](../research/review/README.md)
 of 2026-10-22, as changed on 2026-10-29 by
 [record 13](../decisions/0013-every-program-is-rust.md) (every program is
 Rust) and [record 67](../decisions/0067-the-compiler-is-written-to-the-1-0-contract.md)
-(the compiler implements the 1.0 specification). Both are Proposed; the issues
+(the compiler implements the 1.0 specification). Both are accepted; the issues
 they changed are listed [below](#issues-this-plan-changed).
 
 ## Problem
@@ -128,7 +128,7 @@ switched on per crate once its tests are in.
 
 ## Issues this plan changed
 
-Rewritten on 2026-10-29 to follow records 13, 18 and 67 (still Proposed): [#18](https://github.com/JorisJonkers-dev/estate-kit/issues/18) is now the Rust YAML reader spike, [#23](https://github.com/JorisJonkers-dev/estate-kit/issues/23) the `estate-kit` CLI and its `--json` schema, [#26](https://github.com/JorisJonkers-dev/estate-kit/issues/26) the service core (W4), [#29](https://github.com/JorisJonkers-dev/estate-kit/issues/29) the walking skeleton through the Rust compiler, and [#54](https://github.com/JorisJonkers-dev/estate-kit/issues/54) the canonical format in the `canonical` crate. [#24](https://github.com/JorisJonkers-dev/estate-kit/issues/24) closed as not planned (the service links the compiler), [#55](https://github.com/JorisJonkers-dev/estate-kit/issues/55) closed by deploy-kit 1.0.0, and [#56](https://github.com/JorisJonkers-dev/estate-kit/issues/56) closed by [record 13](../decisions/0013-every-program-is-rust.md). [#22](https://github.com/JorisJonkers-dev/estate-kit/issues/22) now protects the imported specification and oracles, and [#50](https://github.com/JorisJonkers-dev/estate-kit/issues/50) compares structure against an expected-differences ledger. The workstreams have their own issues, linked in the table above, each a sub-issue of epic #9 with its blocked-by links.
+Rewritten on 2026-10-29 to follow records 13, 18 and 67, accepted the same day: [#18](https://github.com/JorisJonkers-dev/estate-kit/issues/18) is now the Rust YAML reader spike, [#23](https://github.com/JorisJonkers-dev/estate-kit/issues/23) the `estate-kit` CLI and its `--json` schema, [#26](https://github.com/JorisJonkers-dev/estate-kit/issues/26) the service core (W4), [#29](https://github.com/JorisJonkers-dev/estate-kit/issues/29) the walking skeleton through the Rust compiler, and [#54](https://github.com/JorisJonkers-dev/estate-kit/issues/54) the canonical format in the `canonical` crate. [#24](https://github.com/JorisJonkers-dev/estate-kit/issues/24) closed as not planned (the service links the compiler), [#55](https://github.com/JorisJonkers-dev/estate-kit/issues/55) closed by deploy-kit 1.0.0, and [#56](https://github.com/JorisJonkers-dev/estate-kit/issues/56) closed by [record 13](../decisions/0013-every-program-is-rust.md). [#22](https://github.com/JorisJonkers-dev/estate-kit/issues/22) now protects the imported specification and oracles, and [#50](https://github.com/JorisJonkers-dev/estate-kit/issues/50) compares structure against an expected-differences ledger. The workstreams have their own issues, linked in the table above, each a sub-issue of epic #9 with its blocked-by links.
 
 ## Not in scope
 

@@ -5,7 +5,7 @@ the classes inside each step, in the order a reader needs them. Each section
 links to the page that holds the detail. The decisions behind it are
 [record 13](../decisions/0013-every-program-is-rust.md),
 [record 18](../decisions/0018-the-service-links-the-compiler.md) and
-[records 65 to 68](../decisions/register.md), all Proposed.
+[records 65 to 71](../decisions/register.md), all accepted.
 
 ## 1. The whole system
 
