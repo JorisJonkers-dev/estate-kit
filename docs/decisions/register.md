@@ -2,7 +2,7 @@
 
 The records to be written, in reading order, with their current status. Each title becomes a file `NNNN-<slug>.md` here when written, from [the template](template.md). Records 42 onwards are placed into reading order when the register is written; the model's own records follow after the cutover.
 
-The [design review](../research/review/README.md) of 2026-10-22 changed or added the rows marked Proposed; they stay Proposed until their records are written and accepted ([#20](https://github.com/JorisJonkers-dev/estate-kit/issues/20)). The move to an all-Rust workspace on 2026-10-29 changed rows 13 to 18, 48, 50 and 55 and added 65 to 71; the records already written are linked. The maintainer accepted 13 to 18 (except 16, already accepted), 48, 50, 55 and 65 to 71 the same day.
+The [design review](../research/review/README.md) of 2026-10-22 changed or added the rows marked Proposed; they stay Proposed until their records are written and accepted ([#20](https://github.com/JorisJonkers-dev/estate-kit/issues/20)). The move to an all-Rust workspace on 2026-10-29 changed rows 13 to 18, 48, 50 and 55 and added 65 to 71; the records already written are linked. The maintainer accepted 13 to 18 (except 16, already accepted), 48, 50, 55, 63 and 65 to 71 the same day.
 
 | # | Record | Status |
 | --- | --- | --- |
@@ -68,7 +68,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 60 | The API server's datastore is backed up off the provider, and its restore is drilled | Proposed |
 | 61 | A rollback moves the tag back to the last Serving render without composing | Proposed |
 | 62 | ghcr tags move with a machine account's token kept in Vault | Proposed |
-| 63 | [The service has one writer and reconciles from observed state](0063-the-service-has-one-writer-and-reconciles-from-observed-state.md) | Proposed |
+| 63 | [The service has one writer and reconciles from observed state](0063-the-service-has-one-writer-and-reconciles-from-observed-state.md) | Accepted |
 | 64 | Renders use a canonical YAML style specified on one page | Proposed |
 | 65 | [The workspace is layered by crate, and a check holds the crate graph to the layer table](0065-the-workspace-is-layered-and-the-crate-graph-is-checked.md) | Accepted |
 | 66 | [Transformations are plain Rust: typed steps, one trace, an invariant table, and no DSL](0066-transformations-are-plain-rust.md) | Accepted |
