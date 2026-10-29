@@ -16,7 +16,7 @@ refuses GitHub App tokens ([review](../research/review/README.md) D3). It lives 
 | Service to Vault | Vault Kubernetes auth | The service's own service account |
 | Service to GitHub | GitHub App installation token | Not OIDC: GitHub issues it per installation |
 | Service to ghcr | A machine account's classic PAT, read from Vault | Write only on the render and host packages; a check fails on any other grant; rotated on a schedule (D3) |
-| Service to the API server | Its own service account | Dry-run only: a ValidatingAdmissionPolicy refuses its writes unless `dryRun` is set (D4); it also holds the writer Lease |
+| Service to the API server | Its own service account | Dry-run only: a ValidatingAdmissionPolicy refuses a write by the service's identity without `dryRun` other than to its writer Lease, by its name, and to ProjectControl objects (D4) |
 | Host applier to the API server | A credential per node | Cordon, evict and the rollout Lease, limited by policy to its own node (D2) |
 
 ## Authenticating a deploy job

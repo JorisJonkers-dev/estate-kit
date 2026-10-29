@@ -24,6 +24,10 @@ dry-runs holds write access ([review](../research/review/README.md) D4).
   request from the service's identity whose `dryRun` is not set, so the API
   server itself prevents a real write. Spike #13 proves `request.dryRun` is
   reachable from the policy.
+- **Two exempt objects.** The service's identity may write without `dryRun`
+  only its writer Lease, by its name `estate-kit-writer`, and ProjectControl
+  objects. The policy refuses every other non-dry-run request from that
+  identity.
 - **Pod Security and image policy per Project.** Namespaces are labelled for
   the `restricted` profile and a digest-only image policy, with exemptions
   declared in Platform Intent.
@@ -40,10 +44,21 @@ dry-runs holds write access ([review](../research/review/README.md) D4).
 - Easier: a compromised render can change only its own Project's namespace.
 - Harder: the dry-run does not exercise each Project's RBAC; Flux's apply does.
 - Forbidden: a cross-namespace reference; a write by the service's identity
-  other than its Lease and `ProjectControl`.
+  without `dryRun` other than to its writer Lease, by its name, and to
+  ProjectControl objects.
 
 ## Confirmation
 
-An admission fixture refuses a non-dry-run write from the service's identity;
-an e2e scenario renders a cross-namespace reference and asserts Flux refuses
+Admission fixtures on the ValidatingAdmissionPolicy, one per row, so widening
+an exemption fails a fixture:
+
+| Request from the service's identity | Verdict |
+| --- | --- |
+| Create of a `Deployment` without `dryRun` | Refused |
+| Update of a Lease other than `estate-kit-writer` without `dryRun` | Refused |
+| Create of a `Deployment` with `dryRun` | Allowed |
+| Update of the writer Lease `estate-kit-writer` without `dryRun` | Allowed (exemption 1) |
+| Update of a ProjectControl object without `dryRun` | Allowed (exemption 2) |
+
+An e2e scenario renders a cross-namespace reference and asserts Flux refuses
 it.
