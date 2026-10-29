@@ -161,6 +161,36 @@ class AcceptedRowsHaveFiles(unittest.TestCase):
         self.assertEqual(tree.keys(), ["no-file 1", "no-file 2"])
 
 
+class MergedRows(unittest.TestCase):
+    def test_a_merged_row_needs_no_file_and_counts_for_nothing(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        tree.row(2, "Merged into 1")
+        self.assertEqual(tree.keys(), [])
+
+    def test_a_merged_row_that_keeps_its_file_is_reported(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        tree.row(2, "Merged into 1")
+        tree.file(2, "---\nstatus: accepted\n---\n")
+        self.assertEqual(tree.keys(), ["merged-file 2"])
+
+    def test_a_rest_on_a_merged_row_is_reported(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        tree.row(2, "Merged into 1")
+        tree.record(3, "accepted", rests_on="[2]")
+        found = violations(tree.decisions, tree.lessons)
+        self.assertEqual([v.key for v in found], ["rests-on-merged 3 2"])
+        self.assertIn("rest on 1", found[0].message)
+
+    def test_a_merge_into_a_missing_or_merged_row_is_reported(self) -> None:
+        tree = Tree(self)
+        tree.row(1, "Merged into 9")
+        tree.row(2, "Merged into 1")
+        self.assertEqual(tree.keys(), ["merged-target 1", "merged-target 2"])
+
+
 class TheKnownListOnlyShrinks(unittest.TestCase):
     def setUp(self) -> None:
         self.tree = Tree(self)
