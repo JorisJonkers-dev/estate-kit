@@ -1,0 +1,51 @@
+%% title: Rust: the service's use cases, generic over one bundle of ports
+classDiagram
+    direction TB
+    class Ports {
+        <<trait>>
+        type EventStore
+        type Registry
+        type Signer
+        type Cluster
+        type GitHub
+        type Clock
+    }
+    class Deploy {
+        ports: P
+        run(DeployCommand) Result#lt;RolloutId, Problem#gt;
+    }
+    class Rollback {
+        ports: P
+        run(ProjectName) Result#lt;RolloutId, Problem#gt;
+    }
+    class Pause {
+        ports: P
+        run(ProjectName, Paused) Result#lt;(), Problem#gt;
+    }
+    class CompositionQueue {
+        submit(Trigger) CompositionId
+        one at a time, coalescing
+    }
+    class ComposeRunner {
+        run(PinnedInputSet) Result#lt;CompositionResult, Problem#gt;
+        blocking thread, budget, deadline, catch_unwind
+    }
+    class compiler {
+        <<crate>>
+        compose(PinnedInputSet) CompositionResult
+    }
+    class Decider {
+        decide(State, Command)
+        evolve(State, RolloutEvent)
+    }
+    Deploy ..> Ports : P: Ports
+    Rollback ..> Ports : P: Ports
+    Pause ..> Ports : P: Ports
+    Deploy ..> Decider : decides with
+    Deploy ..> CompositionQueue : submits to
+    CompositionQueue ..> ComposeRunner : runs
+    ComposeRunner ..> compiler : calls
+    classDef accent fill:#0000a1,stroke:#0000b1
+    classDef data fill:#0000a2,stroke:#0000b2
+    class Ports:::accent
+    class compiler:::data

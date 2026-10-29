@@ -1,0 +1,40 @@
+%% title: Rust: the reconcile loop every component and the host applier share
+classDiagram
+    direction TB
+    class Reconciler {
+        <<trait>>
+        type Desired
+        type Observed
+        type Action
+        observe() Result#lt;Observed#gt;
+        decide(Desired, Observed) Vec#lt;Action#gt;
+        act(Action) Result
+    }
+    class Loop {
+        tick(): observe, decide, act one step
+        never deletes what it does not own
+    }
+    class MailboxReconciler {
+    }
+    class MigrationRunReconciler {
+    }
+    class SecretGrantReconciler {
+    }
+    class DatabaseGrantReconciler {
+    }
+    class BucketGrantReconciler {
+    }
+    class BackupGenerationReconciler {
+    }
+    class HostGenerationReconciler {
+    }
+    Loop ..> Reconciler : drives
+    MailboxReconciler ..|> Reconciler
+    MigrationRunReconciler ..|> Reconciler
+    SecretGrantReconciler ..|> Reconciler
+    DatabaseGrantReconciler ..|> Reconciler
+    BucketGrantReconciler ..|> Reconciler
+    BackupGenerationReconciler ..|> Reconciler
+    HostGenerationReconciler ..|> Reconciler
+    classDef accent fill:#0000a1,stroke:#0000b1
+    class Reconciler:::accent

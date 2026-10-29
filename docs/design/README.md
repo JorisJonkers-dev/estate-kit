@@ -18,6 +18,7 @@ wins and the page is what gets fixed. Diagrams come from
 | [Errors in CI](errors-in-ci.md) | How an error reaches its YAML line |
 | [Conventions](conventions.md) | API contract, errors, delivery semantics, primitives, retention, telemetry, configuration, contract evolution, bounded contexts |
 | [Models and metamodels](models-and-metamodels.md) | deploy-kit's metamodels, drawn per concept, marked with what changes |
+| [High-level design](high-level-design.md) | The whole system, its divisions, every pipeline step's classes, and one deploy's control flow, in diagrams |
 | [The Rust workspace](rust-workspace.md) | Bounded contexts, layers, every crate, patterns, errors, build speed, what goes in rust-commons |
 | [Transformations without a DSL](transformations.md) | What Ecore, OCL, Xtext, QVT-O, ATL and Acceleo taught, and the Rust mechanism that keeps each lesson |
 | [End to end, crate by crate](end-to-end.md) | A release, a rollback, a host rollout and a component, step by step through the crates |

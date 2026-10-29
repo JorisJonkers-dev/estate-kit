@@ -1,0 +1,57 @@
+%% title: Rust: eight renderers behind one trait, and one serializer
+classDiagram
+    direction TB
+    class Renderer {
+        <<trait>>
+        render(ResolvedDeployment) Result#lt;Vec#lt;Deliverable#gt;, Vec#lt;Diagnostic#gt;#gt;
+    }
+    class KubernetesRenderer {
+    }
+    class NetworkingRenderer {
+    }
+    class TraefikRenderer {
+    }
+    class VaultPolicyRenderer {
+    }
+    class FluxRenderer {
+    }
+    class VsoRenderer {
+    }
+    class PrometheusRenderer {
+    }
+    class GrafanaRenderer {
+    }
+    class Deliverable {
+        path: OutputPath
+        owner: ProjectName
+        object: DeliverableObject
+        sources: Vec#lt;ModelPath#gt;
+    }
+    class DeliverableObject {
+        <<enum>>
+        only the fields the estate sets
+    }
+    class Serializer {
+        write(DeliverableSet) Result#lt;Vec#lt;RenderedFile#gt;, Vec#lt;Diagnostic#gt;#gt;
+        checks each path lies in its owner's directory
+    }
+    class CanonicalEmitter {
+        yaml(DeliverableObject) String
+        json(DeliverableObject) String
+    }
+    KubernetesRenderer ..|> Renderer
+    NetworkingRenderer ..|> Renderer
+    TraefikRenderer ..|> Renderer
+    VaultPolicyRenderer ..|> Renderer
+    FluxRenderer ..|> Renderer
+    VsoRenderer ..|> Renderer
+    PrometheusRenderer ..|> Renderer
+    GrafanaRenderer ..|> Renderer
+    Renderer ..> Deliverable : emits
+    Deliverable *-- DeliverableObject : holds
+    Serializer ..> Deliverable : writes
+    Serializer ..> CanonicalEmitter : through
+    classDef accent fill:#0000a1,stroke:#0000b1
+    classDef data fill:#0000a2,stroke:#0000b2
+    class Renderer:::accent
+    class Deliverable:::data

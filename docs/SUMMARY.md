@@ -16,6 +16,7 @@
   - [Errors in CI](design/errors-in-ci.md)
   - [Conventions](design/conventions.md)
   - [Models and metamodels](design/models-and-metamodels.md)
+  - [High-level design](design/high-level-design.md)
   - [The Rust workspace](design/rust-workspace.md)
   - [Transformations without a DSL](design/transformations.md)
   - [End to end, crate by crate](design/end-to-end.md)

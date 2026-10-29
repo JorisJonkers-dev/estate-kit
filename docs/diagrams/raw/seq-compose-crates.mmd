@@ -1,0 +1,42 @@
+%% title: Control flow: one deploy call through the crates
+sequenceDiagram
+    autonumber
+    participant CI as deploy job
+    participant H as http-api
+    participant D as service-app Deploy
+    participant R as rollout decider
+    participant E as adapter-postgres
+    participant Q as composition queue
+    participant C as compiler compose
+    participant K as adapter-kube
+    participant V as adapter-vault
+    participant G as adapter-ghcr
+    CI->>H: POST /deploys (OIDC token, fragment digest)
+    H->>H: claim policy, then route policy
+    H->>D: run(DeployCommand)
+    D->>E: events of this rollout
+    E-->>D: events
+    D->>R: decide(state, Deploy)
+    R-->>D: Accepted events, or a Refusal
+    D->>E: append events
+    D->>Q: submit trigger
+    Q->>C: compose(pinned inputs), blocking thread
+    C->>C: read, link, check#59; lower#59; compose#59; resolve#59; render#59; serialize
+    C-->>Q: renders and diagnostics per Project
+    opt a fragment is refused
+        Q->>E: append Refused for that Project#59; the others go on
+    end
+    Q->>K: server-side dry-run of every changed object
+    K-->>Q: diagnostics, or clean
+    alt the dry-run reports problems
+        Q->>E: append Refused, with the diagnostics
+    else the dry-run is clean
+        opt the render's digest differs from the tag's
+            Q->>V: sign the digest with the render key
+            Q->>G: push the render
+            Q->>K: take the writer Lease
+            Q->>G: move render/#lt#59;p#gt#59;:prod by compare-and-swap
+        end
+        Q->>E: append Published or Unchanged
+    end
+    H-->>CI: stream events over SSE, resumable by sequence
