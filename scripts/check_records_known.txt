@@ -2,7 +2,6 @@
 # written (2026-10-29). Fix one and delete its line; the check fails on a line that no longer
 # occurs, so this list only shrinks. Tracked in #84 to #103.
 
-lesson 17 DO-7
 accepted-on-proposed 63 24
 accepted-on-proposed 69 61
 cycle 17,18

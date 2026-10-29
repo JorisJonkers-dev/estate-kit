@@ -2,7 +2,7 @@
 status: accepted  # proposed | accepted | locked
 date: 2026-10-29
 rests-on: [2, 9, 13, 18, 25]
-lessons: [DO-1, DO-7]
+lessons: [DO-1]
 ---
 
 # The service runs in the cluster, in Rust: it composes, and Flux applies
