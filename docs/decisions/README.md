@@ -21,6 +21,7 @@ shrinks.
 | Proposed | Written and open for review. Nothing may rely on it yet. |
 | Accepted | Decided. Code follows it. |
 | Locked | Accepted, and its Confirmation section names a check that fails when the decision is broken. Only the maintainer may change it. |
+| Merged into N | Folded into record N, which now holds the decision. The number is never reused, and nothing rests on it. |
 
 A record changes status in its own pull request. A record that is Locked
 without a working check is a defect.
