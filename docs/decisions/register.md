@@ -13,7 +13,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 5 | Derivation is total | Accepted |
 | 6 | Every render is a function of pinned inputs | Accepted |
 | 7 | A Project's state lives with the Project | Accepted |
-| 8 | [An image's digest is sealed into the Intent Fragment, and its build registered it](0008-an-image-digest-is-sealed-into-the-fragment-and-registered-by-its-build.md) | Proposed |
+| 8 | [A Project's CI proves itself with a pinned-workflow OIDC token, and the service deploys only images its own build registered](0008-an-image-digest-is-sealed-into-the-fragment-and-registered-by-its-build.md) | Proposed |
 | 9 | [The live render is a signed registry tag per Project and environment](0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md) | Accepted |
 | 10 | Platform Intent admits the Projects | Accepted |
 | 11 | Platform Intent is pushed like any Project; the service's copies are a cache | Accepted |
@@ -27,7 +27,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 19 | One composition runs at a time | Merged into 63 |
 | 20 | [No render cache: an unchanged render is not published again](0020-no-render-cache-an-unchanged-render-is-not-published-again.md) | Proposed |
 | 21 | [Renders and host tags are signed by separate Transit keys, with an offline recovery key](0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md) | Proposed |
-| 22 | [Every caller authenticates with an OIDC token checked against a claim policy](0022-every-caller-authenticates-with-an-oidc-token-checked-against-a-claim-policy.md) | Proposed |
+| 22 | Every caller authenticates with an OIDC token checked against a claim policy | Merged into 8 |
 | 23 | [A rollout is an append-only event log on the shared Postgres](0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md) | Accepted |
 | 24 | A rollout is an append-only event log on the shared Postgres | Merged into 23 |
 | 25 | A dry-run must pass before anything is applied | Accepted |
