@@ -62,8 +62,9 @@ place. Hashing is a trait, so no step reaches for ambient crypto.
 The committed JSON Schemas and their accept/refuse corpus are the contract
 ([deploy-kit ADR 0088](https://github.com/JorisJonkers-dev/deploy-kit/blob/main/docs/adr/architecture/0088-the-committed-schemas-and-their-corpus-are-the-contract.md)).
 The read step validates against the schemas; a corpus-agreement test runs
-every corpus document through the schema and through the typed conversion and
-requires the same verdict. No language generates its types from the schemas,
+every corpus document through the schema and through the typed conversion. The
+types must refuse everything the schema refuses and may refuse more, and the
+whole diagnostic set recorded for each document must match. No language generates its types from the schemas,
 and no test compares generated schema bytes. The service's routes are held to
 the committed OpenAPI document the same way, and the Vue client is generated
 from it.
@@ -84,9 +85,21 @@ specified on one page ([record 64](../decisions/register.md)).
 There is no render cache (review D9). A cache keyed by the input digest missed
 on every lockstep release, because the compiler version is part of the key. The
 render key stays as provenance: the hash of the fragment digest, the Platform
-Intent digest, the ClusterState digest and the compiler version. When a
+Intent digest, the ClusterState digest, the compiler version and the Surface
+declarations that Link reads from other Projects. When a
 render's digest equals the one already behind the Project's tag, the service
 publishes nothing and moves nothing. Inside one run, each fragment is parsed
 once.
 
 ![Sequence: skip publishing an unchanged render](../diagrams/png/seq-cache.png)
+
+### The two-Project fixture
+
+One fixture settles that the Surface facts belong in the render key. It has two
+Projects: a provider that declares a Surface, and a consumer whose Application
+depends on it. The test composes both, changes only the provider's Surface (its
+port), and composes again. The consumer's fragment, Platform Intent, ClusterState
+snapshot and compiler version are the same, yet its render key must change; a
+key built from those four alone would not. The provider's render key changes
+too. A second case changes a Surface that no Project consumes and asserts that
+every other Project's render key stays the same.

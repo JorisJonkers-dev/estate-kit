@@ -89,7 +89,7 @@ The full plan, with budgets, exits and fallbacks per phase, is
 - **Toolchains.** Rust for every program, npm for the UI build only, Nix for
   the hosts, and Python for this repository's documentation checks.
 - **The port is the long pole.** About 19,500 lines of TypeScript and 8,300 of
-  Go are rewritten. The language-neutral oracles (corpus verdicts, refusal
+  Go are rewritten. The language-neutral oracles (corpus verdicts and diagnostic sets, refusal
   codes and paths, expected models) bound the compiler's work; characterization
   tests bound the services'.
 - **The Rust YAML stack is young.** The spanned reader is chosen by a spike;

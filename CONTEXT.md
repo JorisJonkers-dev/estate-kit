@@ -16,8 +16,52 @@ The signed registry tag `render/<project>:prod` that names a Project's current r
 _Avoid_: pin, live tag
 
 **Render key**:
-The digest of everything a Project's render depends on: its fragment, Platform Intent, the ClusterState snapshot and the compiler version.
-_Avoid_: cache key, input hash
+The digest of everything a Project's render depends on: its fragment, Platform Intent, the ClusterState snapshot, the compiler version, and the Surface declarations that Link reads from other Projects (each Surface its Applications consume or route to: its name, its port and the Project and Application that provide it). A change to a provider's Surface therefore changes the Render key of every Project that consumes it. It is kept as provenance with each published render and is never a cache key. It is not the key that signs: that is the Render signing key.
+_Avoid_: cache key, input hash, signing key
+
+**Render signing key**:
+The Vault Transit key that signs `render/<project>:prod`. Flux verifies renders against it. The service's Vault policy may use it only for that path; it never signs a host tag.
+_Avoid_: render key, Transit key
+
+**Host signing key**:
+The Vault Transit key that signs `host/<node>:prod`. Host appliers verify host tags against it. It never signs a render.
+_Avoid_: host key, Transit key
+
+**Recovery key**:
+The hardware-held key, kept offline, that Flux and every Host applier trust beside the online signing keys. It signs only in a break-glass, when Vault is gone.
+_Avoid_: backup key, root key
+
+**Serving**:
+The outcome of a Rollout whose new version has been promoted and now takes the Project's traffic. A Rollout ends in exactly one of Serving, Held or Refused.
+_Avoid_: live, deployed
+
+**Held**:
+The state of an Application whose release failed: its old version keeps serving while the Project's Prod tag names the new render, until a later render lands. The Rollout ends Held.
+_Avoid_: stuck, failed
+
+**Pause**:
+The state of a Project whose Prod tag the service does not move. Composition still checks it and Flux still applies the render the tag names. It is recorded in the Project's ProjectControl; a missing or unreadable ProjectControl reads as Paused. An Operator resumes it, and a Rollback leaves the Project Paused.
+_Avoid_: freeze, suspend
+
+**ProjectControl**:
+The custom resource, one per admitted Project in its own namespace, that records whether the Project is Paused and the render it is held at after a Rollback. Only the service writes it.
+_Avoid_: control file, pause object
+
+**Rollout**:
+One Project's release, from the moment the service moves its Prod tag until it ends Serving, Held or Refused. The service records it as an append-only log of Rollout events and reports it as a GitHub Deployment in the environment `production`. Not a Kubernetes `Deployment`.
+_Avoid_: deployment, release run
+
+**Release Gate**:
+The service's answer to Flagger, from cluster state, for each member of a switchover: may this member's new version start, and may it be promoted. It fails closed. Not the Kubernetes readiness gate.
+_Avoid_: gate controller, promotion check
+
+**Writer Lease**:
+The coordination Lease in the API server that the one service pod takes immediately before it signs a render or moves a tag, and checks it still holds before the move. It has a time-to-live.
+_Avoid_: leader election, lock
+
+**Machine account**:
+The dedicated GitHub account whose classic token, kept in Vault, moves the `render/` and `host/` tags on ghcr. It has write access only on the render and host packages.
+_Avoid_: bot, service token
 
 **Composition**:
 The service's estate-wide step that unions every admitted Project's fragment and renders them. It names no workflow, job or check.
@@ -34,6 +78,22 @@ _Avoid_: test deploy, rehearsal
 **Rollout event**:
 One entry in a rollout's append-only log; a rollout's state is the fold of its events.
 _Avoid_: status update, log line
+
+**Observation**:
+The read-only context that shows what runs and how it is doing: units, pods, containers, alerts and silences, logs, health and checks. It holds no credential that can deploy, pause or roll back.
+_Avoid_: dashboard backend, monitoring
+
+**Viewer**:
+A signed-in person who may read. Roles come from auth-api groups.
+_Avoid_: guest, user
+
+**Operator**:
+A signed-in person who may also pause, resume and roll back a Project, and act on a host's rollout.
+_Avoid_: deployer, SRE
+
+**Admin**:
+A signed-in person who may also change what the estate admits: Platform Intent and Infrastructure Intent.
+_Avoid_: owner, superuser
 
 ## Diagnostics and traceability
 
@@ -84,3 +144,13 @@ _Avoid_: reboot schedule, downtime window
 **Mailbox**:
 An email address an Application declares by its local part. The same local part declared twice within one Project names one shared Mailbox; across Projects it is refused.
 _Avoid_: email account, mail user
+
+## Rewrite and parity
+
+**Characterization fixture**:
+A recorded exchange of a Go or Python program, taken from the program itself before it is rewritten and kept in `oracles/characterization/<program>/`. It shows what the program did, not what it should do.
+_Avoid_: golden file, snapshot
+
+**Expected-differences ledger**:
+The committed list (`shadow/expected-differences.yaml`) of the differences allowed between a shadow render and the production render, each naming its cause. A difference not on it stops the switch for that Project.
+_Avoid_: allowlist, diff exceptions

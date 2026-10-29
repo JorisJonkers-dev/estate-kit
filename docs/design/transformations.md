@@ -5,7 +5,7 @@ metamodel, lowered, resolved into a Resolved Deployment, then rendered to
 files. The Model-Driven Engineering course taught that chain with Ecore, OCL,
 Xtext, ATL, QVT-O and Acceleo, and deploy-kit's coursework implemented it in
 them. estate-kit uses none of those tools and writes no language of its own
-([record 66](../decisions/0066-transformations-are-plain-rust.md)). This page
+([record 14](../decisions/0014-the-compiler-is-a-chain-of-typed-models-one-crate-per-step.md)). This page
 says which idea each tool contributed, what went wrong with it in practice,
 and the plain-Rust mechanism that keeps the idea.
 
@@ -27,10 +27,30 @@ reports and the two presentations, and the lessons already drawn in
 | render | M2M into the target vocabulary | `ResolvedDeployment` | `DeliverableSet` | `render-*` |
 | serialize | M2T | `DeliverableSet` | bytes, in the canonical format | `serialize` |
 
-Each step is a function of its inputs. `Checked<Intent>` has a constructor
-private to `step-check`, so `step-lower` cannot be handed input that skipped
-the checks; `EffectiveIntent` is its own type, so `step-resolve` cannot be
-handed un-lowered input (CS-4).
+Each step is a function of its inputs. The phase types are markers in the
+model crates, and no step crate depends on another. A step cannot be skipped,
+because the next phase can be built only with a proof token that the producing
+step alone can mint:
+
+```rust
+// model-intent: the phase type and the only way to build it.
+pub trait Proof<P> {}
+pub struct Checked<T> { value: T }
+impl<T> Checked<T> {
+    pub fn new<K: Proof<Checked<T>>>(value: T, _proof: K) -> Self { Self { value } }
+}
+
+// step-check: the token is sealed by its private field, so only this crate
+// can make one.
+pub struct CheckProof(());
+impl<T> Proof<Checked<T>> for CheckProof {}
+```
+
+`step-check` builds `Checked<Intent>` from the value and a `CheckProof` it
+makes itself. `step-lower` takes `Checked<Intent>` and cannot make a
+`CheckProof`, so it cannot be handed input that skipped the checks.
+`EffectiveIntent` is its own type, so `step-resolve` cannot be handed
+un-lowered input (CS-4). A compile-fail test per step holds this.
 
 ## Metamodels are Rust types
 
@@ -53,7 +73,8 @@ used has a Rust form that the compiler checks:
 **Abstract and concrete syntax.** The Rust types are the abstract syntax. The
 YAML is one concrete syntax. The committed JSON Schemas and their
 accept/refuse corpus are the language-neutral contract, and the types agree
-with them on the corpus, not by byte equality of a generated schema
+with them on the corpus, one-directionally and diagnostic by diagnostic, not by
+byte equality of a generated schema
 ([deploy-kit ADR 0088](https://github.com/JorisJonkers-dev/deploy-kit/blob/main/docs/adr/architecture/0088-the-committed-schemas-and-their-corpus-are-the-contract.md)).
 The Task 1 lesson stands: the model comes first and the syntaxes follow it
 (MD-2), and the output gets no third metamodel that restates the target's

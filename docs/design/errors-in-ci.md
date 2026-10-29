@@ -81,3 +81,12 @@ A code exists only for authored input that would do real harm on this estate,
 and each code ships with a fixture that fires it. A code that relates two
 locations has a fixture asserting both. The compiler's own invariants are tests
 and assertions, never user-facing codes.
+
+## A budget breach is authored input
+
+The service bounds a Composition by a step budget, a memory cap and an input
+budget ([record 18](../decisions/0018-the-service-links-the-compiler.md)).
+A breach means the document asked for more than the estate allows, so it has
+its own refusal code, a primary location on the document that spent the
+budget, and is reported as a 4xx problem. Its fixtures are a looping input and
+an oversized input. A panic is not a refusal: it is an internal problem.

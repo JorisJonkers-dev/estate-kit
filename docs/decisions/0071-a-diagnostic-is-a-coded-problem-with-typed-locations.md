@@ -1,7 +1,7 @@
 ---
 status: accepted  # proposed | accepted | locked
 date: 2026-10-29
-rests-on: [66]
+rests-on: [14]
 lessons: [CS-3, MS-9]
 ---
 
@@ -17,7 +17,7 @@ path, and the caller resolves the line) and row 44 (errors are RFC 9457
 problems drawn from one catalogue). Neither had a file.
 
 The resolve step writes through one `Trace`, and each Deliverable keeps the
-model paths it came from ([record 66](0066-transformations-are-plain-rust.md)).
+model paths it came from ([record 14](0014-the-compiler-is-a-chain-of-typed-models-one-crate-per-step.md)).
 Four things that the design already promises cannot be built from a single
 location:
 
@@ -62,7 +62,7 @@ were once part of this record. They are a separate, deferred question in
    The binary in CI and the UI resolve a model path to a line at the
    fragment's source commit.
 5. **Object-level trace stays.** Each Deliverable keeps the model paths of
-   the elements it came from ([record 66](0066-transformations-are-plain-rust.md)).
+   the elements it came from ([record 14](0014-the-compiler-is-a-chain-of-typed-models-one-crate-per-step.md)).
    An error the API server reports on an object is shown against those
    elements as a whole.
 6. **One rule decides who is told.** In a conflict across Projects, the
