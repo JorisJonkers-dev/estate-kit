@@ -3,7 +3,6 @@
 # occurs, so this list only shrinks. Tracked in #84 to #103.
 
 accepted-on-proposed 63 24
-lesson 63 DO-7
 accepted-on-proposed 69 61
 cycle 17,18
 cycle 21,30,31
