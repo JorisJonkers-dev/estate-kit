@@ -29,7 +29,7 @@ blocking thread, contained in-process by four limits:
 - An input budget (document size, nesting depth, node count) enforced by the
   YAML reader, and a wall-clock deadline.
 - A step budget threaded through the transformation kit
-  ([record 66](0066-transformations-are-plain-rust.md)). Every transformation
+  ([record 14](0014-the-compiler-is-a-chain-of-typed-models-one-crate-per-step.md)). Every transformation
   spends from it, so a loop ends as a diagnostic instead of a hang.
 - An aggregate memory cap per Composition, counted over everything one
   Composition allocates, so many small inputs cannot add up to a large one.
