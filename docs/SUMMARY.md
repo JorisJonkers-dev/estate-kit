@@ -40,7 +40,6 @@
   - [28. Pause and Rollback per Project](decisions/0028-pause-and-rollback-are-a-cluster-object-per-project.md)
   - [30. The host applier](decisions/0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md)
   - [31. Host closures and their cache](decisions/0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md)
-  - [35. Further implementations meet at the oracles](decisions/0035-a-further-implementation-meets-the-first-at-the-language-neutral-oracles.md)
   - [48. The CLI's JSON output has a schema](decisions/0048-the-cli-s-json-output-has-a-committed-schema.md)
   - [50. Five bounded contexts](decisions/0050-five-bounded-contexts.md)
   - [55. Characterize before rewriting](decisions/0055-every-go-and-python-program-is-characterized-before-it-is-rewritten.md)

@@ -40,14 +40,14 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 32 | Node order is derived from the change and the version skew rule | Accepted |
 | 33 | A Mailbox is declared by its local part and owned by one Project | Accepted |
 | 34 | Components live in this repository at one version | Accepted |
-| 35 | [A further implementation, if one is ever written, meets the first at the language-neutral oracles](0035-a-further-implementation-meets-the-first-at-the-language-neutral-oracles.md) | Proposed |
+| 35 | A further implementation, if one is ever written, meets the first at the language-neutral oracles | Merged into 67 |
 | 36 | One concept per module, one fake per port, oracles only at the seams | Accepted |
 | 37 | Every gate has a speed budget; coverage and mutation are ratchets | Accepted |
 | 38 | One version for every part | Accepted |
 | 39 | Decisions live as Markdown in docs/, and a Pages site is built from it | Accepted |
 | 40 | Records are read in order and cite their lessons | Accepted |
 | 41 | A record has a status; a locked record needs a failing check | Accepted |
-| 42 | The shadow composition is inert | Accepted |
+| 42 | The shadow composition is inert | Merged into 67 |
 | 43 | The service API is an OpenAPI 3.1 contract | Accepted |
 | 44 | Errors are RFC 9457 problems drawn from one catalogue | Accepted |
 | 45 | Deploy calls are idempotent on project and fragment digest; streams resume by sequence | Accepted |

@@ -31,8 +31,8 @@ what gets fixed.
   the maintainer; never work around it, weaken its check, or delete its
   fixture.
 - **Contracts are Locked by default.** That covers the committed schemas, the
-  OpenAPI file, the error catalogue and the `result.json` fixtures. Changing
-  one needs the maintainer's approval in the pull request.
+  OpenAPI file, the error catalogue, the `result.json` fixtures and the
+  shadow's expected-differences ledger. Changing one needs the maintainer's approval in the pull request.
 - **An unanswered design question is a Proposed record**, not an improvisation.
   Write the record (see [`docs/decisions/template.md`](docs/decisions/template.md)),
   open the pull request, and stop.
