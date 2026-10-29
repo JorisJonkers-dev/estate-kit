@@ -168,7 +168,7 @@ crates/
     adapter-liquibase/        runs the Liquibase JVM and squawk in the image
     adapter-components-kube/  watching the rendered objects
 bins/
-  estate-kit/                 the CLI: validate, plan, compose, render-hosts, generate, migrate, explain
+  estate-kit/                 the CLI: validate, plan, compose, render-hosts, generate, migrate
   estate-kit-service/         the service and the Observation views, with the embedded UI
   estate-kit-host-applier/
   secret-grant/ database-catalog/ bucket-catalog/ backup/ mail-provisioner/ migration-runner/
@@ -235,7 +235,7 @@ Patterns we do not use, and why:
 
 | Kind | Type | Where it ends |
 | --- | --- | --- |
-| Authored input is wrong | `Diagnostic` with a `RefusalCode`, a primary location and any related ones ([record 71](../decisions/0071-every-diagnostic-names-its-locations-and-every-output-traces-to-its-source.md)), collected in a list | A YAML line in CI ([Errors in CI](errors-in-ci.md)); a problem+json `type` from the catalogue |
+| Authored input is wrong | `Diagnostic` with a `RefusalCode`, a primary location and any related ones ([record 71](../decisions/0071-a-diagnostic-is-a-coded-problem-with-typed-locations.md)), collected in a list | A YAML line in CI ([Errors in CI](errors-in-ci.md)); a problem+json `type` from the catalogue |
 | An outside system failed | A port error (`Unavailable`, `Conflict`, `NotFound`) via `thiserror` | A retry in the adapter if the call is idempotent; otherwise a rollout event and a 503 |
 | Our code is wrong | A panic | A failed composition with an internal problem; a test that reproduces it |
 

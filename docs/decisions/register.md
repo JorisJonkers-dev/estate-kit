@@ -32,7 +32,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 24 | [A rollout is an append-only event log on the shared Postgres](0024-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md) | Proposed |
 | 25 | A dry-run must pass before anything is applied | Accepted |
 | 26 | Images are built once and promoted, so what dry-ran is what deploys | Accepted |
-| 27 | A diagnostic names a model path, and the caller resolves the line | Accepted |
+| 27 | A diagnostic names a model path, and the caller resolves the line | Merged into 71 |
 | 28 | [Pause and Rollback are a cluster object per Project; a missing object reads as Paused](0028-pause-and-rollback-are-a-cluster-object-per-project.md) | Proposed |
 | 29 | The compiler renders host data; hand-written modules consume it | Accepted |
 | 30 | [A host applier on each node pulls its signed host tag, and decides a reboot before the Lease](0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md) | Proposed |
@@ -49,7 +49,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 41 | A record has a status; a locked record needs a failing check | Accepted |
 | 42 | The shadow composition is inert | Accepted |
 | 43 | The service API is an OpenAPI 3.1 contract | Accepted |
-| 44 | Errors are RFC 9457 problems drawn from one catalogue | Accepted |
+| 44 | Errors are RFC 9457 problems drawn from one catalogue | Merged into 71 |
 | 45 | Deploy calls are idempotent on project and fragment digest; streams resume by sequence | Accepted |
 | 46 | IDs are UUIDv7, times RFC 3339 in UTC, and absent means unset | Accepted |
 | 47 | Schemas evolve additively within a major version, checked in CI | Accepted |
@@ -76,4 +76,5 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 68 | [Every port has one fake, and the fake passes the same contract suite as its adapter](0068-every-fake-passes-its-port-s-contract-suite.md) | Accepted |
 | 69 | [The deploy path is tested end to end on a throwaway k3s cluster, nightly and before every release](0069-the-deploy-path-is-tested-end-to-end.md) | Accepted |
 | 70 | [Shared Rust code moves to rust-commons on its third consumer; the sign-in kit is the first](0070-shared-rust-code-moves-to-rust-commons-on-its-third-consumer.md) | Accepted |
-| 71 | [Every diagnostic names all its locations, and every rendered field traces back to its source](0071-every-diagnostic-names-its-locations-and-every-output-traces-to-its-source.md) | Accepted |
+| 71 | [A diagnostic is a coded problem with typed, plural locations, and the caller resolves the lines](0071-a-diagnostic-is-a-coded-problem-with-typed-locations.md) | Accepted |
+| 72 | [Per-field provenance and `estate-kit explain` are deferred until a scenario needs them](0072-per-field-provenance-and-explain-are-deferred.md) | Proposed |
