@@ -2,7 +2,7 @@
 status: proposed  # proposed | accepted | locked
 date: 2026-10-29
 rests-on: [21]
-lessons: [DO-7, DR-1]
+lessons: [DR-1]
 ---
 
 # Vault unseals itself through a cloud KMS

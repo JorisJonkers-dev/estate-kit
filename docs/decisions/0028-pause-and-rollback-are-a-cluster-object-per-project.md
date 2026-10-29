@@ -2,7 +2,7 @@
 status: proposed  # proposed | accepted | locked
 date: 2026-10-29
 rests-on: [7, 17, 61]
-lessons: [DO-1, DO-7]
+lessons: [DO-1]
 ---
 
 # Pause and Rollback are a cluster object per Project; a missing object reads as Paused

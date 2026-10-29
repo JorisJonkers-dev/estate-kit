@@ -2,7 +2,7 @@
 status: proposed  # proposed | accepted | locked
 date: 2026-10-29
 rests-on: [12, 13, 21, 29, 32]
-lessons: [DR-1, DR-2, DO-7]
+lessons: [DR-1, DR-2]
 ---
 
 # A host applier on each node pulls its signed host tag, and decides a reboot before the Lease

@@ -1,9 +1,18 @@
 # Decision register
 
-A brand-new register, numbered in reading order. Each record rests only on
-earlier numbers, and no number is ever reused. Each record cites the lessons
-in `lessons.md` that motivate it. Records follow
-[MADR](https://adr.github.io/madr/); start from [`template.md`](template.md).
+A brand-new register, numbered in reading order, and no number is ever
+reused. A record may rest on any other, but what records rest on forms no
+cycle, and an Accepted or Locked record rests only on Accepted or Locked ones.
+Each record cites the lessons that motivate it, and only lessons that
+curation kept (see [the lesson candidates](../lesson-candidates.md)). Records
+follow [MADR](https://adr.github.io/madr/); start from
+[`template.md`](template.md).
+
+The Records job holds these rules, and that a record's status agrees with its
+register row and that every Accepted row has a file
+(`scripts/check_records.py`). Violations the register had when the check was
+written are listed in `scripts/check_records_known.txt`; that list only
+shrinks.
 
 ## Status
 

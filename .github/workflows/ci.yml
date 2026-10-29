@@ -86,6 +86,20 @@ jobs:
       - name: Check every record is cited by link
         run: python3 -B scripts/check_record_citations.py
 
+  # docs/decisions/README.md: a record's status matches its register row, rests-on forms no cycle,
+  # an Accepted record rests only on Accepted ones, cited lessons were kept, and every Accepted
+  # row has a file. Known violations are listed and may only shrink.
+  records:
+    name: Records
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check the records keep the register's rules
+        run: python3 -B scripts/check_records.py
+
   # The checks above are themselves held: every line and branch of them is covered.
   check-tests:
     name: Check tests
@@ -191,7 +205,7 @@ jobs:
   pipeline-complete:
     name: Pipeline Complete
     if: ${{ always() }}
-    needs: [site, links, diagrams, citations, check-tests, actionlint, secret-scan, hygiene, pr-title]
+    needs: [site, links, diagrams, citations, records, check-tests, actionlint, secret-scan, hygiene, pr-title]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
