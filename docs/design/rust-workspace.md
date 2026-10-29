@@ -215,7 +215,7 @@ that is not on this list needs a reason in its pull request.
 | Port and adapter | Every outside system | A trait in the application crate; one adapter crate; one hand-written fake beside the trait ([record 68](../decisions/0068-every-fake-passes-its-port-s-contract-suite.md)) |
 | Port bundle | Wiring without generic soup | `trait Ports { type Registry: Registry; type Signer: Signer; … }`; use cases are generic over one `P: Ports`; the binary picks real types, tests pick fakes |
 | Decider | The Rollout and the host applier | `decide(&State, Command) -> Result<Vec<Event>, Refusal>` and `evolve(State, &Event) -> State`, both pure; the shell loads, decides, appends, acts |
-| Functional core, imperative shell | Reconcilers: host applier, mail provisioner, secret job | Observe, decide (pure), act, one step per tick; a crash resumes from observed state |
+| Functional core, imperative shell | Reconcilers: host applier, mail provisioner, secret job | Observe, decide (pure), act, one step per tick; a crash is followed by a fresh observation and a new decision |
 | Anticorruption layer | Each adapter | Outside errors become the port's few errors (`NotFound`, `Conflict`, `Unavailable`); no `kube::Error` or `sqlx::Error` crosses a port |
 | Upcaster | Rollout events | Each event type has a version; old versions are lifted on read, never rewritten ([record 49](../decisions/register.md)) |
 | Table-driven registry | Invariants and refusal codes | A `static` table of named entries, so a test can walk every code and demand its fixture |
@@ -283,7 +283,8 @@ uses.
 - **The YAML reader.** `saphyr` with markers, or `serde-saphyr` with
   `Spanned<T>`: settled by the spike the review planned, against the criteria
   of [model-compiler-5](../research/review/model-and-compiler.md).
-- **Where the composition queue lives.** In memory with the single writer, or
-  as rows in Postgres like blueshell's job table. The row survives a restart;
-  the single writer already reconciles from observed state
+- **Where the composition queue lives.** Proposed: a row in a Postgres job
+  table on the shared platform-postgres, like blueshell's job table
+  ([record 73](../decisions/0073-the-composition-queue-is-a-row-in-a-postgres-job-table.md)).
+  The single writer already reconciles from observed state
   ([record 63](../decisions/0063-the-service-has-one-writer-and-reconciles-from-observed-state.md)).

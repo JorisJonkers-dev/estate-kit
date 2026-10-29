@@ -18,7 +18,10 @@ tag moved back to it while its key is trusted
 ## Decision
 
 A rollback dry-runs the Project's last Serving render against today's cluster,
-moves `render/<project>:prod` back to it by compare-and-swap, and sets the
+moves `render/<project>:prod` back to it by read, verify, write under a freshly
+checked writer Lease (re-read after the write; a different value is a lost
+race; [record 63](0063-the-service-has-one-writer-and-reconciles-from-observed-state.md)
+states the window), and sets the
 Project's `ProjectControl` to Paused ([record 28](0028-pause-and-rollback-are-a-cluster-object-per-project.md)).
 It signs nothing and composes nothing, so it works with Vault down. Only if
 that dry-run fails does it re-compose. Signatures are retained exactly as long

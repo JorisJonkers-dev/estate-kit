@@ -21,7 +21,8 @@ The record as first planned named Go; the language is now settled by [record 13]
 One service runs in the cluster, behind the edge. It composes every admitted
 Project's fragment, dry-runs every change as its own identity, signs each
 changed render with the [render signing key](../../CONTEXT.md) in Vault Transit, pushes it to ghcr and
-moves the Project's tag by compare-and-swap. It never applies anything: Flux
+moves the Project's tag by read, verify, write, fenced by the
+[writer Lease](../../CONTEXT.md). It never applies anything: Flux
 pulls the tags and applies. It also serves the UI and the Observation views.
 It is the Rust binary `estate-kit-service`, built from the crates on
 [The Rust workspace](../design/rust-workspace.md).
@@ -39,11 +40,12 @@ It is the Rust binary `estate-kit-service`, built from the crates on
 - Easier: one place composes, so estate-wide checks never race.
 - Harder: the service is on the deploy path; while it is down, nothing new
   deploys, though Flux keeps serving the last tags.
-- Forbidden: the service writing any object but its own Lease and the
-  per-Project Pause object; a write from its dry-run identity without `dryRun`.
+- Forbidden: a write by the service's identity without `dryRun` other than to
+  its writer Lease, by its name, and to ProjectControl objects.
 
 ## Confirmation
 
 The ValidatingAdmissionPolicy that refuses the service's writes without
-`dryRun` has a failing fixture, and the e2e suite asserts that an object
+`dryRun` has a refusing fixture and one allowing fixture for each of its two
+exemptions ([record 58](0058-flux-is-locked-down-per-project-and-the-service-dry-runs-as-an-identity-that-cannot-write.md)), and the e2e suite asserts that an object
 reaches the cluster only through Flux.
