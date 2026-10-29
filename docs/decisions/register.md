@@ -13,7 +13,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 5 | Derivation is total | Accepted |
 | 6 | Every render is a function of pinned inputs | Accepted |
 | 7 | A Project's state lives with the Project | Accepted |
-| 8 | An image's digest is sealed into the Intent Fragment, and its build registered it | Proposed |
+| 8 | [An image's digest is sealed into the Intent Fragment, and its build registered it](0008-an-image-digest-is-sealed-into-the-fragment-and-registered-by-its-build.md) | Proposed |
 | 9 | The live render is a signed registry tag per Project and environment | Accepted |
 | 10 | Platform Intent admits the Projects | Accepted |
 | 11 | Platform Intent is pushed like any Project; the service's copies are a cache | Accepted |
@@ -25,22 +25,22 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 17 | [The service runs in the cluster, in Rust: it composes, and Flux applies](0017-the-service-runs-in-the-cluster-in-rust.md) | Accepted |
 | 18 | [The service links the compiler's crates; the CLI's JSON output is for CI only](0018-the-service-links-the-compiler.md) | Accepted |
 | 19 | One composition runs at a time | Accepted |
-| 20 | No render cache: an unchanged render is not published again | Proposed |
-| 21 | Renders and host tags are signed by separate Transit keys, with an offline recovery key | Proposed |
-| 22 | Every caller authenticates with an OIDC token checked against a claim policy | Proposed |
+| 20 | [No render cache: an unchanged render is not published again](0020-no-render-cache-an-unchanged-render-is-not-published-again.md) | Proposed |
+| 21 | [Renders and host tags are signed by separate Transit keys, with an offline recovery key](0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md) | Proposed |
+| 22 | [Every caller authenticates with an OIDC token checked against a claim policy](0022-every-caller-authenticates-with-an-oidc-token-checked-against-a-claim-policy.md) | Proposed |
 | 23 | A rollout is a deploy run that streams the service's work | Accepted |
-| 24 | A rollout is an append-only event log on the shared Postgres | Proposed |
+| 24 | [A rollout is an append-only event log on the shared Postgres](0024-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md) | Proposed |
 | 25 | A dry-run must pass before anything is applied | Accepted |
 | 26 | Images are built once and promoted, so what dry-ran is what deploys | Accepted |
 | 27 | A diagnostic names a model path, and the caller resolves the line | Accepted |
-| 28 | Pause and Rollback are a cluster object per Project; a missing object reads as Paused | Proposed |
+| 28 | [Pause and Rollback are a cluster object per Project; a missing object reads as Paused](0028-pause-and-rollback-are-a-cluster-object-per-project.md) | Proposed |
 | 29 | The compiler renders host data; hand-written modules consume it | Accepted |
-| 30 | A host applier on each node pulls its signed host tag, and decides a reboot before the Lease | Proposed |
-| 31 | Host closures are built in CI and cached outside the cluster, signed by an environment-scoped key | Proposed |
+| 30 | [A host applier on each node pulls its signed host tag, and decides a reboot before the Lease](0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md) | Proposed |
+| 31 | [Host closures are built in CI and cached outside the cluster, signed by an environment-scoped key](0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md) | Proposed |
 | 32 | Node order is derived from the change and the version skew rule | Accepted |
 | 33 | A Mailbox is declared by its local part and owned by one Project | Accepted |
 | 34 | Components live in this repository at one version | Accepted |
-| 35 | A second implementation, if one is ever written, meets the first at the oracle files | Proposed |
+| 35 | [A further implementation, if one is ever written, meets the first at the language-neutral oracles](0035-a-further-implementation-meets-the-first-at-the-language-neutral-oracles.md) | Proposed |
 | 36 | One concept per module, one fake per port, oracles only at the seams | Accepted |
 | 37 | Every gate has a speed budget; coverage and mutation are ratchets | Accepted |
 | 38 | One version for every part | Accepted |
@@ -63,13 +63,13 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 55 | [Every Go and Python program is characterized before it is rewritten in Rust](0055-every-go-and-python-program-is-characterized-before-it-is-rewritten.md) | Accepted |
 | 56 | Agent files are short, and what must always hold is a check | Accepted |
 | 57 | Configuration is flags, then environment, then file; secrets only by reference | Accepted |
-| 58 | Flux is locked down per Project, and the service dry-runs as an identity that cannot write | Proposed |
-| 59 | Vault unseals itself through a cloud KMS | Proposed |
-| 60 | The API server's datastore is backed up off the provider, and its restore is drilled | Proposed |
-| 61 | A rollback moves the tag back to the last Serving render without composing | Proposed |
-| 62 | ghcr tags move with a machine account's token kept in Vault | Proposed |
+| 58 | [Flux is locked down per Project, and the service dry-runs as an identity that cannot write](0058-flux-is-locked-down-per-project-and-the-service-dry-runs-as-an-identity-that-cannot-write.md) | Proposed |
+| 59 | [Vault unseals itself through a cloud KMS](0059-vault-unseals-itself-through-a-cloud-kms.md) | Proposed |
+| 60 | [The API server's datastore is backed up off the provider, and its restore is drilled](0060-the-api-server-datastore-is-backed-up-off-the-provider-and-its-restore-is-drilled.md) | Proposed |
+| 61 | [A rollback moves the tag back to the last Serving render without composing](0061-a-rollback-moves-the-tag-back-to-the-last-serving-render-without-composing.md) | Proposed |
+| 62 | [ghcr tags move with a machine account's token kept in Vault](0062-ghcr-tags-move-with-a-machine-account-token-kept-in-vault.md) | Proposed |
 | 63 | [The service has one writer and reconciles from observed state](0063-the-service-has-one-writer-and-reconciles-from-observed-state.md) | Accepted |
-| 64 | Renders use a canonical YAML style specified on one page | Proposed |
+| 64 | [Renders use a canonical YAML style specified on one page](0064-renders-use-a-canonical-yaml-style-specified-on-one-page.md) | Proposed |
 | 65 | [The workspace is layered by crate, and a check holds the crate graph to the layer table](0065-the-workspace-is-layered-and-the-crate-graph-is-checked.md) | Accepted |
 | 66 | [Transformations are plain Rust: typed steps, one trace, an invariant table, and no DSL](0066-transformations-are-plain-rust.md) | Accepted |
 | 67 | [The Rust compiler implements the 1.0 specification, and the shadow compares structure](0067-the-compiler-is-written-to-the-1-0-contract.md) | Accepted |
