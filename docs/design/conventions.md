@@ -47,8 +47,9 @@ record, and a check enforces it.
 
 ## Bounded contexts
 
-Four contexts, each boundary its own record, and a fifth (Observation)
-proposed on [The Rust workspace](rust-workspace.md#bounded-contexts). A Project
+Five contexts, each boundary its own record
+([record 50](../decisions/0050-five-bounded-contexts.md)), drawn on
+[The Rust workspace](rust-workspace.md#bounded-contexts). A Project
 is the aggregate root; other Projects refer to it by id only.
 
 ![Context map](../diagrams/png/context-map.png)
