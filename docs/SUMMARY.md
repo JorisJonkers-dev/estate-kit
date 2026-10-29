@@ -72,3 +72,4 @@
     - [Hosts](research/review/hosts.md)
     - [Operations](research/review/operations.md)
     - [Process and the plan](research/review/process-and-plan.md)
+  - [Review of the all-Rust redesign](research/rust-redesign-review.md)
