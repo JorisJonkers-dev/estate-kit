@@ -1,5 +1,5 @@
 ---
-status: proposed  # proposed | accepted | locked
+status: accepted  # proposed | accepted | locked
 date: 2026-10-29
 rests-on: [13, 17, 18, 65]
 lessons: [DO-1, CS-2]

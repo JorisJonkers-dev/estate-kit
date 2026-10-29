@@ -48,8 +48,8 @@ system, change what differs, never delete what it does not own. So a
 
 ## Bounded contexts
 
-The four contexts of [record 50](../decisions/register.md) stay and a fifth is
-proposed: **Observation**, the read side the dashboard serves today. It holds
+The four earlier contexts stay and a fifth is added
+([record 50](../decisions/0050-five-bounded-contexts.md)): **Observation**, the read side the dashboard serves today. It holds
 no credential that can deploy, pause or roll back, as estate-dashboard holds
 none now; keeping it out of the Service context keeps the rollout core free
 of Prometheus, Loki and Alertmanager. A Project is the aggregate root in the
@@ -282,8 +282,6 @@ uses.
 - **The YAML reader.** `saphyr` with markers, or `serde-saphyr` with
   `Spanned<T>`: settled by the spike the review planned, against the criteria
   of [model-compiler-5](../research/review/model-and-compiler.md).
-- **The Observation context.** A fifth context changes
-  [record 50](../decisions/register.md); it is Proposed with this page.
 - **Where the composition queue lives.** In memory with the single writer, or
   as rows in Postgres like blueshell's job table. The row survives a restart;
   the single writer already reconciles from observed state
