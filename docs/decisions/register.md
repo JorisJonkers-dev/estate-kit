@@ -19,10 +19,10 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 11 | Platform Intent is pushed like any Project; the service's copies are a cache | Accepted |
 | 12 | Infrastructure Intent declares sites, nodes and maintenance windows | Accepted |
 | 13 | [Every program in estate-kit is Rust, in one Cargo workspace; only the UI is Vue](0013-every-program-is-rust.md) | Accepted |
-| 14 | The compiler is a chain of typed models, one crate per step | Proposed |
-| 15 | The Rust types agree with the committed schemas on their corpus | Proposed |
+| 14 | [The compiler is a chain of typed models, one crate per step](0014-the-compiler-is-a-chain-of-typed-models-one-crate-per-step.md) | Proposed |
+| 15 | [The Rust types agree with the committed schemas on their corpus](0015-the-rust-types-agree-with-the-committed-schemas-on-their-corpus.md) | Proposed |
 | 16 | The committed JSON Schemas are the contract | Accepted |
-| 17 | The service runs in the cluster, in Rust: it composes, and Flux applies | Proposed |
+| 17 | [The service runs in the cluster, in Rust: it composes, and Flux applies](0017-the-service-runs-in-the-cluster-in-rust.md) | Proposed |
 | 18 | [The service links the compiler's crates; the CLI's JSON output is for CI only](0018-the-service-links-the-compiler.md) | Accepted |
 | 19 | One composition runs at a time | Accepted |
 | 20 | No render cache: an unchanged render is not published again | Proposed |
@@ -53,14 +53,14 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 45 | Deploy calls are idempotent on project and fragment digest; streams resume by sequence | Accepted |
 | 46 | IDs are UUIDv7, times RFC 3339 in UTC, and absent means unset | Accepted |
 | 47 | Schemas evolve additively within a major version, checked in CI | Accepted |
-| 48 | The CLI's JSON output has a committed schema that the reusable workflows read | Proposed |
+| 48 | [The CLI's JSON output has a committed schema that the reusable workflows read](0048-the-cli-s-json-output-has-a-committed-schema.md) | Proposed |
 | 49 | Events are versioned and upcast on read, and hold no personal data | Accepted |
-| 50 | Five bounded contexts, each boundary its own record: compiler, service, observation, hosts, components | Proposed |
+| 50 | [Five bounded contexts, each boundary its own record: compiler, service, observation, hosts, components](0050-five-bounded-contexts.md) | Proposed |
 | 51 | History is kept 400 days; renders are kept by count, age and tag | Accepted |
 | 52 | Three service levels: deploy p95, availability, drift detection | Accepted |
 | 53 | Traces go to Tempo and logs to Loki, keyed by rollout id | Accepted |
 | 54 | Every trust boundary has a threat table, and every route an authorization row | Accepted |
-| 55 | Every Go and Python program is characterized before it is rewritten in Rust | Proposed |
+| 55 | [Every Go and Python program is characterized before it is rewritten in Rust](0055-every-go-and-python-program-is-characterized-before-it-is-rewritten.md) | Proposed |
 | 56 | Agent files are short, and what must always hold is a check | Accepted |
 | 57 | Configuration is flags, then environment, then file; secrets only by reference | Accepted |
 | 58 | Flux is locked down per Project, and the service dry-runs as an identity that cannot write | Proposed |
