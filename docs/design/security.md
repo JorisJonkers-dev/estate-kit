@@ -44,7 +44,7 @@ Every route is one row here, and a test fails on a route without one.
 | Watch a rollout | own rollout | own run | own rollout | yes | yes | yes | no | no |
 | Pause, resume, roll back | no | no | no | no | yes | yes | no | no |
 | Change admissions | no | no | through Platform Intent | no | no | yes | no | no |
-| Answer a Release Gate webhook (read-only, from cluster state) | no | no | no | no | no | no | yes | no |
+| Answer a Release Gate webhook (the answer reads cluster state; the gate's writes are the service's own, [record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)) | no | no | no | no | no | no | yes | no |
 | Register built image digests | own Project | no | platform | no | no | no | no | no |
 | Read its host tag | no | no | no | no | no | no | no | own node |
 | Read estate status | no | no | no | yes | yes | yes | no | no |

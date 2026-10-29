@@ -52,7 +52,7 @@ One Project's release, from the moment the service moves its Prod tag until it e
 _Avoid_: deployment, release run
 
 **Release Gate**:
-The service's answer to Flagger, from cluster state, for each member of a switchover: may this member's new version start, and may it be promoted. It fails closed. Not the Kubernetes readiness gate.
+The service's answer to Flagger, from cluster state, for each member of a switchover: may this member's new version start, and may it be promoted. It fails closed. Its answer reads cluster state; its only writes are the Application's record and the unsuspend of a migration Job, made by the service under the Writer Lease. Not the Kubernetes readiness gate.
 _Avoid_: gate controller, promotion check
 
 **Writer Lease**:
@@ -80,7 +80,7 @@ One entry in a rollout's append-only log; a rollout's state is the fold of its e
 _Avoid_: status update, log line
 
 **Observation**:
-The read-only context that shows what runs and how it is doing: units, pods, containers, alerts and silences, logs, health and checks. It holds no credential that can deploy, pause or roll back.
+The context that shows what runs and how it is doing: units, pods, containers, alerts and silences, logs, health and checks. It reads, except that it creates and expires Alertmanager silences with a credential for that API alone. It holds no credential that can deploy, pause or roll back.
 _Avoid_: dashboard backend, monitoring
 
 **Viewer**:

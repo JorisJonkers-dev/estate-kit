@@ -58,6 +58,7 @@
   - [71. A diagnostic is a coded problem with typed locations](decisions/0071-a-diagnostic-is-a-coded-problem-with-typed-locations.md)
   - [72. Per-field provenance and explain are deferred](decisions/0072-per-field-provenance-and-explain-are-deferred.md)
   - [73. The composition queue is a Postgres row](decisions/0073-the-composition-queue-is-a-row-in-a-postgres-job-table.md)
+  - [74. The Release Gate and Observation each have named writes](decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)
 - [Lesson candidates](lesson-candidates.md)
 - [Diagrams](diagrams/README.md)
 - [Research](research/README.md)

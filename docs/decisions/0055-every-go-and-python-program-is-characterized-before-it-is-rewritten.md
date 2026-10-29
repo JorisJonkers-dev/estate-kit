@@ -22,7 +22,7 @@ coverage gate was 80%, and none of them had mutation testing.
 
 Before a program is rewritten, its behaviour is recorded as characterization
 fixtures in `oracles/characterization/<program>/`, from the program itself:
-HTTP exchanges for the Release Gate, the Reporter and the dashboard's API;
+HTTP exchanges for the Release Gate, the Reporter and the dashboard's API, and with them the gate's writes (its Job unsuspend and per-Application record) and the dashboard's Alertmanager silences;
 inputs and outputs for the Collector, the jobs and the provisioner; the bytes
 of each output whose format is a contract (the migration proof, Vault policy
 text). Each fixture is labelled characterization, not independent (TM-1). The

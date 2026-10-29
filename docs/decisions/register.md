@@ -79,3 +79,4 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 71 | [A diagnostic is a coded problem with typed, plural locations, and the caller resolves the lines](0071-a-diagnostic-is-a-coded-problem-with-typed-locations.md) | Accepted |
 | 72 | [Per-field provenance and `estate-kit explain` are deferred until a scenario needs them](0072-per-field-provenance-and-explain-are-deferred.md) | Proposed |
 | 73 | [The composition queue is a row in a Postgres job table on the shared platform-postgres](0073-the-composition-queue-is-a-row-in-a-postgres-job-table.md) | Proposed |
+| 74 | [The Release Gate and Observation each have named writes, with their own credentials](0074-the-release-gate-and-observation-each-have-a-named-write.md) | Proposed |

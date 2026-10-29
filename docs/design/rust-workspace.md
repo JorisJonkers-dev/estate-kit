@@ -49,7 +49,8 @@ system, change what differs, never delete what it does not own. So a
 ## Bounded contexts
 
 The four earlier contexts stay and a fifth is added
-([record 50](../decisions/0050-five-bounded-contexts.md)): **Observation**, the read side the dashboard serves today. It holds
+([record 50](../decisions/0050-five-bounded-contexts.md)): **Observation**, the read side the dashboard serves today. Its one write is
+Alertmanager silences, with a credential for that API alone ([record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)). It holds
 no credential that can deploy, pause or roll back, as estate-dashboard holds
 none now; keeping it out of the Service context keeps the rollout core free
 of Prometheus, Loki and Alertmanager. A Project is the aggregate root in the
@@ -58,8 +59,8 @@ compiler; a Rollout is the aggregate root in the service.
 | Context | Owns | Aggregate roots | Talks to others through |
 | --- | --- | --- | --- |
 | Compiler | The model: Intent in, Resolved Deployment, Deliverable Set out | Project; the Estate is the set of admitted Projects | Its application crate's use cases (`validate`, `plan`, `compose`, `render_hosts`, `generate`) |
-| Service | Rollouts, compositions, admission, Pause and Rollback, the Release Gate | Rollout (event-sourced); Composition | The compiler's use cases, called in-process ([record 18](../decisions/0018-the-service-links-the-compiler.md)) |
-| Observation | What runs and how it is doing: units, pods, containers, alerts and silences, logs, health, checks | None: read models only | Ports onto Prometheus, Loki, Alertmanager, Gatus and the cluster; rollout history from the Service's event log |
+| Service | Rollouts, compositions, admission, Pause and Rollback, the Release Gate (with its Job unsuspend and per-Application record, under the writer Lease: [record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)) | Rollout (event-sourced); Composition | The compiler's use cases, called in-process ([record 18](../decisions/0018-the-service-links-the-compiler.md)) |
+| Observation | What runs and how it is doing: units, pods, containers, alerts and silences, logs, health, checks | None: read models only, and Silences as its one write | Ports onto Prometheus, Loki, Alertmanager, Gatus and the cluster; rollout history from the Service's event log |
 | Hosts | Generations and their rollout across nodes | NodeRollout | Signed host tags only; never a model type |
 | Components | Migrations, secret grants, database and bucket catalogs, backups, Mailboxes | One per component: MigrationRun, SecretGrant, DatabaseGrant, BucketGrant, BackupGeneration, Mailbox | Rendered objects only |
 
