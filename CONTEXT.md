@@ -154,3 +154,9 @@ _Avoid_: golden file, snapshot
 **Expected-differences ledger**:
 The committed list (`shadow/expected-differences.yaml`) of the differences allowed between a shadow render and the production render, each naming its cause. A difference not on it stops the switch for that Project.
 _Avoid_: allowlist, diff exceptions
+
+## Code
+
+**Port**:
+A trait in an application crate that names one thing the core needs from an outside system, such as `Registry` or `Signer`. A port has one adapter crate, one hand-written fake and one contract suite. The `Ports` wiring bundle, whose associated types are ports, is not a port.
+_Avoid_: interface, service, driver

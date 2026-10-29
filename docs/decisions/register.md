@@ -41,7 +41,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 33 | A Mailbox is declared by its local part and owned by one Project | Accepted |
 | 34 | Components live in this repository at one version | Accepted |
 | 35 | [A further implementation, if one is ever written, meets the first at the language-neutral oracles](0035-a-further-implementation-meets-the-first-at-the-language-neutral-oracles.md) | Proposed |
-| 36 | One concept per module, one fake per port, oracles only at the seams | Accepted |
+| 36 | One concept per module, one fake per port, oracles only at the seams | Merged into 68 |
 | 37 | Every gate has a speed budget; coverage and mutation are ratchets | Accepted |
 | 38 | One version for every part | Accepted |
 | 39 | Decisions live as Markdown in docs/, and a Pages site is built from it | Accepted |
@@ -73,7 +73,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 65 | [The workspace is layered by crate, and a check holds the crate graph to the layer table](0065-the-workspace-is-layered-and-the-crate-graph-is-checked.md) | Accepted |
 | 66 | Transformations are plain Rust: typed steps, one trace, an invariant table, and no DSL | Merged into 14 |
 | 67 | [The Rust compiler implements the 1.0 specification, and the shadow compares structure](0067-the-compiler-is-written-to-the-1-0-contract.md) | Accepted |
-| 68 | [Every port has one fake, and the fake passes the same contract suite as its adapter](0068-every-fake-passes-its-port-s-contract-suite.md) | Accepted |
+| 68 | [One concept per module, one fake per port that passes its contract suite, oracles only at the seams](0068-every-fake-passes-its-port-s-contract-suite.md) | Accepted |
 | 69 | [The deploy path is tested end to end on a throwaway k3s cluster, nightly and before every release](0069-the-deploy-path-is-tested-end-to-end.md) | Accepted |
 | 70 | [Shared Rust code moves to rust-commons on its third consumer; the sign-in kit is the first](0070-shared-rust-code-moves-to-rust-commons-on-its-third-consumer.md) | Accepted |
 | 71 | [A diagnostic is a coded problem with typed, plural locations, and the caller resolves the lines](0071-a-diagnostic-is-a-coded-problem-with-typed-locations.md) | Accepted |
