@@ -44,7 +44,10 @@ The inventory of 2026-10-29, counted on each repository's `main`:
 The earlier design named three components; the inventory finds six. They all
 have the same shape: read what a render declares, compare it with one outside
 system, change what differs, never delete what it does not own. So a
-`reconcile` foundation crate holds that loop once (more than three uses).
+`reconcile` foundation crate holds the pure half of that loop once (more than
+three uses): the decide step and a generic action type. Observing and acting
+name an outside system, so each context's application crate owns its own driver
+and its own port traits.
 
 ## Bounded contexts
 
@@ -66,7 +69,7 @@ compiler; a Rollout is the aggregate root in the service.
 | Service | Rollouts, compositions, admission, Pause and Rollback, the Release Gate (with its Job unsuspend and per-Application record, under the writer Lease: [record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)) | Rollout (event-sourced); Composition | The compiler's use cases, called in-process ([record 18](../decisions/0018-the-service-links-the-compiler.md)) |
 | Observation | What runs and how it is doing: units, pods, containers, alerts and silences, logs, health, checks | None: read models only, and Silences as its one write | Ports onto Prometheus, Loki, Alertmanager, Gatus and the cluster; rollout history from the Service's API |
 | Hosts | Generations and their rollout across nodes | NodeRollout | Signed host tags only; never a model type |
-| Components | Migrations, secret grants, database and bucket catalogs, backups, Mailboxes | One per component: MigrationRun, SecretGrant, DatabaseGrant, BucketGrant, BackupGeneration, Mailbox | Rendered objects only |
+| Components | Migration runs, secret grants, database and bucket catalogs, backups, Mailboxes | One per component: MigrationRun, SecretGrant, DatabaseGrant, BucketGrant, BackupGeneration, Mailbox | Rendered objects only |
 
 The context map, with the result.json edge replaced by an in-process call:
 
@@ -90,34 +93,43 @@ Dependencies point inward and downward only.
 
 | Layer | May depend on | Holds | Forbidden |
 | --- | --- | --- | --- |
-| foundation | foundation | Diagnostics, model paths, digests, canonical YAML and JSON, spanned YAML reading, the trace store, the test kit | Domain words; async; I/O |
+| foundation | foundation | Diagnostics with a generic Location, model paths, digests, canonical YAML and JSON, spanned YAML reading, the trace store (generic over its source key), the pure decide step, the test kit | Domain words; async; I/O (the test kit alone may, and only as a dev-dependency) |
 | domain | foundation; its context's domain | Model types, invariants, transformation steps, deciders, state machines | `tokio`, `kube`, `sqlx`, `reqwest`, `axum`; `std::env`, `std::fs`, `SystemTime::now` |
-| application | domain; foundation | Use cases, port traits, the fakes behind a `fakes` feature | Any adapter crate |
+| application | its context's domain; foundation; the application crate of an upstream context that `crates/layers.toml` names (the Service links the compiler: [record 18](../decisions/0018-the-service-links-the-compiler.md)) | Use cases, port traits, drivers, the fakes behind a `fakes` feature | Any adapter crate |
 | adapter | its context's application; foundation; external crates | One outside system each | Another adapter; a domain crate's internals |
 | binary | anything | `main`, typed configuration, wiring | Logic: a binary is wiring only |
+
+`cargo xtask check-layers` reads each crate's layer and context from
+`crates/layers.toml` and fails on a dependency this table does not allow. The
+tree below is drawn so that every crate passes it.
 
 ## The crates
 
 Folders mirror the layers. Each crate is named exactly after its folder
-(matklad's rule), internal crates stay `publish = false`, and they take the
-workspace's one version.
+(matklad's rule), so no two members share a package name; internal crates stay
+`publish = false`, and they take the workspace's one version. A binary crate
+is named `estate-kit-<name>` after its folder in `bins/`, and a component's
+binary is `estate-kit-<component>`: a separate crate rather than a `[[bin]]`
+target of the `-app` crate, because the application layer may not hold `main`,
+wiring or an adapter, and the binary is where a component's adapters are wired,
+so each image carries only its own.
 
 ```text
 Cargo.toml                    virtual manifest: members, [workspace.dependencies], [workspace.lints]
 crates/layers.toml            the layer table check-layers reads
 crates/
   foundation/
-    diagnostics/              Diagnostic, Code, Severity, Location, ModelPath (RFC 6901), ElementRef, Diagnostics accumulator
+    diagnostics/              Diagnostic, Code, Severity, a generic Location (a document and a ModelPath, or a fact key), ModelPath (RFC 6901), Diagnostics accumulator
     yaml-source/              spanned YAML 1.2 reading with budgets; refuses anchors, aliases, tags, duplicate keys
     canonical/                the canonical YAML and JSON emitters (record 64), and Digest
-    trace/                    the trace store: source element to produced element, create-then-link
-    reconcile/                observe, decide, act: the loop every component and the host applier share
+    trace/                    the trace store, generic over its source key: source element to produced element, create-then-link
+    reconcile/                the pure decide step (desired and observed in, actions out) and a generic Action type; no port, no I/O
     testkit/                  read-only oracle harness, structural diff before byte diff, builders
   compiler/
-    model-intent/             Project, Platform and Infrastructure Intent as authored
+    model-intent/             Project, Platform and Infrastructure Intent as authored; ElementRef, and the constructors that turn a Project, Platform Intent or a ClusterState fact into a diagnostics Location
     model-effective/          Intent after lowering
     model-resolved/           the Resolved Deployment and host plans
-    deliverable/              the narrow object model of every rendered file
+    deliverable/              the narrow object model of every rendered file, and the `Renderer` port the render crates implement
     step-read/                YAML and env files to Intent: schema validation, then conversion
     step-check/               the invariant table over Intent and over the input set
     step-lower/               shared declarations settled into effective values
@@ -132,9 +144,10 @@ crates/
     render-vso/
     render-prometheus/
     render-grafana/
-    serialize/                Deliverable Set to bytes through `canonical`; path ownership; atomic write
+    serialize/                domain: Deliverable Set to bytes through `canonical`; path ownership; the list of files to write
+    adapter-fs/               adapter: reads authored YAML and env files, writes rendered files atomically; implements the compiler's `Files` port
     generate/                 an Application's App Roles in its language (go, kotlin, python, rust, ts)
-    compiler/                 application: validate, plan, compose, render_hosts, generate, migrate
+    compiler/                 application: validate, plan, compose, render_hosts, generate, migrate; the `Files` port
   service/
     rollout/                  domain: the Rollout decider, events and their upcasters, the composition queue policy
     release-gate/             domain: the Release Gate's answer from a ClusterObservation; probing and warmup rules
@@ -156,17 +169,23 @@ crates/
     adapter-service-api/      rollout history and events, read from the Service's HTTP API
   hosts/
     host-rollout/             domain: node order, the reboot decision, the applier state machine
-    host-applier-app/         application: one reconcile step over six ports
+    host-applier-app/         application: the host applier's driver, one reconcile step over six ports, deciding with `reconcile`
     adapter-nix/              fetch and verify a closure; switch-to-configuration
     adapter-host-kube/        Lease, cordon, eviction
     adapter-host-registry/    the signed host tag
-  components/                 each component is two crates: <name> (domain) and <name>-app (use case, ports)
+  components/                 each component is two crates: <name> (domain) and <name>-app (application: use case, ports, its driver over `reconcile`)
     secret-grant/             domain: Vault policies, auth roles, generated keys
+    secret-grant-app/         application: the SecretGrant driver and its ports
     database-catalog/         domain: Postgres roles, databases, grants, Vault database roles
+    database-catalog-app/     application: the DatabaseGrant driver and its ports
     bucket-catalog/           domain: Garage buckets, keys, grants
+    bucket-catalog-app/       application: the BucketGrant driver and its ports
     backup/                   domain: generations, retention, off-cluster copies
-    mailbox/                  domain: the Mailbox reconciler
+    backup-app/               application: the BackupGeneration driver and its ports
+    mailbox/                  domain: what a Mailbox needs in Stalwart
+    mailbox-app/              application: the Mailbox driver and its ports
     migration-run/            domain: up and down per revision, the stale lock, the proof
+    migration-run-app/        application: the MigrationRun driver and its ports
     adapter-vault-admin/      policies and roles (not Transit)
     adapter-pg-admin/         roles and databases
     adapter-garage/           Garage's admin API
@@ -178,9 +197,13 @@ bins/
   estate-kit/                 the CLI: validate, plan, compose, render-hosts, generate, migrate
   estate-kit-service/         the service: Rollouts, compositions, admission, the Release Gate; the Vault, ghcr and signing adapters
   estate-kit-observation/     Observation, its own Deployment: read-only adapters only, no Vault, ghcr or signing credential; serves the embedded UI
-  estate-kit-host-applier/
-  secret-grant/ database-catalog/ bucket-catalog/ backup/ mail-provisioner/ migration-runner/
-                              one binary and one image per component, so each carries only its own adapters
+  estate-kit-host-applier/    the host applier: wires host-applier-app and the three host adapters
+  estate-kit-secret-grant/    one binary and one image per component, named estate-kit-<component>,
+  estate-kit-database-catalog/  so each carries only its own adapters and no two packages share a name
+  estate-kit-bucket-catalog/
+  estate-kit-backup/
+  estate-kit-mailbox/
+  estate-kit-migration-run/
 xtask/                        check-layers, oracle accept, contracts, release helpers
 ui/                           Vue; npm only here
 contracts/                    JSON Schemas and corpus, OpenAPI, the error catalogue, custom-resource schemas
@@ -188,8 +211,14 @@ oracles/                      hand-reviewed expected outputs, read-only to tests
 ```
 
 The render crates are the eight adapters of deploy-kit 1.0's closed registry,
-one crate each. They implement one `Renderer` port, so that trait has more
-than one implementation and earns its place (CS-2). `step-outputs` is the step
+one crate each, and they are step crates, not adapter-layer crates: they do no
+I/O. They implement one `Renderer` port, so that trait has more than one
+implementation and earns its place (CS-2). The port lives in `deliverable`,
+beside the type it returns, so a render crate depends on `deliverable` and the
+models and never on `compiler`, and `compiler` depends on the render crates
+with no cycle. Each context's `-app` crate drives the same `reconcile` decide
+step through its own ports; one loop trait in foundation would have needed
+those ports in foundation. `step-outputs` is the step
 #373 introduced for outputs that are not Deliverables; its final name is
 settled against `CONTEXT.md` when it is written.
 
@@ -222,7 +251,7 @@ that is not on this list needs a reason in its pull request.
 | Port and adapter | Every outside system | A trait in the application crate; one adapter crate; one hand-written fake beside the trait ([record 68](../decisions/0068-every-fake-passes-its-port-s-contract-suite.md)) |
 | Port bundle | Wiring without generic soup | `trait Ports { type Registry: Registry; type Signer: Signer; … }`; use cases are generic over one `P: Ports`; the binary picks real types, tests pick fakes |
 | Decider | The Rollout and the host applier | `decide(&State, Command) -> Result<Vec<Event>, Refusal>` and `evolve(State, &Event) -> State`, both pure; the shell loads, decides, appends, acts |
-| Functional core, imperative shell | Reconcilers: host applier, mail provisioner, secret job | Observe, decide (pure), act, one step per tick; a crash is followed by a fresh observation and a new decision |
+| Functional core, imperative shell | Drivers over the decide step: host applier, mailbox, secret grant | Observe, decide (pure), act, one step per tick; a crash is followed by a fresh observation and a new decision |
 | Anticorruption layer | Each adapter | Outside errors become the port's few errors (`NotFound`, `Conflict`, `Unavailable`); no `kube::Error` or `sqlx::Error` crosses a port |
 | Upcaster | Rollout events | Each event type has a version; old versions are lifted on read once a second version exists, and events are never rewritten ([record 23](../decisions/0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md)) |
 | Table-driven registry | Invariants and refusal codes | A `static` table of named entries, so a test can walk every code and demand its fixture |

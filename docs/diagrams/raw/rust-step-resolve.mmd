@@ -7,9 +7,10 @@ classDiagram
         read-only for every mapping
     }
     class Trace {
-        allocate(source: ElementRef) Id#lt;T#gt;
-        resolve_one(source: ElementRef) Result#lt;Id#lt;T#gt;#gt;
-        sources_of(target: TargetRef) Vec#lt;ElementRef#gt;
+        generic over its source key S, the compiler uses S = ElementRef
+        allocate(source: S) Id#lt;T#gt;
+        resolve_one(source: S) Result#lt;Id#lt;T#gt;#gt;
+        sources_of(target: TargetRef) Vec#lt;S#gt;
     }
     class mappings {
         <<module>>
@@ -27,7 +28,7 @@ classDiagram
     }
     class ResolvedDeployment {
         applications: BTreeMap#lt;ApplicationId, ResolvedApplication#gt;
-        trace: Trace
+        trace: Trace#lt;ElementRef#gt;
     }
     class Revisions {
         of(ResolvedDeployment) Revisions

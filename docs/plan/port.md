@@ -33,7 +33,7 @@ One repository, `JorisJonkers-dev/estate-kit`, holds one Cargo workspace
 - a host applier on each NixOS node that pulls its signed `host/<node>:prod`
   tag and switches one node at a time;
 - six components: migration runner, secret grant, database catalog, bucket
-  catalog, backup and mail provisioner, ported after the cutover;
+  catalog, backup and mailbox, ported after the cutover;
 - the Vue UI, with npm confined to building its static assets;
 - the specification, the schemas and corpus, the oracle files, the decision
   records and `docs/lessons.md`.
@@ -79,7 +79,7 @@ not touch (PR-4).
 | W5 Service adapters | [#64](https://github.com/JorisJonkers-dev/estate-kit/issues/64) | `adapter-postgres`, `-ghcr`, `-vault`, `-kube`, `-github`, `-github-oidc` | W4's ports | None |
 | W6 Release Gate | [#25](https://github.com/JorisJonkers-dev/estate-kit/issues/25), [#37](https://github.com/JorisJonkers-dev/estate-kit/issues/37) | `release-gate` | W4 | delivery's Gate answers and Reporter statuses |
 | W7 Observation | [#65](https://github.com/JorisJonkers-dev/estate-kit/issues/65) | `observation-app`, its adapters, the Vue UI's client | W4 | estate-dashboard's read responses |
-| W8 Components, after cutover | [#66](https://github.com/JorisJonkers-dev/estate-kit/issues/66), [#67](https://github.com/JorisJonkers-dev/estate-kit/issues/67), [#68](https://github.com/JorisJonkers-dev/estate-kit/issues/68), [#69](https://github.com/JorisJonkers-dev/estate-kit/issues/69), [#70](https://github.com/JorisJonkers-dev/estate-kit/issues/70), [#71](https://github.com/JorisJonkers-dev/estate-kit/issues/71) | `secret-grant`, `database-catalog`, `bucket-catalog`, `backup`, `mailbox`, `migration-run` and their adapters | W0 (`reconcile`); the cutover ([#51](https://github.com/JorisJonkers-dev/estate-kit/issues/51)) | Each Go or Python job's actions and verdicts |
+| W8 Components, after cutover | [#66](https://github.com/JorisJonkers-dev/estate-kit/issues/66), [#67](https://github.com/JorisJonkers-dev/estate-kit/issues/67), [#68](https://github.com/JorisJonkers-dev/estate-kit/issues/68), [#69](https://github.com/JorisJonkers-dev/estate-kit/issues/69), [#70](https://github.com/JorisJonkers-dev/estate-kit/issues/70), [#71](https://github.com/JorisJonkers-dev/estate-kit/issues/71) | `secret-grant`, `database-catalog`, `bucket-catalog`, `backup`, `mailbox`, `migration-run` and their `-app` crates and adapters | W0 (`reconcile`); the cutover ([#51](https://github.com/JorisJonkers-dev/estate-kit/issues/51)) | Each Go or Python job's actions and verdicts |
 | W9 Hosts | [#43](https://github.com/JorisJonkers-dev/estate-kit/issues/43) to [#49](https://github.com/JorisJonkers-dev/estate-kit/issues/49) | `host-rollout`, `host-applier-app`, its adapters, the VM tests | W0, W3 (`step-outputs`) | None: new |
 | W10 rust-commons sign-in kit | identity#113 | identity#113 in rust-commons | None | identity's flow-conformance suite |
 | W11 End to end | [#72](https://github.com/JorisJonkers-dev/estate-kit/issues/72) | `e2e/` | W4, W5, W3 for `minimal` | None |
