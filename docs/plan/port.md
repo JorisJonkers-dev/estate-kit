@@ -33,7 +33,7 @@ One repository, `JorisJonkers-dev/estate-kit`, holds one Cargo workspace
 - a host applier on each NixOS node that pulls its signed `host/<node>:prod`
   tag and switches one node at a time;
 - six components: migration runner, secret grant, database catalog, bucket
-  catalog, backup and mail provisioner;
+  catalog, backup and mail provisioner, ported after the cutover;
 - the Vue UI, with npm confined to building its static assets;
 - the specification, the schemas and corpus, the oracle files, the decision
   records and `docs/lessons.md`.
@@ -79,7 +79,7 @@ not touch (PR-4).
 | W5 Service adapters | [#64](https://github.com/JorisJonkers-dev/estate-kit/issues/64) | `adapter-postgres`, `-ghcr`, `-vault`, `-kube`, `-github`, `-github-oidc` | W4's ports | None |
 | W6 Release Gate | [#25](https://github.com/JorisJonkers-dev/estate-kit/issues/25), [#37](https://github.com/JorisJonkers-dev/estate-kit/issues/37) | `release-gate` | W4 | delivery's Gate answers and Reporter statuses |
 | W7 Observation | [#65](https://github.com/JorisJonkers-dev/estate-kit/issues/65) | `observation-app`, its adapters, the Vue UI's client | W4 | estate-dashboard's read responses |
-| W8 Components | [#66](https://github.com/JorisJonkers-dev/estate-kit/issues/66), [#67](https://github.com/JorisJonkers-dev/estate-kit/issues/67), [#68](https://github.com/JorisJonkers-dev/estate-kit/issues/68), [#69](https://github.com/JorisJonkers-dev/estate-kit/issues/69), [#70](https://github.com/JorisJonkers-dev/estate-kit/issues/70), [#71](https://github.com/JorisJonkers-dev/estate-kit/issues/71) | `secret-grant`, `database-catalog`, `bucket-catalog`, `backup`, `mailbox`, `migration-run` and their adapters | W0 (`reconcile`) | Each Go or Python job's actions and verdicts |
+| W8 Components, after cutover | [#66](https://github.com/JorisJonkers-dev/estate-kit/issues/66), [#67](https://github.com/JorisJonkers-dev/estate-kit/issues/67), [#68](https://github.com/JorisJonkers-dev/estate-kit/issues/68), [#69](https://github.com/JorisJonkers-dev/estate-kit/issues/69), [#70](https://github.com/JorisJonkers-dev/estate-kit/issues/70), [#71](https://github.com/JorisJonkers-dev/estate-kit/issues/71) | `secret-grant`, `database-catalog`, `bucket-catalog`, `backup`, `mailbox`, `migration-run` and their adapters | W0 (`reconcile`); the cutover ([#51](https://github.com/JorisJonkers-dev/estate-kit/issues/51)) | Each Go or Python job's actions and verdicts |
 | W9 Hosts | [#43](https://github.com/JorisJonkers-dev/estate-kit/issues/43) to [#49](https://github.com/JorisJonkers-dev/estate-kit/issues/49) | `host-rollout`, `host-applier-app`, its adapters, the VM tests | W0, W3 (`step-outputs`) | None: new |
 | W10 rust-commons sign-in kit | identity#113 | identity#113 in rust-commons | None | identity's flow-conformance suite |
 | W11 End to end | [#72](https://github.com/JorisJonkers-dev/estate-kit/issues/72) | `e2e/` | W4, W5, W3 for `minimal` | None |
@@ -98,13 +98,22 @@ on.
 | 4. The compiler to 1.0 | W1 to W3 | open, measured per chapter | Every language-neutral 1.0 oracle met; every rendered oracle met in structure | Hold deploy-kit's additive releases until the Rust side catches up |
 | 5. Deploy path | W4 to W6, #30 to #39 | 45 h | A test cluster deploys, rolls back and pauses through the service, with Vault scaled to zero for rollback | Ship without provenance registration, behind a claim policy only |
 | 6. Recovery on the running estate | #40 to #42 | 15 h | Vault unseals itself; a datastore restore has been drilled | None: these are production risks today |
-| 7. Components and Observation | W7, W8 | 40 h | Each component passes its characterization; the UI serves every page the dashboard does | Keep the old job running behind the new rendered objects |
+| 7. Observation | W7 | 15 h | The UI serves every page the dashboard does | Keep the old dashboard serving |
 | 8. Hosts | W9, #43 to #49 | 50 h | A host rollout switches the fleet one node at a time under the Lease | Stay on deploy-rs from generated targets (#44) |
-| 9. Shadow and switch | #50 to #53 | 30 h | Every Project on signed tags with no unexplained structural difference; old repositories archived | Revert the last switched Project and keep the old stack serving |
+| 9. Shadow and switch (the cutover) | #50 to #53 | 30 h | Every Project on signed tags with no unexplained structural difference; old repositories archived | Revert the last switched Project and keep the old stack serving |
+| 10. Components, after cutover | W8 (#66 to #71), one at a time | 25 h | Each component passes its characterization and replaces its old image | Keep the old component running; nothing else waits for it |
 
 The shadow phase's exit rule (#50) is fixed before the shadow starts: the
 number of consecutive days with no unexplained difference, and which Projects
 they must cover.
+
+The cutover is the switch of the first Project,
+[#51](https://github.com/JorisJonkers-dev/estate-kit/issues/51). Components are
+ported lazily after it ([record 13](../decisions/0013-every-program-is-rust.md)):
+until a component's rewrite is due it keeps running as the Go or Python program
+it is today, built from its imported tree (so archiving the old repositories
+does not stop it), and the critical path is the compiler and
+the service. The six W8 issues are each blocked by #51.
 
 Phases 1 and 6 can start now. Phase 2's founding import waits for 2026-10-30,
 the MDE course's Task 3 hand-in, and the deletion of deploy-kit's `emf/`.
