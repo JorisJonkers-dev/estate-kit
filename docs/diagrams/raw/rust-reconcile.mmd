@@ -1,40 +1,39 @@
-%% title: Rust: the reconcile loop every component and the host applier share
+%% title: Rust: one pure decide step in foundation, one driver in each application crate
 classDiagram
     direction TB
-    class Reconciler {
-        <<trait>>
-        type Desired
-        type Observed
-        type Action
-        observe() Result#lt;Observed#gt;
-        decide(Desired, Observed) Vec#lt;Action#gt;
-        act(Action) Result
+    class reconcile {
+        <<module>>
+        decide(Desired, Observed) Vec#lt;Action#lt;A#gt;#gt;
+        Action#lt;A#gt;: generic
+        pure: no port, no I/O, never deletes what it does not own
     }
-    class Loop {
+    class MailboxDriver {
         tick(): observe, decide, act one step
-        never deletes what it does not own
     }
-    class MailboxReconciler {
+    class MigrationRunDriver {
+        tick(): observe, decide, act one step
     }
-    class MigrationRunReconciler {
+    class SecretGrantDriver {
+        tick(): observe, decide, act one step
     }
-    class SecretGrantReconciler {
+    class DatabaseGrantDriver {
+        tick(): observe, decide, act one step
     }
-    class DatabaseGrantReconciler {
+    class BucketGrantDriver {
+        tick(): observe, decide, act one step
     }
-    class BucketGrantReconciler {
+    class BackupGenerationDriver {
+        tick(): observe, decide, act one step
     }
-    class BackupGenerationReconciler {
+    class HostGenerationDriver {
+        tick(): observe, decide, act one step
     }
-    class HostGenerationReconciler {
-    }
-    Loop ..> Reconciler : drives
-    MailboxReconciler ..|> Reconciler
-    MigrationRunReconciler ..|> Reconciler
-    SecretGrantReconciler ..|> Reconciler
-    DatabaseGrantReconciler ..|> Reconciler
-    BucketGrantReconciler ..|> Reconciler
-    BackupGenerationReconciler ..|> Reconciler
-    HostGenerationReconciler ..|> Reconciler
+    MailboxDriver ..> reconcile : decides with
+    MigrationRunDriver ..> reconcile : decides with
+    SecretGrantDriver ..> reconcile : decides with
+    DatabaseGrantDriver ..> reconcile : decides with
+    BucketGrantDriver ..> reconcile : decides with
+    BackupGenerationDriver ..> reconcile : decides with
+    HostGenerationDriver ..> reconcile : decides with
     classDef accent fill:#0000a1,stroke:#0000b1
-    class Reconciler:::accent
+    class reconcile:::accent

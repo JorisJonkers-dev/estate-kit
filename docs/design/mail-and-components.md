@@ -5,20 +5,20 @@ images in the same lockstep version ([record 13](../decisions/0013-every-program
 They are ported after the cutover, one at a time; each keeps running as its
 Go or Python program until its rewrite is due.
 Each Project renders the objects they act on, so a Project controls everything
-about itself. They share one reconcile loop: read what a render declares,
+about itself. They share one decide step in `reconcile`: read what a render declares,
 compare it with one outside system, change what differs, and never delete what
-they do not own ([The Rust workspace](rust-workspace.md#bounded-contexts)).
+they do not own; each component's `-app` crate drives it through its own ports ([The Rust workspace](rust-workspace.md#bounded-contexts)).
 
 ## Components
 
 | Component | Replaces | Acts on |
 | --- | --- | --- |
-| `migration-runner` | liquibase-runner (Go around the Liquibase JVM); the JVM and squawk stay in the image | A Project's managed migrations, `up` and `down` per revision |
+| `migration-run` | liquibase-runner (Go around the Liquibase JVM); the JVM and squawk stay in the image | A Project's managed migrations, `up` and `down` per revision |
 | `secret-grant` | delivery's Vault policy job (Go) | A Project's Vault policies, auth roles and generated keys |
 | `database-catalog` | delivery's postgres-catalog (Go) | A Project's Postgres roles, databases, grants and Vault database roles |
 | `bucket-catalog` | delivery's garage-catalog (Go) | A Project's Garage buckets, keys and grants |
 | `backup` | delivery's backup and offcluster jobs (Go) | A Project's backup generations and their encrypted off-cluster copies |
-| `mail-provisioner` | stalwart-provisioner (Python, jq and sh) | A Project's Mailbox objects, through Stalwart's management API |
+| `mailbox` | stalwart-provisioner (Python, jq and sh) | A Project's Mailbox objects, through Stalwart's management API |
 
 ## Mailboxes
 
@@ -45,7 +45,7 @@ applications:
 ## How a Mailbox is provisioned
 
 Each Project's render carries one Mailbox custom resource per Mailbox, in its
-own unit. The mail provisioner watches them by label and reconciles Stalwart.
+own unit. The mailbox component watches them by label and reconciles Stalwart.
 Adding a Project re-renders nothing else.
 
 ![Sequence: provisioning a Mailbox](../diagrams/png/seq-mailbox.png)
@@ -61,9 +61,9 @@ in Stalwart, and its password reaches the Application like any Grant.
 
 ![States of a Mailbox](../diagrams/png/state-mailbox.png)
 
-## Inside the mail provisioner
+## Inside the mailbox component
 
 One reconciler over three ports: where Mailboxes come from, Stalwart, and the
 secret store.
 
-![Class diagram: the mail provisioner](../diagrams/png/mail-provisioner.png)
+![Class diagram: the mailbox component](../diagrams/png/mail-provisioner.png)

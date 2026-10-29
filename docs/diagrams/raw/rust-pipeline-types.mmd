@@ -18,6 +18,7 @@ classDiagram
     class Renderer {
         <<trait>>
         render(ResolvedDeployment) Result#lt;Vec#lt;Deliverable#gt;, Vec#lt;Diagnostic#gt;#gt;
+        declared in the deliverable crate
     }
     class Deliverable {
         path: OutputPath
@@ -35,9 +36,9 @@ classDiagram
     }
     class Location {
         <<enum>>
-        Authored: ProjectName, Document, ModelPath
-        Platform: ModelPath
-        ClusterFact: FactKey
+        Document: SourceId, ModelPath
+        Fact: FactKey
+        generic, in diagnostics, model-intent builds it
     }
     class Related {
         location: Location
@@ -48,6 +49,7 @@ classDiagram
         element: names, by identity
         field: Option#lt;FieldName#gt;
         to_model_path(Document) ModelPath
+        defined in model-intent
     }
     PinnedInputSet ..> Hasher : digests through
     Renderer ..> ResolvedDeployment : reads

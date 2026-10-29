@@ -4,6 +4,7 @@ classDiagram
     class Renderer {
         <<trait>>
         render(ResolvedDeployment) Result#lt;Vec#lt;Deliverable#gt;, Vec#lt;Diagnostic#gt;#gt;
+        declared in the deliverable crate
     }
     class KubernetesRenderer {
     }
@@ -33,8 +34,8 @@ classDiagram
         set(field, value, from: ElementRef)
     }
     class Serializer {
-        write(DeliverableSet) Result#lt;Vec#lt;RenderedFile#gt;, Vec#lt;Diagnostic#gt;#gt;
-        checks each path lies in its owner's directory
+        bytes(DeliverableSet) Result#lt;Vec#lt;RenderedFile#gt;, Vec#lt;Diagnostic#gt;#gt;
+        checks each path lies in its owner's directory, writes nothing
     }
     class CanonicalEmitter {
         yaml(DeliverableObject) String

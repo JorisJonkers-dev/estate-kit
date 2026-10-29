@@ -98,7 +98,7 @@ sequence("seq-host-rollout", "Roll out a host change, one node at a time",
           ("A", "K", "take the Lease, evict pods"), ("A", "A", "switch or reboot, health check"),
           ("A", "K", "uncordon, release the Lease")])
 sequence("seq-mailbox", "Provision a Mailbox",
-         [("S", "estate-kit service"), ("F", "Flux"), ("K", "API server"), ("M", "mail provisioner"), ("ST", "Stalwart"), ("V", "Vault")],
+         [("S", "estate-kit service"), ("F", "Flux"), ("K", "API server"), ("M", "mailbox component"), ("ST", "Stalwart"), ("V", "Vault")],
          [("S", "F", "Project render with Mailbox objects"), ("F", "K", "apply the Mailbox"),
           ("M", "K", "watch Mailboxes by label"), ("M", "V", "read the generated password"),
           ("M", "ST", "create or update the account"), ("M", "K", "write status")])
@@ -187,16 +187,17 @@ classes("rust-pipeline-types", "Rust: the types that cross the pipeline's seams"
                                    "render_key(project) RenderKey"]),
          ("Hasher", "trait", ["digest(bytes) Digest"]),
          ("ResolvedDeployment", None, ["applications: BTreeMap<ApplicationId, ResolvedApplication>", "trace: Trace"]),
-         ("Renderer", "trait", ["render(ResolvedDeployment) Result<Vec<Deliverable>, Vec<Diagnostic>>"]),
+         ("Renderer", "trait", ["render(ResolvedDeployment) Result<Vec<Deliverable>, Vec<Diagnostic>>",
+                                "declared in the deliverable crate"]),
          ("Deliverable", None, ["path: OutputPath", "owner: ProjectName", "object: DeliverableObject",
                                 "provenance: BTreeMap<FieldPath, ElementRef>"]),
          ("Diagnostic", None, ["code: Code", "severity: Severity", "primary: Location",
                                "related: Vec<Related>", "message: String", "help: String"]),
-         ("Location", "enum", ["Authored: ProjectName, Document, ModelPath", "Platform: ModelPath",
-                               "ClusterFact: FactKey"]),
+         ("Location", "enum", ["Document: SourceId, ModelPath", "Fact: FactKey",
+                               "generic, in diagnostics; model-intent builds it"]),
          ("Related", None, ["location: Location", "label: String"]),
          ("ElementRef", None, ["project: ProjectName", "element: names, by identity", "field: Option<FieldName>",
-                               "to_model_path(Document) ModelPath"])],
+                               "to_model_path(Document) ModelPath", "defined in model-intent"])],
         [("PinnedInputSet", "Hasher", "dep", "digests through"), ("Renderer", "ResolvedDeployment", "dep", "reads"),
          ("Renderer", "Deliverable", "dep", "emits"), ("Renderer", "Diagnostic", "dep", "or reports"),
          ("Diagnostic", "Location", "assoc", "primary at"), ("Diagnostic", "Related", "comp", "", "0..*"),
@@ -218,7 +219,7 @@ classes("rust-rollout", "Rust: the rollout decider and the ports its use cases d
          ("Ports", "Cluster", "dep")],
         tones={n: "accent" for n in ("Ports", "EventStore", "Registry", "Signer", "Cluster")})
 classes("host-applier", "Host applier: one reconcile step and the ports it drives",
-        [("Agent", None, ["node: NodeName", "step() one reconcile step"]),
+        [("Agent", None, ["node: NodeName", "step() one reconcile step, deciding with reconcile"]),
          ("PointerSource", "trait", ["current(NodeName) Result<HostTag>"]),
          ("ClosureFetcher", "trait", ["fetch(StorePath) Result"]),
          ("Lease", "trait", ["acquire() Result", "release() Result"]),
@@ -227,12 +228,12 @@ classes("host-applier", "Host applier: one reconcile step and the ports it drive
          ("WindowPolicy", "trait", ["open(Timestamp) bool"])],
         [("Agent", p, "dep") for p in ("PointerSource", "ClosureFetcher", "Lease", "Evictor", "Switcher", "WindowPolicy")],
         tones={n: "accent" for n in ("PointerSource", "ClosureFetcher", "Lease", "Evictor", "Switcher", "WindowPolicy")})
-classes("mail-provisioner", "Mail provisioner: the reconciler and its ports",
-        [("MailboxReconciler", None, ["reconcile(Mailbox) Status"]),
+classes("mail-provisioner", "Mailbox component: the driver and its ports",
+        [("MailboxDriver", None, ["tick(Mailbox) Status: observe, decide, act one step"]),
          ("MailboxSource", "trait", ["watch(LabelSelector)"]),
          ("Stalwart", "trait", ["ensure_account(Mailbox) Result", "remove_account(Mailbox) Result"]),
          ("Secrets", "trait", ["password(Mailbox) Result<SecretRef>"])],
-        [("MailboxReconciler", p, "dep") for p in ("MailboxSource", "Stalwart", "Secrets")],
+        [("MailboxDriver", p, "dep") for p in ("MailboxSource", "Stalwart", "Secrets")],
         tones={n: "accent" for n in ("MailboxSource", "Stalwart", "Secrets")})
 
 # ---------------------------------------------------------------------------------------------
@@ -469,22 +470,24 @@ STEPS = {"read": "step-read", "check": "step-check", "lower": "step-lower", "com
 for crate, label in STEPS.items():
     g.package(crate, label, parent="steps")
 g.package("models", "model-intent, model-effective, model-resolved", tone="data")
-g.package("deliverable", "deliverable", tone="data")
+g.package("deliverable", "deliverable: Deliverable, Renderer", tone="data")
+g.package("fs", "adapter-fs: reads files, atomic write")
 g.package("foundation", "foundation: diagnostics, yaml-source, canonical, trace", tone="data")
 g.edge("cli", "app", "depends on", kind="dashed")
+g.edge("cli", "fs", "wires", kind="dashed")
+g.edge("fs", "app", "implements the Files port of", kind="dashed")
 g.edge("svc", "app", "links", kind="dashed")
 for crate in STEPS:
     g.edge("app", crate, kind="dashed")
     g.edge(crate, "models", kind="dashed")
-g.edge("render", "deliverable", "builds", kind="dashed")
-g.edge("serialize", "deliverable", "writes", kind="dashed")
+g.edge("render", "deliverable", "implements Renderer, builds", kind="dashed")
+g.edge("serialize", "deliverable", "reads", kind="dashed")
 g.edge("models", "foundation", kind="dashed")
 g.done()
 
 g = Graph("rust-service-crates", "Rust: the service's crates and what each depends on", direction="DOWN")
 g.package("bin", "bins/estate-kit-service", tone="accent")
 g.package("api", "http-api: axum, SSE, problem+json")
-g.package("obs", "observation-app")
 g.package("app", "service-app: use cases, ports, fakes")
 g.package("rollout", "rollout: the decider", tone="data")
 g.package("gate", "release-gate", tone="data")
@@ -495,7 +498,6 @@ for crate, label in [("oidc", "adapter-github-oidc"), ("ghcr", "adapter-ghcr: oc
     g.package(crate, label)
 g.edge("bin", "api", kind="dashed")
 g.edge("api", "app", kind="dashed")
-g.edge("api", "obs", kind="dashed")
 g.edge("app", "rollout", kind="dashed")
 g.edge("app", "gate", kind="dashed")
 g.edge("app", "compiler", "links", kind="dashed")
@@ -505,11 +507,11 @@ for crate in ("oidc", "ghcr", "vault", "kube", "github", "pg"):
 g.done()
 
 g = Graph("rust-layers", "Rust: the workspace's layers; every dependency points down", direction="DOWN", layer_gap=70)
-g.box("binary", "binary: estate-kit, estate-kit-service, host applier, one per component", tone="accent")
+g.box("binary", "binary: estate-kit, estate-kit-service, estate-kit-observation, estate-kit-host-applier, one per component", tone="accent")
 g.box("adapter", "adapter: one outside system each; kube, sqlx, axum, oci-client live only here")
 g.box("application", "application: use cases, port traits, one fake per port")
 g.box("domain", "domain: models, steps, deciders, invariants; no I/O, no async, no clock")
-g.box("foundation", "foundation: diagnostics, yaml-source, canonical, trace, reconcile, testkit", tone="data")
+g.box("foundation", "foundation: diagnostics, yaml-source, canonical, trace, reconcile (decide only), testkit", tone="data")
 g.edge("binary", "adapter", "wires")
 g.edge("adapter", "application", "implements ports")
 g.edge("application", "domain", "drives")
@@ -562,7 +564,7 @@ g.box("compiler", "compiler crates (Rust)", tone="accent")
 g.box("ui", "ui (Vue)", tone="accent")
 g.box("applier", "host applier (Rust)", tone="accent")
 g.artifact("renders", "renders, host data")
-COMPONENTS = ("migration-runner", "secret-grant", "database-catalog", "bucket-catalog", "backup", "mail-provisioner")
+COMPONENTS = ("migration-run", "secret-grant", "database-catalog", "bucket-catalog", "backup", "mailbox")
 for comp in COMPONENTS:
     g.box(comp, f"component: {comp}", tone="accent")
 g.box("nodes", "NixOS nodes", tone="external")
@@ -581,7 +583,7 @@ g.box("compiler", "Compiler context: the model", tone="accent")
 g.box("service", "Service context: rollouts", tone="accent")
 g.box("observation", "Observation context: what runs", tone="accent")
 g.box("applier", "Hosts context: generations", tone="accent")
-g.box("components", "Component contexts: migrations, secrets, catalogs, backups, mail", tone="accent")
+g.box("components", "Component contexts: migrations, secrets, catalogs, backups, mailboxes", tone="accent")
 g.edge("compiler", "service", "use cases, in-process (customer, supplier)")
 g.edge("service", "observation", "rollout events (published language)")
 g.edge("compiler", "applier", "host data through an anticorruption layer")
@@ -631,11 +633,11 @@ g.package("sapp", "service-app: use cases and ports", parent="service")
 g.package("rollout", "rollout and release-gate: deciders", tone="data", parent="service")
 g.package("sadapt", "adapters: postgres, ghcr, vault, kube, github, github-oidc", parent="service")
 g.group("obs", "Observation context")
-g.package("oapp", "observation-app and its adapters", parent="obs")
+g.package("oapp", "bins/estate-kit-observation: observation-app and its adapters", parent="obs")
 g.group("hosts", "Hosts context")
 g.package("applier", "bins/estate-kit-host-applier", tone="accent", parent="hosts")
 g.group("comps", "Component contexts")
-g.package("reconcilers", "six reconcilers on the reconcile loop, one image each", tone="accent", parent="comps")
+g.package("reconcilers", "six components, each a domain and an -app crate on the reconcile decide step, one image each", tone="accent", parent="comps")
 g.box("ext", "ghcr, Vault, Postgres, GitHub", tone="external")
 g.box("k8s", "Kubernetes API: Flux, Flagger", tone="external")
 g.box("telemetry", "Prometheus, Loki, Alertmanager, Gatus", tone="external")
@@ -651,7 +653,6 @@ g.edge("sapp", "capp", "links", kind="dashed")
 g.edge("sadapt", "sapp", "implements ports", kind="dashed")
 g.edge("sadapt", "ext", "signs, pushes, appends")
 g.edge("sadapt", "k8s", "dry-runs, moves tags, watches")
-g.edge("api", "oapp", "serves", kind="dashed")
 g.edge("oapp", "telemetry", "reads")
 g.edge("k8s", "reconcilers", "rendered objects")
 g.edge("reconcilers", "targets", "reconciles")
@@ -680,14 +681,16 @@ classes("rust-step-read", "Rust: reading, linking and checking, and the phase ty
 
 classes("rust-step-resolve", "Rust: resolving through one trace, in two phases",
         [("Cx", None, ["pinned: PinnedInputSet", "indices: Indices", "read-only for every mapping"]),
-         ("Trace", None, ["allocate(source: ElementRef) Id<T>", "resolve_one(source: ElementRef) Result<Id<T>>",
-                          "sources_of(target: TargetRef) Vec<ElementRef>"]),
+         ("Trace", None, ["generic over its source key S; the compiler uses S = ElementRef",
+                          "allocate(source: S) Id<T>", "resolve_one(source: S) Result<Id<T>>",
+                          "sources_of(target: TargetRef) Vec<S>"]),
          ("mappings", "module", ["application(src, cx, trace) ResolvedApplication",
                                  "process(src, cx, trace) ResolvedProcess", "exposure(src, cx, trace) ResolvedExposure",
                                  "one function per source-to-target concept"]),
          ("queries", "module", ["pure functions: tier_for, deadline_of, precedence_of"]),
          ("ComposedSet", None, ["projects: BTreeMap<ProjectName, EffectiveProject>"]),
-         ("ResolvedDeployment", None, ["applications: BTreeMap<ApplicationId, ResolvedApplication>", "trace: Trace"]),
+         ("ResolvedDeployment", None, ["applications: BTreeMap<ApplicationId, ResolvedApplication>",
+                                      "trace: Trace<ElementRef>"]),
          ("Revisions", None, ["of(ResolvedDeployment) Revisions", "a pass over the finished value"])],
         [("mappings", "ComposedSet", "dep", "reads"), ("mappings", "Cx", "dep", "reads"),
          ("mappings", "Trace", "dep", "phase 1 allocates, phase 2 resolves"), ("mappings", "queries", "dep", "asks"),
@@ -697,14 +700,15 @@ classes("rust-step-resolve", "Rust: resolving through one trace, in two phases",
 
 RENDERERS = ("Kubernetes", "Networking", "Traefik", "VaultPolicy", "Flux", "Vso", "Prometheus", "Grafana")
 classes("rust-step-render", "Rust: eight renderers behind one trait, and one serializer",
-        [("Renderer", "trait", ["render(ResolvedDeployment) Result<Vec<Deliverable>, Vec<Diagnostic>>"])]
+        [("Renderer", "trait", ["render(ResolvedDeployment) Result<Vec<Deliverable>, Vec<Diagnostic>>",
+                                "declared in the deliverable crate"])]
         + [(f"{r}Renderer", None, []) for r in RENDERERS]
         + [("Deliverable", None, ["path: OutputPath", "owner: ProjectName", "object: DeliverableObject",
                                   "provenance: BTreeMap<FieldPath, ElementRef>"]),
            ("DeliverableObject", "enum", ["only the fields the estate sets",
                                            "set(field, value, from: ElementRef)"]),
-           ("Serializer", None, ["write(DeliverableSet) Result<Vec<RenderedFile>, Vec<Diagnostic>>",
-                                 "checks each path lies in its owner's directory"]),
+           ("Serializer", None, ["bytes(DeliverableSet) Result<Vec<RenderedFile>, Vec<Diagnostic>>",
+                                 "checks each path lies in its owner's directory; writes nothing"]),
            ("CanonicalEmitter", None, ["yaml(DeliverableObject) String", "json(DeliverableObject) String"])],
         [(f"{r}Renderer", "Renderer", "impl") for r in RENDERERS]
         + [("Renderer", "Deliverable", "dep", "emits"), ("Deliverable", "DeliverableObject", "comp", "holds"),
@@ -730,14 +734,12 @@ classes("rust-service-app", "Rust: the service's use cases, generic over one bun
 
 COMPONENT_TYPES = ("Mailbox", "MigrationRun", "SecretGrant", "DatabaseGrant", "BucketGrant", "BackupGeneration",
                    "HostGeneration")
-classes("rust-reconcile", "Rust: the reconcile loop every component and the host applier share",
-        [("Reconciler", "trait", ["type Desired", "type Observed", "type Action",
-                                  "observe() Result<Observed>", "decide(Desired, Observed) Vec<Action>",
-                                  "act(Action) Result"]),
-         ("Loop", None, ["tick(): observe, decide, act one step", "never deletes what it does not own"])]
-        + [(f"{c}Reconciler", None, []) for c in COMPONENT_TYPES],
-        [("Loop", "Reconciler", "dep", "drives")] + [(f"{c}Reconciler", "Reconciler", "impl") for c in COMPONENT_TYPES],
-        tones={"Reconciler": "accent"})
+classes("rust-reconcile", "Rust: one pure decide step in foundation, one driver in each application crate",
+        [("reconcile", "module", ["decide(Desired, Observed) Vec<Action<A>>", "Action<A>: generic",
+                                  "pure: no port, no I/O, never deletes what it does not own"])]
+        + [(f"{c}Driver", None, ["tick(): observe, decide, act one step"]) for c in COMPONENT_TYPES],
+        [(f"{c}Driver", "reconcile", "dep", "decides with") for c in COMPONENT_TYPES],
+        tones={"reconcile": "accent"})
 
 sequence("seq-compose-crates", "Control flow: one deploy call through the crates",
          [("CI", "deploy job"), ("H", "http-api"), ("D", "service-app Deploy"), ("R", "rollout decider"),

@@ -106,16 +106,17 @@ folds them into state.
 
 ![The rollout decider and its ports](../diagrams/png/rust-rollout.png)
 
-## 6. The reconcilers
+## 6. The drivers
 
-The six components and the host applier share one loop: observe, decide what
-differs, act one step. Each is a `Reconciler` with its own desired, observed
-and action types.
+The six components and the host applier share one pure decide step in
+`reconcile`: what differs between desired and observed. Each context's `-app`
+crate owns its own driver (observe, decide, act one step) and its own ports, with
+its own desired, observed and action types.
 
 ![The reconcile loop](../diagrams/png/rust-reconcile.png)
 
-The host applier's and the mail provisioner's ports:
+The host applier's and the mailbox component's ports:
 
 ![The host applier](../diagrams/png/host-applier.png)
 
-![The mail provisioner](../diagrams/png/mail-provisioner.png)
+![The mailbox component](../diagrams/png/mail-provisioner.png)
