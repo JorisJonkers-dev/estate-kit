@@ -18,9 +18,12 @@ wins and the page is what gets fixed. Diagrams come from
 | [Errors in CI](errors-in-ci.md) | How an error reaches its YAML line |
 | [Conventions](conventions.md) | API contract, errors, delivery semantics, primitives, retention, telemetry, configuration, contract evolution, bounded contexts |
 | [Models and metamodels](models-and-metamodels.md) | deploy-kit's metamodels, drawn per concept, marked with what changes |
-| [Inside the compiler](inside-the-compiler.md) | Crates, pipeline, types, alignment with YAML and Go, caching |
-| [Inside the service](inside-the-service.md) | Packages, the rollout core, the event log |
-| [Code shape and speed](code-shape-and-speed.md) | File rules, fakes, speed budgets, mutation testing |
+| [The Rust workspace](rust-workspace.md) | Bounded contexts, layers, every crate, patterns, errors, build speed, what goes in rust-commons |
+| [Transformations without a DSL](transformations.md) | What Ecore, OCL, Xtext, QVT-O, ATL and Acceleo taught, and the Rust mechanism that keeps each lesson |
+| [End to end, crate by crate](end-to-end.md) | A release, a rollback, a host rollout and a component, step by step through the crates |
+| [Inside the compiler](inside-the-compiler.md) | Crates, pipeline, types, alignment with the schemas, caching |
+| [Inside the service](inside-the-service.md) | Crates, the rollout decider, the event log, one writer, the Observation views |
+| [Testing and speed](code-shape-and-speed.md) | Rules for code, every kind of test, gates, mutation testing, speed budgets |
 
 The [plan](../plan/port.md) orders the work, and the
 [lesson candidates](../lesson-candidates.md) feed the records.

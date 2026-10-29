@@ -13,17 +13,21 @@ Kubernetes cluster, and the NixOS hosts that cluster runs on. It replaces
 
 ## The shape
 
+- **One Rust workspace.** Every program is Rust, in small crates layered by
+  bounded context; only the UI is Vue.
 - **One model and one compiler.** A Rust binary validates authored intent
   offline and renders it: Kubernetes objects for Projects, typed host data for
-  NixOS nodes.
-- **A service in the cluster**, written in Go. It composes the estate, dry-runs
-  every change against the API server, signs each render through Vault Transit,
-  and moves the Project's `render/<p>:prod` tag. Flux stays the one applier.
+  NixOS nodes. It implements deploy-kit's 1.0 specification.
+- **A service in the cluster** that links the same compiler. It composes the
+  estate, dry-runs every change against the API server, signs each render
+  through Vault Transit, and moves the Project's `render/<p>:prod` tag. Flux
+  stays the one applier.
 - **A host applier on each node**, outside Kubernetes. It pulls its signed
   generation, takes a cluster-wide Lease, drains its node, switches, and
   reboots only inside its maintenance window.
-- **Components** (the migration runner, the secret job and the mail
-  provisioner) live as directories here and share one version.
+- **Components** (the migration runner, the secret grant, the database and
+  bucket catalogs, backups and the mail provisioner) are Rust binaries here,
+  sharing one version.
 
 Each Project keeps its own state. No repository holds a list of what is
 deployed, and no lock file sits outside a Project.

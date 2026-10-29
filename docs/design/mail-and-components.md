@@ -1,16 +1,22 @@
 # Mail and components
 
-Three helpers are estate-kit components: directories that build their own
-images in the same lockstep version. Each Project renders the objects they act
-on, so a Project controls everything about itself.
+Six helpers are estate-kit components: Rust binaries that build their own
+images in the same lockstep version ([record 13](../decisions/0013-every-program-is-rust.md)).
+Each Project renders the objects they act on, so a Project controls everything
+about itself. They share one reconcile loop: read what a render declares,
+compare it with one outside system, change what differs, and never delete what
+they do not own ([The Rust workspace](rust-workspace.md#bounded-contexts)).
 
 ## Components
 
 | Component | Replaces | Acts on |
 | --- | --- | --- |
-| `components/migration-runner` | liquibase-runner (Go) | A Project's managed migrations, `up` and `down` per revision |
-| `components/secret-job` | delivery's Vault policy job (Go) | A Project's Vault policies, auth roles and generated keys |
-| `components/mail-provisioner` | stalwart-provisioner (Python), ported to Go | A Project's Mailbox objects |
+| `migration-runner` | liquibase-runner (Go around the Liquibase JVM); the JVM and squawk stay in the image | A Project's managed migrations, `up` and `down` per revision |
+| `secret-grant` | delivery's Vault policy job (Go) | A Project's Vault policies, auth roles and generated keys |
+| `database-catalog` | delivery's postgres-catalog (Go) | A Project's Postgres roles, databases, grants and Vault database roles |
+| `bucket-catalog` | delivery's garage-catalog (Go) | A Project's Garage buckets, keys and grants |
+| `backup` | delivery's backup and offcluster jobs (Go) | A Project's backup generations and their encrypted off-cluster copies |
+| `mail-provisioner` | stalwart-provisioner (Python, jq and sh) | A Project's Mailbox objects, through Stalwart's management API |
 
 ## Mailboxes
 

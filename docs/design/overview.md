@@ -1,14 +1,17 @@
 # Overview
 
 estate-kit is a fresh repository that replaces deploy-kit, delivery and
-estate-dashboard. The compiler, still TypeScript and shipped as one binary, and
-an in-cluster Go service compose the estate. Flux stays the one applier,
-locked down per Project, and each Project's state stays with the Project. The
-service runs in shadow beside production on the same compiler, and replaces the
-old stack Project by Project. The model rewrite (deploy-kit#373) follows the
-cutover, in TypeScript; a Rust port of the frozen 1.0 model happens only if a
-later record justifies it. The [design review](../research/review/README.md)
-of 2026-10-22 set this order.
+estate-dashboard. Every program in it is Rust, in one Cargo workspace; only
+the UI stays Vue ([record 13](../decisions/0013-every-program-is-rust.md)).
+The compiler implements deploy-kit's 1.0 specification, released on
+2026-10-27 ([record 67](../decisions/0067-the-compiler-is-written-to-the-1-0-contract.md)),
+and the in-cluster service links it to compose the estate. Flux stays the one
+applier, locked down per Project, and each Project's state stays with the
+Project. The service runs in shadow beside production, and replaces the old
+stack Project by Project. This reverses the order the
+[design review](../research/review/README.md) of 2026-10-22 set (D1): the
+model rewrite it waited for has shipped, and the TypeScript compiler is not
+carried into estate-kit.
 
 ## At a glance
 
@@ -19,10 +22,11 @@ signs and moves the Project's `prod` tag. Flux pulls the tag and applies it.
 
 ## The parts of estate-kit
 
-Three programs and three components, all in one repository at one version. The
-compiler is the only part that knows the model; the others act on what it
-renders. The diagrams of the compiler's internals describe the Rust design kept
-for a possible port of the 1.0 model.
+Three programs and six components, all Rust, in one repository at one
+version. The compiler is the only part that knows the model; the others act on
+what it renders. How the workspace is organised is
+[The Rust workspace](rust-workspace.md); the diagrams on this page still label
+the service and the components Go until they are redrawn.
 
 ![The parts of estate-kit and what each acts on](../diagrams/png/components.png)
 
@@ -46,7 +50,7 @@ EMF implementation has nothing to port.
 
 | | TypeScript compiler (`src/`) | EMF implementation (`emf/`) |
 | --- | --- | --- |
-| Size | 102 files, about 15,900 lines | 536 model and Java files |
+| Size | At 1.0.1: about 19,500 source lines and 36,600 test lines | 536 model and Java files |
 | Runtime dependencies | 2 (`yaml`, `zod`) | Eclipse, Maven and Tycho, JDK 21 |
 | Quality bar | Coverage about 99.5%, mutation break score 100% | Parity with the oracle files |
 | Weak points | About 230 npm packages in the dev and CI tree; types erased at runtime; Node startup; no single binary | Exists only for the course; deleted after the 2026-10-30 hand-in |
@@ -65,8 +69,9 @@ The full plan, with budgets, exits and fallbacks per phase, is
 2. **Found estate-kit** after the 2026-10-30 hand-in and the deletion of
    `emf/`. Import deploy-kit, delivery and estate-dashboard with history. Write
    the records and `docs/lessons.md`.
-3. **Walking skeleton.** The Go service composes through the TypeScript binary
-   and writes shadow tags.
+3. **Walking skeleton.** The Rust workspace with every gate, and `minimal`
+   rendered end to end through the Rust compiler and the service into a shadow
+   tag.
 4. **Deploy path.** Flux lockdown, the dry-run identity, split signing keys,
    tag moves, provenance and the fast rollback.
 5. **Recovery on today's estate.** Datastore backups, Vault auto-unseal, Nix
@@ -74,16 +79,21 @@ The full plan, with budgets, exits and fallbacks per phase, is
 6. **Hosts.** Host data, the host applier, VM tests, break-glass on deploy-rs.
 7. **Shadow and switch.** Shadow tags beside production, then a switch Project
    by Project, then the dashboard, then archiving.
-8. **The model.** The canonical render format, the #373 rewrite to 1.0 in
-   TypeScript, and the decision on a Rust port.
+8. **The model.** The rest of the 1.0 specification and its additive
+   releases, chapter by chapter, met against deploy-kit's oracles.
 
 ## Risks and open questions
 
 - **Effort.** A few maintainer hours a week. The host applier, built now by the
   maintainer's choice (review D2), is the largest bespoke part of the plan.
-- **Toolchains.** TypeScript and Go, plus npm for the UI build, held by one
-  maintainer. Rust joins only if the 1.0 port is approved.
-- **Go mutation tooling** is immature; Go starts report-only and ratchets.
+- **Toolchains.** Rust for every program, npm for the UI build only, Nix for
+  the hosts, and Python for this repository's documentation checks.
+- **The port is the long pole.** About 19,500 lines of TypeScript and 8,300 of
+  Go are rewritten. The language-neutral oracles (corpus verdicts, refusal
+  codes and paths, expected models) bound the compiler's work; characterization
+  tests bound the services'.
+- **The Rust YAML stack is young.** The spanned reader is chosen by a spike;
+  the canonical emitter is our own code, about a page of specification.
 - **Vault on the deploy path.** If Vault is down, nothing new is signed; Flux
   keeps serving the last tags, a rollback still works without Vault, and the
   offline recovery key can sign in a break-glass.
