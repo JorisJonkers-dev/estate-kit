@@ -25,8 +25,7 @@ signs and moves the Project's `prod` tag. Flux pulls the tag and applies it.
 Three programs and six components, all Rust, in one repository at one
 version. The compiler is the only part that knows the model; the others act on
 what it renders. How the workspace is organised is
-[The Rust workspace](rust-workspace.md); the diagrams on this page still label
-the service and the components Go until they are redrawn.
+[The Rust workspace](rust-workspace.md).
 
 ![The parts of estate-kit and what each acts on](../diagrams/png/components.png)
 

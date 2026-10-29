@@ -3,34 +3,34 @@ classDiagram
     direction TB
     class Agent {
         node: NodeName
-        run() one reconcile step
+        step() one reconcile step
     }
     class PointerSource {
-        <<interface>>
-        Current(node) HostTag
+        <<trait>>
+        current(NodeName) Result#lt;HostTag#gt;
     }
     class ClosureFetcher {
-        <<interface>>
-        Fetch(storePath) error
+        <<trait>>
+        fetch(StorePath) Result
     }
     class Lease {
-        <<interface>>
-        Acquire() error
-        Release() error
+        <<trait>>
+        acquire() Result
+        release() Result
     }
     class Evictor {
-        <<interface>>
-        Drain(node) error
-        Uncordon(node) error
+        <<trait>>
+        drain(NodeName) Result
+        uncordon(NodeName) Result
     }
     class Switcher {
-        <<interface>>
-        Switch(generation) error
-        NeedsReboot(generation) bool
+        <<trait>>
+        switch(Generation) Result
+        needs_reboot(Generation) bool
     }
     class WindowPolicy {
-        <<interface>>
-        Open(now) bool
+        <<trait>>
+        open(Timestamp) bool
     }
     Agent ..> PointerSource
     Agent ..> ClosureFetcher

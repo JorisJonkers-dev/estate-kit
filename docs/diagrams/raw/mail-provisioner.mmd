@@ -5,17 +5,17 @@ classDiagram
         reconcile(Mailbox) Status
     }
     class MailboxSource {
-        <<interface>>
-        Watch(labelSelector)
+        <<trait>>
+        watch(LabelSelector)
     }
     class Stalwart {
-        <<interface>>
-        EnsureAccount() error
-        RemoveAccount() error
+        <<trait>>
+        ensure_account(Mailbox) Result
+        remove_account(Mailbox) Result
     }
     class Secrets {
-        <<interface>>
-        Password(mailbox) Secret
+        <<trait>>
+        password(Mailbox) Result#lt;SecretRef#gt;
     }
     MailboxReconciler ..> MailboxSource
     MailboxReconciler ..> Stalwart
