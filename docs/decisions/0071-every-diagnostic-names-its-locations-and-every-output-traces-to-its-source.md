@@ -1,7 +1,7 @@
 ---
 status: accepted  # proposed | accepted | locked
 date: 2026-10-29
-rests-on: [27, 44, 66]
+rests-on: [14, 27, 44]
 lessons: [CS-3, MD-3, TM-2, MS-9]
 ---
 
@@ -12,7 +12,7 @@ lessons: [CS-3, MD-3, TM-2, MS-9]
 A diagnostic today carries one file and one model path, and the CLI resolves
 the path to a line at the fragment's source commit ([record 27](register.md)).
 The resolve step writes through one `Trace`, and each Deliverable keeps the
-model paths it came from ([record 66](0066-transformations-are-plain-rust.md)).
+model paths it came from ([record 14](0014-the-compiler-is-a-chain-of-typed-models-one-crate-per-step.md)).
 Five things that the design already promises cannot be built from that:
 
 1. **Conflicts across Projects have two sides.** A Mailbox, a hostname or a
