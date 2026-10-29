@@ -8,7 +8,7 @@ of 2026-10-22, as changed on 2026-10-29 by
 [record 13](../decisions/0013-every-program-is-rust.md) (every program is
 Rust) and [record 67](../decisions/0067-the-compiler-is-written-to-the-1-0-contract.md)
 (the compiler implements the 1.0 specification). Both are Proposed; the issues
-they change are listed [below](#issues-this-plan-changes).
+they changed are listed [below](#issues-this-plan-changed).
 
 ## Problem
 
@@ -69,20 +69,20 @@ walking skeleton are in, each workstream below owns its own crates and can run
 in parallel with the others, with one owner each and a list of what it must
 not touch (PR-4).
 
-| Workstream | Crates | Depends on | Characterized first |
-| --- | --- | --- | --- |
-| W0 Foundation and gates | `diagnostics`, `yaml-source`, `canonical`, `trace`, `reconcile`, `testkit`, `xtask` | Nothing | None |
-| W1 Compiler: read and check | `model-intent`, `step-read`, `step-check` | W0 | deploy-kit's corpus, refusal and schema-refusal oracles |
-| W2 Compiler: lower, compose, resolve | `model-effective`, `model-resolved`, `step-lower`, `step-compose`, `step-resolve` | W1 | deploy-kit's expected models |
-| W3 Compiler: render and serialize | `deliverable`, `render-*`, `serialize`, `step-outputs`, `generate` | W2 | deploy-kit's rendered oracles, in structure |
-| W4 Service core | `rollout`, `service-app` with fakes, `http-api` | W0; the compiler's application API from W1 | estate-dashboard's API responses |
-| W5 Service adapters | `adapter-postgres`, `-ghcr`, `-vault`, `-kube`, `-github`, `-github-oidc` | W4's ports | None |
-| W6 Release Gate | `release-gate` | W4 | delivery's Gate answers and Reporter statuses |
-| W7 Observation | `observation-app`, its adapters, the Vue UI's client | W4 | estate-dashboard's read responses |
-| W8 Components | `secret-grant`, `database-catalog`, `bucket-catalog`, `backup`, `mailbox`, `migration-run` and their adapters | W0 (`reconcile`) | Each Go or Python job's actions and verdicts |
-| W9 Hosts | `host-rollout`, `host-applier-app`, its adapters, the VM tests | W0, W3 (`step-outputs`) | None: new |
-| W10 rust-commons sign-in kit | identity#113 in rust-commons | None | identity's flow-conformance suite |
-| W11 End to end | `e2e/` | W4, W5, W3 for `minimal` | None |
+| Workstream | Issues | Crates | Depends on | Characterized first |
+| --- | --- | --- | --- | --- |
+| W0 Foundation and gates | [#60](https://github.com/JorisJonkers-dev/estate-kit/issues/60) | `diagnostics`, `yaml-source`, `canonical`, `trace`, `reconcile`, `testkit`, `xtask` | Nothing | None |
+| W1 Compiler: read and check | [#61](https://github.com/JorisJonkers-dev/estate-kit/issues/61) | `model-intent`, `step-read`, `step-check` | W0 | deploy-kit's corpus, refusal and schema-refusal oracles |
+| W2 Compiler: lower, compose, resolve | [#62](https://github.com/JorisJonkers-dev/estate-kit/issues/62) | `model-effective`, `model-resolved`, `step-lower`, `step-compose`, `step-resolve` | W1 | deploy-kit's expected models |
+| W3 Compiler: render and serialize | [#63](https://github.com/JorisJonkers-dev/estate-kit/issues/63) | `deliverable`, `render-*`, `serialize`, `step-outputs`, `generate` | W2 | deploy-kit's rendered oracles, in structure |
+| W4 Service core | [#26](https://github.com/JorisJonkers-dev/estate-kit/issues/26) | `rollout`, `service-app` with fakes, `http-api` | W0; the compiler's application API from W1 | estate-dashboard's API responses |
+| W5 Service adapters | [#64](https://github.com/JorisJonkers-dev/estate-kit/issues/64) | `adapter-postgres`, `-ghcr`, `-vault`, `-kube`, `-github`, `-github-oidc` | W4's ports | None |
+| W6 Release Gate | [#25](https://github.com/JorisJonkers-dev/estate-kit/issues/25), [#37](https://github.com/JorisJonkers-dev/estate-kit/issues/37) | `release-gate` | W4 | delivery's Gate answers and Reporter statuses |
+| W7 Observation | [#65](https://github.com/JorisJonkers-dev/estate-kit/issues/65) | `observation-app`, its adapters, the Vue UI's client | W4 | estate-dashboard's read responses |
+| W8 Components | [#66](https://github.com/JorisJonkers-dev/estate-kit/issues/66), [#67](https://github.com/JorisJonkers-dev/estate-kit/issues/67), [#68](https://github.com/JorisJonkers-dev/estate-kit/issues/68), [#69](https://github.com/JorisJonkers-dev/estate-kit/issues/69), [#70](https://github.com/JorisJonkers-dev/estate-kit/issues/70), [#71](https://github.com/JorisJonkers-dev/estate-kit/issues/71) | `secret-grant`, `database-catalog`, `bucket-catalog`, `backup`, `mailbox`, `migration-run` and their adapters | W0 (`reconcile`) | Each Go or Python job's actions and verdicts |
+| W9 Hosts | [#43](https://github.com/JorisJonkers-dev/estate-kit/issues/43) to [#49](https://github.com/JorisJonkers-dev/estate-kit/issues/49) | `host-rollout`, `host-applier-app`, its adapters, the VM tests | W0, W3 (`step-outputs`) | None: new |
+| W10 rust-commons sign-in kit | identity#113 | identity#113 in rust-commons | None | identity's flow-conformance suite |
+| W11 End to end | [#72](https://github.com/JorisJonkers-dev/estate-kit/issues/72) | `e2e/` | W4, W5, W3 for `minimal` | None |
 
 ## Order of work
 
@@ -126,23 +126,9 @@ every push to main, diff-scoped and sharded, with a weekly full run; 100%
 unit coverage and break score on domain, application and step crates,
 switched on per crate once its tests are in.
 
-## Issues this plan changes
+## Issues this plan changed
 
-Once records 13, 18 and 67 are accepted, these issues are rewritten:
-
-| Issue | Today | Becomes |
-| --- | --- | --- |
-| [#18](https://github.com/JorisJonkers-dev/estate-kit/issues/18) | Ship the TypeScript compiler as one binary | Spike: the Rust YAML reader against the review's criteria |
-| [#23](https://github.com/JorisJonkers-dev/estate-kit/issues/23) | The TypeScript binary behind the CLI and result.json | The `estate-kit` CLI and its `--json` schema |
-| [#24](https://github.com/JorisJonkers-dev/estate-kit/issues/24) | result.json fixtures the service reads | Closed: the service links the compiler |
-| [#26](https://github.com/JorisJonkers-dev/estate-kit/issues/26) | Merge the Go services | Rewrite the service in Rust from the characterization tests |
-| [#29](https://github.com/JorisJonkers-dev/estate-kit/issues/29) | Walking skeleton through the TypeScript binary | Walking skeleton through the Rust compiler |
-| [#54](https://github.com/JorisJonkers-dev/estate-kit/issues/54) | Canonical format in deploy-kit's contract PR | The canonical format, specified and implemented in `canonical` |
-| [#55](https://github.com/JorisJonkers-dev/estate-kit/issues/55) | Rewrite the model to 1.0 in TypeScript | Closed by deploy-kit 1.0.0 |
-| [#56](https://github.com/JorisJonkers-dev/estate-kit/issues/56) | Decide whether to port 1.0 to Rust | Closed by [record 13](../decisions/0013-every-program-is-rust.md) |
-
-New issues: one per workstream W0 to W11, and the component and Observation
-characterizations.
+Rewritten on 2026-10-29 to follow records 13, 18 and 67 (still Proposed): [#18](https://github.com/JorisJonkers-dev/estate-kit/issues/18) is now the Rust YAML reader spike, [#23](https://github.com/JorisJonkers-dev/estate-kit/issues/23) the `estate-kit` CLI and its `--json` schema, [#26](https://github.com/JorisJonkers-dev/estate-kit/issues/26) the service core (W4), [#29](https://github.com/JorisJonkers-dev/estate-kit/issues/29) the walking skeleton through the Rust compiler, and [#54](https://github.com/JorisJonkers-dev/estate-kit/issues/54) the canonical format in the `canonical` crate. [#24](https://github.com/JorisJonkers-dev/estate-kit/issues/24) closed as not planned (the service links the compiler), [#55](https://github.com/JorisJonkers-dev/estate-kit/issues/55) closed by deploy-kit 1.0.0, and [#56](https://github.com/JorisJonkers-dev/estate-kit/issues/56) closed by [record 13](../decisions/0013-every-program-is-rust.md). [#22](https://github.com/JorisJonkers-dev/estate-kit/issues/22) now protects the imported specification and oracles, and [#50](https://github.com/JorisJonkers-dev/estate-kit/issues/50) compares structure against an expected-differences ledger. The workstreams have their own issues, linked in the table above, each a sub-issue of epic #9 with its blocked-by links.
 
 ## Not in scope
 

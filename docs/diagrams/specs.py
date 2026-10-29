@@ -605,5 +605,183 @@ g.edge("node", "api", "node identity")
 g.edge("node", "cache", "Nix signature check")
 g.done()
 
+# ---------------------------------------------------------------------------------------------
+# High-level design: the whole system, each step's classes, and one composition's control flow.
+# ---------------------------------------------------------------------------------------------
+
+g = Graph("hld-system", "High-level design: every bounded context, its main crates, and what it talks to",
+          direction="DOWN", layer_gap=80)
+g.group("ci", "A Project's CI")
+g.box("validate", "validate job", parent="ci")
+g.box("deploy", "deploy job", parent="ci")
+g.group("compiler", "Compiler context")
+g.package("cli", "bins/estate-kit", tone="accent", parent="compiler")
+g.package("capp", "compiler: validate, plan, compose, render_hosts", parent="compiler")
+g.package("steps", "read, link, check, lower, compose, resolve, render, serialize", tone="data", parent="compiler")
+g.group("service", "Service context: bins/estate-kit-service")
+g.package("api", "http-api", tone="accent", parent="service")
+g.package("sapp", "service-app: use cases and ports", parent="service")
+g.package("rollout", "rollout and release-gate: deciders", tone="data", parent="service")
+g.package("sadapt", "adapters: postgres, ghcr, vault, kube, github, github-oidc", parent="service")
+g.group("obs", "Observation context")
+g.package("oapp", "observation-app and its adapters", parent="obs")
+g.group("hosts", "Hosts context")
+g.package("applier", "bins/estate-kit-host-applier", tone="accent", parent="hosts")
+g.group("comps", "Component contexts")
+g.package("reconcilers", "six reconcilers on the reconcile loop, one image each", tone="accent", parent="comps")
+g.box("ext", "ghcr, Vault, Postgres, GitHub", tone="external")
+g.box("k8s", "Kubernetes API: Flux, Flagger", tone="external")
+g.box("telemetry", "Prometheus, Loki, Alertmanager, Gatus", tone="external")
+g.box("nodes", "NixOS nodes and the binary cache", tone="external")
+g.box("targets", "Stalwart, Garage, Vault, Postgres, S3", tone="external")
+g.edge("validate", "cli", "runs")
+g.edge("cli", "capp", "calls", kind="dashed")
+g.edge("capp", "steps", "sequences", kind="dashed")
+g.edge("deploy", "api", "deploy, stream")
+g.edge("api", "sapp", "calls", kind="dashed")
+g.edge("sapp", "rollout", "decides with", kind="dashed")
+g.edge("sapp", "capp", "links", kind="dashed")
+g.edge("sadapt", "sapp", "implements ports", kind="dashed")
+g.edge("sadapt", "ext", "signs, pushes, appends")
+g.edge("sadapt", "k8s", "dry-runs, moves tags, watches")
+g.edge("api", "oapp", "serves", kind="dashed")
+g.edge("oapp", "telemetry", "reads")
+g.edge("k8s", "reconcilers", "rendered objects")
+g.edge("reconcilers", "targets", "reconciles")
+g.edge("applier", "nodes", "switches")
+g.edge("applier", "k8s", "Lease, eviction")
+g.done()
+
+classes("rust-step-read", "Rust: reading, linking and checking, and the phase types between them",
+        [("YamlSource", None, ["parse(text, Budget) Result<Node, Vec<Diagnostic>>"]),
+         ("Node", None, ["path: ModelPath", "span: Span", "value: NodeValue"]),
+         ("SchemaValidator", None, ["validate(Node, Schema) Vec<Diagnostic>"]),
+         ("Raw", None, ["intent: Intent<Unlinked>", "paths: PathIndex"]),
+         ("ScopeTable", None, ["visible(from: ModelPath, kind: RefKind) Vec<Name>",
+                               "link(Raw) Result<Linked, Vec<Diagnostic>>"]),
+         ("Linked", None, ["intent: Intent<Linked>", "every reference is an index"]),
+         ("Invariant", None, ["code: RefusalCode", "context: str", "scope: Scope", "check: fn(Linked, Diagnostics)"]),
+         ("Scope", "enum", ["Object", "Document", "InputSet"]),
+         ("Checked", None, ["intent: Intent<Linked>", "new() private to step-check"]),
+         ("Diagnostics", None, ["push(Diagnostic)", "into_result(T) Result<T, Vec<Diagnostic>>"])],
+        [("YamlSource", "Node", "dep", "produces"), ("SchemaValidator", "Node", "dep", "validates"),
+         ("Node", "Raw", "dep", "converts into"), ("ScopeTable", "Raw", "dep", "reads"),
+         ("ScopeTable", "Linked", "dep", "produces"), ("Invariant", "Scope", "assoc", "runs at"),
+         ("Invariant", "Linked", "dep", "checks"), ("Invariant", "Diagnostics", "dep", "reports to"),
+         ("Linked", "Checked", "dep", "becomes, when no invariant refuses")],
+        tones={"Raw": "data", "Linked": "data", "Checked": "data"})
+
+classes("rust-step-resolve", "Rust: resolving through one trace, in two phases",
+        [("Cx", None, ["pinned: PinnedInputSet", "indices: Indices", "read-only for every mapping"]),
+         ("Trace", None, ["allocate(source: ModelPath) Id<T>", "resolve_one(source: ModelPath) Result<Id<T>>",
+                          "sources_of(target: TargetRef) Vec<ModelPath>"]),
+         ("mappings", "module", ["application(src, cx, trace) ResolvedApplication",
+                                 "process(src, cx, trace) ResolvedProcess", "exposure(src, cx, trace) ResolvedExposure",
+                                 "one function per source-to-target concept"]),
+         ("queries", "module", ["pure functions: tier_for, deadline_of, precedence_of"]),
+         ("ComposedSet", None, ["projects: BTreeMap<ProjectName, EffectiveProject>"]),
+         ("ResolvedDeployment", None, ["applications: BTreeMap<ApplicationId, ResolvedApplication>", "trace: Trace"]),
+         ("Revisions", None, ["of(ResolvedDeployment) Revisions", "a pass over the finished value"])],
+        [("mappings", "ComposedSet", "dep", "reads"), ("mappings", "Cx", "dep", "reads"),
+         ("mappings", "Trace", "dep", "phase 1 allocates, phase 2 resolves"), ("mappings", "queries", "dep", "asks"),
+         ("mappings", "ResolvedDeployment", "dep", "builds"), ("ResolvedDeployment", "Trace", "comp", "keeps"),
+         ("Revisions", "ResolvedDeployment", "dep", "reads")],
+        tones={"Trace": "accent", "ComposedSet": "data", "ResolvedDeployment": "data"})
+
+RENDERERS = ("Kubernetes", "Networking", "Traefik", "VaultPolicy", "Flux", "Vso", "Prometheus", "Grafana")
+classes("rust-step-render", "Rust: eight renderers behind one trait, and one serializer",
+        [("Renderer", "trait", ["render(ResolvedDeployment) Result<Vec<Deliverable>, Vec<Diagnostic>>"])]
+        + [(f"{r}Renderer", None, []) for r in RENDERERS]
+        + [("Deliverable", None, ["path: OutputPath", "owner: ProjectName", "object: DeliverableObject",
+                                  "sources: Vec<ModelPath>"]),
+           ("DeliverableObject", "enum", ["only the fields the estate sets"]),
+           ("Serializer", None, ["write(DeliverableSet) Result<Vec<RenderedFile>, Vec<Diagnostic>>",
+                                 "checks each path lies in its owner's directory"]),
+           ("CanonicalEmitter", None, ["yaml(DeliverableObject) String", "json(DeliverableObject) String"])],
+        [(f"{r}Renderer", "Renderer", "impl") for r in RENDERERS]
+        + [("Renderer", "Deliverable", "dep", "emits"), ("Deliverable", "DeliverableObject", "comp", "holds"),
+           ("Serializer", "Deliverable", "dep", "writes"), ("Serializer", "CanonicalEmitter", "dep", "through")],
+        tones={"Renderer": "accent", "Deliverable": "data"})
+
+classes("rust-service-app", "Rust: the service's use cases, generic over one bundle of ports",
+        [("Ports", "trait", ["type EventStore", "type Registry", "type Signer", "type Cluster", "type GitHub",
+                             "type Clock"]),
+         ("Deploy", None, ["ports: P", "run(DeployCommand) Result<RolloutId, Problem>"]),
+         ("Rollback", None, ["ports: P", "run(ProjectName) Result<RolloutId, Problem>"]),
+         ("Pause", None, ["ports: P", "run(ProjectName, Paused) Result<(), Problem>"]),
+         ("CompositionQueue", None, ["submit(Trigger) CompositionId", "one at a time, coalescing"]),
+         ("ComposeRunner", None, ["run(PinnedInputSet) Result<CompositionResult, Problem>",
+                                  "blocking thread, budget, deadline, catch_unwind"]),
+         ("compiler", "crate", ["compose(PinnedInputSet) CompositionResult"]),
+         ("Decider", None, ["decide(State, Command)", "evolve(State, RolloutEvent)"])],
+        [("Deploy", "Ports", "dep", "P: Ports"), ("Rollback", "Ports", "dep", "P: Ports"),
+         ("Pause", "Ports", "dep", "P: Ports"), ("Deploy", "Decider", "dep", "decides with"),
+         ("Deploy", "CompositionQueue", "dep", "submits to"), ("CompositionQueue", "ComposeRunner", "dep", "runs"),
+         ("ComposeRunner", "compiler", "dep", "calls")],
+        tones={"Ports": "accent", "compiler": "data"})
+
+COMPONENT_TYPES = ("Mailbox", "MigrationRun", "SecretGrant", "DatabaseGrant", "BucketGrant", "BackupGeneration",
+                   "HostGeneration")
+classes("rust-reconcile", "Rust: the reconcile loop every component and the host applier share",
+        [("Reconciler", "trait", ["type Desired", "type Observed", "type Action",
+                                  "observe() Result<Observed>", "decide(Desired, Observed) Vec<Action>",
+                                  "act(Action) Result"]),
+         ("Loop", None, ["tick(): observe, decide, act one step", "never deletes what it does not own"])]
+        + [(f"{c}Reconciler", None, []) for c in COMPONENT_TYPES],
+        [("Loop", "Reconciler", "dep", "drives")] + [(f"{c}Reconciler", "Reconciler", "impl") for c in COMPONENT_TYPES],
+        tones={"Reconciler": "accent"})
+
+sequence("seq-compose-crates", "Control flow: one deploy call through the crates",
+         [("CI", "deploy job"), ("H", "http-api"), ("D", "service-app Deploy"), ("R", "rollout decider"),
+          ("E", "adapter-postgres"), ("Q", "composition queue"), ("C", "compiler compose"),
+          ("K", "adapter-kube"), ("V", "adapter-vault"), ("G", "adapter-ghcr")],
+         [("CI", "H", "POST /deploys (OIDC token, fragment digest)"),
+          ("H", "H", "claim policy, then route policy"),
+          ("H", "D", "run(DeployCommand)"),
+          ("D", "E", "events of this rollout"), ("E", "D", "events", "reply"),
+          ("D", "R", "decide(state, Deploy)"), ("R", "D", "Accepted events, or a Refusal", "reply"),
+          ("D", "E", "append events"),
+          ("D", "Q", "submit trigger"),
+          ("Q", "C", "compose(pinned inputs), blocking thread"),
+          ("C", "C", "read, link, check; lower; compose; resolve; render; serialize"),
+          ("C", "Q", "renders and diagnostics per Project", "reply"),
+          ("opt", "a fragment is refused", [("Q", "E", "append Refused for that Project; the others go on")]),
+          ("Q", "K", "server-side dry-run of every changed object"),
+          ("K", "Q", "diagnostics, or clean", "reply"),
+          ("alt", "the dry-run reports problems", [("Q", "E", "append Refused, with the diagnostics")],
+           "the dry-run is clean", [
+               ("opt", "the render's digest differs from the tag's", [
+                   ("Q", "V", "sign the digest with the render key"),
+                   ("Q", "G", "push the render"),
+                   ("Q", "K", "take the writer Lease"),
+                   ("Q", "G", "move render/<p>:prod by compare-and-swap")]),
+               ("Q", "E", "append Published or Unchanged")]),
+          ("H", "CI", "stream events over SSE, resumable by sequence", "reply")])
+
+g = Graph("flow-composition", "Flow: the decisions inside one composition", direction="DOWN", layer_gap=55)
+g.terminal("start", "composition starts")
+g.box("read", "read every admitted Project's fragment")
+g.decision("ok", "every fragment checks?")
+g.box("isolate", "isolate the refused fragments, record Refused", tone="warn")
+g.box("compose", "compose and resolve the rest")
+g.decision("budget", "within budget and deadline, no panic?")
+g.terminal("failed", "composition fails with an internal problem; the service runs on", tone="bad")
+g.box("dry", "server-side dry-run as the service's own identity")
+g.decision("dryok", "dry-run clean?")
+g.terminal("refused", "diagnostics on the YAML lines; nothing moves", tone="bad")
+g.decision("changed", "render digest differs from the tag's?")
+g.terminal("unchanged", "publish nothing, move nothing", tone="good")
+g.box("sign", "sign, push, take the Lease")
+g.decision("cas", "compare-and-swap succeeds?")
+g.box("reread", "read the tag again and decide again", tone="warn")
+g.terminal("done", "tag moved; Flux applies", tone="good")
+for a, b, label in [("start", "read", ""), ("read", "ok", ""), ("ok", "compose", "yes"), ("ok", "isolate", "no"),
+                    ("isolate", "compose", ""), ("compose", "budget", ""), ("budget", "failed", "no"),
+                    ("budget", "dry", "yes"), ("dry", "dryok", ""), ("dryok", "refused", "no"),
+                    ("dryok", "changed", "yes"), ("changed", "unchanged", "no"), ("changed", "sign", "yes"),
+                    ("sign", "cas", ""), ("cas", "done", "yes"), ("cas", "reread", "no"), ("reread", "changed", "")]:
+    g.edge(a, b, label)
+g.done()
+
 if __name__ == "__main__":
     write_all("raw")

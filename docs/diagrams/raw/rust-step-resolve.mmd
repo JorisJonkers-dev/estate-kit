@@ -1,0 +1,47 @@
+%% title: Rust: resolving through one trace, in two phases
+classDiagram
+    direction TB
+    class Cx {
+        pinned: PinnedInputSet
+        indices: Indices
+        read-only for every mapping
+    }
+    class Trace {
+        allocate(source: ModelPath) Id#lt;T#gt;
+        resolve_one(source: ModelPath) Result#lt;Id#lt;T#gt;#gt;
+        sources_of(target: TargetRef) Vec#lt;ModelPath#gt;
+    }
+    class mappings {
+        <<module>>
+        application(src, cx, trace) ResolvedApplication
+        process(src, cx, trace) ResolvedProcess
+        exposure(src, cx, trace) ResolvedExposure
+        one function per source-to-target concept
+    }
+    class queries {
+        <<module>>
+        pure functions: tier_for, deadline_of, precedence_of
+    }
+    class ComposedSet {
+        projects: BTreeMap#lt;ProjectName, EffectiveProject#gt;
+    }
+    class ResolvedDeployment {
+        applications: BTreeMap#lt;ApplicationId, ResolvedApplication#gt;
+        trace: Trace
+    }
+    class Revisions {
+        of(ResolvedDeployment) Revisions
+        a pass over the finished value
+    }
+    mappings ..> ComposedSet : reads
+    mappings ..> Cx : reads
+    mappings ..> Trace : phase 1 allocates, phase 2 resolves
+    mappings ..> queries : asks
+    mappings ..> ResolvedDeployment : builds
+    ResolvedDeployment *-- Trace : keeps
+    Revisions ..> ResolvedDeployment : reads
+    classDef accent fill:#0000a1,stroke:#0000b1
+    classDef data fill:#0000a2,stroke:#0000b2
+    class Trace:::accent
+    class ComposedSet:::data
+    class ResolvedDeployment:::data

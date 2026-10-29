@@ -1,0 +1,59 @@
+%% title: Rust: reading, linking and checking, and the phase types between them
+classDiagram
+    direction TB
+    class YamlSource {
+        parse(text, Budget) Result#lt;Node, Vec#lt;Diagnostic#gt;#gt;
+    }
+    class Node {
+        path: ModelPath
+        span: Span
+        value: NodeValue
+    }
+    class SchemaValidator {
+        validate(Node, Schema) Vec#lt;Diagnostic#gt;
+    }
+    class Raw {
+        intent: Intent#lt;Unlinked#gt;
+        paths: PathIndex
+    }
+    class ScopeTable {
+        visible(from: ModelPath, kind: RefKind) Vec#lt;Name#gt;
+        link(Raw) Result#lt;Linked, Vec#lt;Diagnostic#gt;#gt;
+    }
+    class Linked {
+        intent: Intent#lt;Linked#gt;
+        every reference is an index
+    }
+    class Invariant {
+        code: RefusalCode
+        context: str
+        scope: Scope
+        check: fn(Linked, Diagnostics)
+    }
+    class Scope {
+        <<enum>>
+        Object
+        Document
+        InputSet
+    }
+    class Checked {
+        intent: Intent#lt;Linked#gt;
+        new() private to step-check
+    }
+    class Diagnostics {
+        push(Diagnostic)
+        into_result(T) Result#lt;T, Vec#lt;Diagnostic#gt;#gt;
+    }
+    YamlSource ..> Node : produces
+    SchemaValidator ..> Node : validates
+    Node ..> Raw : converts into
+    ScopeTable ..> Raw : reads
+    ScopeTable ..> Linked : produces
+    Invariant --> Scope : runs at
+    Invariant ..> Linked : checks
+    Invariant ..> Diagnostics : reports to
+    Linked ..> Checked : becomes, when no invariant refuses
+    classDef data fill:#0000a2,stroke:#0000b2
+    class Raw:::data
+    class Linked:::data
+    class Checked:::data
