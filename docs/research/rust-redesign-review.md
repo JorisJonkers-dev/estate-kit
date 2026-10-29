@@ -31,7 +31,7 @@ and the decision review, raised it independently and the skeptic kept it.
 | [Record 61](../decisions/0061-a-rollback-moves-the-tag-back-to-the-last-serving-render-without-composing.md) promises a Rollback that works with Vault down, but [record 62](../decisions/0062-ghcr-tags-move-with-a-machine-account-token-kept-in-vault.md) reads the ghcr token from Vault at the moment of use; 61 also moves the tag without the Lease that [record 63](../decisions/0063-the-service-has-one-writer-and-reconciles-from-observed-state.md) requires | Sync the token into a Kubernetes Secret; the Rollback takes the Lease and finds the last Serving render from the registry | 2 |
 | The Release Gate is said never to write, yet delivery's gate creates and updates a ConfigMap per Application and patches migration Jobs (`internal/gate/kube.go`); Observation is said to be read only, yet the dashboard writes Alertmanager silences and mirrors them in its own table | One Proposed record places each write | 3 |
 | Observation runs in the service's binary and pod and shares its kube adapter, so [record 50](../decisions/0050-five-bounded-contexts.md)'s "the read side holds no write credential" is false | Observation becomes its own read-only binary | 4 |
-| Record 63 calls the tag move a compare-and-swap, and ghcr has no conditional write | Read, verify, write, fenced by a freshly checked Lease; re-read after every write; state the window | No decision needed |
+| [Record 63](../decisions/0063-the-service-has-one-writer-and-reconciles-from-observed-state.md) calls the tag move a compare-and-swap, and ghcr has no conditional write | Read, verify, write, fenced by a freshly checked Lease; re-read after every write; state the window | No decision needed |
 | [Record 18](../decisions/0018-the-service-links-the-compiler.md)'s containment does not hold: a deadline cannot stop a blocking thread, catching a panic needs unwinding and misses an abort, nothing caps memory across a Composition, and a budget breach is reported as internal although authored input caused it | A step budget, a memory cap, unwinding panics, recovery by pod restart, and a refusal code for a budget breach | 5 |
 | The crate tree cannot load: component binaries and component domain crates share package names, and the `-app` crates are missing | Distinct binary names; list the `-app` crates | No decision needed |
 | The crate tree cannot be layered as drawn: `reconcile` in foundation drives ports it cannot see, the `Renderer` port has no home, a constructor "private to step-check" cannot cross crates, and [record 65](../decisions/0065-the-workspace-is-layered-and-the-crate-graph-is-checked.md) omits Observation and names one context edge where the page names five | Pure decide in foundation; `Renderer` in `deliverable`; sealed proof tokens; the edges in the layer table file | No decision needed |
@@ -74,7 +74,7 @@ and the decision review, raised it independently and the skeptic kept it.
   rejected.
 - Characterization fixtures are deleted at archive, though they are the only
   witness of behaviour no specification states.
-- Text gone stale: record 13 names three components where everything else
+- Text gone stale: [record 13](../decisions/0013-every-program-is-rust.md) names three components where everything else
   names six; issue bodies #9, #20, #65 and #72; the overview, the design
   README and the security page; `AGENTS.md`'s Locked list.
 
@@ -95,7 +95,7 @@ The skeptic refuted these, each with a quote from the corpus:
 
 - The 100% gates do not force tests before code: a crate reports until its
   tests are in.
-- Mutation on main only is deliberate (deploy-kit ADR 0063).
+- Mutation on main only is deliberate ([deploy-kit ADR 0063](https://github.com/JorisJonkers-dev/deploy-kit/blob/main/docs/adr/architecture/0063-coverage-and-mutation-are-ratchets.md)).
 - `check-layers` and `check-ports` are scheduled in
   [#60](https://github.com/JorisJonkers-dev/estate-kit/issues/60).
 - The end-to-end and integration time budgets are acceptance criteria in
