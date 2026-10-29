@@ -24,7 +24,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 16 | The committed JSON Schemas are the contract | Merged into 15 |
 | 17 | [The service runs in the cluster, in Rust: it composes, and Flux applies](0017-the-service-runs-in-the-cluster-in-rust.md) | Accepted |
 | 18 | [The service links the compiler's crates; the CLI's JSON output is for CI only](0018-the-service-links-the-compiler.md) | Accepted |
-| 19 | One composition runs at a time | Accepted |
+| 19 | One composition runs at a time | Merged into 63 |
 | 20 | [No render cache: an unchanged render is not published again](0020-no-render-cache-an-unchanged-render-is-not-published-again.md) | Proposed |
 | 21 | [Renders and host tags are signed by separate Transit keys, with an offline recovery key](0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md) | Proposed |
 | 22 | [Every caller authenticates with an OIDC token checked against a claim policy](0022-every-caller-authenticates-with-an-oidc-token-checked-against-a-claim-policy.md) | Proposed |
@@ -78,3 +78,4 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 70 | [Shared Rust code moves to rust-commons on its third consumer; the sign-in kit is the first](0070-shared-rust-code-moves-to-rust-commons-on-its-third-consumer.md) | Accepted |
 | 71 | [A diagnostic is a coded problem with typed, plural locations, and the caller resolves the lines](0071-a-diagnostic-is-a-coded-problem-with-typed-locations.md) | Accepted |
 | 72 | [Per-field provenance and `estate-kit explain` are deferred until a scenario needs them](0072-per-field-provenance-and-explain-are-deferred.md) | Proposed |
+| 73 | [The composition queue is a row in a Postgres job table on the shared platform-postgres](0073-the-composition-queue-is-a-row-in-a-postgres-job-table.md) | Proposed |

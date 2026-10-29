@@ -21,7 +21,8 @@ The record as first planned named Go; the language is now settled by [record 13]
 One service runs in the cluster, behind the edge. It composes every admitted
 Project's fragment, dry-runs every change as its own identity, signs each
 changed render with the [render signing key](../../CONTEXT.md) in Vault Transit, pushes it to ghcr and
-moves the Project's tag by compare-and-swap. It never applies anything: Flux
+moves the Project's tag by read, verify, write, fenced by the
+[writer Lease](../../CONTEXT.md). It never applies anything: Flux
 pulls the tags and applies. It also serves the UI and the Observation views.
 It is the Rust binary `estate-kit-service`, built from the crates on
 [The Rust workspace](../design/rust-workspace.md).
