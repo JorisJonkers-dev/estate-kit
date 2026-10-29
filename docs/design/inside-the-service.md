@@ -14,11 +14,11 @@ hand-written fake that passes the same contract suite as its adapter
 
 | Crate | Layer | Holds | Outside system |
 | --- | --- | --- | --- |
-| `rollout` | domain | The Rollout decider and its events, the upcasters, the composition queue policy | None |
+| `rollout` | domain | The Rollout decider and its events, the upcasters (once a second version exists), the composition queue policy | None |
 | `release-gate` | domain | The Release Gate's answer from a ClusterObservation; probing and warmup rules | None |
 | `service-app` | application | Deploy, DryRun, Plan, Pause, Resume, Rollback, Admit, Gate; the port traits and their fakes | None |
 | `adapter-github-oidc` | adapter | The CI token's claim policy | GitHub's OIDC discovery |
-| `adapter-ghcr` | adapter | Fragments, renders, tags, registered digests | ghcr, with a machine account's token from Vault |
+| `adapter-ghcr` | adapter | Fragments, renders, tags, registered digests | ghcr, with a machine account's token from a mounted Secret |
 | `adapter-vault` | adapter | Signs a render or host tag with its own Transit key | Vault Transit |
 | `adapter-kube` | adapter | Server-side dry-run as the service's own identity; Flux and Flagger status; the ClusterState snapshot; the writer Lease; the Pause object | API server, through kube-rs |
 | `adapter-github` | adapter | Deployment status, check runs | GitHub App |
@@ -47,7 +47,12 @@ composition carries its fragment.
 ## The event log
 
 One table of rollout events in a database on the shared platform-postgres:
-rollout id, sequence, type, version, time, payload. Its schema ships as a
+rollout id, sequence, type, version, time, payload, and, on an event that
+reconciliation appended after a crash, a reconstructed marker naming the
+Observation it came from. A unique (rollout id, sequence) key refuses a
+duplicate. Two database roles touch it: the service's, which can insert and
+select only, and the retention job's, which can delete and is held by the job
+alone ([record 23](../decisions/0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md)). Its schema ships as a
 changelog in a migration image that alone holds the owner role, as every
 estate service's does ([workspace ADR-0021](https://github.com/JorisJonkers-dev/workspace/blob/main/docs/decisions/ADR-0021-liquibase-runner-is-the-one-migration-path.md)); the service never migrates its own
 database. The existing dump and restore check covers it. A deploy job's stream

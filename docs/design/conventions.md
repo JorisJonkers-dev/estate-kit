@@ -41,8 +41,9 @@ record, and a check enforces it.
   shared and need no consumer fixtures ([record 18](../decisions/0018-the-service-links-the-compiler.md)).
   The CLI's `--json` output keeps a committed schema for the workflows that
   read it.
-- **Events.** Each event has a type and a version; old versions are upcast on
-  read, never rewritten. Events hold no personal data: actors are ids, resolved
+- **Events.** Each event has a type and a version; events are never rewritten,
+  and no upcaster is built until a second version exists
+  ([record 23](../decisions/0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md)). Events hold no personal data: actors are ids, resolved
   at read time. The event log stays internal.
 
 ## Bounded contexts

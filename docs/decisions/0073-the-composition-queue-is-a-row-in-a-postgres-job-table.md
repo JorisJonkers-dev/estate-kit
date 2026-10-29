@@ -1,7 +1,7 @@
 ---
 status: proposed  # proposed | accepted | locked
 date: 2026-10-29
-rests-on: [17, 24, 63]
+rests-on: [17, 23, 63]
 lessons: [DO-6]
 ---
 
@@ -17,7 +17,7 @@ which deploy job's fragment. The
 queue lives in memory with the single writer or as rows in Postgres.
 
 The service already keeps its rollout event log in a database on the shared
-platform-postgres ([record 24](0024-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md)).
+platform-postgres ([record 23](0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md)).
 A queue held in memory is lost on a restart, and the restart is the case the
 Lease and observation design exist for.
 

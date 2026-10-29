@@ -1,7 +1,7 @@
 ---
 status: accepted  # proposed | accepted | locked
 date: 2026-10-29
-rests-on: [9, 17, 24, 45]
+rests-on: [9, 17, 23]
 lessons: [DO-6, TM-4]
 ---
 
@@ -17,7 +17,7 @@ one-replica Deployment with the default rolling update surges to two pods
 during every update, so for a while two writers run
 ([review](../research/review/README.md) D9, finding ops-3).
 
-The service's own record of a rollout, the event log ([record 24](register.md)),
+The service's own record of a rollout, the event log ([record 23](0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md)),
 can also be wrong after a crash: an event may be written for a tag move that
 never happened, or a tag may have moved without its event. Flux keeps applying
 the last tags throughout, so the cluster, not the log, is what runs.
@@ -49,7 +49,7 @@ input moved during the run. Where the queue is kept is
    checks the Lease, writes, and reads the tag again. If the second read shows
    any value other than the one written, the move lost a race: the service
    stops, observes, and decides again. It never retries a write on the old
-   decision ([record 45](register.md)). Signing a digest twice yields a valid
+   decision ([record 23](0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md)). Signing a digest twice yields a valid
    signature, so signing needs no such check.
 5. **The race window is stated, not hidden.** Between the Lease check and the
    registry accepting the write, a holder that has just lost its Lease (a

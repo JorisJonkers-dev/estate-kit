@@ -60,7 +60,7 @@ The coordination Lease in the API server that the one service pod takes immediat
 _Avoid_: leader election, lock
 
 **Machine account**:
-The dedicated GitHub account whose classic token, kept in Vault, moves the `render/` and `host/` tags on ghcr. It has write access only on the render and host packages.
+The dedicated GitHub account whose classic token, synced from Vault into a Kubernetes Secret the service mounts, moves the `render/` and `host/` tags on ghcr. It has write access only on the render and host packages.
 _Avoid_: bot, service token
 
 **Composition**:
@@ -78,6 +78,10 @@ _Avoid_: test deploy, rehearsal
 **Rollout event**:
 One entry in a rollout's append-only log; a rollout's state is the fold of its events.
 _Avoid_: status update, log line
+
+**Reconstructed event**:
+A Rollout event that reconciliation appended after a crash, marked as reconstructed and naming the observation it was inferred from. The service did not see it happen.
+_Avoid_: backfill, replayed event
 
 **Observation**:
 The context that shows what runs and how it is doing: units, pods, containers, alerts and silences, logs, health and checks. It reads, except that it creates and expires Alertmanager silences with a credential for that API alone. It holds no credential that can deploy, pause or roll back.

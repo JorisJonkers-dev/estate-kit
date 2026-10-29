@@ -11,7 +11,7 @@ handles it. If a step below names no crate, the design has a gap.
 | --- | --- | --- | --- | --- |
 | 1 | The `validate` job runs `estate-kit validate` on the checkout | `bins/estate-kit` → `compiler::validate` → `step-read`, `step-check` | None: offline | Diagnostics with code and model path; the CLI resolves each path to a line and writes annotations ([Errors in CI](errors-in-ci.md)) |
 | 2 | The release's `deploy` job builds images by digest, then calls `POST /deploys` with its GitHub OIDC token and the fragment digest | `http-api` | `ClaimPolicy` → `adapter-github-oidc` | 401 or 403 as problem+json; the claim policy's fixtures name each refusal |
-| 3 | The call is accepted idempotently on (Project, fragment digest), and the token is exchanged for a rollout token | `service-app::Deploy` → `rollout::decide` | `EventStore` → `adapter-postgres` | A retry with the same key returns the same rollout ([record 45](../decisions/register.md)) |
+| 3 | The call is accepted idempotently on (Project, fragment digest), and the token is exchanged for a rollout token | `service-app::Deploy` → `rollout::decide` | `EventStore` → `adapter-postgres` | A retry with the same key returns the same rollout ([record 23](../decisions/0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md)) |
 | 4 | The fragment is fetched and every image digest checked as registered by this Project | `service-app` | `Registry` → `adapter-ghcr` | `Unavailable` retries with backoff inside the adapter; a digest not registered is a refusal event |
 | 5 | The composition queue coalesces triggers and runs one composition | `rollout` (queue policy) and `service-app` (driver) | `JobStore` → `adapter-postgres` | The queue row survives a restart; after it, the writer re-observes and decides again ([record 73](../decisions/0073-the-composition-queue-is-a-row-in-a-postgres-job-table.md)) |
 | 6 | Every admitted Project's fragment is composed in-process, on a blocking thread, under a budget and a deadline | `compiler::compose` → `step-*`, `render-*`, `serialize` | `ClusterStateSource` → `adapter-kube` for the snapshot | A refused fragment is isolated and the others compose; a panic fails this composition only ([record 18](../decisions/0018-the-service-links-the-compiler.md)) |
@@ -32,11 +32,15 @@ call the `compiler` crate.
 1. An Operator signed in to the UI (rust-commons' sign-in kit; group claims map
    to roles in Platform Intent) presses Roll back. `http-api` checks the route's
    authorization row.
-2. `service-app::Rollback` reads the last Serving render from the event log,
-   dry-runs it (`adapter-kube`), moves the tag back (`adapter-ghcr`) and writes
-   the Project's Pause object (`adapter-kube`). It signs nothing new, so it
-   works with Vault down ([record 61](../decisions/register.md)).
-3. If that dry-run fails, it composes again from step 5 above.
+2. `service-app::Rollback` takes the writer Lease (`adapter-kube`), finds the
+   last Serving render from the registry (`adapter-ghcr`), not from Postgres or
+   the event log, and dry-runs it (`adapter-kube`). It moves the tag back by
+   read, verify, write and re-reads it (`adapter-ghcr`, with the token from the
+   mounted Secret), then writes the Project's Pause object (`adapter-kube`). It
+   signs nothing and reads nothing from Vault or Postgres, so it works with
+   Vault down ([record 28](../decisions/0028-pause-and-rollback-are-a-cluster-object-per-project.md)).
+3. If that dry-run fails, it composes again from step 5 above, which is a
+   Deploy and waits for Vault.
 
 ## A host rollout
 

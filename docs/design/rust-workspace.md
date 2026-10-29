@@ -224,7 +224,7 @@ that is not on this list needs a reason in its pull request.
 | Decider | The Rollout and the host applier | `decide(&State, Command) -> Result<Vec<Event>, Refusal>` and `evolve(State, &Event) -> State`, both pure; the shell loads, decides, appends, acts |
 | Functional core, imperative shell | Reconcilers: host applier, mail provisioner, secret job | Observe, decide (pure), act, one step per tick; a crash is followed by a fresh observation and a new decision |
 | Anticorruption layer | Each adapter | Outside errors become the port's few errors (`NotFound`, `Conflict`, `Unavailable`); no `kube::Error` or `sqlx::Error` crosses a port |
-| Upcaster | Rollout events | Each event type has a version; old versions are lifted on read, never rewritten ([record 49](../decisions/register.md)) |
+| Upcaster | Rollout events | Each event type has a version; old versions are lifted on read once a second version exists, and events are never rewritten ([record 23](../decisions/0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md)) |
 | Table-driven registry | Invariants and refusal codes | A `static` table of named entries, so a test can walk every code and demand its fixture |
 | Tower layer | Cross-cutting HTTP work | Authentication, the Principal, timeouts, tracing, problem+json; never in a handler |
 | Router that demands a policy | Authorization | A route is added only with its authorization row; there is no unauthenticated default (blueshell's secure-by-default rule, typed) |

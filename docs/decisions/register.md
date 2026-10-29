@@ -14,7 +14,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 6 | Every render is a function of pinned inputs | Accepted |
 | 7 | A Project's state lives with the Project | Accepted |
 | 8 | [An image's digest is sealed into the Intent Fragment, and its build registered it](0008-an-image-digest-is-sealed-into-the-fragment-and-registered-by-its-build.md) | Proposed |
-| 9 | The live render is a signed registry tag per Project and environment | Accepted |
+| 9 | [The live render is a signed registry tag per Project and environment](0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md) | Accepted |
 | 10 | Platform Intent admits the Projects | Accepted |
 | 11 | Platform Intent is pushed like any Project; the service's copies are a cache | Accepted |
 | 12 | Infrastructure Intent declares sites, nodes and maintenance windows | Accepted |
@@ -28,8 +28,8 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 20 | [No render cache: an unchanged render is not published again](0020-no-render-cache-an-unchanged-render-is-not-published-again.md) | Proposed |
 | 21 | [Renders and host tags are signed by separate Transit keys, with an offline recovery key](0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md) | Proposed |
 | 22 | [Every caller authenticates with an OIDC token checked against a claim policy](0022-every-caller-authenticates-with-an-oidc-token-checked-against-a-claim-policy.md) | Proposed |
-| 23 | A rollout is a deploy run that streams the service's work | Accepted |
-| 24 | [A rollout is an append-only event log on the shared Postgres](0024-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md) | Proposed |
+| 23 | [A rollout is an append-only event log on the shared Postgres](0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md) | Accepted |
+| 24 | A rollout is an append-only event log on the shared Postgres | Merged into 23 |
 | 25 | A dry-run must pass before anything is applied | Accepted |
 | 26 | Images are built once and promoted, so what dry-ran is what deploys | Accepted |
 | 27 | A diagnostic names a model path, and the caller resolves the line | Merged into 71 |
@@ -50,11 +50,11 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 42 | The shadow composition is inert | Merged into 67 |
 | 43 | The service API is an OpenAPI 3.1 contract | Accepted |
 | 44 | Errors are RFC 9457 problems drawn from one catalogue | Merged into 71 |
-| 45 | Deploy calls are idempotent on project and fragment digest; streams resume by sequence | Accepted |
+| 45 | Deploy calls are idempotent on project and fragment digest; streams resume by sequence | Merged into 23 |
 | 46 | IDs are UUIDv7, times RFC 3339 in UTC, and absent means unset | Accepted |
 | 47 | Schemas evolve additively within a major version, checked in CI | Accepted |
 | 48 | [The CLI's JSON output has a committed schema that the reusable workflows read](0048-the-cli-s-json-output-has-a-committed-schema.md) | Accepted |
-| 49 | Events are versioned and upcast on read, and hold no personal data | Accepted |
+| 49 | Events are versioned and upcast on read, and hold no personal data | Merged into 23 |
 | 50 | [The workspace is five bounded contexts in five layers, and a check holds the crate graph to both](0050-five-bounded-contexts.md) | Accepted |
 | 51 | History is kept 400 days; renders are kept by count, age and tag | Accepted |
 | 52 | Three service levels: deploy p95, availability, drift detection | Accepted |
@@ -66,8 +66,8 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 58 | [Flux is locked down per Project, and the service dry-runs as an identity that cannot write](0058-flux-is-locked-down-per-project-and-the-service-dry-runs-as-an-identity-that-cannot-write.md) | Proposed |
 | 59 | [Vault unseals itself through a cloud KMS](0059-vault-unseals-itself-through-a-cloud-kms.md) | Proposed |
 | 60 | [The API server's datastore is backed up off the provider, and its restore is drilled](0060-the-api-server-datastore-is-backed-up-off-the-provider-and-its-restore-is-drilled.md) | Proposed |
-| 61 | [A rollback moves the tag back to the last Serving render without composing](0061-a-rollback-moves-the-tag-back-to-the-last-serving-render-without-composing.md) | Proposed |
-| 62 | [ghcr tags move with a machine account's token kept in Vault](0062-ghcr-tags-move-with-a-machine-account-token-kept-in-vault.md) | Proposed |
+| 61 | A rollback moves the tag back to the last Serving render without composing | Merged into 28 |
+| 62 | ghcr tags move with a machine account's token kept in Vault | Merged into 9 |
 | 63 | [The service has one writer and reconciles from observed state](0063-the-service-has-one-writer-and-reconciles-from-observed-state.md) | Accepted |
 | 64 | [Renders use a canonical YAML style specified on one page](0064-renders-use-a-canonical-yaml-style-specified-on-one-page.md) | Proposed |
 | 65 | The workspace is layered by crate, and a check holds the crate graph to the layer table | Merged into 50 |
