@@ -28,7 +28,7 @@ crossing carries a verified identity.
 | Service to ghcr | Tampering: someone else moves a tag | Flux and the host appliers verify the signature; the tag is moved by a machine account's PAT kept in Vault, with write only on the render and host packages and a check that fails on any other grant (D3) |
 | Service to API | Elevation: the dry-run identity writes | A ValidatingAdmissionPolicy refuses every request from the service's identity unless `dryRun` is set (D4) |
 | Flux to API | Elevation: a signed render writes outside its Project | Flux lockdown; each Kustomization runs as its Project's service account in its target namespace; Pod Security and a digest-only image policy per Project (D4) |
-| Applier to cache | Tampering: a malicious closure | Nix signature checked against one trusted public key, whose private key is an environment-scoped secret limited to main with a reviewer (D10); the host tag is signed with the host key and binds the closure's store path |
+| Applier to cache | Tampering: a malicious closure | Nix signature checked against one trusted public key, whose private key is an environment-scoped secret limited to main with a reviewer (D10); the host tag is signed with the host signing key and binds the closure's store path |
 | Applier to API | Elevation: a node evicts other nodes' pods | Each node has its own credential, and a ValidatingAdmissionPolicy limits its evictions to pods whose `spec.nodeName` is its own node (D2); RBAC alone cannot |
 | Applier to API | Denial: a Lease held forever | The Lease has a time-to-live |
 | Break-glass | Elevation: a hand-made switch | Needs local root on the node and a signed generation |
