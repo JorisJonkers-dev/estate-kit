@@ -2,10 +2,8 @@
 # written (2026-10-29). Fix one and delete its line; the check fails on a line that no longer
 # occurs, so this list only shrinks. Tracked in #84 to #103.
 
-accepted-on-proposed 69 61
 cycle 17,18
 cycle 21,30,31
-cycle 28,61
 cycle 50,65
 no-file 1
 no-file 2
@@ -14,7 +12,6 @@ no-file 4
 no-file 5
 no-file 6
 no-file 7
-no-file 9
 no-file 10
 no-file 11
 no-file 12

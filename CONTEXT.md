@@ -60,7 +60,7 @@ The coordination Lease in the API server that the one service pod takes immediat
 _Avoid_: leader election, lock
 
 **Machine account**:
-The dedicated GitHub account whose classic token, kept in Vault, moves the `render/` and `host/` tags on ghcr. It has write access only on the render and host packages.
+The dedicated GitHub account whose classic token, synced from Vault into a Kubernetes Secret the service mounts, moves the `render/` and `host/` tags on ghcr. It has write access only on the render and host packages.
 _Avoid_: bot, service token
 
 **Composition**:

@@ -10,7 +10,7 @@ lessons: [DO-1]
 ## Context
 
 Flux is the one applier ([record 2](register.md)), and the live render is a
-signed registry tag per Project ([record 9](register.md)). Something must
+signed registry tag per Project ([record 9](0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md)). Something must
 compose the estate, dry-run it, sign each changed render and move its tag.
 Every program is Rust ([record 13](0013-every-program-is-rust.md)), and the
 service links the compiler ([record 18](0018-the-service-links-the-compiler.md)).

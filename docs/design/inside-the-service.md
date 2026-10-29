@@ -18,7 +18,7 @@ hand-written fake that passes the same contract suite as its adapter
 | `release-gate` | domain | The Release Gate's answer from a ClusterObservation; probing and warmup rules | None |
 | `service-app` | application | Deploy, DryRun, Plan, Pause, Resume, Rollback, Admit, Gate; the port traits and their fakes | None |
 | `adapter-github-oidc` | adapter | The CI token's claim policy | GitHub's OIDC discovery |
-| `adapter-ghcr` | adapter | Fragments, renders, tags, registered digests | ghcr, with a machine account's token from Vault |
+| `adapter-ghcr` | adapter | Fragments, renders, tags, registered digests | ghcr, with a machine account's token from a mounted Secret |
 | `adapter-vault` | adapter | Signs a render or host tag with its own Transit key | Vault Transit |
 | `adapter-kube` | adapter | Server-side dry-run as the service's own identity; Flux and Flagger status; the ClusterState snapshot; the writer Lease; the Pause object | API server, through kube-rs |
 | `adapter-github` | adapter | Deployment status, check runs | GitHub App |
