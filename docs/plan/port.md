@@ -26,7 +26,7 @@ One repository, `JorisJonkers-dev/estate-kit`, holds one Cargo workspace
 - the compiler, implementing deploy-kit's 1.0 specification, behind the
   `estate-kit` CLI that every Project's workflow runs for offline validation;
 - an in-cluster service that links the compiler, composes the estate,
-  dry-runs as its own identity, signs each changed render with the render key
+  dry-runs as its own identity, signs each changed render with the render signing key
   in Vault Transit, pushes it to ghcr, moves the Project's `render/<p>:prod`
   tag, and reports GitHub Deployment status to the Project's repository;
 - the Observation views the dashboard serves today, in the same binary;

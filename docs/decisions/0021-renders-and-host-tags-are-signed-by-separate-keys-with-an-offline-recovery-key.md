@@ -17,8 +17,8 @@ accept several public keys.
 
 ## Decision
 
-- **Two Transit keys.** The render key signs `render/<project>:prod` artifacts;
-  the host key signs `host/<node>:prod` tags. The service's Vault policy can use
+- **Two Transit keys.** The render signing key signs `render/<project>:prod`
+  artifacts; the host signing key signs `host/<node>:prod` tags. The service's Vault policy can use
   each only for its own signing path.
 - **An offline recovery key.** A hardware-held key, kept offline, is trusted by
   Flux and by every host applier beside the online key. It signs only in a
@@ -39,9 +39,9 @@ accept several public keys.
 
 ## Consequences
 
-- Easier: a leaked render key cannot touch hosts; losing Vault is survivable.
+- Easier: a leaked render signing key cannot touch hosts; losing Vault is survivable.
 - Harder: the recovery key needs a custody procedure and a yearly drill.
-- Forbidden: signing a host tag with the render key, or the reverse.
+- Forbidden: signing a host tag with the render signing key, or the reverse.
 
 ## Confirmation
 
