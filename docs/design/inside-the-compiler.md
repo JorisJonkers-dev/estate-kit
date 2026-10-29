@@ -85,9 +85,21 @@ specified on one page ([record 64](../decisions/register.md)).
 There is no render cache (review D9). A cache keyed by the input digest missed
 on every lockstep release, because the compiler version is part of the key. The
 render key stays as provenance: the hash of the fragment digest, the Platform
-Intent digest, the ClusterState digest and the compiler version. When a
+Intent digest, the ClusterState digest, the compiler version and the Surface
+declarations that Link reads from other Projects. When a
 render's digest equals the one already behind the Project's tag, the service
 publishes nothing and moves nothing. Inside one run, each fragment is parsed
 once.
 
 ![Sequence: skip publishing an unchanged render](../diagrams/png/seq-cache.png)
+
+### The two-Project fixture
+
+One fixture settles that the Surface facts belong in the render key. It has two
+Projects: a provider that declares a Surface, and a consumer whose Application
+depends on it. The test composes both, changes only the provider's Surface (its
+port), and composes again. The consumer's fragment, Platform Intent, ClusterState
+snapshot and compiler version are the same, yet its render key must change; a
+key built from those four alone would not. The provider's render key changes
+too. A second case changes a Surface that no Project consumes and asserts that
+every other Project's render key stays the same.

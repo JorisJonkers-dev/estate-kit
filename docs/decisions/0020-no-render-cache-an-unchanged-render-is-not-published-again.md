@@ -10,8 +10,8 @@ lessons: [CS-5]
 ## Context
 
 The first design looked each Project's render up in ghcr by a render key, the
-digest of its fragment, Platform Intent, the ClusterState snapshot and the
-compiler version. Because every part ships at one version, every estate-kit
+digest of its fragment, Platform Intent, the ClusterState snapshot, the
+compiler version and the Surface declarations it links from other Projects. Because every part ships at one version, every estate-kit
 release changes the compiler version in every key, so every lookup misses
 after a release; a hit costs a ghcr round trip per Project, while rendering one
 Project in memory takes milliseconds ([review](../research/review/README.md) D9,

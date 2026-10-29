@@ -12,7 +12,7 @@ wins and the page is what gets fixed. Diagrams come from
 | [Releasing a Project](releasing.md) | `validate` and `deploy`, the dry-run, use cases 1 to 4, sequences, rollout states, failure paths |
 | [Operating the estate](operating.md) | Use cases 5 to 9: pause, roll back, admit, apply, gate; Project states |
 | [Hosts](hosts.md) | Infrastructure Intent, host data, the host applier, node order, maintenance windows, use cases 10 to 12 |
-| [Mail and components](mail-and-components.md) | The three components, Mailboxes, use case 13 |
+| [Mail and components](mail-and-components.md) | The six components, Mailboxes, use case 13 |
 | [Identity and access](identity-and-access.md) | OIDC for every caller |
 | [Security](security.md) | Trust boundaries, STRIDE per boundary, the authorization matrix |
 | [Errors in CI](errors-in-ci.md) | How an error reaches its YAML line |
