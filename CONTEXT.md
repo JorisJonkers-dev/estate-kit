@@ -84,3 +84,9 @@ _Avoid_: reboot schedule, downtime window
 **Mailbox**:
 An email address an Application declares by its local part. The same local part declared twice within one Project names one shared Mailbox; across Projects it is refused.
 _Avoid_: email account, mail user
+
+## Code
+
+**Port**:
+A trait in an application crate that names one thing the core needs from an outside system, such as `Registry` or `Signer`. A port has one adapter crate, one hand-written fake and one contract suite. The `Ports` wiring bundle, whose associated types are ports, is not a port.
+_Avoid_: interface, service, driver
