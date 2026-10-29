@@ -79,6 +79,10 @@ _Avoid_: test deploy, rehearsal
 One entry in a rollout's append-only log; a rollout's state is the fold of its events.
 _Avoid_: status update, log line
 
+**Reconstructed event**:
+A Rollout event that reconciliation appended after a crash, marked as reconstructed and naming the observation it was inferred from. The service did not see it happen.
+_Avoid_: backfill, replayed event
+
 **Observation**:
 The context that shows what runs and how it is doing: units, pods, containers, alerts and silences, logs, health and checks. It reads, except that it creates and expires Alertmanager silences with a credential for that API alone. It holds no credential that can deploy, pause or roll back.
 _Avoid_: dashboard backend, monitoring
