@@ -26,8 +26,10 @@ HTTP exchanges for the Release Gate, the Reporter and the dashboard's API;
 inputs and outputs for the Collector, the jobs and the provisioner; the bytes
 of each output whose format is a contract (the migration proof, Vault policy
 text). Each fixture is labelled characterization, not independent (TM-1). The
-Rust program passes them before it replaces the old one, and they are deleted
-when the old program is archived. A behaviour the rewrite changes on purpose
+Rust program passes them before it replaces the old one. They are deleted when
+the old program is archived, but only after a written behaviour summary of the
+program is in the owning crate's docs, and the deletion's pull request is
+reviewed against that summary. A behaviour the rewrite changes on purpose
 is listed with its reason, never silently dropped.
 
 The dashboard's session cookie is not characterized: sessions are reset once at
@@ -53,4 +55,7 @@ the switch.
 
 Each component's and the service's CI runs its characterization fixtures; the
 archive checklist (#53) refuses a program with a failing fixture or an
-unlisted change.
+unlisted change, and refuses to delete a program's fixtures until the owning
+crate's docs hold its behaviour summary. The pull request that deletes the
+fixtures is reviewed against that summary: each behaviour it lists is covered
+by a Rust test or listed as an intended change.
