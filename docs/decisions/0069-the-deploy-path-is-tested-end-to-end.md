@@ -43,7 +43,7 @@ listed on [Testing and speed](../design/code-shape-and-speed.md#end-to-end).
 | --- | --- | --- |
 | Fakes and contract suites only | Integration across Flux, Flagger and Vault is never exercised | The failures the review feared live between the parts |
 | Run on every pull request | 15 minutes on every change | Over the 2-minute and 5-minute pull-request budgets |
-| Test against the production cluster | Tests can change what runs | The shadow is the only production-adjacent test, and it is inert ([record 42](register.md)) |
+| Test against the production cluster | Tests can change what runs | The shadow is the only production-adjacent test, and it is inert ([record 67](0067-the-compiler-is-written-to-the-1-0-contract.md)) |
 
 ## Consequences
 

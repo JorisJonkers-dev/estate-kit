@@ -11,7 +11,7 @@ The plan's parts are each sound: parity before rewrite, an inert shadow, charact
 
 - Port at parity, cut over, then rewrite keeps a change of language apart from a change of meaning, so a renders diff points to a porting bug, not a model decision (choices.md 'Rewrite and parity').
 - The subprocess seam (a directory in and out, plus result.json with its own schema and committed fixtures) is the right abstraction for a branch-by-abstraction swap: any implementation that honours it can sit behind the service.
-- The shadow is inert by construction: unsigned `shadow/<p>` tags that Flux never reads, and an admission check that refuses them (conventions.md, register [record 42](../../decisions/register.md)). This avoids Scientist's warning about side effects.
+- The shadow is inert by construction: unsigned `shadow/<p>` tags that Flux never reads, and an admission check that refuses them (conventions.md, register [record 67](../../decisions/0067-the-compiler-is-written-to-the-1-0-contract.md)). This avoids Scientist's warning about side effects.
 - Characterization tests before the Go services merge ([record 55](../../decisions/register.md)) protect delivery and estate-dashboard, the parts with no oracle files.
 - Oracles only at four seams, one hand-written fake per port, and no snapshot tests keep fixture churn low when output changes (code-shape-and-speed.md).
 - 'Locked' is mapped onto MADR's Confirmation section, not invented as a new status, and every must-always rule is backed by a check, not a sentence. This matches primary guidance for agent-legible repositories.
