@@ -77,6 +77,7 @@ never only a Ready condition (DO-4).
 | Coverage and mutation ratchet | The measured value, only rising | Every crate ([record 37](../decisions/register.md)) |
 | Lints | `clippy::pedantic`, `-D warnings`; `unsafe_code = "forbid"`; `unreachable_pub`; `missing_docs` on public items | Every crate |
 | Layers | `cargo xtask check-layers` | The crate graph ([record 65](../decisions/0065-the-workspace-is-layered-and-the-crate-graph-is-checked.md)) |
+| Ports | A grep-level script: each port trait has a `Fake<Port>` and a `<port>_contract` suite, found by name | The application crates ([record 68](../decisions/0068-every-fake-passes-its-port-s-contract-suite.md)) |
 | Supply chain | `cargo-deny` (advisories, licences, banned crates, one version of each), `cargo-machete`, gitleaks | The lockfile and the manifests |
 
 Unit and integration coverage are separate gates, so a unit suite that starts

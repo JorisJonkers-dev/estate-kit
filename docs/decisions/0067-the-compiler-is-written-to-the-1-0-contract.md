@@ -1,7 +1,7 @@
 ---
 status: accepted  # proposed | accepted | locked
 date: 2026-10-29
-rests-on: [3, 5, 6, 13, 16, 36]
+rests-on: [3, 5, 6, 13, 15, 68]
 lessons: [PR-3, TM-1, TM-2, MD-1, MD-5]
 ---
 
@@ -40,7 +40,7 @@ production until the switch.
    after it**, chapter by chapter. The specification, schemas, corpus and
    oracles move into estate-kit at the import and are the contract from then
    on. Nothing 1.0 refused is ported.
-2. **Language-neutral oracles are met exactly**: the corpus verdicts, every
+2. **Language-neutral oracles are met exactly**: the corpus verdicts and diagnostic sets, every
    refusal's code and path, and the expected models compared as parsed JSON.
 3. **Rendered files are met in structure, not in bytes.** A test parses each
    1.0 rendered oracle and the Rust output and diffs them object by object
@@ -52,7 +52,7 @@ production until the switch.
    this record cites it for that one rewrite and does not rest on it.
 4. **Oracles are never regenerated from an implementation.** This holds for
    the Rust compiler and for any further implementation, in any language: it
-   meets the same schemas, corpus verdicts, refusal codes and paths, expected
+   meets the same schemas, corpus verdicts and diagnostic sets, refusal codes and paths, expected
    models and rendered oracles, and nothing else (TM-1). No Rust-only
    expectation enters the oracles.
 5. **deploy-kit stops taking new concepts** once the Rust compiler meets every

@@ -39,12 +39,18 @@ one), which weakened the Go service's change safety.
 ## Decision
 
 Every program in estate-kit is Rust: the compiler and its CLI, the service, the
-host applier, and the three components (migration runner, secret job, mail
-provisioner). They live in one Cargo workspace, at one version, laid out in the
+host applier, and the six components (migration runner, secret grant, database
+catalog, bucket catalog, backup and mail provisioner). They live in one Cargo workspace, at one version, laid out in the
 layers of [record 65](0065-the-workspace-is-layered-and-the-crate-graph-is-checked.md).
 The UI stays Vue; npm is confined to building its static assets, which the
-service embeds. No TypeScript, Go or Python runs in production or in a
-Project's CI. Python stays only for this repository's documentation checks.
+service embeds. Python stays only for this repository's documentation checks.
+
+The components are ported lazily, after the cutover. Each keeps running from
+delivery (or stalwart-provisioner, or liquibase-runner) until its rewrite is
+due, so the critical path is the compiler and the service. The ban on Go,
+TypeScript and Python in shipped images and in the reusable workflows a Project
+runs applies to a component from the moment its rewrite lands; until then its
+old image is the one that ships.
 
 How the code is shaped is on the design pages
 [The Rust workspace](../design/rust-workspace.md),
@@ -58,6 +64,7 @@ How the code is shaped is on the design pages
 | TypeScript compiler to 1.0, Go service, Rust later (review D1) | Three backend toolchains during the cutover; the compiler is ported later anyway | The maintainer is not keeping the TypeScript tool; the port happens once, to 1.0 |
 | Rust compiler, Go service and components | Two backend toolchains; a wire contract between two halves of one product; weak Go mutation tooling | One language gives one set of gates, one dependency audit, and lets the service link the compiler |
 | Go for everything | No sum types for a model of about 100 refusal codes; gremlins 0.x for mutation | Change safety is the scenario the review ranks highest after upkeep |
+| Port all six components before the cutover | Six rewrites on the critical path, ahead of the compiler and the service, for jobs that already work | The components do not block the cutover; each is ported when its rewrite is due |
 | Leptos or another Rust UI | The dashboard's Vue code is rewritten; WebAssembly tooling joins | The UI is not backend; Vue stays by the maintainer's choice |
 
 ## Consequences
@@ -69,12 +76,19 @@ How the code is shaped is on the design pages
   stalwart-provisioner is rewritten, so their behaviour is characterized first
   ([record 55](register.md)). YAML input and canonical output are bespoke code
   in a foundation crate.
-- Forbidden: a Go module, a Node runtime or a Python program in estate-kit's
-  shipped images or in the reusable workflows a Project runs.
+- Harder, for a time: until a component's rewrite lands, its imported Go or
+  Python tree and image stay in the estate, outside estate-kit's Rust gates.
+- Forbidden: a Go module, a Node runtime or a Python program in a shipped image
+  or a reusable workflow of a component that has been rewritten; a component's
+  old image kept after its rewrite replaces it.
 
 ## Confirmation
 
-`cargo xtask check-layers` fails on a workspace member that is not Rust, and
-the Hygiene job fails on a `go.mod`, a `package.json` outside `ui/`, or a
-`*.py` outside `scripts/` and `docs/`. Both are written with the workspace
-skeleton, each with a failing fixture.
+`cargo xtask check-layers` fails on a workspace member that is not Rust. The
+Hygiene job fails on a Go module, a Node runtime or a Python program in an
+image estate-kit ships or in a reusable workflow, for each component that is
+listed as rewritten, and on a component that is listed as rewritten while its
+old image is still built. Imported trees that are not yet rewritten are outside
+that scope, and the Hygiene job reads the list of rewritten components from one
+committed file. Both checks are written with the workspace skeleton, each with
+a failing fixture.
