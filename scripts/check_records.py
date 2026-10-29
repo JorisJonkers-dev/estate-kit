@@ -130,9 +130,9 @@ def violations(decisions: Path, lessons_file: Path) -> list[Violation]:
                 f"front matter says {record.status or 'nothing'!r}, the register says {rows[number]!r}"))
         edges[number] = []
         for rest in record.rests_on:
-            target = int(rest)
+            target = int(rest) if rest.isdigit() else None
             if target not in rows:
-                found.append(Violation(f"unknown-rest {number} {target}", record.path, f"rests on {target}, which has no row"))
+                found.append(Violation(f"unknown-rest {number} {rest}", record.path, f"rests on {rest}, which has no row"))
                 continue
             edges[number].append(target)
             if record.status in ACCEPTED and rows[target] not in ACCEPTED:

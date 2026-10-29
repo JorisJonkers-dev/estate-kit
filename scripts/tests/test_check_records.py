@@ -96,6 +96,11 @@ class RestsOnFormsNoCycle(unittest.TestCase):
         tree.record(1, "proposed", rests_on="[7]")
         self.assertEqual(tree.keys(), ["unknown-rest 1 7"])
 
+    def test_a_rest_that_is_not_a_number_is_reported(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "proposed", rests_on="[0024-x]")
+        self.assertEqual(tree.keys(), ["unknown-rest 1 0024-x"])
+
     def test_a_cycle_is_reported_once_by_its_members(self) -> None:
         tree = Tree(self)
         tree.record(1, "proposed", rests_on="[3]")
