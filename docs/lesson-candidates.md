@@ -30,7 +30,7 @@ Candidate lessons drawn from deploy-kit, its course reports and presentations, i
 | TM-2 | Diff the parsed structure before comparing bytes or digests | Keep |
 | TM-3 | Four seams carry the suite, and no fifth is added | Keep |
 | TM-4 | Every gate has a negative fixture, and a new gate needs a real incident behind it | Keep |
-| TM-5 | Mutation testing at a 100 break score, run on the changed code per PR and on everything weekly | Keep |
+| TM-5 | Mutation testing at a 100 break score, run on the changed code on main and on everything weekly | Keep |
 | TM-6 | Hold rendered output to the target's own schemas and policies in-process, then dry-run against a real API server | Keep |
 | DO-1 | A Project owns every object it delivers, with nothing shared at estate scope unless it cannot be avoided | Keep |
 | DO-2 | Every object kind the compiler emits has a stated lifecycle on the substrate | Keep |
@@ -290,15 +290,15 @@ Close runners-up: **MS-5** (render the live estate and diff it from the start),
 - **Applies to estate-kit as**: testing and process. A rule ledger (id, enforcer, failing fixture) that starts small.
 - **Proposed**: keep. The "incident first" half is the new part.
 
-### TM-5. Mutation testing at a 100 break score, run on the changed code per PR and on everything weekly
-- **Lesson**: Mutation testing found weak tests that coverage did not. Keep the bar, but run only the changed code on a PR. Pin whole rendered objects rather than single fields. Treat an equivalent mutant as a sign the code should be rewritten.
+### TM-5. Mutation testing at a 100 break score, run on the changed code on main and on everything weekly
+- **Lesson**: Mutation testing found weak tests that coverage did not. Keep the bar, but run only the changed code, on main after a merge rather than on a PR, where a full run cost 9 to 18 minutes. Pin whole rendered objects rather than single fields. Treat an equivalent mutant as a sign the code should be rewritten.
 - **Evidence**:
   - WS line 121: #423's first push left 108 survivors. Then "every rendered object is now pinned whole, and Stryker kills all 204 mutants".
   - EOW progress log: #561 had 5 survivors, and #564 had 3 more.
   - CS line 385: touching a test file surfaces survivors in modules nobody edited, and #536 swapped `find` for `filter` to remove an equivalent mutant.
   - #373 story 61 and #368: a full run took 9 to 18 minutes per PR.
   - The coverage ratchet is `deploy-kit/docs/adr/architecture/0063-coverage-and-mutation-are-ratchets.md`.
-- **Applies to estate-kit as**: `cargo-mutants --in-diff` on every PR and a full weekly run, with the coverage ratchet. The Go service's domain package gets mutation testing too.
+- **Applies to estate-kit as**: `cargo-mutants --in-diff` on each push to main, never on a pull request, and a full weekly run, with the coverage ratchet.
 - **Proposed**: keep.
 
 ### TM-6. Hold rendered output to the target's own schemas and policies in-process, then dry-run against a real API server

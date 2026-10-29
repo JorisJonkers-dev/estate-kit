@@ -2,7 +2,7 @@
 status: proposed  # proposed | accepted | locked
 date: 2026-10-29
 rests-on: [17, 23, 45, 49]
-lessons: [DO-7]
+lessons: []
 ---
 
 # A rollout is an append-only event log on the shared Postgres

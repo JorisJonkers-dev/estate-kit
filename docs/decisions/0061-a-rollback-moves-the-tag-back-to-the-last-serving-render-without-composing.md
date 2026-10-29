@@ -2,7 +2,7 @@
 status: proposed  # proposed | accepted | locked
 date: 2026-10-29
 rests-on: [9, 25, 28]
-lessons: [DO-7]
+lessons: []
 ---
 
 # A rollback moves the tag back to the last Serving render without composing
