@@ -53,7 +53,8 @@ used has a Rust form that the compiler checks:
 **Abstract and concrete syntax.** The Rust types are the abstract syntax. The
 YAML is one concrete syntax. The committed JSON Schemas and their
 accept/refuse corpus are the language-neutral contract, and the types agree
-with them on the corpus, not by byte equality of a generated schema
+with them on the corpus, one-directionally and diagnostic by diagnostic, not by
+byte equality of a generated schema
 ([deploy-kit ADR 0088](https://github.com/JorisJonkers-dev/deploy-kit/blob/main/docs/adr/architecture/0088-the-committed-schemas-and-their-corpus-are-the-contract.md)).
 The Task 1 lesson stands: the model comes first and the syntaxes follow it
 (MD-2), and the output gets no third metamodel that restates the target's

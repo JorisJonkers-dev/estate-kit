@@ -62,8 +62,9 @@ place. Hashing is a trait, so no step reaches for ambient crypto.
 The committed JSON Schemas and their accept/refuse corpus are the contract
 ([deploy-kit ADR 0088](https://github.com/JorisJonkers-dev/deploy-kit/blob/main/docs/adr/architecture/0088-the-committed-schemas-and-their-corpus-are-the-contract.md)).
 The read step validates against the schemas; a corpus-agreement test runs
-every corpus document through the schema and through the typed conversion and
-requires the same verdict. No language generates its types from the schemas,
+every corpus document through the schema and through the typed conversion. The
+types must refuse everything the schema refuses and may refuse more, and the
+whole diagnostic set recorded for each document must match. No language generates its types from the schemas,
 and no test compares generated schema bytes. The service's routes are held to
 the committed OpenAPI document the same way, and the Vue client is generated
 from it.
