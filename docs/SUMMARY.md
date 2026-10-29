@@ -36,7 +36,7 @@
   - [20. No render cache](decisions/0020-no-render-cache-an-unchanged-render-is-not-published-again.md)
   - [21. Separate signing keys](decisions/0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md)
   - [22. OIDC callers and a claim policy](decisions/0022-every-caller-authenticates-with-an-oidc-token-checked-against-a-claim-policy.md)
-  - [24. The rollout event log](decisions/0024-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md)
+  - [23. The rollout event log](decisions/0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md)
   - [28. Pause and Rollback per Project](decisions/0028-pause-and-rollback-are-a-cluster-object-per-project.md)
   - [30. The host applier](decisions/0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md)
   - [31. Host closures and their cache](decisions/0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md)
