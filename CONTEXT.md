@@ -56,7 +56,7 @@ The service's answer to Flagger, from cluster state, for each member of a switch
 _Avoid_: gate controller, promotion check
 
 **Writer Lease**:
-The coordination Lease in the API server that the one service pod takes immediately before it signs a render or moves a tag, and checks it still holds before the move. It has a time-to-live.
+The coordination Lease in the API server that the one service pod takes immediately before it signs a render or moves a tag, and checks it still holds before the move. The move is read, verify, write: the tag is read again after the write, and a different value is a lost race, because ghcr has no compare-and-swap. It has a time-to-live.
 _Avoid_: leader election, lock
 
 **Machine account**:

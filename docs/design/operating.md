@@ -23,7 +23,7 @@ Flux keeps serving the current render.
 
 An Operator rolls a Project back. The fast path signs nothing and composes
 nothing ([review](../research/review/README.md) D7): the service dry-runs the last Serving render against today's
-cluster, moves `render/<p>:prod` back to it with compare-and-swap, and sets the
+cluster, moves `render/<p>:prod` back to it by read, verify, write under the writer Lease, and sets the
 Project to Paused, so no new release moves the tag until the Operator resumes.
 Only if that dry-run fails does the service re-compose at the earlier fragment
 and dispatch the deploy run in watch mode. Signatures are kept exactly as long
