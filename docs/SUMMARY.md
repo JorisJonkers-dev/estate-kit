@@ -33,6 +33,8 @@
   - [66. Transformations are plain Rust](decisions/0066-transformations-are-plain-rust.md)
   - [67. The compiler implements 1.0](decisions/0067-the-compiler-is-written-to-the-1-0-contract.md)
   - [68. Every fake passes its port's contract suite](decisions/0068-every-fake-passes-its-port-s-contract-suite.md)
+  - [69. The deploy path is tested end to end](decisions/0069-the-deploy-path-is-tested-end-to-end.md)
+  - [70. Shared Rust code moves to rust-commons on its third consumer](decisions/0070-shared-rust-code-moves-to-rust-commons-on-its-third-consumer.md)
   - [71. Every diagnostic names its locations](decisions/0071-every-diagnostic-names-its-locations-and-every-output-traces-to-its-source.md)
 - [Lesson candidates](lesson-candidates.md)
 - [Diagrams](diagrams/README.md)

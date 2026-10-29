@@ -74,6 +74,6 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 66 | [Transformations are plain Rust: typed steps, one trace, an invariant table, and no DSL](0066-transformations-are-plain-rust.md) | Proposed |
 | 67 | [The Rust compiler implements the 1.0 specification, and the shadow compares structure](0067-the-compiler-is-written-to-the-1-0-contract.md) | Proposed |
 | 68 | [Every port has one fake, and the fake passes the same contract suite as its adapter](0068-every-fake-passes-its-port-s-contract-suite.md) | Proposed |
-| 69 | The deploy path is tested end to end on a throwaway k3s cluster, nightly and before every release | Proposed |
-| 70 | Shared Rust code moves to rust-commons on its third consumer; the sign-in kit is the first | Proposed |
+| 69 | [The deploy path is tested end to end on a throwaway k3s cluster, nightly and before every release](0069-the-deploy-path-is-tested-end-to-end.md) | Proposed |
+| 70 | [Shared Rust code moves to rust-commons on its third consumer; the sign-in kit is the first](0070-shared-rust-code-moves-to-rust-commons-on-its-third-consumer.md) | Proposed |
 | 71 | [Every diagnostic names all its locations, and every rendered field traces back to its source](0071-every-diagnostic-names-its-locations-and-every-output-traces-to-its-source.md) | Proposed |
