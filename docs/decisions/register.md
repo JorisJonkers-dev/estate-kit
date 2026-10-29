@@ -2,7 +2,7 @@
 
 The records to be written, in reading order, with their current status. Each title becomes a file `NNNN-<slug>.md` here when written, from [the template](template.md). Records 42 onwards are placed into reading order when the register is written; the model's own records follow after the cutover.
 
-The [design review](../research/review/README.md) of 2026-10-22 changed or added the rows marked Proposed; they stay Proposed until their records are written and accepted ([#20](https://github.com/JorisJonkers-dev/estate-kit/issues/20)).
+The [design review](../research/review/README.md) of 2026-10-22 changed or added the rows marked Proposed; they stay Proposed until their records are written and accepted ([#20](https://github.com/JorisJonkers-dev/estate-kit/issues/20)). The move to an all-Rust workspace on 2026-10-29 changed rows 13 to 18, 48, 50 and 55 and added 65 to 70; the records already written are linked.
 
 | # | Record | Status |
 | --- | --- | --- |
@@ -18,12 +18,12 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 10 | Platform Intent admits the Projects | Accepted |
 | 11 | Platform Intent is pushed like any Project; the service's copies are a cache | Accepted |
 | 12 | Infrastructure Intent declares sites, nodes and maintenance windows | Accepted |
-| 13 | The compiler stays TypeScript until model 1.0, shipped as one binary | Proposed |
-| 14 | The compiler is a chain of steps, one module per step | Proposed |
-| 15 | Types are held to the committed schemas by a drift test | Proposed |
+| 13 | [Every program in estate-kit is Rust, in one Cargo workspace; only the UI is Vue](0013-every-program-is-rust.md) | Proposed |
+| 14 | The compiler is a chain of typed models, one crate per step | Proposed |
+| 15 | The Rust types agree with the committed schemas on their corpus | Proposed |
 | 16 | The committed JSON Schemas are the contract | Accepted |
-| 17 | The service runs in the cluster, in Go: it composes, and Flux applies | Accepted |
-| 18 | The service runs the compiler as a subprocess over a directory and a result file | Accepted |
+| 17 | The service runs in the cluster, in Rust: it composes, and Flux applies | Proposed |
+| 18 | [The service links the compiler's crates; the CLI's JSON output is for CI only](0018-the-service-links-the-compiler.md) | Proposed |
 | 19 | One composition runs at a time | Accepted |
 | 20 | No render cache: an unchanged render is not published again | Proposed |
 | 21 | Renders and host tags are signed by separate Transit keys, with an offline recovery key | Proposed |
@@ -53,14 +53,14 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 45 | Deploy calls are idempotent on project and fragment digest; streams resume by sequence | Accepted |
 | 46 | IDs are UUIDv7, times RFC 3339 in UTC, and absent means unset | Accepted |
 | 47 | Schemas evolve additively within a major version, checked in CI | Accepted |
-| 48 | The fields the service reads from result.json are committed fixtures that Rust CI verifies | Accepted |
+| 48 | The CLI's JSON output has a committed schema that the reusable workflows read | Proposed |
 | 49 | Events are versioned and upcast on read, and hold no personal data | Accepted |
-| 50 | Four bounded contexts, each boundary its own record | Accepted |
+| 50 | Five bounded contexts, each boundary its own record: compiler, service, observation, hosts, components | Proposed |
 | 51 | History is kept 400 days; renders are kept by count, age and tag | Accepted |
 | 52 | Three service levels: deploy p95, availability, drift detection | Accepted |
 | 53 | Traces go to Tempo and logs to Loki, keyed by rollout id | Accepted |
 | 54 | Every trust boundary has a threat table, and every route an authorization row | Accepted |
-| 55 | Go services are characterized before they are ported | Accepted |
+| 55 | Every Go and Python program is characterized before it is rewritten in Rust | Proposed |
 | 56 | Agent files are short, and what must always hold is a check | Accepted |
 | 57 | Configuration is flags, then environment, then file; secrets only by reference | Accepted |
 | 58 | Flux is locked down per Project, and the service dry-runs as an identity that cannot write | Proposed |
@@ -70,3 +70,9 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 62 | ghcr tags move with a machine account's token kept in Vault | Proposed |
 | 63 | The service has one writer and reconciles from observed state | Proposed |
 | 64 | Renders use a canonical YAML style specified on one page | Proposed |
+| 65 | [The workspace is layered by crate, and a check holds the crate graph to the layer table](0065-the-workspace-is-layered-and-the-crate-graph-is-checked.md) | Proposed |
+| 66 | [Transformations are plain Rust: typed steps, one trace, an invariant table, and no DSL](0066-transformations-are-plain-rust.md) | Proposed |
+| 67 | [The Rust compiler implements the 1.0 specification, and the shadow compares structure](0067-the-compiler-is-written-to-the-1-0-contract.md) | Proposed |
+| 68 | [Every port has one fake, and the fake passes the same contract suite as its adapter](0068-every-fake-passes-its-port-s-contract-suite.md) | Proposed |
+| 69 | The deploy path is tested end to end on a throwaway k3s cluster, nightly and before every release | Proposed |
+| 70 | Shared Rust code moves to rust-commons on its third consumer; the sign-in kit is the first | Proposed |
