@@ -1,6 +1,6 @@
 # Choices made
 
-Every choice settled in the design sessions of 2026-10-22, with what was rejected and why. A choice becomes binding when its record lands in this directory. Rows the [design review](../research/review/README.md) changed or added name its decision (D1 to D12). Rows marked *(2026-10-29)* follow the move to an all-Rust workspace and stay Proposed until their records are accepted.
+Every choice settled in the design sessions of 2026-10-22, with what was rejected and why. A choice becomes binding when its record lands in this directory. Rows the [design review](../research/review/README.md) changed or added name its decision (D1 to D12). Rows marked *(2026-10-29)* follow the move to an all-Rust workspace. They are binding where their record is accepted ([13](0013-every-program-is-rust.md), [18](0018-the-service-links-the-compiler.md), and 65 to 71 in the [register](register.md)); the rest stay Proposed with their records.
 
 | Topic | Chosen | Rejected | Why |
 | --- | --- | --- | --- |

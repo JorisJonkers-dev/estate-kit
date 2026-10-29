@@ -2,7 +2,7 @@
 
 The records to be written, in reading order, with their current status. Each title becomes a file `NNNN-<slug>.md` here when written, from [the template](template.md). Records 42 onwards are placed into reading order when the register is written; the model's own records follow after the cutover.
 
-The [design review](../research/review/README.md) of 2026-10-22 changed or added the rows marked Proposed; they stay Proposed until their records are written and accepted ([#20](https://github.com/JorisJonkers-dev/estate-kit/issues/20)). The move to an all-Rust workspace on 2026-10-29 changed rows 13 to 18, 48, 50 and 55 and added 65 to 71; the records already written are linked.
+The [design review](../research/review/README.md) of 2026-10-22 changed or added the rows marked Proposed; they stay Proposed until their records are written and accepted ([#20](https://github.com/JorisJonkers-dev/estate-kit/issues/20)). The move to an all-Rust workspace on 2026-10-29 changed rows 13 to 18, 48, 50 and 55 and added 65 to 71; the records already written are linked. The maintainer accepted 13, 18 and 65 to 71 the same day.
 
 | # | Record | Status |
 | --- | --- | --- |
@@ -18,12 +18,12 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 10 | Platform Intent admits the Projects | Accepted |
 | 11 | Platform Intent is pushed like any Project; the service's copies are a cache | Accepted |
 | 12 | Infrastructure Intent declares sites, nodes and maintenance windows | Accepted |
-| 13 | [Every program in estate-kit is Rust, in one Cargo workspace; only the UI is Vue](0013-every-program-is-rust.md) | Proposed |
+| 13 | [Every program in estate-kit is Rust, in one Cargo workspace; only the UI is Vue](0013-every-program-is-rust.md) | Accepted |
 | 14 | The compiler is a chain of typed models, one crate per step | Proposed |
 | 15 | The Rust types agree with the committed schemas on their corpus | Proposed |
 | 16 | The committed JSON Schemas are the contract | Accepted |
 | 17 | The service runs in the cluster, in Rust: it composes, and Flux applies | Proposed |
-| 18 | [The service links the compiler's crates; the CLI's JSON output is for CI only](0018-the-service-links-the-compiler.md) | Proposed |
+| 18 | [The service links the compiler's crates; the CLI's JSON output is for CI only](0018-the-service-links-the-compiler.md) | Accepted |
 | 19 | One composition runs at a time | Accepted |
 | 20 | No render cache: an unchanged render is not published again | Proposed |
 | 21 | Renders and host tags are signed by separate Transit keys, with an offline recovery key | Proposed |
@@ -70,10 +70,10 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 62 | ghcr tags move with a machine account's token kept in Vault | Proposed |
 | 63 | The service has one writer and reconciles from observed state | Proposed |
 | 64 | Renders use a canonical YAML style specified on one page | Proposed |
-| 65 | [The workspace is layered by crate, and a check holds the crate graph to the layer table](0065-the-workspace-is-layered-and-the-crate-graph-is-checked.md) | Proposed |
-| 66 | [Transformations are plain Rust: typed steps, one trace, an invariant table, and no DSL](0066-transformations-are-plain-rust.md) | Proposed |
-| 67 | [The Rust compiler implements the 1.0 specification, and the shadow compares structure](0067-the-compiler-is-written-to-the-1-0-contract.md) | Proposed |
-| 68 | [Every port has one fake, and the fake passes the same contract suite as its adapter](0068-every-fake-passes-its-port-s-contract-suite.md) | Proposed |
-| 69 | [The deploy path is tested end to end on a throwaway k3s cluster, nightly and before every release](0069-the-deploy-path-is-tested-end-to-end.md) | Proposed |
-| 70 | [Shared Rust code moves to rust-commons on its third consumer; the sign-in kit is the first](0070-shared-rust-code-moves-to-rust-commons-on-its-third-consumer.md) | Proposed |
-| 71 | [Every diagnostic names all its locations, and every rendered field traces back to its source](0071-every-diagnostic-names-its-locations-and-every-output-traces-to-its-source.md) | Proposed |
+| 65 | [The workspace is layered by crate, and a check holds the crate graph to the layer table](0065-the-workspace-is-layered-and-the-crate-graph-is-checked.md) | Accepted |
+| 66 | [Transformations are plain Rust: typed steps, one trace, an invariant table, and no DSL](0066-transformations-are-plain-rust.md) | Accepted |
+| 67 | [The Rust compiler implements the 1.0 specification, and the shadow compares structure](0067-the-compiler-is-written-to-the-1-0-contract.md) | Accepted |
+| 68 | [Every port has one fake, and the fake passes the same contract suite as its adapter](0068-every-fake-passes-its-port-s-contract-suite.md) | Accepted |
+| 69 | [The deploy path is tested end to end on a throwaway k3s cluster, nightly and before every release](0069-the-deploy-path-is-tested-end-to-end.md) | Accepted |
+| 70 | [Shared Rust code moves to rust-commons on its third consumer; the sign-in kit is the first](0070-shared-rust-code-moves-to-rust-commons-on-its-third-consumer.md) | Accepted |
+| 71 | [Every diagnostic names all its locations, and every rendered field traces back to its source](0071-every-diagnostic-names-its-locations-and-every-output-traces-to-its-source.md) | Accepted |
