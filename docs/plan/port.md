@@ -29,7 +29,7 @@ One repository, `JorisJonkers-dev/estate-kit`, holds one Cargo workspace
   dry-runs as its own identity, signs each changed render with the render signing key
   in Vault Transit, pushes it to ghcr, moves the Project's `render/<p>:prod`
   tag, and reports GitHub Deployment status to the Project's repository;
-- the Observation views the dashboard serves today, in the same binary;
+- the Observation views the dashboard serves today, in their own binary;
 - a host applier on each NixOS node that pulls its signed `host/<node>:prod`
   tag and switches one node at a time;
 - six components: migration runner, secret grant, database catalog, bucket

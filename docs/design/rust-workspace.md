@@ -15,7 +15,7 @@ compiler's inside, and [Testing and speed](code-shape-and-speed.md) the gates.
 | Adapters build a narrow object model, never upstream client types | [deploy-kit ADR 0058](https://github.com/JorisJonkers-dev/deploy-kit/blob/main/docs/adr/architecture/0058-every-step-links-through-one-trace.md) | `deliverable` declares only the fields the estate sets; `k8s-openapi` is not a dependency |
 | Errors are coded diagnostics in a list; panics are compiler bugs | [deploy-kit ADR 0059](https://github.com/JorisJonkers-dev/deploy-kit/blob/main/docs/adr/architecture/0059-failures-are-a-diagnostic-list.md) | `diagnostics` foundation crate |
 | No env, clock, randomness, process or file system inside a step | [deploy-kit ADR 0061](https://github.com/JorisJonkers-dev/deploy-kit/blob/main/docs/adr/architecture/0061-the-process-lives-in-one-boundary-file.md) | clippy `disallowed-methods` per layer |
-| Layer and reachability rules live on the module graph, with negative fixtures | [deploy-kit ADR 0060](https://github.com/JorisJonkers-dev/deploy-kit/blob/main/docs/adr/architecture/0060-boundaries-enforced-on-the-graph.md) | `cargo xtask check-layers` ([record 65](../decisions/0065-the-workspace-is-layered-and-the-crate-graph-is-checked.md)) |
+| Layer and reachability rules live on the module graph, with negative fixtures | [deploy-kit ADR 0060](https://github.com/JorisJonkers-dev/deploy-kit/blob/main/docs/adr/architecture/0060-boundaries-enforced-on-the-graph.md) | `cargo xtask check-layers` ([record 50](../decisions/0050-five-bounded-contexts.md)) |
 | A rule that matches nothing passes silently | blueshell's ArchUnit "controllers do not call services" never fired | Every rule ships with a fixture that must fail |
 | Map by hand at boundaries; mapping libraries were removed | [blueshell API ADR-004](https://github.com/ESA-Blueshell/website/blob/main/docs/adr/api/ADR-004-manual-mapping-at-api-boundaries.md) | `From` and `TryFrom` impls, written out |
 | No command bus; one use case per command | [blueshell API ADR-002](https://github.com/ESA-Blueshell/website/blob/main/docs/adr/api/ADR-002-command-pattern-with-command-bus.md), translated | One function or struct per use case; cross-cutting work is a tower layer |
@@ -37,7 +37,7 @@ The inventory of 2026-10-29, counted on each repository's `main`:
 | delivery vault-policy | 0.7k | Component: `secret-grant` |
 | delivery postgres-catalog, garage-catalog | 0.4k each: roles, databases, buckets, keys, grants | Components: `database-catalog`, `bucket-catalog` |
 | delivery backup, offcluster | 0.9k: generations, a consistent SQLite copy, age encryption, S3 upload | Component: `backup` |
-| estate-dashboard API (Go) and Vue UI | 6k Go hand-written, 12.7k TypeScript and Vue | Observation context for the read views; the Vue UI stays in `ui/` |
+| estate-dashboard API (Go) and Vue UI | 6k Go hand-written, 12.7k TypeScript and Vue | Observation context for the read views, its own binary; the Vue UI stays in `ui/`, served by that binary |
 | stalwart-provisioner (Python, jq, sh) | 0.6k plus 0.3k shell | Component: `mailbox` |
 | liquibase-runner (Go around the Liquibase JVM) | 1.3k | Component: `migration-run`; the Liquibase JVM and squawk stay in its image |
 
@@ -49,18 +49,22 @@ system, change what differs, never delete what it does not own. So a
 ## Bounded contexts
 
 The four earlier contexts stay and a fifth is added
-([record 50](../decisions/0050-five-bounded-contexts.md)): **Observation**, the read side the dashboard serves today. Its one write is
-Alertmanager silences, with a credential for that API alone ([record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)). It holds
+([record 50](../decisions/0050-five-bounded-contexts.md)): **Observation**, the read side the dashboard serves today. It ships as its own binary and
+Deployment with its own read-only adapters, and holds no Vault, ghcr or signing
+credential. Its one write is Alertmanager silences, with a credential for that
+API alone ([record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)). It holds
 no credential that can deploy, pause or roll back, as estate-dashboard holds
-none now; keeping it out of the Service context keeps the rollout core free
-of Prometheus, Loki and Alertmanager. A Project is the aggregate root in the
+none now; keeping it out of the Service's process keeps the rollout core free
+of Prometheus, Loki and Alertmanager, and keeps the service's credentials out
+of the read code. The allowed context edges are not decided on this page:
+`crates/layers.toml` holds them and `check-layers` reads that file. A Project is the aggregate root in the
 compiler; a Rollout is the aggregate root in the service.
 
 | Context | Owns | Aggregate roots | Talks to others through |
 | --- | --- | --- | --- |
 | Compiler | The model: Intent in, Resolved Deployment, Deliverable Set out | Project; the Estate is the set of admitted Projects | Its application crate's use cases (`validate`, `plan`, `compose`, `render_hosts`, `generate`) |
 | Service | Rollouts, compositions, admission, Pause and Rollback, the Release Gate (with its Job unsuspend and per-Application record, under the writer Lease: [record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)) | Rollout (event-sourced); Composition | The compiler's use cases, called in-process ([record 18](../decisions/0018-the-service-links-the-compiler.md)) |
-| Observation | What runs and how it is doing: units, pods, containers, alerts and silences, logs, health, checks | None: read models only, and Silences as its one write | Ports onto Prometheus, Loki, Alertmanager, Gatus and the cluster; rollout history from the Service's event log |
+| Observation | What runs and how it is doing: units, pods, containers, alerts and silences, logs, health, checks | None: read models only, and Silences as its one write | Ports onto Prometheus, Loki, Alertmanager, Gatus and the cluster; rollout history from the Service's API |
 | Hosts | Generations and their rollout across nodes | NodeRollout | Signed host tags only; never a model type |
 | Components | Migrations, secret grants, database and bucket catalogs, backups, Mailboxes | One per component: MigrationRun, SecretGrant, DatabaseGrant, BucketGrant, BackupGeneration, Mailbox | Rendered objects only |
 
@@ -73,13 +77,13 @@ The context map, with the result.json edge replaced by an in-process call:
 | Compiler | Service | Customer and supplier | `compiler::CompositionResult` and `Diagnostic` |
 | Compiler | Hosts | Anticorruption layer | Host data (Nix attribute sets), via signed host tags |
 | Compiler | Components | Published language | The rendered objects' committed schemas |
-| Service | Observation | Published language | Rollout events, read through a query port |
+| Service | Observation | Published language | Rollout events, read from the Service's HTTP API (the OpenAPI document), not its event store |
 | identity | Service, Observation | Conformist | rust-commons' `Principal` |
 
 ## Layers
 
 Each crate is in one context and one layer
-([record 65](../decisions/0065-the-workspace-is-layered-and-the-crate-graph-is-checked.md)).
+([record 50](../decisions/0050-five-bounded-contexts.md)).
 Dependencies point inward and downward only.
 
 ![The workspace's layers](../diagrams/png/rust-layers.png)
@@ -144,10 +148,12 @@ crates/
     http-api/                 axum routes from the OpenAPI document, SSE, problem+json
   observation/
     observation-app/          application: the dashboard's read models and their ports
-    adapter-prometheus/       health and rollout metrics
-    adapter-loki/             logs and streams
-    adapter-alertmanager/     alerts, history, silences
-    adapter-gatus/            checks
+    adapter-prometheus/       health and rollout metrics (read only)
+    adapter-loki/             logs and streams (read only)
+    adapter-alertmanager/     alerts and history, read; Silences, the one write, under its own credential
+    adapter-gatus/            checks (read only)
+    adapter-observation-kube/ read-only watches of units, pods and containers, with its own service account; the service's adapter-kube is not wired to this context
+    adapter-service-api/      rollout history and events, read from the Service's HTTP API
   hosts/
     host-rollout/             domain: node order, the reboot decision, the applier state machine
     host-applier-app/         application: one reconcile step over six ports
@@ -170,7 +176,8 @@ crates/
     adapter-components-kube/  watching the rendered objects
 bins/
   estate-kit/                 the CLI: validate, plan, compose, render-hosts, generate, migrate
-  estate-kit-service/         the service and the Observation views, with the embedded UI
+  estate-kit-service/         the service: Rollouts, compositions, admission, the Release Gate; the Vault, ghcr and signing adapters
+  estate-kit-observation/     Observation, its own Deployment: read-only adapters only, no Vault, ghcr or signing credential; serves the embedded UI
   estate-kit-host-applier/
   secret-grant/ database-catalog/ bucket-catalog/ backup/ mail-provisioner/ migration-runner/
                               one binary and one image per component, so each carries only its own adapters

@@ -22,7 +22,7 @@ handles it. If a step below names no crate, the design has a gap.
 | 11 | The service watches Kustomization, OCIRepository and Canary status and appends rollout events | `service-app` → `rollout::evolve` | `Cluster`, `EventStore` | A stalled rollout times out into a Held event |
 | 12 | The deploy job streams events over SSE and resumes by sequence after a drop | `http-api` | `EventStore` | At-least-once; the client drops duplicates |
 | 13 | GitHub Deployment status follows each stage (the Reporter today) | `service-app` projection | `GitHub` → `adapter-github` | Idempotent upserts; a failed update is retried from the event log |
-| 14 | The UI shows the rollout beside pods, alerts, logs and checks | `observation-app` | `adapter-prometheus`, `-loki`, `-alertmanager`, `-gatus`, `-kube` | A down source greys out its panel; it never blocks a deploy (DO-7) |
+| 14 | The UI shows the rollout beside pods, alerts, logs and checks. Observation's binary serves the UI and reads; the browser calls the service's API for Pause and Rollback | `observation-app` in `bins/estate-kit-observation` | `adapter-prometheus`, `-loki`, `-alertmanager`, `-gatus`, `-observation-kube`, `-service-api` | A down source greys out its panel; it never blocks a deploy (DO-7) |
 
 Steps 1 to 6 run the same compiler code in CI and in the service, because both
 call the `compiler` crate.

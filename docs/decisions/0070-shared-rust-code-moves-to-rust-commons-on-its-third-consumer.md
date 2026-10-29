@@ -1,7 +1,7 @@
 ---
 status: accepted  # proposed | accepted | locked
 date: 2026-10-29
-rests-on: [13, 65]
+rests-on: [13, 50]
 lessons: [CS-2]
 ---
 
@@ -38,7 +38,7 @@ testcontainers harness, which no other Rust service needs yet.
 | --- | --- | --- |
 | A commons crate for configuration, telemetry and test harnesses now | An interface designed for one consumer | The estate's third-use rule |
 | The sign-in kit inside estate-kit | Every later Rust UI copies or depends on estate-kit | The kit has a contract outside estate-kit: identity's suite |
-| Keep rust-commons one crate with features | Features unify across a workspace, so consumers compile more than they use | The compile-time reason for small crates ([record 65](0065-the-workspace-is-layered-and-the-crate-graph-is-checked.md)) |
+| Keep rust-commons one crate with features | Features unify across a workspace, so consumers compile more than they use | The compile-time reason for small crates ([record 50](0050-five-bounded-contexts.md)) |
 
 ## Consequences
 
