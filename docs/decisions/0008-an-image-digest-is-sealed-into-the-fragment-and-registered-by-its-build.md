@@ -1,7 +1,7 @@
 ---
 status: proposed  # proposed | accepted | locked
 date: 2026-10-29
-rests-on: [6, 10, 17, 26]
+rests-on: [6, 10, 17, 25]
 lessons: [CS-5, DR-1, DR-2, TM-4]
 ---
 
@@ -18,7 +18,7 @@ would sign a render that ran it (D8). Image digests used to live in
 `images.lock.yml` in the estate repository, apart from the Projects they belong
 to, and a render must name every image by digest to be a function of pinned
 inputs ([record 6](register.md)). Images are built once and promoted
-([record 26](register.md)).
+([record 25](0025-a-dry-run-must-pass-before-anything-is-applied-and-what-dry-ran-is-what-deploys.md)).
 
 A deploy job also waits on a rollout that can outlast a GitHub OIDC token, and
 the service can restart under it (Recreate,

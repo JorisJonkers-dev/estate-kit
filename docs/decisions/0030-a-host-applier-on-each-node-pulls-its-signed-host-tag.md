@@ -1,7 +1,7 @@
 ---
 status: proposed  # proposed | accepted | locked
-date: 2026-10-29
-rests-on: [12, 13, 21, 29, 32]
+date: 2026-10-30
+rests-on: [12, 13, 21, 31]
 lessons: [DR-1, DR-2]
 ---
 
@@ -30,6 +30,11 @@ boot assessment, and only one node runs the control plane.
   reboots; pods leave through the Eviction API so PodDisruptionBudgets hold.
   Each node has its own credential, and a ValidatingAdmissionPolicy limits its
   evictions to its own node.
+- **Node order is derived, not listed.** It follows from the change: a k3s
+  version change goes control plane first, then one canary worker, then the
+  rest; an OS-only change goes canary, workers, control plane last. A check
+  refuses any target that breaks the Kubernetes version skew policy. The page
+  gives the rules: [Order of nodes](../design/hosts.md#order-of-nodes).
 - **Fall back by bootloader**: GRUB's saved default on the VPS, boot counting
   with systemd-boot, a documented reflash on the Raspberry Pis. Spike #15
   settles each.
@@ -54,5 +59,5 @@ The page is [Hosts](../design/hosts.md).
 ## Confirmation
 
 A NixOS VM test per node class runs the applier through a live change and a
-reboot change; a fixture asserts the eviction policy refuses another node's
+reboot change; a node-order check refuses a target that breaks the version skew policy; a fixture asserts the eviction policy refuses another node's
 pods.

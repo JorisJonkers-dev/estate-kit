@@ -2,8 +2,6 @@
 # written (2026-10-29). Fix one and delete its line; the check fails on a line that no longer
 # occurs, so this list only shrinks. Tracked in #84 to #103.
 
-cycle 17,18
-cycle 21,30,31
 no-file 1
 no-file 2
 no-file 3
@@ -11,21 +9,3 @@ no-file 4
 no-file 5
 no-file 6
 no-file 7
-no-file 10
-no-file 11
-no-file 25
-no-file 26
-no-file 29
-no-file 32
-no-file 34
-no-file 38
-no-file 39
-no-file 40
-no-file 41
-no-file 46
-no-file 47
-no-file 51
-no-file 52
-no-file 53
-no-file 56
-no-file 57
