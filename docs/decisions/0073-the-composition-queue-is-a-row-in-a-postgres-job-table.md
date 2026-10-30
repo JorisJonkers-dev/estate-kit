@@ -50,9 +50,9 @@ requires. No new datastore and no message broker is added.
 
 ## Confirmation
 
-- A service test against the `JobStore` fake and, in the adapter's contract
+- The **Job queue tests**: a service test against the `JobStore` fake and, in the adapter's contract
   suite, against a real Postgres, asserts that two triggers during one
   composition produce one queued row.
-- An e2e scenario kills the service mid-composition and asserts that the
+- A scenario of the **E2E scenarios** kills the service mid-composition and asserts that the
   restarted service finds the claimed row, observes, and either finishes or
   queues it again ([record 69](0069-the-deploy-path-is-tested-end-to-end.md)).

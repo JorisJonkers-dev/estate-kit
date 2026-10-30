@@ -47,8 +47,9 @@ committed file and on [conventions](../design/conventions.md), not here.
 
 ## Confirmation
 
-- A contract test checks the axum routes and their request and response types
+- The **OpenAPI route contract test** checks the axum routes and their request and response types
   against the committed document, and fails on a route not in it.
-- An OpenAPI lint runs in CI, including the cursor-pagination rule.
-- A test checks that every catalogue code has an entry and a fixture, and that
-  each UI stub validates against the document.
+- The **OpenAPI lint** runs in CI, including the cursor-pagination rule.
+- The **Error catalogue test** checks that every catalogue code has an entry and
+  a fixture, and the **UI stub validation** that each UI stub validates against
+  the document.

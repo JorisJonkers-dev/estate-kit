@@ -52,8 +52,8 @@ with it ([How Platform Intent arrives](../design/where-state-lives.md#how-platfo
 
 ## Confirmation
 
-The deploy path's tests refuse a Project absent from Platform Intent. The
-nightly drift check reports any difference between the cached copy and the
-registry's, and the end-to-end suite
-([record 69](0069-the-deploy-path-is-tested-end-to-end.md)) pushes Platform
+The **Platform Intent admission test** refuses a Project absent from Platform
+Intent. The **Platform Intent drift check** reports any difference between the
+cached copy and the registry's, and the **E2E scenarios**
+([record 69](0069-the-deploy-path-is-tested-end-to-end.md)) push Platform
 Intent through the same workflow as a Project.

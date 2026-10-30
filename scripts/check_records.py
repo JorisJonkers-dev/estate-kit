@@ -7,8 +7,10 @@ exists and was kept in curation; and every Accepted row has a file. Locked count
 A row "Merged into N" has no file, nothing rests on it, and N is a row that is not merged itself.
 A row "Moved to [page](link)" is retired: its rule lives on that page, so it has no file, is not
 Accepted, and nothing rests on it.
+Every record file has a non-empty Confirmation, and each check it names, in bold, is a row of the
+checks table on the design page (the first column of the table under "## The checks").
 
-    check_records.py [--decisions DIR] [--lessons FILE]
+    check_records.py [--decisions DIR] [--lessons FILE] [--checks FILE]
 """
 
 from __future__ import annotations
@@ -24,6 +26,7 @@ RECORD_FILE = re.compile(r"^(\d{4})-.+\.md$")
 ACCEPTED = {"accepted", "locked"}
 MERGED = re.compile(r"^merged into (\d+)$")
 MOVED = re.compile(r"^moved to \[")
+CHECK_NAME = re.compile(r"\*\*([^*]+)\*\*")
 
 
 @dataclass(frozen=True)
@@ -104,7 +107,33 @@ def cycles(edges: dict[int, list[int]]) -> list[list[int]]:
     return sorted(found)
 
 
-def violations(decisions: Path, lessons_file: Path) -> list[Violation]:
+def confirmation(text: str) -> str:
+    """The body of the `## Confirmation` section, up to the next `## ` heading; empty when absent."""
+    body: list[str] = []
+    inside = False
+    for line in text.splitlines():
+        if line.startswith("## "):
+            if inside:
+                break
+            inside = line.strip() == "## Confirmation"
+        elif inside:
+            body.append(line)
+    return "\n".join(body).strip()
+
+
+def check_names(page: Path) -> set[str] | None:
+    """The first column of the table under `## The checks`, backticks stripped; None without one."""
+    names: set[str] | None = None
+    inside = False
+    for line in page.read_text(encoding="utf-8").splitlines():
+        if line.startswith("## "):
+            inside = line.strip() == "## The checks"
+        elif inside and line.startswith("| ") and not line.startswith(("| Check ", "| ---")):
+            names = (names or set()) | {line.split("|")[1].strip().strip("`")}
+    return names
+
+
+def violations(decisions: Path, lessons_file: Path, checks_page: Path) -> list[Violation]:
     register = decisions / "register.md"
     rows = {}
     for line in register.read_text(encoding="utf-8").splitlines():
@@ -123,6 +152,9 @@ def violations(decisions: Path, lessons_file: Path) -> list[Violation]:
             records[record.number] = record
 
     found = []
+    known = check_names(checks_page)
+    if known is None:
+        found.append(Violation("no-checks-table", checks_page, "the page has no table of checks under '## The checks'"))
     edges: dict[int, list[int]] = {}
     for number, record in sorted(records.items()):
         if number not in rows:
@@ -139,6 +171,15 @@ def violations(decisions: Path, lessons_file: Path) -> list[Violation]:
             found.append(Violation(
                 f"status {number}", record.path,
                 f"front matter says {record.status or 'nothing'!r}, the register says {rows[number]!r}"))
+        text = record.path.read_text(encoding="utf-8")
+        body = confirmation(text)
+        if not body:
+            found.append(Violation(f"no-confirmation {number}", record.path, "has no Confirmation, or an empty one"))
+        for name in dict.fromkeys(" ".join(m.group(1).split()).strip("`") for m in CHECK_NAME.finditer(body)):
+            if known is not None and name not in known:
+                found.append(Violation(
+                    f"unknown-check {number} {name}", record.path,
+                    f"the Confirmation names {name!r}, which is not in the table of checks"))
         edges[number] = []
         for rest in record.rests_on:
             if not rest.isdigit() or int(rest) not in rows:
@@ -182,9 +223,10 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check the decision records keep the register's rules.")
     parser.add_argument("--decisions", type=Path, default=Path("docs/decisions"))
     parser.add_argument("--lessons", type=Path, default=Path("docs/lesson-candidates.md"))
+    parser.add_argument("--checks", type=Path, default=Path("docs/design/code-shape-and-speed.md"))
     args = parser.parse_args(argv)
 
-    found = violations(args.decisions, args.lessons)
+    found = violations(args.decisions, args.lessons, args.checks)
     for violation in found:
         print(f"::error file={violation.path}::{violation.message} [{violation.key}]")
     if found:

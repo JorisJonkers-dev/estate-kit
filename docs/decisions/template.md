@@ -31,3 +31,10 @@ What becomes easier, what becomes harder, and what is now forbidden.
 The check that fails when this decision is broken: a schema validation, a
 contract test, an architecture rule or a lint, with its path. A record without
 a Confirmation cannot be Locked.
+
+Write each check by its name in bold, exactly as the first column of
+[the table of checks](../design/code-shape-and-speed.md#the-checks) spells it,
+and add a row there for a new check. The Records job fails on a bold name that
+is not a row, and on an empty Confirmation. Do not claim an existing job does
+what it does not: name the check that will, and the workstream issue that
+builds it is in its row.

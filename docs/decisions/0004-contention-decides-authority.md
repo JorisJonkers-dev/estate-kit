@@ -52,6 +52,6 @@ exactly one owner.
 ## Confirmation
 
 Each contended value has a negative fixture in the corpus that fires its
-contention diagnostic, and the authority table on the Resolved Deployment page
+contention diagnostic (the **Contention fixtures**), and the authority table on the Resolved Deployment page
 cites, for every row, which half of the rule placed it. A row without that
 citation fails the review of the schema change.

@@ -57,5 +57,5 @@ listed on [Testing and speed](../design/code-shape-and-speed.md#end-to-end).
 
 ## Confirmation
 
-The release workflow requires the e2e job's success on the release commit, and
-the suite's own test fails if a use case in the scenario list has no scenario.
+The **Release e2e requirement**: the release workflow requires the e2e job's
+success on the release commit. The **Scenario-list test**, the suite's own test, fails if a use case in the scenario list has no scenario.

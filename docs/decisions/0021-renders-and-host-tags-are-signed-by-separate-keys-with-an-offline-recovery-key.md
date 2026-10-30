@@ -53,7 +53,8 @@ any workflow could read it. How the closures are built and cached is
 
 ## Confirmation
 
-The signature contract test signs with each key and verifies with the pinned
-Flux and the host verifier; a test asserts each verifier rejects the other
-key's signatures. The signing workflow fails without its environment, and a
-test asserts nodes reject a closure signed by any other key.
+The **Signature contract test** signs with each key and verifies with the pinned
+Flux and the host verifier, and asserts each verifier rejects the other
+key's signatures. The **Signing environment check** fails the signing workflow
+without its environment, and the **Closure signature test** asserts nodes
+reject a closure signed by any other key.

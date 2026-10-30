@@ -50,8 +50,10 @@ rewritten, not excluded, and the number of exclusions is held at zero.
 ## Confirmation
 
 - The workflow that runs mutation triggers on `push` to main and `schedule`,
-  never on `pull_request`; a workflow lint fails on any other trigger.
-- A ratchet step compares each crate's coverage and mutation score with the
+  never on `pull_request`; the **Mutation trigger lint** fails on any other
+  trigger.
+- The **Ratchet step** compares each crate's coverage and mutation score with the
   committed baseline and fails on a drop; a negative fixture lowers a baseline
   and expects the failure.
-- The count of exclusions in `.cargo/mutants.toml` is checked against zero.
+- The **Mutation exclusion count** checks the exclusions in
+  `.cargo/mutants.toml` against zero.

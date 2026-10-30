@@ -69,12 +69,13 @@ workflows and the GitHub annotations read it. The service does not read it.
 
 ## Confirmation
 
-`cargo xtask check-layers` and cargo-deny bans refuse a dependency from any
-compiler crate on `tokio`, `reqwest` or any adapter crate, and clippy's
-`disallowed-methods` refuses `std::env`, `std::fs` and `SystemTime::now` in
-them. Three service tests each fail one Composition and assert that the next
+**`cargo xtask check-layers`** and the **Compiler dependency bans** (cargo-deny
+bans, and clippy's `disallowed-methods`) refuse a dependency from any compiler
+crate on `tokio`, `reqwest` or any adapter crate, and refuse `std::env`,
+`std::fs` and `SystemTime::now` in them. The **Composition budget tests** are
+three service tests that each fail one Composition and assert that the next
 one succeeds: a looping input (the step budget trips), an oversized input (the
 memory cap trips) and a transformation that panics. The first two assert the
 budget refusal code, its document location and a 4xx problem; the third
-asserts an internal problem. A check refuses a release profile without
+asserts an internal problem. The **Release profile check** refuses a release profile without
 `panic = "unwind"`.

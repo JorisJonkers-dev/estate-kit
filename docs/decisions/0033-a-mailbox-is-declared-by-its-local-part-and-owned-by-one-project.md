@@ -50,7 +50,7 @@ needs its own record.
 
 ## Confirmation
 
-- A compiler fixture declares one local part in two Projects and expects the
+- The **Mailbox fixtures**: a compiler fixture declares one local part in two Projects and expects the
   contention diagnostic with both locations; a second fixture declares it twice
   in one Project and expects one Mailbox.
 - A render test pins the Mailbox custom resource whole, in the declaring

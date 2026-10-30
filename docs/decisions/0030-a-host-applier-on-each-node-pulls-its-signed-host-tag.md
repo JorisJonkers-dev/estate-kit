@@ -61,6 +61,7 @@ The page is [Hosts](../design/hosts.md).
 
 ## Confirmation
 
-A NixOS VM test per node class runs the applier through a live change and a
-reboot change; a node-order check refuses a target that breaks the version skew policy; a fixture asserts the eviction policy refuses another node's
-pods.
+The **Host VM tests**, one NixOS VM test per node class, run the applier
+through a live change and a reboot change; the **Node-order check** refuses a
+target that breaks the version skew policy; the **Eviction fixture** asserts the
+eviction policy refuses another node's pods.

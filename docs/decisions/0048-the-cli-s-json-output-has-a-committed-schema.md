@@ -54,7 +54,8 @@ is one of those contracts and follows the same rule.
 
 ## Confirmation
 
-CI runs the CLI over every example and refusal fixture and validates its JSON
-output against the committed schema. The schema-evolution check classifies
+The **CLI schema fixtures** run the CLI over every example and refusal fixture
+and validate its JSON output against the committed schema. The **Schema
+evolution check** classifies
 every change to every committed schema against the last release and fails when
 the version bump disagrees.

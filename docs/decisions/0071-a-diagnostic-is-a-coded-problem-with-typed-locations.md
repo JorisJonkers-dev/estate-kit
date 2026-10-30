@@ -94,8 +94,8 @@ pinned links across repositories) are on
 
 ## Confirmation
 
-- A refusal fixture for every cross-Project code asserts the primary and the
+- The **Diagnostic fixtures**: a refusal fixture for every cross-Project code asserts the primary and the
   related locations, each with its code and path.
 - A negative fixture per code asserts exactly that code at exactly that path.
-- A test resolves a model path to a line at a pinned commit and fails if a
+- The **Location resolution test** resolves a model path to a line at a pinned commit and fails if a
   fragment carries a position.

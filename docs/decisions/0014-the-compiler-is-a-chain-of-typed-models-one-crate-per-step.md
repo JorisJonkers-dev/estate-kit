@@ -96,9 +96,9 @@ engine, proc macro or DSL.
 
 ## Confirmation
 
-`cargo xtask check-layers` fails on a dependency between two step crates, with
-a failing fixture. A compile-fail test in each step crate fails when the next
-phase can be built without the producing step's token. The trace-completeness
-test fails on a Deliverable without a source or an authored element that
-produced nothing. The invariant-table test fails on a catalogue code without
+**`cargo xtask check-layers`** fails on a dependency between two step crates,
+with a failing fixture. The **Typestate compile-fail tests**, one in each step
+crate, fail when the next phase can be built without the producing step's
+token. The **Trace-completeness test** fails on a Deliverable without a source
+or an authored element that produced nothing. The **Invariant table test** fails on a catalogue code without
 an invariant or a negative fixture.

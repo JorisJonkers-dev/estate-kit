@@ -47,5 +47,5 @@ It is the Rust binary `estate-kit-service`, built from the crates on
 
 The ValidatingAdmissionPolicy that refuses the service's writes without
 `dryRun` has a refusing fixture and one allowing fixture for each of its two
-exemptions ([record 58](0058-flux-is-locked-down-per-project-and-the-service-dry-runs-as-an-identity-that-cannot-write.md)), and the e2e suite asserts that an object
+exemptions (the **Dry-run admission fixtures**) ([record 58](0058-flux-is-locked-down-per-project-and-the-service-dry-runs-as-an-identity-that-cannot-write.md)), and the **E2E scenarios** assert that an object
 reaches the cluster only through Flux.

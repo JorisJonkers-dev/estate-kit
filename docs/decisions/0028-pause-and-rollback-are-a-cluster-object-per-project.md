@@ -70,7 +70,7 @@ service, Vault and GitHub all being down.
 
 ## Confirmation
 
-A service test deletes the object and asserts the next deploy is refused as
-Paused; an admission policy fixture refuses a write from any other identity. An
-end-to-end scenario seals Vault and rolls a Project back to Serving
+The **Pause refusal test** deletes the object and asserts the next deploy is
+refused as Paused; the **ProjectControl admission fixtures** refuse a write from
+any other identity. A scenario of the **E2E scenarios** seals Vault and rolls a Project back to Serving
 ([record 69](0069-the-deploy-path-is-tested-end-to-end.md)).

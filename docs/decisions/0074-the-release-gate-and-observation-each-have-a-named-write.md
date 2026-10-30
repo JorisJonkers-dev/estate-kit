@@ -59,8 +59,8 @@ mirror of Silences lives in its own Postgres schema and nothing else reads it.
 
 ## Confirmation
 
-Not yet Lockable. A check is proposed: an RBAC fixture per context that fails
-when a credential grants a verb or resource outside the table, run by the
+Not yet Lockable. A check is proposed: the **RBAC fixtures**, one per context, fail
+when a credential grants a verb or resource outside the table, and run in the
 end-to-end suite ([record 69](0069-the-deploy-path-is-tested-end-to-end.md)),
-and the characterization fixtures for the gate's writes and the dashboard's
+and the **Characterization fixtures** for the gate's writes and the dashboard's
 silences ([record 55](0055-every-go-and-python-program-is-characterized-before-it-is-rewritten.md)).

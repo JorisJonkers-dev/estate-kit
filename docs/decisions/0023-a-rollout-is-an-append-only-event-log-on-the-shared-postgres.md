@@ -80,7 +80,8 @@ cluster and the registry.
 
 ## Confirmation
 
-Each is a test against a real Postgres.
+Each is one of the **Event-log tests**, run against a real Postgres, except
+the lint.
 
 - The unique (rollout id, sequence) key refuses a duplicate append.
 - The service's database role cannot `UPDATE` or `DELETE` the events table.
@@ -88,7 +89,7 @@ Each is a test against a real Postgres.
   no other grant on the table; the two roles are distinct.
 - A repeated deploy call with the same Project and fragment digest returns the
   same rollout, and a stream resumed from a sequence yields only later events.
-- Every stored event has a version, and a lint refuses a payload field that
+- Every stored event has a version, and the **Event payload lint** refuses a payload field that
   names a person.
 - An event appended by reconciliation is stored marked reconstructed with its
   source observation; one appended by a live step is not.

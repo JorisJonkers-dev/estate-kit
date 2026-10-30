@@ -48,6 +48,6 @@ the binary cache's signing key can sign root code for every node
 
 ## Confirmation
 
-A check regenerates the host data and fails when a committed file differs from
+The **Host-data regeneration check** regenerates the host data and fails when a committed file differs from
 the compiler's output. The cache key's checks are in
 [record 21](0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md).

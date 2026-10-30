@@ -99,7 +99,7 @@ level.
 
 ## Confirmation
 
-`cargo xtask check-layers` reads `cargo metadata` and `crates/layers.toml` and
+**`cargo xtask check-layers`** reads `cargo metadata` and `crates/layers.toml` and
 fails on any edge the file does not allow, including an edge between contexts
 and any dependency of Observation's binary on a Vault, ghcr or signing adapter.
 It runs in the Lint job. Its test suite holds one failing fixture workspace per

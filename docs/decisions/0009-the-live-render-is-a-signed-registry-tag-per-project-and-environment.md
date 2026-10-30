@@ -60,7 +60,8 @@ half of this record is rewritten.
 
 ## Confirmation
 
-The grant check fails on an extra package; the rotation job alerts when the
-token is older than its schedule. The end-to-end registry requires the token,
-so a tag move that needs Vault fails the Rollback-with-Vault-sealed scenario
+The **Token grant check** fails on an extra package; the **Token rotation
+alert** fires when the token is older than its schedule. The end-to-end registry
+requires the token, so a tag move that needs Vault fails the
+Rollback-with-Vault-sealed scenario of the **E2E scenarios**
 ([record 69](0069-the-deploy-path-is-tested-end-to-end.md)).
