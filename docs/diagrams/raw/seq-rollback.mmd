@@ -10,7 +10,8 @@ sequenceDiagram
     S->>K: dry-run the last Serving render
     alt dry-run accepted
         K-->>S: accepted
-        S->>O: move the prod tag back (compare-and-swap)
+        S->>K: take the writer Lease
+        S->>O: read the prod tag, verify it, move it back, read it again
         S->>K: set the Project to Paused
         S-->>Op: rolled back, Paused
     else dry-run rejected

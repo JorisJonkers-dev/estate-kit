@@ -13,8 +13,10 @@ sequenceDiagram
     S->>K: apply, dryRun=All, as the dry-run identity
     alt dry-run accepted
         K-->>S: accepted
-        S->>V: sign with the render key
-        S->>O: push, move the prod tag (compare-and-swap)
+        S->>V: sign with the render signing key
+        S->>O: push the render
+        S->>K: take the writer Lease
+        S->>O: read the prod tag, verify it, write, read it again
     else dry-run rejected
         K-->>S: rejected
         Note right of S: Project isolated, prod tag unchanged

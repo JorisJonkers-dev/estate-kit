@@ -32,10 +32,10 @@ sequenceDiagram
         Q->>E: append Refused, with the diagnostics
     else the dry-run is clean
         opt the render's digest differs from the tag's
-            Q->>V: sign the digest with the render key
+            Q->>V: sign the digest with the render signing key
             Q->>G: push the render
             Q->>K: take the writer Lease
-            Q->>G: move render/#lt#59;p#gt#59;:prod by compare-and-swap
+            Q->>G: read render/#lt#59;p#gt#59;:prod, verify it, write, read it again
         end
         Q->>E: append Published or Unchanged
     end
