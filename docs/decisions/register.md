@@ -26,7 +26,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 18 | [The service links the compiler's crates; the CLI's JSON output is for CI only](0018-the-service-links-the-compiler.md) | Accepted |
 | 19 | One composition runs at a time | Merged into 63 |
 | 20 | [No render cache: an unchanged render is not published again](0020-no-render-cache-an-unchanged-render-is-not-published-again.md) | Proposed |
-| 21 | [Renders and host tags are signed by separate Transit keys, with an offline recovery key](0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md) | Proposed |
+| 21 | [Signing keys: renders and host tags by separate Transit keys, closures by an environment-scoped key, and an offline recovery key](0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md) | Proposed |
 | 22 | Every caller authenticates with an OIDC token checked against a claim policy | Merged into 8 |
 | 23 | [A rollout is an append-only event log on the shared Postgres](0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md) | Accepted |
 | 24 | A rollout is an append-only event log on the shared Postgres | Merged into 23 |
@@ -34,10 +34,10 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 26 | Images are built once and promoted, so what dry-ran is what deploys | Accepted |
 | 27 | A diagnostic names a model path, and the caller resolves the line | Merged into 71 |
 | 28 | [Pause and Rollback are a cluster object per Project; a missing object reads as Paused](0028-pause-and-rollback-are-a-cluster-object-per-project.md) | Proposed |
-| 29 | The compiler renders host data; hand-written modules consume it | Accepted |
+| 29 | The compiler renders host data; hand-written modules consume it | Merged into 31 |
 | 30 | [A host applier on each node pulls its signed host tag, and decides a reboot before the Lease](0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md) | Proposed |
-| 31 | [Host closures are built in CI and cached outside the cluster, signed by an environment-scoped key](0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md) | Proposed |
-| 32 | Node order is derived from the change and the version skew rule | Accepted |
+| 31 | [Host data is rendered by the compiler for hand-written modules, and host closures are built in CI and cached outside the cluster](0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md) | Proposed |
+| 32 | Node order is derived from the change and the version skew rule | Merged into 30 |
 | 33 | A Mailbox is declared by its local part and owned by one Project | Accepted |
 | 34 | Components live in this repository at one version | Accepted |
 | 35 | A further implementation, if one is ever written, meets the first at the language-neutral oracles | Merged into 67 |
@@ -64,8 +64,8 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 56 | Agent files are short, and what must always hold is a check | Moved to [conventions](../design/conventions.md#agent-files) |
 | 57 | Configuration is flags, then environment, then file; secrets only by reference | Moved to [conventions](../design/conventions.md#configuration) |
 | 58 | [Flux is locked down per Project, and the service dry-runs as an identity that cannot write](0058-flux-is-locked-down-per-project-and-the-service-dry-runs-as-an-identity-that-cannot-write.md) | Proposed |
-| 59 | [Vault unseals itself through a cloud KMS](0059-vault-unseals-itself-through-a-cloud-kms.md) | Proposed |
-| 60 | [The API server's datastore is backed up off the provider, and its restore is drilled](0060-the-api-server-datastore-is-backed-up-off-the-provider-and-its-restore-is-drilled.md) | Proposed |
+| 59 | [Vault unseal and the API server's datastore backup are decided in fleet-infra; estate-kit assumes them](0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md) | Proposed |
+| 60 | The API server's datastore is backed up off the provider, and its restore is drilled | Merged into 59 |
 | 61 | A rollback moves the tag back to the last Serving render without composing | Merged into 28 |
 | 62 | ghcr tags move with a machine account's token kept in Vault | Merged into 9 |
 | 63 | [The service has one writer and reconciles from observed state](0063-the-service-has-one-writer-and-reconciles-from-observed-state.md) | Accepted |

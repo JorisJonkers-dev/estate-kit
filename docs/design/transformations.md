@@ -198,7 +198,7 @@ identifier" (CS-1).
 | Queries in templates | None; renderers read finished values only |
 | `[file(path)]` blocks | `Deliverable { path, owner, kind, sources }`, planned by `step-resolve`; `serialize` checks that each path lies inside its owner's directory, not only that paths are unique |
 | `[trace]` blocks | The `Trace`: each Deliverable keeps the model paths of the elements it came from, written to the CLI's JSON output (see [Traceability in both directions](#traceability-in-both-directions)). Per-field provenance and `estate-kit explain` are deferred ([record 72](../decisions/0072-per-field-provenance-and-explain-are-deferred.md)) |
-| `[protected]` areas | None. Generated files are never hand-edited; generated host data and hand-written Nix modules are separate files ([record 29](../decisions/register.md)) |
+| `[protected]` areas | None. Generated files are never hand-edited; generated host data and hand-written Nix modules are separate files ([record 31](../decisions/0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md)) |
 | Text templates | None for Kubernetes or host data. Renderers build objects of the narrow `deliverable` model, and one canonical emitter writes the bytes. `generate` (App Roles in five languages) is the one text output, and its templates take a prepared view struct with no logic |
 
 The `deliverable` model declares only the fields the estate sets. Upstream

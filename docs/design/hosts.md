@@ -30,7 +30,8 @@ still work when the cluster is down.
 
 CI builds and signs every node's closure into an off-cluster binary cache and
 runs the VM tests. The cache's signing key is an environment-scoped secret,
-limited to main with a reviewer (D10). Then the service moves the host tags,
+limited to main with a reviewer
+([record 21](../decisions/0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md)). Then the service moves the host tags,
 signed with the host key; each tag binds its closure's store path. Each applier
 fetches and verifies its closure first, which disrupts nothing. Only the switch
 and the reboot are serialised, under a cluster-wide Lease, with pods leaving
@@ -61,7 +62,8 @@ An unhealthy node returns to its previous generation and halts the rollout.
 
 ## Order of nodes
 
-The order is derived from what the rollout changes:
+The order is derived from what the rollout changes
+([record 30](../decisions/0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md)):
 
 - **The k3s version changes:** the control plane first, inside its window, then
   one canary worker, then the remaining workers. A minor bump on the control
@@ -85,7 +87,9 @@ reboots, inside its window, the API pauses: workloads keep serving, but Flux,
 Flagger and the service wait. Its k3s datastore is one SQLite file; a timer
 copies a backup of it, with the server token, off the provider, and a restore
 runbook rebuilt on nixos-anywhere has been drilled in a VM (D5). Vault on the
-same node unseals itself through a cloud KMS (D6). Moving to three servers is a
+same node unseals itself through a cloud KMS (D6). Both are decided in
+[fleet-infra](https://github.com/JorisJonkers-dev/fleet-infra) and assumed here
+([record 59](../decisions/0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md)). Moving to three servers is a
 separate decision.
 
 ## When the cluster is down
