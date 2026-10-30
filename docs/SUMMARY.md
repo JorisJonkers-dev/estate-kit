@@ -51,7 +51,6 @@
   - [67. The compiler implements 1.0](decisions/0067-the-compiler-is-written-to-the-1-0-contract.md)
   - [68. One concept per module, one fake per port, oracles only at the seams](decisions/0068-every-fake-passes-its-port-s-contract-suite.md)
   - [69. The deploy path is tested end to end](decisions/0069-the-deploy-path-is-tested-end-to-end.md)
-  - [70. Shared Rust code moves to rust-commons on its third consumer](decisions/0070-shared-rust-code-moves-to-rust-commons-on-its-third-consumer.md)
   - [71. A diagnostic is a coded problem with typed locations](decisions/0071-a-diagnostic-is-a-coded-problem-with-typed-locations.md)
   - [72. Per-field provenance and explain are deferred](decisions/0072-per-field-provenance-and-explain-are-deferred.md)
   - [73. The composition queue is a Postgres row](decisions/0073-the-composition-queue-is-a-row-in-a-postgres-job-table.md)

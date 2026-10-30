@@ -9,8 +9,8 @@ follow [MADR](https://adr.github.io/madr/); start from
 [`template.md`](template.md).
 
 The Records job holds these rules, and that a record's status agrees with its
-register row and that every Accepted row has a file
-(`scripts/check_records.py`). Violations the register had when the check was
+register row, that every Accepted row has a file, and that a Merged or Moved
+row has none and nothing rests on it (`scripts/check_records.py`). Violations the register had when the check was
 written are listed in `scripts/check_records_known.txt`; that list only
 shrinks.
 
@@ -22,6 +22,7 @@ shrinks.
 | Accepted | Decided. Code follows it. |
 | Locked | Accepted, and its Confirmation section names a check that fails when the decision is broken. Only the maintainer may change it. |
 | Merged into N | Folded into record N, which now holds the decision. The number is never reused, and nothing rests on it. |
+| Moved to page | Retired as a record: the page named in the row holds the rule. The number is never reused, nothing rests on it, and it has no file. |
 
 A record changes status in its own pull request. A record that is Locked
 without a working check is a defect.
@@ -32,3 +33,16 @@ The founding records are written once the candidate lessons are curated. The
 planned list of records and their status is [`register.md`](register.md), and
 every choice behind them is in [`choices.md`](choices.md). The model's own records (engines, grants, exposure and
 the rest) are rewritten after the cutover and take the numbers that follow.
+
+## How records are kept
+
+- **Decisions live as Markdown in `docs/`**, and a Pages site is built from it,
+  so pull-request review and CI checks apply to every decision. A wiki as the
+  source, or both edited, were rejected.
+- **Records are read in order and cite their lessons.** A brand-new set in
+  reading order, so the records read as one story; an imported register was
+  rejected.
+- **A record has a status.** Proposed, Accepted or Locked: a Locked record is an
+  Accepted one whose Confirmation names a failing check, so agents stop and ask
+  instead of working around it. Accepted only was rejected; readers should see
+  the lock while tooling still parses the record.
