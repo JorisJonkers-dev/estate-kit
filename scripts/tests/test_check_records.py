@@ -191,6 +191,30 @@ class MergedRows(unittest.TestCase):
         self.assertEqual(tree.keys(), ["merged-target 1", "merged-target 2"])
 
 
+class MovedRows(unittest.TestCase):
+    PAGE = "Moved to [the conventions](../design/conventions.md#ids)"
+
+    def test_a_moved_row_needs_no_file_and_is_not_accepted(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        tree.row(2, self.PAGE)
+        self.assertEqual(tree.keys(), [])
+
+    def test_a_moved_row_that_keeps_its_file_is_reported(self) -> None:
+        tree = Tree(self)
+        tree.row(1, self.PAGE)
+        tree.file(1, "---\nstatus: accepted\n---\n")
+        self.assertEqual(tree.keys(), ["moved-file 1"])
+
+    def test_a_rest_on_a_moved_row_is_reported(self) -> None:
+        tree = Tree(self)
+        tree.row(1, self.PAGE)
+        tree.record(2, "accepted", rests_on="[1]")
+        found = violations(tree.decisions, tree.lessons)
+        self.assertEqual([v.key for v in found], ["rests-on-moved 2 1"])
+        self.assertIn("cite the page", found[0].message)
+
+
 class TheKnownListOnlyShrinks(unittest.TestCase):
     def setUp(self) -> None:
         self.tree = Tree(self)
