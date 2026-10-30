@@ -78,7 +78,7 @@ A rustdoc-based check is built only when the number of ports justifies it.
 
 ## Confirmation
 
-A grep-level script, run in the Lint job, lists every trait in an application
+The **Port contract script**, a grep-level script run in the Lint job, lists every trait in an application
 crate that is a port (every public trait except the `Ports` bundle) and fails
 when it finds no `Fake<Port>` or no `<port>_contract` for one, or when the
 suite is not called from both the fake's tests and an adapter crate's

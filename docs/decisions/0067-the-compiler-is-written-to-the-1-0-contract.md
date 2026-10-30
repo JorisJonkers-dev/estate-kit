@@ -98,12 +98,12 @@ production until the switch.
 
 ## Confirmation
 
-`oracles/parity` fails when a refusal's code or path differs, when an expected
+**Oracle parity** (`oracles/parity`) fails when a refusal's code or path differs, when an expected
 model differs as JSON, or when a rendered object differs in structure. The
-shadow's comparison job fails on a difference missing from
+**Shadow comparison** fails on a difference missing from
 `shadow/expected-differences.yaml`, on a ledger entry no difference uses, and
 on an entry whose cause is outside the closed set
 ([#50](https://github.com/JorisJonkers-dev/estate-kit/issues/50)). The
-oracle check refuses an oracle file changed in the same pull request as the
+**Oracle change check** refuses an oracle file changed in the same pull request as the
 code it tests, unless the pull request is labelled as an oracle review. The
-admission check refuses a shadow-prefixed source in any Flux object.
+**Shadow admission check** refuses a shadow-prefixed source in any Flux object.

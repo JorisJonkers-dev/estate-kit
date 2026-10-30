@@ -48,7 +48,8 @@ Target field names appear only in the adapter that emits them
 
 ## Confirmation
 
-The coverage check renders the whole live estate and diffs it against what
+**Derivation coverage** renders the whole live estate and diffs it against what
 runs; each live value that no field reaches is a counterexample and is listed.
-The schemas have no field that names a target mechanism, and the Records check
-refuses a schema change that adds one without an Intent requirement behind it.
+The schemas have no field that names a target mechanism, and the
+**Mechanism-field lint** refuses a schema change that adds one without an
+Intent requirement behind it.

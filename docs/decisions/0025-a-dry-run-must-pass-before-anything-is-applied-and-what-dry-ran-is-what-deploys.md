@@ -55,9 +55,10 @@ it leaves no Deployment record, so production history holds real deploys only
 
 ## Confirmation
 
-`estate-kit / deploy (dry-run)` is a required check on the release pull
-request. The service refuses to sign a render whose dry-run did not pass in
-the same deploy, and refuses a digest that was not registered by the Project's
+**Deploy dry-run**, the `estate-kit / deploy (dry-run)` check, is required on
+the release pull request. The **Sign-precondition test** asserts the service
+refuses to sign a render whose dry-run did not pass in the same deploy, and the
+**Digest registration test** that it refuses a digest that was not registered by the Project's
 own build ([record 8](0008-an-image-digest-is-sealed-into-the-fragment-and-registered-by-its-build.md)).
-The end-to-end suite ([record 69](0069-the-deploy-path-is-tested-end-to-end.md))
-covers a rejected dry-run leaving the tag where it was.
+The **E2E scenarios** ([record 69](0069-the-deploy-path-is-tested-end-to-end.md))
+cover a rejected dry-run leaving the tag where it was.

@@ -46,7 +46,7 @@ this record fixes that they exist and that tests enforce the matrix.
 
 ## Confirmation
 
-- A test lists the OpenAPI document's routes ([record 43](0043-the-service-api-is-an-openapi-3-1-contract.md)),
+- The **Authorization matrix test** lists the OpenAPI document's routes ([record 43](0043-the-service-api-is-an-openapi-3-1-contract.md)),
   fails on a route with no matrix row and on a row with no route.
-- For each caller and route, a test asserts the denied rows are refused, with
+- For each caller and route, the same test asserts the denied rows are refused, with
   a negative fixture for a caller not in the row.

@@ -84,11 +84,11 @@ How the code is shaped is on the design pages
 
 ## Confirmation
 
-`cargo xtask check-layers` fails on a workspace member that is not Rust. The
-Hygiene job fails on a Go module, a Node runtime or a Python program in an
-image estate-kit ships or in a reusable workflow, for each component that is
-listed as rewritten, and on a component that is listed as rewritten while its
-old image is still built. Imported trees that are not yet rewritten are outside
-that scope, and the Hygiene job reads the list of rewritten components from one
-committed file. Both checks are written with the workspace skeleton, each with
-a failing fixture.
+**`cargo xtask check-layers`** fails on a workspace member that is not Rust. The
+**Rewritten-components check** fails on a Go module, a Node runtime or a Python
+program in an image estate-kit ships or in a reusable workflow, for each
+component that is listed as rewritten, and on a component that is listed as
+rewritten while its old image is still built. Imported trees that are not yet
+rewritten are outside that scope, and the check reads the list of rewritten
+components from one committed file. Neither runs today: both are written with
+the workspace skeleton, each with a failing fixture.

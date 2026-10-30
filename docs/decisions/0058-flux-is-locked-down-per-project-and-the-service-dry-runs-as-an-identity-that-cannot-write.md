@@ -49,7 +49,7 @@ dry-runs holds write access ([review](../research/review/README.md) D4).
 
 ## Confirmation
 
-Admission fixtures on the ValidatingAdmissionPolicy, one per row, so widening
+The **Dry-run admission fixtures** on the ValidatingAdmissionPolicy, one per row, so widening
 an exemption fails a fixture:
 
 | Request from the service's identity | Verdict |
@@ -60,5 +60,5 @@ an exemption fails a fixture:
 | Update of the writer Lease `estate-kit-writer` without `dryRun` | Allowed (exemption 1) |
 | Update of a ProjectControl object without `dryRun` | Allowed (exemption 2) |
 
-An e2e scenario renders a cross-namespace reference and asserts Flux refuses
+A scenario of the **E2E scenarios** renders a cross-namespace reference and asserts Flux refuses
 it.

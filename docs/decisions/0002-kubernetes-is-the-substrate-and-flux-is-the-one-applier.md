@@ -57,5 +57,5 @@ signed tag.
 
 The lockdown record's per-Project Flux identities and its refusing admission
 policy ([record 58](0058-flux-is-locked-down-per-project-and-the-service-dry-runs-as-an-identity-that-cannot-write.md))
-carry the check, and the end-to-end suite asserts that an object reaches the
-cluster only through Flux ([record 17](0017-the-service-runs-in-the-cluster-in-rust.md)).
+carry the check (**Dry-run admission fixtures**), and the **E2E scenarios**
+assert that an object reaches the cluster only through Flux ([record 17](0017-the-service-runs-in-the-cluster-in-rust.md)).

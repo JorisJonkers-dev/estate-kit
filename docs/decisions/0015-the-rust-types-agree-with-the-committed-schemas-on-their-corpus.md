@@ -66,6 +66,6 @@ with schemars would not be structurally equal to the committed one
 
 ## Confirmation
 
-The corpus-agreement test fails on a corpus document the schema refuses and
+The **Corpus-agreement test** fails on a corpus document the schema refuses and
 the typed conversion accepts, and on any document whose diagnostics, as a
 whole set with their model paths, differ from the set recorded beside it.

@@ -58,7 +58,7 @@ required check on `main`. It holds these rules:
 | --- | --- |
 | Diagrams are regenerated, never hand-edited | Diagrams (`scripts/check_diagrams.py`) |
 | A record is cited by link | Record citations (`scripts/check_record_citations.py`) |
-| A record's status matches the register; rests-on has no cycle, and Accepted rests only on Accepted; cited lessons were kept; Accepted rows have files; a Merged or Moved row has no file and nothing rests on it | Records (`scripts/check_records.py`) |
+| A record's status matches the register; rests-on has no cycle, and Accepted rests only on Accepted; cited lessons were kept; Accepted rows have files; a Merged or Moved row has no file and nothing rests on it; every record has a Confirmation, and each bold check name in it is a row of [the table of checks](docs/design/code-shape-and-speed.md#the-checks) | Records (`scripts/check_records.py`) |
 | No paper is committed | Hygiene |
 | Conventional-commit title, no agent attribution | PR title |
 | Every relative link and anchor resolves | Links |

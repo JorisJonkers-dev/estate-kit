@@ -87,10 +87,11 @@ settles it.
 
 ## Confirmation
 
-The claim policy has a pass and a fail token fixture for every rule; the suite
-fails if a rule has no failing fixture. A service test composes a fragment with
-an unregistered digest and asserts the refusal and its location. The e2e suite
-registers, deploys, and then tries the same digest from another Project; its
-"service upgraded mid-rollout" scenario replaces the service pod while a deploy
+The **Claim-policy fixtures** hold a pass and a fail token fixture for every
+rule; the suite fails if a rule has no failing fixture. The **Digest
+registration test** composes a fragment with an unregistered digest and asserts
+the refusal and its location. The **E2E scenarios** register, deploy, and then
+try the same digest from another Project; the "service upgraded mid-rollout"
+scenario replaces the service pod while a deploy
 job waits and asserts the job re-authenticates and resumes by sequence
 ([record 69](0069-the-deploy-path-is-tested-end-to-end.md)).

@@ -12,6 +12,13 @@ The Records job holds these rules, and that a record's status agrees with its
 register row, that every Accepted row has a file, and that a Merged or Moved
 row has none and nothing rests on it (`scripts/check_records.py`).
 
+Every record has a non-empty Confirmation, and a Confirmation names each check
+it relies on in bold, spelled as the first column of
+[the table of checks](../design/code-shape-and-speed.md#the-checks) spells it.
+The Records job fails on a bold name that is not a row. A new check is a new
+row first, with its workstream issue; a rule no check can hold, such as a
+review rule, is written without a bold name.
+
 ## Status
 
 | Status | Meaning |

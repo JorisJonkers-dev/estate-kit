@@ -41,6 +41,7 @@ service publishes nothing, signs nothing and moves nothing, and records why.
 
 ## Confirmation
 
-An e2e scenario deploys twice with no change and asserts that the tag did not
-move and no new artifact was pushed; a property test asserts that rendering
-the same inputs twice gives the same digest.
+A scenario of the **E2E scenarios** deploys twice with no change and asserts
+that the tag did not move and no new artifact was pushed; the **Render digest
+property test** asserts that rendering the same inputs twice gives the same
+digest.

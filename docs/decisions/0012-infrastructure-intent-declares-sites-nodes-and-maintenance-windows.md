@@ -51,7 +51,7 @@ host design page and in the committed schema once it is written, not here.
 ## Confirmation
 
 - The committed JSON Schema for Infrastructure Intent requires a window on
-  every site, and a corpus test shows a node override validates and a missing
+  every site, and the **Corpus-agreement test** shows a node override validates and a missing
   site window is refused ([record 15](0015-the-rust-types-agree-with-the-committed-schemas-on-their-corpus.md)).
-- A compiler test shows no host data is rendered for a node whose site has no
+- The **Host-data window test** shows no host data is rendered for a node whose site has no
   window.

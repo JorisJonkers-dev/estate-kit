@@ -58,7 +58,7 @@ the maintainer accepts it. If it returns:
 
 Once accepted:
 
-- A property test renders every example and fails on any rendered field with
+- The **Provenance tests**: a property test renders every example and fails on any rendered field with
   an empty set of element references.
 - A test reorders the id-keyed lists of an example and fails if any annotation
   or render digest changes.

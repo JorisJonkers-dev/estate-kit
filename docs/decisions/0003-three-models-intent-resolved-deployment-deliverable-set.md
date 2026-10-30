@@ -53,7 +53,7 @@ renderer accepts. The models and their metamodels are on
 
 ## Confirmation
 
-The committed schemas validate each model, and the compiler's step types let a
-renderer take only the Resolved Deployment, so a renderer that reads Intent does
-not compile ([record 14](0014-the-compiler-is-a-chain-of-typed-models-one-crate-per-step.md),
+The committed schemas validate each model (the **Corpus-agreement test**), and
+the compiler's step types let a renderer take only the Resolved Deployment, so a
+renderer that reads Intent does not compile (the **Typestate compile-fail tests**) ([record 14](0014-the-compiler-is-a-chain-of-typed-models-one-crate-per-step.md),
 [record 15](0015-the-rust-types-agree-with-the-committed-schemas-on-their-corpus.md)).

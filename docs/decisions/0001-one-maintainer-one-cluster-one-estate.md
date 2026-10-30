@@ -51,9 +51,9 @@ second regular human maintainer or a second production cluster appears.
 
 ## Confirmation
 
-A review rule, held by the pull request template: a new concept names the
-maintainer mistake it prevents. The compiler refuses a cluster name other than
-the estate's one, with a refusing fixture, once the Platform Intent model lands
+A review rule, held by no check: a new concept names the maintainer mistake it
+prevents. The **Single-cluster fixture** refuses a cluster name other than
+the estate's one, once the Platform Intent model lands
 ([record 3](0003-three-models-intent-resolved-deployment-deliverable-set.md)).
 The horizon review is the issue that re-counts maintainers and clusters on
 2028-08-31.

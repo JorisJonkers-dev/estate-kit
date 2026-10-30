@@ -47,7 +47,7 @@ as provenance with each published render ([Where state lives](../design/where-st
 
 ## Confirmation
 
-A double-render test renders twice from identical pinned inputs, at different
+The **Double-render test** renders twice from identical pinned inputs, at different
 times, and compares the output trees byte for byte; any difference fails. The
 compiler crates have no dependency on a cluster client or a clock, which
-`cargo xtask check-layers` holds ([record 14](0014-the-compiler-is-a-chain-of-typed-models-one-crate-per-step.md)).
+**`cargo xtask check-layers`** holds ([record 14](0014-the-compiler-is-a-chain-of-typed-models-one-crate-per-step.md)).

@@ -40,7 +40,7 @@ compatibility matrix to keep. The layout is on
 
 ## Confirmation
 
-A check over the workspace manifests fails when a member sets its own
-`version` instead of inheriting the workspace's. It lands with the first
-crates, with the layer check in
+The **Workspace version check** over the workspace manifests fails when a
+member sets its own `version` instead of inheriting the workspace's. It lands
+with the first crates, with the layer check in
 [The Rust workspace](../design/rust-workspace.md#the-crates).

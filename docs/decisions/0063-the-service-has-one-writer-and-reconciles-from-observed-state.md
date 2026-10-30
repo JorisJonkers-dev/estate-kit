@@ -81,6 +81,8 @@ input moved during the run. Where the queue is kept is
 
 ## Confirmation
 
+All but the last are **Single-writer tests**.
+
 - A deployment test fails if the service's Deployment strategy is not `Recreate`.
 - A service test runs two instances against fakes and asserts that only the
   Lease holder signs or moves a tag.
@@ -89,6 +91,6 @@ input moved during the run. Where the queue is kept is
   retried on the old decision.
 - A service test queues two triggers during one composition and asserts that
   one composition follows, covering both.
-- An e2e scenario kills the service after each write step and asserts that the
+- A scenario of the **E2E scenarios** kills the service after each write step and asserts that the
   restarted service ends the rollout with the outcome the cluster shows
   ([record 69](0069-the-deploy-path-is-tested-end-to-end.md)).

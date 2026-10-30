@@ -19,6 +19,21 @@ LESSONS = """# Lesson candidates
 """
 
 
+CHECKS = """# The page
+
+## The checks
+
+| Check | Fails when | Records | Runs in | Status |
+| --- | --- | --- | --- | --- |
+| Known check | something | 1 | CI | runs today |
+| `cargo xtask known` | something else | 1 | xtask | #60 |
+
+## Next section
+
+| Not a check | x | x | x | x |
+"""
+
+
 class Tree:
     """A decisions folder, its register and a lessons file, in a temporary directory."""
 
@@ -30,6 +45,8 @@ class Tree:
         self.decisions.mkdir()
         self.lessons = self.root / "lessons.md"
         self.lessons.write_text(LESSONS)
+        self.checks = self.root / "checks.md"
+        self.checks.write_text(CHECKS)
         self.rows: list[tuple[int, str]] = []
 
     def row(self, number: int, status: str) -> None:
@@ -42,16 +59,18 @@ class Tree:
         self.row(number, status.capitalize())
         self.file(number, f"---\nstatus: {status}  # proposed | accepted | locked\nrests-on: {rests_on}\nlessons: {lessons}\n---\n\n# Record {number}\n")
 
-    def file(self, number: int, text: str) -> None:
+    def file(self, number: int, text: str, confirmation: str | None = "Held by the **Known check**.") -> None:
+        if confirmation is not None:
+            text += f"\n## Confirmation\n\n{confirmation}\n"
         (self.decisions / f"{number:04d}-record-{number}.md").write_text(text)
 
     def keys(self) -> list[str]:
-        return [v.key for v in violations(self.decisions, self.lessons)]
+        return [v.key for v in violations(self.decisions, self.lessons, self.checks)]
 
     def run(self) -> tuple[int, str]:
         out = io.StringIO()
         with redirect_stdout(out):
-            code = main(["--decisions", str(self.decisions), "--lessons", str(self.lessons)])
+            code = main(["--decisions", str(self.decisions), "--lessons", str(self.lessons), "--checks", str(self.checks)])
         return code, out.getvalue()
 
 
@@ -145,7 +164,7 @@ class LessonsAreKept(unittest.TestCase):
     def test_an_unknown_and_a_dropped_lesson_are_reported(self) -> None:
         tree = Tree(self)
         tree.record(1, "proposed", lessons="[CS-1, DO-7, XX-9]")
-        found = violations(tree.decisions, tree.lessons)
+        found = violations(tree.decisions, tree.lessons, tree.checks)
         self.assertEqual([v.key for v in found], ["lesson 1 DO-7", "lesson 1 XX-9"])
         self.assertIn("dropped", found[0].message)
         self.assertIn("no lesson", found[1].message)
@@ -179,7 +198,7 @@ class MergedRows(unittest.TestCase):
         tree.record(1, "accepted")
         tree.row(2, "Merged into 1")
         tree.record(3, "accepted", rests_on="[2]")
-        found = violations(tree.decisions, tree.lessons)
+        found = violations(tree.decisions, tree.lessons, tree.checks)
         self.assertEqual([v.key for v in found], ["rests-on-merged 3 2"])
         self.assertIn("rest on 1", found[0].message)
 
@@ -209,9 +228,67 @@ class MovedRows(unittest.TestCase):
         tree = Tree(self)
         tree.row(1, self.PAGE)
         tree.record(2, "accepted", rests_on="[1]")
-        found = violations(tree.decisions, tree.lessons)
+        found = violations(tree.decisions, tree.lessons, tree.checks)
         self.assertEqual([v.key for v in found], ["rests-on-moved 2 1"])
         self.assertIn("cite the page", found[0].message)
+
+
+class EveryRecordHasAConfirmation(unittest.TestCase):
+    def test_a_record_without_a_confirmation_is_reported(self) -> None:
+        tree = Tree(self)
+        tree.row(1, "Proposed")
+        tree.file(1, "---\nstatus: proposed\n---\n", confirmation=None)
+        self.assertEqual(tree.keys(), ["no-confirmation 1"])
+
+    def test_an_empty_confirmation_is_reported(self) -> None:
+        tree = Tree(self)
+        tree.row(1, "Proposed")
+        tree.file(1, "---\nstatus: proposed\n---\n", confirmation="  ")
+        self.assertEqual(tree.keys(), ["no-confirmation 1"])
+
+    def test_a_confirmation_ends_at_the_next_heading(self) -> None:
+        tree = Tree(self)
+        tree.row(1, "Proposed")
+        tree.file(1, "---\nstatus: proposed\n---\n", confirmation="Held.\n\n## After\n\n**Invented**")
+        self.assertEqual(tree.keys(), [])
+
+    def test_a_confirmation_with_text_and_no_check_name_passes(self) -> None:
+        tree = Tree(self)
+        tree.row(1, "Proposed")
+        tree.file(1, "---\nstatus: proposed\n---\n", confirmation="A review rule.")
+        self.assertEqual(tree.keys(), [])
+
+
+class EveryCheckNamedIsInTheTable(unittest.TestCase):
+    def test_a_name_in_the_table_passes_with_or_without_code_marks(self) -> None:
+        tree = Tree(self)
+        tree.row(1, "Proposed")
+        tree.file(1, "---\nstatus: proposed\n---\n", confirmation="**Known check** and **`cargo xtask known`**.")
+        self.assertEqual(tree.keys(), [])
+
+    def test_a_name_wrapped_over_two_lines_is_one_name(self) -> None:
+        tree = Tree(self)
+        tree.row(1, "Proposed")
+        tree.file(1, "---\nstatus: proposed\n---\n", confirmation="The **Known\ncheck** holds it.")
+        self.assertEqual(tree.keys(), [])
+
+    def test_a_name_missing_from_the_table_is_reported_once_per_record(self) -> None:
+        tree = Tree(self)
+        tree.row(1, "Proposed")
+        tree.file(1, "---\nstatus: proposed\n---\n", confirmation="**Invented** and again **Invented**, **Known check**.")
+        self.assertEqual(tree.keys(), ["unknown-check 1 Invented"])
+
+    def test_a_name_outside_the_confirmation_is_not_read(self) -> None:
+        tree = Tree(self)
+        tree.row(1, "Proposed")
+        tree.file(1, "---\nstatus: proposed\n---\n\n**Invented** in the context.\n")
+        self.assertEqual(tree.keys(), [])
+
+    def test_a_page_without_the_table_is_reported(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "proposed")
+        tree.checks.write_text("# A page\n")
+        self.assertEqual(tree.keys(), ["no-checks-table"])
 
 
 class TheCommand(unittest.TestCase):

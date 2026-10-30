@@ -51,6 +51,6 @@ carries both, estate-kit's host and recovery pages describe a target, not a fact
 
 ## Confirmation
 
-The Links job resolves the fleet-infra link. The control-plane node's reboot
+**Links** resolves the fleet-infra link. The control-plane node's reboot
 and restore drills belong to fleet-infra; spikes #12 and #14 report their
 result back to this record.

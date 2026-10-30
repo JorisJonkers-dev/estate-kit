@@ -46,7 +46,8 @@ itself a Project. Where each fact lives is on
 
 ## Confirmation
 
-The Hygiene job fails on a file in this repository or the estate repo that
-names a deployed digest or pin. A two-Project end-to-end test changes one
-Project and asserts that nothing the other owns is re-rendered or applied
+The **Pin scan** fails on a file in this repository or the estate repo that
+names a deployed digest or pin. The **E2E scenarios** include a two-Project
+test that changes one Project and asserts that nothing the other owns is
+re-rendered or applied
 ([record 17](0017-the-service-runs-in-the-cluster-in-rust.md)).

@@ -49,6 +49,5 @@ order.
 
 ## Confirmation
 
-Property tests in `canonical` round-trip generated strings and objects; a
-differential test checks every rendered oracle against the specification's
-examples.
+The **Canonical YAML tests** in `canonical` round-trip generated strings and
+objects, and check every rendered oracle against the specification's examples.
