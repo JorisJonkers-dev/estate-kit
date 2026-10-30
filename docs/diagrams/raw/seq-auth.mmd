@@ -10,3 +10,8 @@ sequenceDiagram
     S->>S: repository_id and owner id admitted?
     S->>S: claim policy: event_name, job_workflow_sha, ref_type, runner, environment
     S-->>CI: rollout id
+    CI->>GO: token expired or service restarted: request a fresh ID token
+    GO-->>CI: JWT
+    CI->>S: watch, resume after the last sequence, Bearer JWT
+    S->>S: the same claim policy
+    S-->>CI: events since that sequence

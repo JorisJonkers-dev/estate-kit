@@ -51,7 +51,7 @@ and resumes the stream by sequence
 ([record 23](../decisions/0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md)).
 The service holds no token state, so an upgrade mid-rollout loses nothing.
 
-The diagram below still shows the exchange; it follows once spike #11 settles.
+The diagram below shows the first call, then the stream resuming under a fresh GitHub token.
 
 ![Sequence: authenticating a deploy job](../diagrams/png/seq-auth.png)
 
