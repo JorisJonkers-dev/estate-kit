@@ -6,13 +6,13 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 
 | # | Record | Status |
 | --- | --- | --- |
-| 1 | One maintainer, one cluster, one estate | Accepted |
-| 2 | Kubernetes is the substrate, and Flux is the one applier | Accepted |
-| 3 | Three models: Intent, Resolved Deployment, Deliverable Set | Accepted |
-| 4 | Contention decides authority | Accepted |
-| 5 | Derivation is total | Accepted |
-| 6 | Every render is a function of pinned inputs | Accepted |
-| 7 | A Project's state lives with the Project | Accepted |
+| 1 | [One maintainer, one cluster, one estate](0001-one-maintainer-one-cluster-one-estate.md) | Accepted |
+| 2 | [Kubernetes is the substrate, and Flux is the one applier](0002-kubernetes-is-the-substrate-and-flux-is-the-one-applier.md) | Accepted |
+| 3 | [Three models: Intent, Resolved Deployment, Deliverable Set](0003-three-models-intent-resolved-deployment-deliverable-set.md) | Accepted |
+| 4 | [Contention decides authority](0004-contention-decides-authority.md) | Accepted |
+| 5 | [Derivation is total](0005-derivation-is-total.md) | Accepted |
+| 6 | [Every render is a function of pinned inputs](0006-every-render-is-a-function-of-pinned-inputs.md) | Accepted |
+| 7 | [A Project's state lives with the Project](0007-a-project-s-state-lives-with-the-project.md) | Accepted |
 | 8 | [A Project's CI proves itself with a pinned-workflow OIDC token, and the service deploys only images its own build registered](0008-an-image-digest-is-sealed-into-the-fragment-and-registered-by-its-build.md) | Proposed |
 | 9 | [The live render is a signed registry tag per Project and environment](0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md) | Accepted |
 | 10 | Platform Intent admits the Projects | Accepted |

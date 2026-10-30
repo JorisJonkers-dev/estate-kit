@@ -4,13 +4,6 @@
 
 cycle 17,18
 cycle 21,30,31
-no-file 1
-no-file 2
-no-file 3
-no-file 4
-no-file 5
-no-file 6
-no-file 7
 no-file 10
 no-file 11
 no-file 12
