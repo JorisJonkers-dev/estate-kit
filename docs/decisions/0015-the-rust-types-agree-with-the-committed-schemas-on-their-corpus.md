@@ -1,7 +1,7 @@
 ---
 status: accepted  # proposed | accepted | locked
 date: 2026-10-29
-rests-on: [13, 47]
+rests-on: [13, 48]
 lessons: [CS-3, MD-2, TM-1]
 ---
 
