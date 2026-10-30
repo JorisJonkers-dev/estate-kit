@@ -30,7 +30,6 @@ class Tree:
         self.decisions.mkdir()
         self.lessons = self.root / "lessons.md"
         self.lessons.write_text(LESSONS)
-        self.known = self.root / "known.txt"
         self.rows: list[tuple[int, str]] = []
 
     def row(self, number: int, status: str) -> None:
@@ -52,7 +51,7 @@ class Tree:
     def run(self) -> tuple[int, str]:
         out = io.StringIO()
         with redirect_stdout(out):
-            code = main(["--decisions", str(self.decisions), "--lessons", str(self.lessons), "--known", str(self.known)])
+            code = main(["--decisions", str(self.decisions), "--lessons", str(self.lessons)])
         return code, out.getvalue()
 
 
@@ -215,30 +214,16 @@ class MovedRows(unittest.TestCase):
         self.assertIn("cite the page", found[0].message)
 
 
-class TheKnownListOnlyShrinks(unittest.TestCase):
-    def setUp(self) -> None:
-        self.tree = Tree(self)
-        self.tree.row(1, "Accepted")
-
-    def test_a_listed_violation_passes(self) -> None:
-        self.tree.known.write_text("# Known violations\n\nno-file 1\n")
-        code, out = self.tree.run()
-        self.assertEqual(code, 0)
-        self.assertIn("1 known violation left", out)
-
-    def test_a_new_violation_fails(self) -> None:
-        code, out = self.tree.run()
+class TheCommand(unittest.TestCase):
+    def test_a_violation_fails(self) -> None:
+        tree = Tree(self)
+        tree.row(1, "Accepted")
+        code, out = tree.run()
         self.assertEqual(code, 1)
         self.assertIn("::error file=", out)
         self.assertIn("[no-file 1]", out)
 
-    def test_a_listed_violation_that_is_gone_fails(self) -> None:
-        self.tree.known.write_text("no-file 1\nstatus 4\n")
-        code, out = self.tree.run()
-        self.assertEqual(code, 1)
-        self.assertIn("status 4 no longer occurs", out)
-
-    def test_a_clean_tree_without_a_list_passes(self) -> None:
+    def test_a_clean_tree_passes(self) -> None:
         tree = Tree(self)
         tree.record(1, "accepted")
         code, out = tree.run()

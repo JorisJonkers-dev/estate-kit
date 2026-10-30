@@ -2,7 +2,9 @@
 
 One page per concern. Decisions in [`../decisions/`](../decisions/README.md)
 are normative over these pages: where a page and a record disagree, the record
-wins and the page is what gets fixed. Diagrams come from
+wins and the page is what gets fixed. A record is Proposed, Accepted or
+Locked; a register row marked "Merged into N" or "Moved to" has no file, so a
+page cites the record N or the page it moved to. Diagrams come from
 [`../diagrams/`](../diagrams/README.md).
 
 | Page | What it covers |
@@ -14,7 +16,7 @@ wins and the page is what gets fixed. Diagrams come from
 | [Hosts](hosts.md) | Infrastructure Intent, host data, the host applier, node order, maintenance windows, use cases 10 to 12 |
 | [Mail and components](mail-and-components.md) | The six components, Mailboxes, use case 13 |
 | [Identity and access](identity-and-access.md) | OIDC for every caller |
-| [Security](security.md) | Trust boundaries, STRIDE per boundary, the authorization matrix |
+| [Security](security.md) | Trust boundaries, STRIDE per boundary, the authorization matrix, and the named writes of the Release Gate and Observation |
 | [Errors in CI](errors-in-ci.md) | How an error reaches its YAML line |
 | [Conventions](conventions.md) | API contract, errors, delivery semantics, primitives, retention, telemetry, configuration, contract evolution, bounded contexts |
 | [Models and metamodels](models-and-metamodels.md) | deploy-kit's metamodels, drawn per concept, marked with what changes |

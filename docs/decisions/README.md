@@ -10,9 +10,7 @@ follow [MADR](https://adr.github.io/madr/); start from
 
 The Records job holds these rules, and that a record's status agrees with its
 register row, that every Accepted row has a file, and that a Merged or Moved
-row has none and nothing rests on it (`scripts/check_records.py`). Violations the register had when the check was
-written are listed in `scripts/check_records_known.txt`; that list only
-shrinks.
+row has none and nothing rests on it (`scripts/check_records.py`).
 
 ## Status
 

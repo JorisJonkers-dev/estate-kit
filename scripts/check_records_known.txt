@@ -1,4 +1,0 @@
-# Violations of the register's rules that the tree had when scripts/check_records.py was
-# written (2026-10-29). Fix one and delete its line; the check fails on a line that no longer
-# occurs, so this list only shrinks. Tracked in #84 to #103.
-

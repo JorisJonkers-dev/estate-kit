@@ -40,7 +40,7 @@ one), which weakened the Go service's change safety.
 
 Every program in estate-kit is Rust: the compiler and its CLI, the service, the
 host applier, and the six components (migration runner, secret grant, database
-catalog, bucket catalog, backup and mail provisioner). They live in one Cargo workspace, at one version, laid out in the
+catalog, bucket catalog, backup and mailbox). They live in one Cargo workspace, at one version, laid out in the
 layers of [record 50](0050-five-bounded-contexts.md).
 The UI stays Vue; npm is confined to building its static assets, which the
 service embeds. Python stays only for this repository's documentation checks.

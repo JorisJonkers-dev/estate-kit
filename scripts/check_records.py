@@ -8,11 +8,7 @@ A row "Merged into N" has no file, nothing rests on it, and N is a row that is n
 A row "Moved to [page](link)" is retired: its rule lives on that page, so it has no file, is not
 Accepted, and nothing rests on it.
 
-Violations the tree had when this check was written are listed in the known file. A listed
-violation passes, a new one fails, and a listed one that no longer occurs fails too, so the list
-only shrinks.
-
-    check_records.py [--decisions DIR] [--lessons FILE] [--known FILE]
+    check_records.py [--decisions DIR] [--lessons FILE]
 """
 
 from __future__ import annotations
@@ -182,34 +178,18 @@ def violations(decisions: Path, lessons_file: Path) -> list[Violation]:
     return found
 
 
-def known(path: Path) -> set[str]:
-    if not path.exists():
-        return set()
-    lines = (line.strip() for line in path.read_text(encoding="utf-8").splitlines())
-    return {line for line in lines if line and not line.startswith("#")}
-
-
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check the decision records keep the register's rules.")
     parser.add_argument("--decisions", type=Path, default=Path("docs/decisions"))
     parser.add_argument("--lessons", type=Path, default=Path("docs/lesson-candidates.md"))
-    parser.add_argument("--known", type=Path, default=Path("scripts/check_records_known.txt"))
     args = parser.parse_args(argv)
 
     found = violations(args.decisions, args.lessons)
-    listed = known(args.known)
-    failures = 0
     for violation in found:
-        if violation.key not in listed:
-            print(f"::error file={violation.path}::{violation.message} [{violation.key}]")
-            failures += 1
-    for key in sorted(listed - {v.key for v in found}):
-        print(f"::error file={args.known}::{key} no longer occurs; remove it from the list")
-        failures += 1
-    if failures:
+        print(f"::error file={violation.path}::{violation.message} [{violation.key}]")
+    if found:
         return 1
-    left = len(listed)
-    print(f"the records keep the register's rules ({left} known violation{'' if left == 1 else 's'} left)")
+    print("the records keep the register's rules")
     return 0
 
 
