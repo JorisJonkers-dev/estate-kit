@@ -88,7 +88,7 @@ jobs:
 
   # docs/decisions/README.md: a record's status matches its register row, rests-on forms no cycle,
   # an Accepted record rests only on Accepted ones, cited lessons were kept, and every Accepted
-  # row has a file. Known violations are listed and may only shrink.
+  # row has a file.
   records:
     name: Records
     runs-on: ubuntu-latest

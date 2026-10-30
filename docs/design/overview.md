@@ -19,10 +19,16 @@ carried into estate-kit.
 
 A Project's CI asks the service to deploy. The service composes, dry-runs,
 signs and moves the Project's `prod` tag. Flux pulls the tag and applies it.
+Observation, the read side the dashboard serves today, is its own binary and
+Deployment, so the service's Vault, ghcr and signing credentials never share a
+process with it ([record 50](../decisions/0050-five-bounded-contexts.md)). Its
+one write is Alertmanager silences; the Release Gate's two writes belong to the
+service ([record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)).
 
 ## The parts of estate-kit
 
-Three programs and six components, all Rust, in one repository at one
+Four programs (the CLI, the service, Observation and the host applier) and
+six components, all Rust, in one repository at one
 version. The compiler is the only part that knows the model; the others act on
 what it renders. The [high-level design](high-level-design.md) shows the
 whole system in diagrams, and [The Rust workspace](rust-workspace.md) how it
@@ -104,6 +110,7 @@ The full plan, with budgets, exits and fallbacks per phase, is
 - **Open:** the shadow's exit rule, fixed in
   [#50](https://github.com/JorisJonkers-dev/estate-kit/issues/50) before the
   shadow starts.
-- **Open:** the name and kind (CRD or ConfigMap) of the per-Project object for
-  Pause and Rollback.
+- **Proposed:** Pause and Rollback are one `ProjectControl` custom resource
+  per Project, written only by the service ([record 28](../decisions/0028-pause-and-rollback-are-a-cluster-object-per-project.md));
+  its record is not yet accepted.
 - **Open:** how a Mailbox is shared beyond its own Project, if ever.

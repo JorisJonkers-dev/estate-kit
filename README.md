@@ -26,7 +26,7 @@ Kubernetes cluster, and the NixOS hosts that cluster runs on. It replaces
   generation, takes a cluster-wide Lease, drains its node, switches, and
   reboots only inside its maintenance window.
 - **Components** (the migration runner, the secret grant, the database and
-  bucket catalogs, backups and the mail provisioner) are Rust binaries here,
+  bucket catalogs, backups and the mailbox) are Rust binaries here,
   sharing one version.
 
 Each Project keeps its own state. No repository holds a list of what is
