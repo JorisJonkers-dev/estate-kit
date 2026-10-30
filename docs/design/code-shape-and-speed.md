@@ -76,7 +76,7 @@ never only a Ready condition (DO-4).
 | Unit coverage | 100% of lines, functions and regions | Domain, application and step crates. Branch coverage needs nightly `cargo llvm-cov --branch`, and is added when it is stable |
 | Integration coverage | 100% of functions | Adapter and binary crates |
 | Mutation | 100% break score | Domain, application and step crates; adapters report-only, then a ratchet |
-| Coverage and mutation ratchet | The measured value, only rising | Every crate ([record 37](../decisions/register.md)) |
+| Coverage and mutation ratchet | The measured value, only rising | Every crate ([record 37](../decisions/0037-every-gate-has-a-speed-budget-coverage-and-mutation-are-ratchets.md)) |
 | Lints | `clippy::pedantic`, `-D warnings`; `unsafe_code = "forbid"`; `unreachable_pub`; `missing_docs` on public items | Every crate |
 | Layers | `cargo xtask check-layers` | The crate graph ([record 50](../decisions/0050-five-bounded-contexts.md)) |
 | Ports | A grep-level script: each port trait has a `Fake<Port>` and a `<port>_contract` suite, found by name | The application crates ([record 68](../decisions/0068-every-fake-passes-its-port-s-contract-suite.md)) |
