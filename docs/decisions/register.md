@@ -17,7 +17,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 9 | [The live render is a signed registry tag per Project and environment](0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md) | Accepted |
 | 10 | [Platform Intent admits the Projects, and it is pushed like any Project; the service's copies are a cache](0010-platform-intent-admits-the-projects-and-is-pushed-like-any-project.md) | Accepted |
 | 11 | Platform Intent is pushed like any Project; the service's copies are a cache | Merged into 10 |
-| 12 | Infrastructure Intent declares sites, nodes and maintenance windows | Accepted |
+| 12 | [Infrastructure Intent declares sites, nodes and maintenance windows](0012-infrastructure-intent-declares-sites-nodes-and-maintenance-windows.md) | Accepted |
 | 13 | [Every program in estate-kit is Rust, in one Cargo workspace; only the UI is Vue](0013-every-program-is-rust.md) | Accepted |
 | 14 | [The compiler is a chain of plain-Rust typed steps through one trace, one crate per step, with no DSL](0014-the-compiler-is-a-chain-of-typed-models-one-crate-per-step.md) | Accepted |
 | 15 | [The Rust types agree with the committed schemas on their corpus](0015-the-rust-types-agree-with-the-committed-schemas-on-their-corpus.md) | Accepted |
@@ -38,17 +38,17 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 30 | [A host applier on each node pulls its signed host tag, and decides a reboot before the Lease](0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md) | Proposed |
 | 31 | [Host data is rendered by the compiler for hand-written modules, and host closures are built in CI and cached outside the cluster](0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md) | Proposed |
 | 32 | Node order is derived from the change and the version skew rule | Merged into 30 |
-| 33 | A Mailbox is declared by its local part and owned by one Project | Accepted |
+| 33 | [A Mailbox is declared by its local part and owned by one Project](0033-a-mailbox-is-declared-by-its-local-part-and-owned-by-one-project.md) | Accepted |
 | 34 | [Every part of estate-kit, the components included, lives in this repository at one version](0034-every-part-of-estate-kit-lives-in-this-repository-at-one-version.md) | Accepted |
 | 35 | A further implementation, if one is ever written, meets the first at the language-neutral oracles | Merged into 67 |
 | 36 | One concept per module, one fake per port, oracles only at the seams | Merged into 68 |
-| 37 | Every gate has a speed budget; coverage and mutation are ratchets | Accepted |
+| 37 | [Every gate has a speed budget; coverage and mutation are ratchets](0037-every-gate-has-a-speed-budget-coverage-and-mutation-are-ratchets.md) | Accepted |
 | 38 | One version for every part | Merged into 34 |
 | 39 | Decisions live as Markdown in docs/, and a Pages site is built from it | Moved to [decision records](README.md#how-records-are-kept) |
 | 40 | Records are read in order and cite their lessons | Moved to [decision records](README.md#how-records-are-kept) |
 | 41 | A record has a status; a locked record needs a failing check | Moved to [decision records](README.md#how-records-are-kept) |
 | 42 | The shadow composition is inert | Merged into 67 |
-| 43 | The service API is an OpenAPI 3.1 contract | Accepted |
+| 43 | [The service API is an OpenAPI 3.1 contract](0043-the-service-api-is-an-openapi-3-1-contract.md) | Accepted |
 | 44 | Errors are RFC 9457 problems drawn from one catalogue | Merged into 71 |
 | 45 | Deploy calls are idempotent on project and fragment digest; streams resume by sequence | Merged into 23 |
 | 46 | IDs are UUIDv7, times RFC 3339 in UTC, and absent means unset | Moved to [conventions](../design/conventions.md#primitives) |
@@ -59,7 +59,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 51 | History is kept 400 days; renders are kept by count, age and tag | Moved to [conventions](../design/conventions.md#retention) |
 | 52 | Three service levels: deploy p95, availability, drift detection | Moved to [conventions](../design/conventions.md#service-levels) |
 | 53 | Traces go to Tempo and logs to Loki, keyed by rollout id | Moved to [conventions](../design/conventions.md#telemetry) |
-| 54 | Every trust boundary has a threat table, and every route an authorization row | Accepted |
+| 54 | [Every trust boundary has a threat table, and every route an authorization row](0054-every-trust-boundary-has-a-threat-table-and-every-route-an-authorization-row.md) | Accepted |
 | 55 | [Every Go and Python program is characterized before it is rewritten in Rust](0055-every-go-and-python-program-is-characterized-before-it-is-rewritten.md) | Accepted |
 | 56 | Agent files are short, and what must always hold is a check | Moved to [conventions](../design/conventions.md#agent-files) |
 | 57 | Configuration is flags, then environment, then file; secrets only by reference | Moved to [conventions](../design/conventions.md#configuration) |
