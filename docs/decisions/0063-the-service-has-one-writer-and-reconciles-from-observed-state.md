@@ -68,6 +68,7 @@ input moved during the run. Where the queue is kept is
 | A level-triggered composer with Postgres as a disposable cache (review D9, option B) | Rollout visibility and stream semantics redesigned | The rollout stream is the deploy job's view; the log stays, but observation wins |
 | Say the tag move is a compare-and-swap | A claim ghcr cannot honour; a lost race goes unnoticed | The registry has no conditional write |
 | Trust the event log on startup | A crash between a write and its event leaves the log wrong | The cluster and the registry are what runs |
+| Compose in parallel per Project | Estate-wide checks race between Projects | One composition runs at a time, and triggers coalesce |
 
 ## Consequences
 

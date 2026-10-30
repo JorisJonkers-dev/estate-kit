@@ -64,6 +64,8 @@ cluster and the registry.
 | Build the upcaster now | Code and tests for a lift nothing needs | There is one version; build it with the second |
 | One role for append and retention | The service could delete events | The append-only rule would rest on discipline, not a grant |
 | Reconstructed events look like any other | A reader cannot tell a seen event from an inferred one | The log's honesty after a crash is lost |
+| An `Idempotency-Key` header on deploy calls | A header standard whose draft expired, beside a key that already exists | The natural key, project and fragment digest, is already there |
+| Rewrite events in place when their shape changes | History stops being immutable | Events are upcast on read and hold no personal data, so nothing needs erasing |
 
 ## Consequences
 

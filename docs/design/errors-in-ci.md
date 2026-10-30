@@ -68,6 +68,10 @@ per-field provenance, which is deferred
 | Job summary | A table per Project file: code, line, message, help, and each related location as a link pinned to its commit (another repository's links go to that repository) | None |
 | Sticky PR comment | The render diff, each changed object with the elements it came from, and the error count | One comment, updated in place |
 
+The log, the check run and the job summary carry every error, so nothing is
+lost to the annotation cap. SARIF and per-line review comments were rejected:
+both hit the same cap and add a second shape for diagnostics.
+
 ## Following a live object back
 
 Deferred. Annotating each live object with its Project and element reference,

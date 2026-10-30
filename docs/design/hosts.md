@@ -90,7 +90,8 @@ runbook rebuilt on nixos-anywhere has been drilled in a VM (D5). Vault on the
 same node unseals itself through a cloud KMS (D6). Both are decided in
 [fleet-infra](https://github.com/JorisJonkers-dev/fleet-infra) and assumed here
 ([record 59](../decisions/0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md)). Moving to three servers is a
-separate decision.
+separate decision; accepting the API downtime in the window was chosen over
+three servers now or a one-member etcd.
 
 ## When the cluster is down
 
