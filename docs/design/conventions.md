@@ -28,6 +28,9 @@ record, and a check enforces it.
 | Deploy endpoint available | 99% per month, outside maintenance windows |
 | Drift found | within 24 hours |
 
+Chosen because they are numbers the maintainer will act on. A host rollout
+within one window was rejected as a service level.
+
 ## Contracts and their evolution
 
 - **Schemas.** CI diffs each committed schema against the last release,
@@ -75,3 +78,57 @@ a record. Small nested files sit in each context's folder under `crates/`
 `ui/`; `CLAUDE.md` imports `AGENTS.md`. deploy-kit's `adr`,
 `spec-change`, `gate-triage` and `new-rule` skills are rewritten for
 estate-kit, not copied.
+
+Chosen so agents read the whole file instead of skimming a long one. One
+root file for the whole workspace was rejected.
+
+## Primitives
+
+IDs are UUIDv7, times are RFC 3339 in UTC, and an absent field means unset;
+`null` is never valid. Chosen because UUIDv7 sorts and has a native Postgres
+type, and one null rule needs one lint. ULIDs were rejected.
+
+## Retention
+
+Rollout events are kept 400 days. A render is kept if it is among its
+Project's last 20, younger than 90 days, or named by a tag. Chosen so rollback
+targets survive and storage stays bounded. Keeping everything, or 90 days of
+everything, were rejected.
+
+## Telemetry
+
+OpenTelemetry traces go to Tempo and JSON logs to Loki, and the rollout id
+correlates them, so one rollout reads as one trace. Logs and metrics alone
+were rejected.
+
+## Configuration
+
+Flags override environment variables, which override a file, and a secret
+appears only as a reference. Chosen because it gives one typed config with
+nothing secret in it. Environment only was rejected.
+
+## Shared Rust code
+
+Shared Rust code moves into
+[rust-commons](https://github.com/JorisJonkers-dev/rust-commons) on its third
+consumer, in the pull request that switches that consumer
+([workspace ADR-0017](https://github.com/JorisJonkers-dev/workspace/blob/main/docs/decisions/ADR-0017-go-commons-extracts-on-third-use.md)).
+Until then it stays in estate-kit's foundation crates.
+
+- **The sign-in kit goes in now** (identity#113). Every Rust application with a
+  browser UI needs it, and identity's flow-conformance suite is its contract,
+  which CI runs explicitly.
+- **rust-commons becomes a workspace of small crates** (`identity`, `signin`,
+  and later others) when it gains the kit, so a consumer that reads Principals
+  does not compile an OIDC client
+  ([record 50](../decisions/0050-five-bounded-contexts.md)). One crate with
+  features was rejected: features unify across a workspace.
+- **No other module goes in early.** A commons crate for configuration,
+  telemetry and test harnesses now would be an interface designed for one
+  consumer.
+- A rust-commons module with fewer than three consumers is forbidden, apart
+  from the identity contract adapters. Reviewers check an extraction in the
+  pull request that switches its third consumer.
+
+The sign-in kit stays outside estate-kit because it has a contract outside
+estate-kit: identity's suite.

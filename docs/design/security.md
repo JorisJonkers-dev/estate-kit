@@ -23,7 +23,7 @@ crossing carries a verified identity.
 | Browser to edge | Elevation: an operator action by a viewer | Roles from auth-api groups; every route has a row in the matrix below |
 | Browser to edge | Cross-site request forgery | Same-origin UI, SameSite cookies |
 | Service to Vault | Elevation: the service signs anything | The Transit keys may only sign; the service signs only after an accepted dry-run, and a test proves it. Renders and host tags have separate keys (D10) |
-| Service to Vault | Denial: Vault is sealed or lost | Auto-unseal through a cloud KMS and a VaultSealed alert (D6); rollback needs no signing (D7); an offline recovery key every verifier trusts (D10) |
+| Service to Vault | Denial: Vault is sealed or lost | Auto-unseal through a cloud KMS and a VaultSealed alert (D6; assumed from fleet-infra, [record 59](../decisions/0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md)); rollback needs no signing (D7); an offline recovery key every verifier trusts (D10) |
 | Service to Vault | Disclosure: the signing key leaks | The key is not exportable |
 | Service to ghcr | Tampering: someone else moves a tag | Flux and the host appliers verify the signature; the tag is moved by a machine account's PAT, synced from Vault into a Secret the service mounts, with write only on the render and host packages and a check that fails on any other grant (D3) |
 | Service to API | Elevation: the dry-run identity writes | A ValidatingAdmissionPolicy refuses every request from the service's identity unless `dryRun` is set (D4) |
