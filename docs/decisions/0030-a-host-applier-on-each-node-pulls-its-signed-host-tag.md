@@ -49,6 +49,9 @@ The page is [Hosts](../design/hosts.md).
 | Defer, keep deploy-rs (review's recommendation) | Hosts need the maintainer's machine to change | The maintainer chose to build it now |
 | kured plus a small stager | kured's cluster-wide grant; per-site locks | Weaker isolation of eviction |
 | Lease, drain, switch, then wait for the window | A node sits drained for hours | D11 |
+| Node-to-node push of closures | A node holds credentials to other nodes | Each node pulls its own signed tag |
+| A fixed node order, or declared waves | The order goes stale when the change differs, and ignores the version skew rule | The order is derived from the change; k3s bumps go control plane first |
+| CI moves the host tag, or nodes follow main | A deploy credential in CI, or nodes that apply what nobody signed | The service moves the signed `host/<node>:prod` tag, as it does for Projects; the key stays in Vault |
 
 ## Consequences
 

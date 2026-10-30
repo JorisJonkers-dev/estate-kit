@@ -37,6 +37,8 @@ the binary cache's signing key can sign root code for every node
 | Nodes build their own closures | CPU and memory on small nodes; no gate before a switch | The VM test is the gate |
 | Hand-write the host data too | Intent and host configuration drift apart | The compiler already owns Intent |
 | Server-side signing (niks3) with OIDC push | A signing service to run | A later upgrade |
+| Full `.nix` files from string templates | Generated Nix would hold logic that nothing checks | Generated Nix holds data; hand-written modules hold logic |
+| Build only, or a VM test per node | Boot and service failures reach a node, or every node needs its own test | A VM test per Node class catches boot and service failures without emulating GPUs |
 
 ## Consequences
 

@@ -9,7 +9,7 @@ refuses GitHub App tokens ([review](../research/review/README.md) D3). It lives 
 | Caller | Token | What the service checks |
 | --- | --- | --- |
 | Project CI | GitHub Actions OIDC token, audience `estate-kit`, re-requested while a deploy job waits | The [claim policy](#the-claim-policy), with pass and fail fixtures (D8) ([record 8](../decisions/0008-an-image-digest-is-sealed-into-the-fragment-and-registered-by-its-build.md)) |
-| People in the UI | auth-api; estate-kit is a declared Client | Group claims map to viewer, operator or admin in Platform Intent. Operators pause, resume and roll back; admins change admissions |
+| People in the UI | auth-api; estate-kit is a declared Client | Group claims map to viewer, operator or admin in Platform Intent. Operators pause, resume and roll back; admins change admissions. "Signed in means operator" was rejected: one identity system maps groups to roles |
 | Flagger's Release Gate webhook | None: Flagger cannot send a projected service-account token | The answer only reads cluster state and changes nothing, so an unauthenticated call can learn health and nothing more (D9). The gate's own writes are made by the service under the Lease, not by this call ([record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)) |
 | Flux | None: the service watches Flux's status instead of taking its events | Nothing to check (D9) |
 | Service to Vault | Vault Kubernetes auth | The service's own service account |

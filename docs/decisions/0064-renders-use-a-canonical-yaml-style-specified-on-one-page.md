@@ -39,6 +39,7 @@ order.
 | --- | --- | --- |
 | RFC 8785 JSON for every render | Diffs that people read are harder | Renders are reviewed by people |
 | Reproduce eemeli/yaml's YAML 1.1 output in Rust | A bespoke emitter kept forever | The style is a library's, not ours |
+| Snapshot tests, or the YAML 1.1 output as the format | Expected outputs depend on one library's style | Oracle files at the four seams only, in the style one page specifies |
 
 ## Consequences
 

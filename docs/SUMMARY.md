@@ -25,7 +25,6 @@
   - [Testing and speed](design/code-shape-and-speed.md)
 - [Decisions](decisions/README.md)
   - [The register, as planned](decisions/register.md)
-  - [Choices made](decisions/choices.md)
   - [Record template](decisions/template.md)
   - [1. One maintainer, one cluster, one estate](decisions/0001-one-maintainer-one-cluster-one-estate.md)
   - [2. Kubernetes and Flux](decisions/0002-kubernetes-is-the-substrate-and-flux-is-the-one-applier.md)

@@ -107,7 +107,7 @@ Findings: process-6, model-compiler-7, model-compiler-8.
 ## Outcomes
 
 The maintainer decided all twelve on 2026-10-22. Each changes or adds to a
-choice in [`choices.md`](../../decisions/choices.md); the records that carry
+choice in the [register](../../decisions/register.md); the records that carry
 them are Proposed until they are written and accepted.
 
 D1 was reversed on 2026-10-29 by

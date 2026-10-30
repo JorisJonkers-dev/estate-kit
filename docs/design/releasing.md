@@ -10,7 +10,14 @@ A Project has two workflows, `validate` and `deploy`. A dry-run is `deploy`
 with `dry-run: true`, identical except that nothing is signed, tagged or
 applied. Composition is the service's estate-wide step. It appears only as a
 log step, "Composing the estate", and never as the name of a workflow, job or
-check.
+check. A separate dry-run workflow or a compose workflow was rejected: the
+service owns composition, so the Project's workflows need not name it.
+A dry-run records no Deployment, and a dry-run environment was rejected, so
+the production history holds real deploys only.
+
+The deploy job owns the Deployment and streams the rollout, so every rollout
+is a run with its approval gates. Deployments created by the service were
+rejected.
 
 ## What a dry-run is
 

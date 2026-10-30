@@ -71,6 +71,7 @@ settles it.
 | GitHub artifact attestations, verified with sigstore | A sigstore verifier and a TUF fetch on the deploy path | Heavier than the problem; a later upgrade, not a blocker |
 | Claim policy only | Any admitted Project's CI can seal any digest | The provenance gap D8 named |
 | Keep the estate's images lock | A central list outside the Projects | Each Project's state lives with the Project ([record 7](register.md)) |
+| A digest in the Project file, or a lock block in it | Authors edit what a build should fix, and nothing proves the build made it | The digest is sealed into the fragment and registered by its build |
 
 ## Consequences
 
