@@ -5,56 +5,79 @@
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="compiler" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="Compiler context: the model" vertex="1">
-          <mxGeometry height="56" width="240" x="12" y="31" as="geometry" />
+          <mxGeometry height="56" width="240" x="12" y="122" as="geometry" />
         </mxCell>
         <mxCell id="service" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="Service context: rollouts" vertex="1">
-          <mxGeometry height="56" width="230" x="776" y="17" as="geometry" />
+          <mxGeometry height="56" width="230" x="813.67" y="26" as="geometry" />
         </mxCell>
         <mxCell id="observation" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="Observation context: what runs" vertex="1">
-          <mxGeometry height="66" width="240" x="1492" y="12" as="geometry" />
+          <mxGeometry height="66" width="240" x="1670" y="12" as="geometry" />
         </mxCell>
         <mxCell id="applier" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="Hosts context: generations" vertex="1">
-          <mxGeometry height="56" width="237" x="663" y="113" as="geometry" />
+          <mxGeometry height="56" width="237" x="663" y="122" as="geometry" />
         </mxCell>
         <mxCell id="components" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="Component contexts: migrations, secrets, catalogs, backups, mailboxes" vertex="1">
-          <mxGeometry height="86" width="456" x="663" y="209" as="geometry" />
+          <mxGeometry height="86" width="456" x="663" y="218" as="geometry" />
         </mxCell>
         <mxCell id="e1" edge="1" parent="1" source="compiler" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.25;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="service" value="use cases, in-process (customer, supplier)">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-56.5" as="offset" />
+            <mxPoint x="-34.33" as="offset" />
             <Array as="points">
-              <mxPoint x="514" y="45" />
+              <mxPoint x="268" y="136" />
+              <mxPoint x="268" y="54" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e2" edge="1" parent="1" source="service" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="observation" value="rollout events (published language)">
+        <mxCell id="e2" edge="1" parent="1" source="service" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.3393;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="observation" value="rollout events (published language)">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="56.5" as="offset" />
+            <mxPoint x="37.66" as="offset" />
             <Array as="points">
-              <mxPoint x="1249" y="45" />
+              <mxPoint x="1356.84" y="45" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="e3" edge="1" parent="1" source="compiler" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="applier" value="host data through an anticorruption layer">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="41" as="offset" />
+            <mxPoint as="offset" />
             <Array as="points">
-              <mxPoint x="278" y="59" />
-              <mxPoint x="278" y="141" />
+              <mxPoint x="457.5" y="150" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="e4" edge="1" parent="1" source="compiler" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.75;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="components" value="rendered objects">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="89.5" as="offset" />
+            <mxPoint x="48.5" as="offset" />
             <Array as="points">
-              <mxPoint x="268" y="73" />
-              <mxPoint x="268" y="252" />
+              <mxPoint x="268" y="164" />
+              <mxPoint x="268" y="261" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="api" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#eeeeee,#303030);strokeColor=light-dark(#999999,#8a8a8a);fontFamily=Helvetica;" value="Kubernetes API" vertex="1">
+          <mxGeometry height="56" width="160" x="1670" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="alert" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#eeeeee,#303030);strokeColor=light-dark(#999999,#8a8a8a);fontFamily=Helvetica;" value="Alertmanager" vertex="1">
+          <mxGeometry height="56" width="160" x="2225" y="17" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="service" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.6607;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="api" value="Release Gate: unsuspend a Job, gate record, under the writer Lease">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="79.16" as="offset" />
+            <Array as="points">
+              <mxPoint x="1135" y="63" />
+              <mxPoint x="1135" y="146" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="observation" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="alert" value="Silences, own credential">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="2067.5" y="45" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="header" value="Context map: the bounded contexts and how they relate" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=light-dark(#1a1a1a,#e8e8e8);fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="12" y="-52" width="1720" height="36" as="geometry" />
+          <mxGeometry x="12" y="-52" width="2373" height="36" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

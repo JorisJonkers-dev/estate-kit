@@ -55,8 +55,9 @@ sequence("seq-deploy-2-dryrun", "Deploy, step 2 of 3: compose, dry-run, sign and
           ("S", "R", "compose the estate"),
           ("R", "S", "renders, diagnostics", "reply"), ("S", "K", "apply, dryRun=All, as the dry-run identity"),
           ("alt", "dry-run accepted",
-           [("K", "S", "accepted", "reply"), ("S", "V", "sign with the render key"),
-            ("S", "O", "push, move the prod tag (compare-and-swap)")],
+           [("K", "S", "accepted", "reply"), ("S", "V", "sign with the render signing key"),
+            ("S", "O", "push the render"), ("S", "K", "take the writer Lease"),
+            ("S", "O", "read the prod tag, verify it, write, read it again")],
            "dry-run rejected",
            [("K", "S", "rejected", "reply"), ("note", "S", "Project isolated, prod tag unchanged")])])
 sequence("seq-deploy-3-switch", "Deploy, step 3 of 3: Flux applies and Flagger switches traffic",
@@ -73,7 +74,8 @@ sequence("seq-rollback", "Roll back a Project: the fast path signs and composes 
          [("@Op", "Operator"), ("S", "estate-kit service"), ("K", "API server"), ("O", "ghcr"), ("GH", "GitHub")],
          [("@Op", "S", "roll back"), ("S", "K", "dry-run the last Serving render"),
           ("alt", "dry-run accepted",
-           [("K", "S", "accepted", "reply"), ("S", "O", "move the prod tag back (compare-and-swap)"),
+           [("K", "S", "accepted", "reply"), ("S", "K", "take the writer Lease"),
+            ("S", "O", "read the prod tag, verify it, move it back, read it again"),
             ("S", "K", "set the Project to Paused"), ("S", "@Op", "rolled back, Paused", "reply")],
            "dry-run rejected",
            [("K", "S", "rejected", "reply"), ("S", "GH", "dispatch deploy in watch mode: re-compose")])])
@@ -82,7 +84,12 @@ sequence("seq-auth", "Authenticate a deploy call with a GitHub OIDC token",
          [("CI", "GO", "request an ID token, audience estate-kit"), ("GO", "CI", "JWT", "reply"),
           ("CI", "S", "deploy, Bearer JWT"), ("S", "S", "repository_id and owner id admitted?"),
           ("S", "S", "claim policy: event_name, job_workflow_sha, ref_type, runner, environment"),
-          ("S", "CI", "rollout id", "reply")])
+          ("S", "CI", "rollout id", "reply"),
+          ("CI", "GO", "token expired or service restarted: request a fresh ID token"),
+          ("GO", "CI", "JWT", "reply"),
+          ("CI", "S", "watch, resume after the last sequence, Bearer JWT"),
+          ("S", "S", "the same claim policy"),
+          ("S", "CI", "events since that sequence", "reply")])
 sequence("seq-cache", "Skip publishing an unchanged render",
          [("S", "estate-kit service"), ("R", "compiler binary"), ("O", "ghcr")],
          [("S", "R", "render this Project"), ("R", "S", "render, digest", "reply"),
@@ -271,8 +278,10 @@ g.person("ci", "Project CI", "A GitHub Actions deploy job")
 g.person("op", "Operator", "In a browser")
 g.group("ek", "estate-kit")
 g.system("cli", "estate-kit CLI", "Validates and plans offline", kind="container", tech="Rust, one binary", parent="ek")
-g.system("ui", "UI", "Rollouts, Projects, hosts", kind="container", tech="Vue, embedded", parent="ek")
-g.system("svc", "service", "Composes, dry-runs, signs, streams rollouts; serves the Observation views", kind="container",
+g.system("ui", "UI", "Rollouts, Projects, hosts", kind="container", tech="Vue, embedded in Observation", parent="ek")
+g.system("obs", "Observation", "Read-only views of what runs; creates and expires Silences", kind="container",
+         tech="Rust, its own binary and Deployment", parent="ek")
+g.system("svc", "service", "Composes, dry-runs, signs, streams rollouts, runs the Release Gate", kind="container",
          tech="Rust, links the compiler", parent="ek")
 g.system("pg", "event log", "Append-only rollout events", kind="database", tech="platform-postgres", parent="ek")
 g.system("applier", "host applier", "Switches one node at a time", kind="container", tech="Rust, systemd", parent="ek")
@@ -281,14 +290,19 @@ g.system("comps", "components", "Six reconcilers: migrations, secret grants, dat
 g.system("api", "Kubernetes API", "Dry-runs and status", kind="external")
 g.system("ghcr", "ghcr", "Fragments, renders, tags", kind="external")
 g.system("vault", "Vault Transit", "Signing key", kind="external")
+g.system("tel", "Prometheus, Loki, Alertmanager, Gatus", "Metrics, logs, alerts, checks", kind="external")
 g.c4_edge("ci", "cli", "runs")
 g.c4_edge("cli", "svc", "deploy, watch", "HTTPS + SSE, OpenAPI 3.1")
 g.c4_edge("op", "ui", "uses", "HTTPS")
-g.c4_edge("ui", "svc", "calls", "HTTPS, same origin")
+g.c4_edge("obs", "ui", "serves", "HTTPS")
+g.c4_edge("ui", "svc", "calls Pause and Rollback", "HTTPS")
+g.c4_edge("obs", "svc", "reads rollout events", "HTTPS + SSE")
+g.c4_edge("obs", "api", "reads status", "HTTPS")
+g.c4_edge("obs", "tel", "reads; creates Silences", "HTTPS, own credential")
 g.c4_edge("svc", "pg", "appends, reads", "SQL")
 g.c4_edge("svc", "ghcr", "pushes renders, moves tags", "OCI, machine-account token")
 g.c4_edge("svc", "vault", "signs", "Transit")
-g.c4_edge("svc", "api", "dry-runs, reads status", "HTTPS")
+g.c4_edge("svc", "api", "dry-runs, reads status; Job unsuspend, gate record", "HTTPS, writer Lease")
 g.c4_edge("applier", "api", "Lease, Eviction API", "HTTPS")
 g.c4_edge("comps", "api", "watch custom resources", "HTTPS")
 g.done()
@@ -332,8 +346,13 @@ g.box("api", "API server", parent="cluster")
 g.box("flux", "Flux, locked down per Project", parent="cluster")
 g.artifact("obj", "Project objects", parent="cluster")
 g.box("idp", "auth-api", parent="cluster")
+g.box("obs", "estate-kit Observation", tone="accent", parent="cluster")
+g.box("alert", "Alertmanager", parent="cluster")
 g.edge("flagger", "svc", "Release Gate webhook")
-g.edge("svc", "api", "dry-run, read")
+g.edge("obs", "svc", "reads rollout events")
+g.edge("obs", "api", "reads")
+g.edge("obs", "alert", "reads, Silences")
+g.edge("svc", "api", "dry-run, read; Job unsuspend, gate record")
 g.edge("flux", "api", "applies")
 g.edge("svc", "vault", "sign")
 g.edge("svc", "idp", "sign-in")
@@ -375,11 +394,16 @@ g.box("svc", "estate-kit service", tone="accent")
 g.store("ghcr", "ghcr")
 g.box("flux", "Flux")
 g.box("work", "Project workloads")
+g.box("api", "Kubernetes API", tone="external")
+g.box("obs", "Observation", tone="accent")
+g.box("alert", "Alertmanager", tone="external")
 g.edge("ci", "svc", "deploy (OIDC)")
 g.edge("estate", "svc", "Platform Intent")
 g.edge("svc", "ghcr", "signed render, prod tag")
 g.edge("flux", "ghcr", "pulls")
 g.edge("flux", "work", "applies")
+g.edge("svc", "api", "Release Gate: unsuspend a Job, write the gate record, under the writer Lease")
+g.edge("obs", "alert", "create or expire Silences, own credential")
 g.done()
 
 g = Graph("inputs-compile", "Inputs: what composing a Project reads, and where each comes from")
@@ -403,7 +427,7 @@ g.done()
 g = Graph("inputs-deliver", "Inputs: what delivering a render reads, and where each comes from")
 g.artifact("render", "render from compose")
 g.box("api", "Cluster API", tone="external")
-g.box("vaultk", "Vault Transit key", tone="external")
+g.box("vaultk", "render signing key, Vault Transit", tone="external")
 g.store("ghcr", "ghcr prod tag")
 g.artifact("events", "Flagger analysis, cluster events")
 g.box("dry", "dry-run", tone="accent")
@@ -561,6 +585,7 @@ g = Graph("components", "Components: the parts of estate-kit (blue) and what eac
 g.artifact("intent", "authored intent")
 g.box("service", "service (Rust)", tone="accent")
 g.box("compiler", "compiler crates (Rust)", tone="accent")
+g.box("observation", "observation (Rust)", tone="accent")
 g.box("ui", "ui (Vue)", tone="accent")
 g.box("applier", "host applier (Rust)", tone="accent")
 g.artifact("renders", "renders, host data")
@@ -570,7 +595,8 @@ for comp in COMPONENTS:
 g.box("nodes", "NixOS nodes", tone="external")
 g.edge("intent", "compiler", "reads")
 g.edge("service", "compiler", "links")
-g.edge("service", "ui", "serves")
+g.edge("service", "observation", "rollout events, read")
+g.edge("observation", "ui", "serves")
 g.edge("service", "applier", "host tags, pulled")
 g.edge("compiler", "renders", "writes")
 for comp in COMPONENTS:
@@ -588,6 +614,10 @@ g.edge("compiler", "service", "use cases, in-process (customer, supplier)")
 g.edge("service", "observation", "rollout events (published language)")
 g.edge("compiler", "applier", "host data through an anticorruption layer")
 g.edge("compiler", "components", "rendered objects")
+g.box("api", "Kubernetes API", tone="external")
+g.box("alert", "Alertmanager", tone="external")
+g.edge("service", "api", "Release Gate: unsuspend a Job, gate record, under the writer Lease")
+g.edge("observation", "alert", "Silences, own credential")
 g.done()
 
 g = Graph("trust-boundaries", "Trust boundaries: what crosses each one, and with which credential")
@@ -761,10 +791,10 @@ sequence("seq-compose-crates", "Control flow: one deploy call through the crates
           ("alt", "the dry-run reports problems", [("Q", "E", "append Refused, with the diagnostics")],
            "the dry-run is clean", [
                ("opt", "the render's digest differs from the tag's", [
-                   ("Q", "V", "sign the digest with the render key"),
+                   ("Q", "V", "sign the digest with the render signing key"),
                    ("Q", "G", "push the render"),
                    ("Q", "K", "take the writer Lease"),
-                   ("Q", "G", "move render/<p>:prod by compare-and-swap")]),
+                   ("Q", "G", "read render/<p>:prod, verify it, write, read it again")]),
                ("Q", "E", "append Published or Unchanged")]),
           ("H", "CI", "stream events over SSE, resumable by sequence", "reply")])
 
@@ -781,9 +811,9 @@ g.decision("dryok", "dry-run clean?")
 g.terminal("refused", "diagnostics on the YAML lines; nothing moves", tone="bad")
 g.decision("changed", "render digest differs from the tag's?")
 g.terminal("unchanged", "publish nothing, move nothing", tone="good")
-g.box("sign", "sign, push, take the Lease")
-g.decision("cas", "compare-and-swap succeeds?")
-g.box("reread", "read the tag again and decide again", tone="warn")
+g.box("sign", "sign, push, take the Lease, read and verify the tag, write")
+g.decision("cas", "the tag read again shows what was written?")
+g.box("reread", "lost a race: stop, observe, decide again", tone="warn")
 g.terminal("done", "tag moved; Flux applies", tone="good")
 for a, b, label in [("start", "read", ""), ("read", "ok", ""), ("ok", "compose", "yes"), ("ok", "isolate", "no"),
                     ("isolate", "compose", ""), ("compose", "budget", ""), ("budget", "failed", "no"),
