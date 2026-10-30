@@ -15,8 +15,8 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 7 | A Project's state lives with the Project | Accepted |
 | 8 | [A Project's CI proves itself with a pinned-workflow OIDC token, and the service deploys only images its own build registered](0008-an-image-digest-is-sealed-into-the-fragment-and-registered-by-its-build.md) | Proposed |
 | 9 | [The live render is a signed registry tag per Project and environment](0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md) | Accepted |
-| 10 | Platform Intent admits the Projects | Accepted |
-| 11 | Platform Intent is pushed like any Project; the service's copies are a cache | Accepted |
+| 10 | [Platform Intent admits the Projects, and it is pushed like any Project; the service's copies are a cache](0010-platform-intent-admits-the-projects-and-is-pushed-like-any-project.md) | Accepted |
+| 11 | Platform Intent is pushed like any Project; the service's copies are a cache | Merged into 10 |
 | 12 | Infrastructure Intent declares sites, nodes and maintenance windows | Accepted |
 | 13 | [Every program in estate-kit is Rust, in one Cargo workspace; only the UI is Vue](0013-every-program-is-rust.md) | Accepted |
 | 14 | [The compiler is a chain of plain-Rust typed steps through one trace, one crate per step, with no DSL](0014-the-compiler-is-a-chain-of-typed-models-one-crate-per-step.md) | Accepted |
@@ -30,8 +30,8 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 22 | Every caller authenticates with an OIDC token checked against a claim policy | Merged into 8 |
 | 23 | [A rollout is an append-only event log on the shared Postgres](0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md) | Accepted |
 | 24 | A rollout is an append-only event log on the shared Postgres | Merged into 23 |
-| 25 | A dry-run must pass before anything is applied | Accepted |
-| 26 | Images are built once and promoted, so what dry-ran is what deploys | Accepted |
+| 25 | [A dry-run must pass before anything is applied, and images are built once and promoted, so what dry-ran is what deploys](0025-a-dry-run-must-pass-before-anything-is-applied-and-what-dry-ran-is-what-deploys.md) | Accepted |
+| 26 | Images are built once and promoted, so what dry-ran is what deploys | Merged into 25 |
 | 27 | A diagnostic names a model path, and the caller resolves the line | Merged into 71 |
 | 28 | [Pause and Rollback are a cluster object per Project; a missing object reads as Paused](0028-pause-and-rollback-are-a-cluster-object-per-project.md) | Proposed |
 | 29 | The compiler renders host data; hand-written modules consume it | Accepted |
@@ -39,11 +39,11 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 31 | [Host closures are built in CI and cached outside the cluster, signed by an environment-scoped key](0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md) | Proposed |
 | 32 | Node order is derived from the change and the version skew rule | Accepted |
 | 33 | A Mailbox is declared by its local part and owned by one Project | Accepted |
-| 34 | Components live in this repository at one version | Accepted |
+| 34 | [Every part of estate-kit, the components included, lives in this repository at one version](0034-every-part-of-estate-kit-lives-in-this-repository-at-one-version.md) | Accepted |
 | 35 | A further implementation, if one is ever written, meets the first at the language-neutral oracles | Merged into 67 |
 | 36 | One concept per module, one fake per port, oracles only at the seams | Merged into 68 |
 | 37 | Every gate has a speed budget; coverage and mutation are ratchets | Accepted |
-| 38 | One version for every part | Accepted |
+| 38 | One version for every part | Merged into 34 |
 | 39 | Decisions live as Markdown in docs/, and a Pages site is built from it | Accepted |
 | 40 | Records are read in order and cite their lessons | Accepted |
 | 41 | A record has a status; a locked record needs a failing check | Accepted |
@@ -52,8 +52,8 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 44 | Errors are RFC 9457 problems drawn from one catalogue | Merged into 71 |
 | 45 | Deploy calls are idempotent on project and fragment digest; streams resume by sequence | Merged into 23 |
 | 46 | IDs are UUIDv7, times RFC 3339 in UTC, and absent means unset | Accepted |
-| 47 | Schemas evolve additively within a major version, checked in CI | Accepted |
-| 48 | [The CLI's JSON output has a committed schema that the reusable workflows read](0048-the-cli-s-json-output-has-a-committed-schema.md) | Accepted |
+| 47 | Schemas evolve additively within a major version, checked in CI | Merged into 48 |
+| 48 | [Every committed schema evolves additively within a major version, checked in CI, and the CLI's JSON output has one that the reusable workflows read](0048-the-cli-s-json-output-has-a-committed-schema.md) | Accepted |
 | 49 | Events are versioned and upcast on read, and hold no personal data | Merged into 23 |
 | 50 | [The workspace is five bounded contexts in five layers, and a check holds the crate graph to both](0050-five-bounded-contexts.md) | Accepted |
 | 51 | History is kept 400 days; renders are kept by count, age and tag | Accepted |
