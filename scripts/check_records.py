@@ -5,6 +5,8 @@ docs/decisions/README.md: a record's status agrees with its register row; rests-
 exist and forms no cycle; an Accepted record rests only on Accepted ones; every lesson a record cites
 exists and was kept in curation; and every Accepted row has a file. Locked counts as Accepted.
 A row "Merged into N" has no file, nothing rests on it, and N is a row that is not merged itself.
+A row "Moved to [page](link)" is retired: its rule lives on that page, so it has no file, is not
+Accepted, and nothing rests on it.
 
 Violations the tree had when this check was written are listed in the known file. A listed
 violation passes, a new one fails, and a listed one that no longer occurs fails too, so the list
@@ -20,11 +22,12 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-ROW = re.compile(r"^\| (\d+) \| .+ \| (\w+(?: into \d+)?) \|$")
+ROW = re.compile(r"^\| (\d+) \| .+ \| (\w+(?: into \d+| to \[[^\]]+\]\([^)]+\))?) \|$")
 LESSON = re.compile(r"^\| ([A-Z]+-\d+) \| .+ \| (\w+) \|$")
 RECORD_FILE = re.compile(r"^(\d{4})-.+\.md$")
 ACCEPTED = {"accepted", "locked"}
 MERGED = re.compile(r"^merged into (\d+)$")
+MOVED = re.compile(r"^moved to \[")
 
 
 @dataclass(frozen=True)
@@ -111,6 +114,7 @@ def violations(decisions: Path, lessons_file: Path) -> list[Violation]:
     for line in register.read_text(encoding="utf-8").splitlines():
         if match := ROW.match(line):
             rows[int(match.group(1))] = match.group(2).lower()
+    moved = {number for number, status in rows.items() if MOVED.match(status)}
     merged = {number: int(m.group(1)) for number, status in rows.items() if (m := MERGED.match(status))}
     lessons = {}
     for line in lessons_file.read_text(encoding="utf-8").splitlines():
@@ -131,6 +135,10 @@ def violations(decisions: Path, lessons_file: Path) -> list[Violation]:
             found.append(Violation(
                 f"merged-file {number}", record.path,
                 f"row {number} is merged into {merged[number]}, so its file belongs in that record"))
+        elif number in moved:
+            found.append(Violation(
+                f"moved-file {number}", record.path,
+                f"row {number} is moved to a page, so it keeps no record file"))
         elif record.status != rows[number]:
             found.append(Violation(
                 f"status {number}", record.path,
@@ -145,6 +153,11 @@ def violations(decisions: Path, lessons_file: Path) -> list[Violation]:
                 found.append(Violation(
                     f"rests-on-merged {number} {target}", record.path,
                     f"rests on {target}, which is merged into {merged[target]}; rest on {merged[target]}"))
+                continue
+            if target in moved:
+                found.append(Violation(
+                    f"rests-on-moved {number} {target}", record.path,
+                    f"rests on {target}, which moved to a page; cite the page instead"))
                 continue
             edges[number].append(target)
             if record.status in ACCEPTED and rows[target] not in ACCEPTED:

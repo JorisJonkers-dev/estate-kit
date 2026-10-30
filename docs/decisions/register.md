@@ -44,25 +44,25 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 36 | One concept per module, one fake per port, oracles only at the seams | Merged into 68 |
 | 37 | Every gate has a speed budget; coverage and mutation are ratchets | Accepted |
 | 38 | One version for every part | Accepted |
-| 39 | Decisions live as Markdown in docs/, and a Pages site is built from it | Accepted |
-| 40 | Records are read in order and cite their lessons | Accepted |
-| 41 | A record has a status; a locked record needs a failing check | Accepted |
+| 39 | Decisions live as Markdown in docs/, and a Pages site is built from it | Moved to [decision records](README.md#how-records-are-kept) |
+| 40 | Records are read in order and cite their lessons | Moved to [decision records](README.md#how-records-are-kept) |
+| 41 | A record has a status; a locked record needs a failing check | Moved to [decision records](README.md#how-records-are-kept) |
 | 42 | The shadow composition is inert | Merged into 67 |
 | 43 | The service API is an OpenAPI 3.1 contract | Accepted |
 | 44 | Errors are RFC 9457 problems drawn from one catalogue | Merged into 71 |
 | 45 | Deploy calls are idempotent on project and fragment digest; streams resume by sequence | Merged into 23 |
-| 46 | IDs are UUIDv7, times RFC 3339 in UTC, and absent means unset | Accepted |
+| 46 | IDs are UUIDv7, times RFC 3339 in UTC, and absent means unset | Moved to [conventions](../design/conventions.md#primitives) |
 | 47 | Schemas evolve additively within a major version, checked in CI | Accepted |
 | 48 | [The CLI's JSON output has a committed schema that the reusable workflows read](0048-the-cli-s-json-output-has-a-committed-schema.md) | Accepted |
 | 49 | Events are versioned and upcast on read, and hold no personal data | Merged into 23 |
 | 50 | [The workspace is five bounded contexts in five layers, and a check holds the crate graph to both](0050-five-bounded-contexts.md) | Accepted |
-| 51 | History is kept 400 days; renders are kept by count, age and tag | Accepted |
-| 52 | Three service levels: deploy p95, availability, drift detection | Accepted |
-| 53 | Traces go to Tempo and logs to Loki, keyed by rollout id | Accepted |
+| 51 | History is kept 400 days; renders are kept by count, age and tag | Moved to [conventions](../design/conventions.md#retention) |
+| 52 | Three service levels: deploy p95, availability, drift detection | Moved to [conventions](../design/conventions.md#service-levels) |
+| 53 | Traces go to Tempo and logs to Loki, keyed by rollout id | Moved to [conventions](../design/conventions.md#telemetry) |
 | 54 | Every trust boundary has a threat table, and every route an authorization row | Accepted |
 | 55 | [Every Go and Python program is characterized before it is rewritten in Rust](0055-every-go-and-python-program-is-characterized-before-it-is-rewritten.md) | Accepted |
-| 56 | Agent files are short, and what must always hold is a check | Accepted |
-| 57 | Configuration is flags, then environment, then file; secrets only by reference | Accepted |
+| 56 | Agent files are short, and what must always hold is a check | Moved to [conventions](../design/conventions.md#agent-files) |
+| 57 | Configuration is flags, then environment, then file; secrets only by reference | Moved to [conventions](../design/conventions.md#configuration) |
 | 58 | [Flux is locked down per Project, and the service dry-runs as an identity that cannot write](0058-flux-is-locked-down-per-project-and-the-service-dry-runs-as-an-identity-that-cannot-write.md) | Proposed |
 | 59 | [Vault unseals itself through a cloud KMS](0059-vault-unseals-itself-through-a-cloud-kms.md) | Proposed |
 | 60 | [The API server's datastore is backed up off the provider, and its restore is drilled](0060-the-api-server-datastore-is-backed-up-off-the-provider-and-its-restore-is-drilled.md) | Proposed |
@@ -75,7 +75,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 67 | [The Rust compiler implements the 1.0 specification, and the shadow compares structure](0067-the-compiler-is-written-to-the-1-0-contract.md) | Accepted |
 | 68 | [One concept per module, one fake per port that passes its contract suite, oracles only at the seams](0068-every-fake-passes-its-port-s-contract-suite.md) | Accepted |
 | 69 | [The deploy path is tested end to end on a throwaway k3s cluster, nightly and before every release](0069-the-deploy-path-is-tested-end-to-end.md) | Accepted |
-| 70 | [Shared Rust code moves to rust-commons on its third consumer; the sign-in kit is the first](0070-shared-rust-code-moves-to-rust-commons-on-its-third-consumer.md) | Accepted |
+| 70 | Shared Rust code moves to rust-commons on its third consumer; the sign-in kit is the first | Moved to [conventions](../design/conventions.md#shared-rust-code) |
 | 71 | [A diagnostic is a coded problem with typed, plural locations, and the caller resolves the lines](0071-a-diagnostic-is-a-coded-problem-with-typed-locations.md) | Accepted |
 | 72 | [Per-field provenance and `estate-kit explain` are deferred until a scenario needs them](0072-per-field-provenance-and-explain-are-deferred.md) | Proposed |
 | 73 | [The composition queue is a row in a Postgres job table on the shared platform-postgres](0073-the-composition-queue-is-a-row-in-a-postgres-job-table.md) | Proposed |
