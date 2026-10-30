@@ -81,6 +81,8 @@ production until the switch.
 | Keep the canonical format as a ledger cause | Every Project's render differs from production in the same way, so the ledger hides real differences | The structural diff never sees the format; it is proved once, on the oracles |
 | Freeze deploy-kit now | Handovers stall until the Rust compiler catches up | Production work is not held back ([review](../research/review/README.md) D1) |
 | Cut over on deploy-kit's TypeScript binary as a temporary subprocess | TypeScript stays in the deploy path | The maintainer is not keeping the TypeScript tool |
+| Let both stacks evolve indefinitely | Two models kept in step with no end date | deploy-kit takes additive releases for the handovers until the Rust compiler meets its latest oracles; then new concepts land here only |
+| Compare the shadow in memory only | The diff cannot be inspected afterwards | Unsigned `shadow/<p>` tags that Flux never reads and admission refuses keep the diff inspectable |
 
 ## Consequences
 

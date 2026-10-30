@@ -46,6 +46,7 @@ half of this record is rewritten.
 | The token read from Vault at use | A tag move and a Rollback fail when Vault is sealed | Recovery must not depend on Vault |
 | A promote workflow with `GITHUB_TOKEN` | GitHub Actions latency on every tag move, rollback included | Rollback must be fast and in the cluster |
 | An in-cluster registry mirrored to ghcr | A registry to run; a rebuilt cluster cannot pull its renders | The render store must survive the cluster |
+| A GitHub App token for the tag move | ghcr refuses App tokens | A machine account's classic PAT is what ghcr accepts (D3) |
 
 ## Consequences
 
