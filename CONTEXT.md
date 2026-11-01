@@ -201,6 +201,14 @@ _Avoid_: tenant user, seat, account
 The state of a Tenant database whose migration failed in a wave, kept at its last good revision with the failure's full output. The Project's current version still serves it, but the Project releases no further version in that environment until no Tenant database is Behind.
 _Avoid_: failed tenant, stuck, drifted
 
+**Canary Tenant**:
+A Tenant its Tenant resource marks to receive each migration first in production, before the other Tenants. A Project's migration runs on its Canary Tenants' databases in the first wave, and the rest follow only if those succeed.
+_Avoid_: pilot, early adopter, test tenant
+
+**Migration wave**:
+One batch of a Project's Tenant databases in one environment that a migration revision runs on together. In production the first wave is the Canary Tenants; the remaining Tenants follow in parallel waves. A failure in a wave marks that database Behind and does not stop the wave.
+_Avoid_: batch, rollout step, shard
+
 **Tenant lock**:
 The brief state in which the platform stops a Tenant's traffic and work around a restore or a move: its people see a standard maintenance page, and no request or message for it is processed. Not a Locked record.
 _Avoid_: maintenance mode, freeze, locked tenant

@@ -105,10 +105,13 @@ A multi-tenant Application takes part through the Tenant hooks it declares: afte
 
 ## Migrations
 
-Planned as row 81 of the [register](../decisions/register.md), filled by
-[#145](https://github.com/JorisJonkers-dev/estate-kit/issues/145). Waves that continue past failure, Behind, and managed Liquibase migrations.
+Decided in [record 81](../decisions/0081-migrations-reach-tenant-databases-in-waves.md).
 
-_Empty until its record is written._
+A multi-tenant Project must declare a Liquibase changelog. The compiler refuses `migration: self` and `migration: none` there.
+
+The `migration-run` component runs each revision on every Tenant database of the Project in an Environment, in Migration waves. In production the first wave is the Canary Tenants, and the other waves follow in parallel. In development and staging all Tenant databases run in one wave. A new Tenant receives every pending revision before it serves a request.
+
+A failure does not stop the wave. The database is marked Behind at its last good revision, and the full output goes into the operation log. The current version keeps serving it. The Release Gate then refuses a new version of the Project in that Environment until no Tenant database there is Behind, because expand/contract only guarantees that two adjacent versions work together. The refusal is a read of cluster state, so it adds no write to [record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md).
 
 ## Backups and Mirrors
 

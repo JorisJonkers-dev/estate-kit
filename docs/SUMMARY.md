@@ -75,6 +75,7 @@
   - [78. A multi-tenant Project keeps one Tenant database per Tenant](decisions/0078-a-multi-tenant-project-keeps-one-tenant-database-per-tenant.md)
   - [79. The Tenant of a request comes only from the signed principal](decisions/0079-the-tenant-of-a-request-comes-only-from-the-signed-principal.md)
   - [80. A Tenant is a custom resource in a sixth bounded context, tenancy](decisions/0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md)
+  - [81. Migrations reach Tenant databases in waves](decisions/0081-migrations-reach-tenant-databases-in-waves.md)
   - [83. Secrets are scoped by environment, and Tenant secrets live beneath their Project](decisions/0083-secrets-are-scoped-by-environment-and-tenant-secrets-live-beneath-their-project.md)
 - [Lesson candidates](lesson-candidates.md)
 - [Diagrams](diagrams/README.md)
