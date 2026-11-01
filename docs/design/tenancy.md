@@ -57,10 +57,13 @@ _Empty until its record is written._
 
 ## Tenant data
 
-Planned as row 78 of the [register](../decisions/register.md), filled by
-[#142](https://github.com/JorisJonkers-dev/estate-kit/issues/142). One Tenant database per Tenant on the Database server recorded with the Tenant, and the per-environment stores.
+Decided in [record 78](../decisions/0078-a-multi-tenant-project-keeps-one-tenant-database-per-tenant.md).
 
-_Empty until its record is written._
+Each multi-tenant Project keeps one Tenant database per Tenant, named `<tenant key>_<project>` with `-` in the Project name written as `_`, such as `p_acme_tribelt`. It lives on the Database server recorded with the Tenant, never one derived from the key. The shared library opens a pool for a Tenant database on first use and closes it when idle.
+
+Each Environment has its own Postgres server and its own Valkey, with keys prefixed `<app>:<tenant key>:` and one ACL user per Application limited to `<app>:*`. Each has one RabbitMQ vhost with shared queues. Each Project has one Garage bucket per Environment, with each Tenant's objects under its key.
+
+The [research](../research/multi-tenancy.md#1-data-isolation-on-postgres) recommends shared tables and counts the costs of this choice: about 8 MB per empty database, a pool per database, no query across Tenants, and a migration per database. The maintainer chose it for one implementation instead of a pool and a silo, and met the costs with lazy pools and the recorded Database server.
 
 ## The Tenant of a request
 
