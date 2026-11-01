@@ -26,6 +26,10 @@ default. It names the costs of a database per Tenant:
 - A migration runs once per database, and once more at each Tenant's creation.
 - At 1000 Tenants and about 30 Applications the research counts tens of
   thousands of databases and pools, and says one maintainer cannot run that.
+  That count assumes every Application is multi-tenant. Here only the few
+  Projects that opt into tenancy keep Tenant databases, and only for the
+  Tenants that use them: at 1000 Tenants and five such Projects, at most
+  5000 databases in production.
 
 The maintainer has chosen a database per Tenant regardless, for the reasons below.
 
