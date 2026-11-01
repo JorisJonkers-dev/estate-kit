@@ -249,6 +249,10 @@ _Avoid_: job, task, workflow
 An email address an Application declares by its local part. The same local part declared twice within one Project names one shared Mailbox; across Projects it is refused.
 _Avoid_: email account, mail user
 
+**Verified domain**:
+A domain of a Tenant's own that a Tenant Admin has proven control of, by publishing the DKIM, SPF and DMARC records the platform names and passing its check. It becomes the Tenant's own mail domain, with its own DKIM key. Until then a Tenant sends as its Product domain.
+_Avoid_: custom domain, tenant domain, vanity domain
+
 ## Rewrite and parity
 
 **Characterization fixture**:

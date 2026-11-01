@@ -77,6 +77,7 @@
   - [80. A Tenant is a custom resource in a sixth bounded context, tenancy](decisions/0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md)
   - [81. Migrations reach Tenant databases in waves](decisions/0081-migrations-reach-tenant-databases-in-waves.md)
   - [83. Secrets are scoped by environment, and Tenant secrets live beneath their Project](decisions/0083-secrets-are-scoped-by-environment-and-tenant-secrets-live-beneath-their-project.md)
+  - [84. A Tenant sends mail as its product domain until it verifies its own](decisions/0084-a-tenant-sends-mail-as-its-product-domain-until-it-verifies-its-own.md)
 - [Lesson candidates](lesson-candidates.md)
 - [Diagrams](diagrams/README.md)
 - [Research](research/README.md)
