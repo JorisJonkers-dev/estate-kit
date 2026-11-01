@@ -65,7 +65,6 @@ that states it.
 | kured | A host applier on each node | Also in [record 30](0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md) |
 | Go templates with htmx for the UI | Vue | Keeps the dashboard; no npm at runtime |
 | An embedded estate snapshot, or a snapshot file, for offline validation | Project-local rules only | Deterministic, with no extra file |
-| One environment name forever, or a staging environment now | A tag per environment, prod only | A second environment adds a tag |
 | Manual Vault unseal; an OpenBao static seal | Cloud-KMS auto-unseal, decided in fleet-infra | A reboot must not stop signing ([record 59](0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md)) |
 | Renaming deploy-kit, or importing without history | A fresh estate-kit with the three repositories imported with history | A clean product name, history kept; delivery and the dashboard are imported at creation too |
 | A service config file; env files folded into Platform Intent | Platform Intent in a thin estate repository, toolchain config in estate-kit | Estate policy stays apart from tool code |

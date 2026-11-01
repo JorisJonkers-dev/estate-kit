@@ -32,10 +32,11 @@ cutover, so the shadow's parity with deploy-kit 1.0 is not disturbed.
 
 ## Environments
 
-Planned as row 75 of the [register](../decisions/register.md), filled by
-[#139](https://github.com/JorisJonkers-dev/estate-kit/issues/139). Three environments in the one cluster, a signed tag and a namespace per Project per environment, promotion from `main` to development and by release to staging and production. Amends [record 9](../decisions/0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md).
+Decided in [record 75](../decisions/0075-three-environments-run-in-the-one-cluster.md), which amends [record 9](../decisions/0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md).
 
-_Empty until its record is written._
+Development, staging and production run in the one cluster. Each Project in each Environment has its own signed tag, `render/<project>:<env>`, and its own namespace, `<project>-<env>`. Production moves once from `<project>-system` by a planned migration.
+
+A merge to `main` deploys to development. A published release deploys to staging, then to production after the `production` approval, with the same digests each time. A Project chooses its Environments, and production is required. Between Environments only replicas, domains and secret paths may differ, plus one env file per Environment. Any other override is refused.
 
 ## Tenants
 

@@ -164,6 +164,9 @@ such as a review rule, is written without a bold name.
 | Scenario-list test | A use case in the scenario list has no scenario | [69](../decisions/0069-the-deploy-path-is-tested-end-to-end.md) | `e2e/` suite | [#72](https://github.com/JorisJonkers-dev/estate-kit/issues/72) |
 | RBAC fixtures | A credential grants a verb or resource outside the context's table | [74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md) | E2E suite | [#72](https://github.com/JorisJonkers-dev/estate-kit/issues/72) |
 | Provenance tests | A rendered field has no element reference, reordering id-keyed lists changes an annotation or digest, or a refused field's diagnostic lacks its line | [72](../decisions/0072-per-field-provenance-and-explain-are-deferred.md) | Test crate | deferred until [record 72](../decisions/0072-per-field-provenance-and-explain-are-deferred.md) is Accepted |
+| Environment override refusal | A per-environment override beyond replicas, domains, secret paths and the env file is accepted; one failing fixture per refused override | [75](../decisions/0075-three-environments-run-in-the-one-cluster.md) | CI, over `contracts/` | [#61](https://github.com/JorisJonkers-dev/estate-kit/issues/61) |
+| Production required check | A Project that does not declare production is accepted; one failing fixture | [75](../decisions/0075-three-environments-run-in-the-one-cluster.md) | CI, over `contracts/` | [#61](https://github.com/JorisJonkers-dev/estate-kit/issues/61) |
+| Promotion digest test | Staging or production runs a digest that the previous Environment did not | [75](../decisions/0075-three-environments-run-in-the-one-cluster.md) | `e2e/`, nightly and before a release | [#72](https://github.com/JorisJonkers-dev/estate-kit/issues/72) |
 
 ## Mutation testing
 

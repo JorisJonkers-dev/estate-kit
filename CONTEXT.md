@@ -12,7 +12,7 @@ A Project whose repository, named by its `repository_id`, Platform Intent lists 
 _Avoid_: participant, registered project
 
 **Prod tag**:
-The signed registry tag `render/<project>:prod` that names a Project's current render. One tag per environment; `prod` is the only one.
+The signed registry tag `render/<project>:<env>` that names a Project's current render in one Environment. There is one per Project per Environment.
 _Avoid_: pin, live tag
 
 **Render key**:
