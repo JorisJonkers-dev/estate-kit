@@ -213,12 +213,24 @@ _Avoid_: webhook, callback, lifecycle event
 A User whose Membership lets them manage their Tenant's Memberships and App Roles, for every Project the Tenant uses. Not estate-kit's Admin, and not identity's Admin.
 _Avoid_: tenant owner, customer admin, superuser
 
+**Gate**:
+The part of identity that resolves a request's host to a Tenant, checks the User's Membership and signs the Principal. Not the Release Gate.
+_Avoid_: forward-auth, proxy, middleware
+
+**Principal**:
+Who is calling an Application, as identity signs it: the User or Machine Identity, its App Roles, and for a multi-tenant Application the Tenant key and that Tenant's App Roles. An Application takes its Tenant only from it.
+_Avoid_: identity, user context, claims
+
+**Tenant header**:
+The broker-neutral header a producer sets on every message to name its one Tenant. A consumer sends a message without one to its dead-letter queue.
+_Avoid_: tenant id header, routing key
+
 **Suspended**:
 The state of a Tenant whose people cannot sign in and whose traffic is refused, while all its data is kept. A Suspended Tenant is purged when its grace period ends, unless it is resumed.
 _Avoid_: disabled, deactivated, frozen
 
 **Purge**:
-The end of a Tenant: its Tenant databases, keys, mail domain and Memberships are removed everywhere. Its Backup generations then expire under their normal retention.
+The end of a Tenant: its Tenant databases, cache keys, stored objects, Tenant secrets, mail domain and Memberships are removed everywhere. Its Backup generations then expire under their normal retention.
 _Avoid_: delete, destroy, offboard
 
 **Mailbox**:

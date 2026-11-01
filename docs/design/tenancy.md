@@ -70,10 +70,26 @@ The [research](../research/multi-tenancy.md#1-data-isolation-on-postgres) recomm
 
 ## The Tenant of a request
 
-Planned as row 79 of the [register](../decisions/register.md), filled by
-[#143](https://github.com/JorisJonkers-dev/estate-kit/issues/143). The Gate's signed principal as the only source of the Tenant, one Tenant per request or message, and the Causation id.
+Decided in [record 79](../decisions/0079-the-tenant-of-a-request-comes-only-from-the-signed-principal.md).
 
-_Empty until its record is written._
+A request's Tenant comes from one place: the Gate's signed Principal. The Gate
+looks the host up to find the Tenant, checks that the User has a Membership in
+it, and signs the Tenant key and that Tenant's App Roles into the Principal and
+the token. An Application trusts nothing else. A service that calls another
+passes that token, or an RFC 8693 exchange of it that keeps the Tenant.
+
+Every request and every message names exactly one Tenant. The shared libraries
+refuse work with none and work with two. A producer sets a Tenant header on
+each message, which belongs to no one broker, and a consumer sends a message
+without one to its dead-letter queue.
+
+A Causation id travels unchanged through every request, job and message a
+chain causes. Each step keeps its own trace, linked to its cause. The Tenant
+key and the Causation id go on logs and spans, never on general metric labels.
+
+The tenancy contract and its language-neutral conformance vectors are planned.
+The Rust library, the Go library and identity run them, and the contract is
+Locked by default once written.
 
 ## The Tenant resource
 

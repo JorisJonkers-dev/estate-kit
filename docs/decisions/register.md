@@ -84,7 +84,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 76 | [Tenants are the organisations the estate serves, one per environment](0076-tenants-are-the-organisations-the-estate-serves.md) | Proposed |
 | 77 | [Product domains are admitted by Platform Intent and named by a Project, and Tenant hosts are derived from them](0077-product-domains-are-admitted-by-platform-intent.md) | Proposed |
 | 78 | [A multi-tenant Project keeps one Tenant database per Tenant, on a Database server recorded with the Tenant](0078-a-multi-tenant-project-keeps-one-tenant-database-per-tenant.md) | Proposed |
-| 79 | The Tenant of a request comes only from the Gate's signed principal, one request or message names exactly one Tenant, and a Causation id ties traces together | Proposed |
+| 79 | [The Tenant of a request comes only from the Gate's signed principal, one request or message names exactly one Tenant, and a Causation id ties traces together](0079-the-tenant-of-a-request-comes-only-from-the-signed-principal.md) | Proposed |
 | 80 | A Tenant is a custom resource that platform components reconcile, with Tenant hooks and finalizers, in a sixth bounded context, tenancy | Proposed |
 | 81 | Migrations reach Tenant databases in waves that continue past failure, a Behind database blocks the next release, and multi-tenant Projects use managed Liquibase migrations | Proposed |
 | 82 | Backups are per-Tenant generations on per-Tenant schedules, kept in a central catalogue, and Mirrors refresh staging and development Tenants | Proposed |
