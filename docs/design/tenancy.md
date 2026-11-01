@@ -127,7 +127,8 @@ A multi-tenant Application writes Tenant-specific secrets at runtime under `…/
 
 ## Mail
 
-Planned as row 84 of the [register](../decisions/register.md), filled by
-[#148](https://github.com/JorisJonkers-dev/estate-kit/issues/148). Sending as the product domain, and a verified domain of the Tenant's own. Amends [record 33](../decisions/0033-a-mailbox-is-declared-by-its-local-part-and-owned-by-one-project.md).
+Decided in [record 84](../decisions/0084-a-tenant-sends-mail-as-its-product-domain-until-it-verifies-its-own.md). Amends [record 33](../decisions/0033-a-mailbox-is-declared-by-its-local-part-and-owned-by-one-project.md).
 
-_Empty until its record is written._
+A Tenant without a Verified domain sends from `noreply@<product domain>`, with its display name as the sender name. A Tenant Admin can verify a domain of the Tenant's own: the platform names the DKIM, SPF and DMARC records to publish, checks them, and records the domain as verified only when all three are right. The mailbox component then reconciles it from the Tenant resource as its own Stalwart domain with its own DKIM key, and removes it at Purge.
+
+Stalwart's community edition is enough. Its Enterprise tenant feature, and hosted mailboxes for a Tenant's people, are out of scope.
