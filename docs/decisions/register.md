@@ -88,5 +88,5 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 80 | A Tenant is a custom resource that platform components reconcile, with Tenant hooks and finalizers, in a sixth bounded context, tenancy | Proposed |
 | 81 | Migrations reach Tenant databases in waves that continue past failure, a Behind database blocks the next release, and multi-tenant Projects use managed Liquibase migrations | Proposed |
 | 82 | Backups are per-Tenant generations on per-Tenant schedules, kept in a central catalogue, and Mirrors refresh staging and development Tenants | Proposed |
-| 83 | Secrets are scoped by environment in their Vault path, and Tenant secrets live beneath their Project | Proposed |
+| 83 | [Secrets are scoped by environment in their Vault path, and Tenant secrets live beneath their Project](0083-secrets-are-scoped-by-environment-and-tenant-secrets-live-beneath-their-project.md) | Proposed |
 | 84 | A Tenant sends mail as its product domain until it verifies its own domain | Proposed |

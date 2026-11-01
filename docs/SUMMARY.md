@@ -73,6 +73,7 @@
   - [76. Tenants are the organisations the estate serves](decisions/0076-tenants-are-the-organisations-the-estate-serves.md)
   - [77. Product domains are admitted by Platform Intent](decisions/0077-product-domains-are-admitted-by-platform-intent.md)
   - [78. A multi-tenant Project keeps one Tenant database per Tenant](decisions/0078-a-multi-tenant-project-keeps-one-tenant-database-per-tenant.md)
+  - [83. Secrets are scoped by environment, and Tenant secrets live beneath their Project](decisions/0083-secrets-are-scoped-by-environment-and-tenant-secrets-live-beneath-their-project.md)
 - [Lesson candidates](lesson-candidates.md)
 - [Diagrams](diagrams/README.md)
 - [Research](research/README.md)
