@@ -68,7 +68,7 @@ success. An Application implements only the hooks it declares.
 During a Tenant lock the Gate serves a standard maintenance page and a 503
 with a Retry-After header, and the shared libraries hold the Tenant's work. The Tenant's Valkey keys can be
 flushed centrally while the lock holds.
-Destroying is Suspend, then a grace period, then Purge. A Tenant is Active,
+Ending a Tenant is Suspend, then a grace period of 30 days, then Purge. A Tenant is Active,
 under a Tenant lock, Suspended or purged; the diagram on the design page
 shows the moves.
 
@@ -106,5 +106,7 @@ the service's can write a Tenant. The **Operation log append-only** check shows
 that an update or delete of an operation log row is refused. The **Tenant lock
 page test** shows that the Gate serves the standard maintenance page to browsers
 and a 503 with Retry-After to API clients while a Tenant is under a Tenant lock. The
+**Purge grace test** shows that a Suspended Tenant is purged 30 days after it
+was suspended, and not before, unless it is resumed. The
 **`cargo xtask check-layers`** check holds the tenancy context to its allowed
 edges.
