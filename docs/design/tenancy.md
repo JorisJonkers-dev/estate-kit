@@ -93,10 +93,15 @@ Locked by default once written.
 
 ## The Tenant resource
 
-Planned as row 80 of the [register](../decisions/register.md), filled by
-[#144](https://github.com/JorisJonkers-dev/estate-kit/issues/144). A Tenant as a custom resource, Tenant hooks and finalizers, and the sixth bounded context. Amends [record 50](../decisions/0050-five-bounded-contexts.md).
+Decided in [record 80](../decisions/0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md), which amends [record 50](../decisions/0050-five-bounded-contexts.md): the workspace has six bounded contexts, and tenancy is the sixth.
 
-_Empty until its record is written._
+A Tenant is a custom resource, one per Tenant in its Environment. Only the estate-kit service writes it. The platform components that hold the Tenant's data (database-catalog, identity, mailbox, backup and secret-grant) reconcile it, and each holds a finalizer, so a Purge completes only when every one has cleaned up.
+
+The tenancy context holds the Tenant model and the Tenant operations: create, add or remove a Project, lock, unlock, suspend, resume, purge and move. Every operation is safe to retry. Each step, with its full error output, goes to an append-only operation log on the shared platform-postgres. The lifecycle API is part of the service's OpenAPI contract, and the maintainer and a product's sign-up flow both call it.
+
+A multi-tenant Application takes part through the Tenant hooks it declares: after-create, lock, unlock, prepare-restore and after-restore. A hook is an HTTP call with a signed machine token, the Tenant key and an operation id. A failed lock or prepare-restore hook aborts before any data changes; a failed after hook flags the Tenant. During a Tenant lock the Gate serves a standard maintenance page and a 503 with Retry-After, and the libraries hold the Tenant's work. Destroying is Suspend, a grace period, then Purge.
+
+![State machine: a Tenant](../diagrams/png/state-tenant.png)
 
 ## Migrations
 

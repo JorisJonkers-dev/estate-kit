@@ -233,6 +233,10 @@ _Avoid_: disabled, deactivated, frozen
 The end of a Tenant: its Tenant databases, cache keys, stored objects, Tenant secrets, mail domain and Memberships are removed everywhere. Its Backup generations then expire under their normal retention.
 _Avoid_: delete, destroy, offboard
 
+**Tenant operation**:
+One lifecycle action on a Tenant: create, add a Project, remove a Project, lock, unlock, suspend, resume, purge or move. The tenancy context runs it across every system that holds the Tenant's data, and records each step with its full error output in one operation log.
+_Avoid_: job, task, workflow
+
 **Mailbox**:
 An email address an Application declares by its local part. The same local part declared twice within one Project names one shared Mailbox; across Projects it is refused.
 _Avoid_: email account, mail user

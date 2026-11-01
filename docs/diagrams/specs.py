@@ -164,6 +164,12 @@ states("state-host-applier", "State machine: the host applier on one node",
        labels={"WaitingForLease": "Waiting for the Lease", "HealthCheck": "Health check",
                "CurrentNew": "Current (new generation)", "RolledBack": "Rolled back to the previous generation"},
        tones={"CurrentNew": "good", "RolledBack": "bad", "Staged": "warn"})
+states("state-tenant", "State machine: a Tenant",
+       [("[*]", "Active", "create"), ("Active", "TenantLock", "lock or move"), ("TenantLock", "Active", "unlock"),
+        ("Active", "Suspended", "suspend"), ("Suspended", "Active", "resume"),
+        ("Suspended", "Purged", "grace period ends, every finalizer released"), ("Purged", "[*]", "")],
+       labels={"TenantLock": "Tenant lock"},
+       tones={"Suspended": "warn", "TenantLock": "warn", "Purged": "bad"})
 states("state-mailbox", "State machine: a Mailbox",
        [("[*]", "Declared", ""), ("Declared", "Provisioned", "account created"),
         ("Declared", "Refused", "local part claimed by another Project"),
@@ -610,10 +616,13 @@ g.box("service", "Service context: rollouts", tone="accent")
 g.box("observation", "Observation context: what runs", tone="accent")
 g.box("applier", "Hosts context: generations", tone="accent")
 g.box("components", "Component contexts: migrations, secrets, catalogs, backups, mailboxes", tone="accent")
+g.box("tenancy", "Tenancy context: Tenants and their lifecycle", tone="accent")
 g.edge("compiler", "service", "use cases, in-process (customer, supplier)")
 g.edge("service", "observation", "rollout events (published language)")
 g.edge("compiler", "applier", "host data through an anticorruption layer")
 g.edge("compiler", "components", "rendered objects")
+g.edge("service", "tenancy", "lifecycle API (customer, supplier)")
+g.edge("tenancy", "components", "Tenant resource, finalizers (published language)")
 g.box("api", "Kubernetes API", tone="external")
 g.box("alert", "Alertmanager", tone="external")
 g.edge("service", "api", "Release Gate: unsuspend a Job, gate record, under the writer Lease")
