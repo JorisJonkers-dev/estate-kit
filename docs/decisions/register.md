@@ -81,7 +81,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 73 | [The composition queue is a row in a Postgres job table on the shared platform-postgres](0073-the-composition-queue-is-a-row-in-a-postgres-job-table.md) | Proposed |
 | 74 | [The Release Gate and Observation each have named writes, with their own credentials](0074-the-release-gate-and-observation-each-have-a-named-write.md) | Proposed |
 | 75 | [Three environments run in the one cluster, with a signed tag and a namespace per Project per environment, and promotion from `main` to development, then release to staging and production](0075-three-environments-run-in-the-one-cluster.md) | Proposed |
-| 76 | Tenants are the organisations the estate serves, one per environment | Proposed |
+| 76 | [Tenants are the organisations the estate serves, one per environment](0076-tenants-are-the-organisations-the-estate-serves.md) | Proposed |
 | 77 | Product domains are admitted by Platform Intent and named by a Project, and Tenant hosts are derived from them | Proposed |
 | 78 | A multi-tenant Project keeps one Tenant database per Tenant, on a Database server recorded with the Tenant | Proposed |
 | 79 | The Tenant of a request comes only from the Gate's signed principal, one request or message names exactly one Tenant, and a Causation id ties traces together | Proposed |

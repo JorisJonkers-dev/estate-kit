@@ -70,6 +70,7 @@
   - [73. The composition queue is a Postgres row](decisions/0073-the-composition-queue-is-a-row-in-a-postgres-job-table.md)
   - [74. The Release Gate and Observation each have named writes](decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)
   - [75. Three environments run in the one cluster](decisions/0075-three-environments-run-in-the-one-cluster.md)
+  - [76. Tenants are the organisations the estate serves](decisions/0076-tenants-are-the-organisations-the-estate-serves.md)
 - [Lesson candidates](lesson-candidates.md)
 - [Diagrams](diagrams/README.md)
 - [Research](research/README.md)

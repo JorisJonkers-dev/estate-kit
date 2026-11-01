@@ -40,10 +40,13 @@ A merge to `main` deploys to development. A published release deploys to staging
 
 ## Tenants
 
-Planned as row 76 of the [register](../decisions/register.md), filled by
-[#140](https://github.com/JorisJonkers-dev/estate-kit/issues/140). What a Tenant is, its Tenant key and Tenant handle, and Memberships. Rewords [record 1](../decisions/0001-one-maintainer-one-cluster-one-estate.md)'s "no second tenant".
+Decided in [record 76](../decisions/0076-tenants-are-the-organisations-the-estate-serves.md), which rewords [record 1](../decisions/0001-one-maintainer-one-cluster-one-estate.md)'s "no second tenant" as "no second operator or team".
 
-_Empty until its record is written._
+A Tenant is an organisation the estate's Applications serve, within one Environment. The same organisation in staging and in production is two Tenants. A Tenant is served by the estate and does not run it, so the estate still has one maintainer. The design is meant to hold more than 1000 Tenants.
+
+A Tenant has a Tenant key, `<env letter>_<name>`, that never changes and is never reused. Its name matches `^[a-z][a-z0-9]{1,15}$`. It also has a Tenant handle, which its people see in URLs. The handle is unique within its Environment and can change; a former handle redirects for a grace period. A handle that ends in `-staging` or `-dev` is refused.
+
+A User has one account per Environment and Memberships in many Tenants. Tenancy is something a Project opts into, and a Project that does not is unchanged. Kotlin services stay single-tenant until they are rewritten in Rust.
 
 ## Domains and hosts
 

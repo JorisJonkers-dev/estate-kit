@@ -167,6 +167,9 @@ such as a review rule, is written without a bold name.
 | Environment override refusal | A per-environment override beyond replicas, domains, secret paths and the env file is accepted; one failing fixture per refused override | [75](../decisions/0075-three-environments-run-in-the-one-cluster.md) | CI, over `contracts/` | [#61](https://github.com/JorisJonkers-dev/estate-kit/issues/61) |
 | Production required check | A Project that does not declare production is accepted; one failing fixture | [75](../decisions/0075-three-environments-run-in-the-one-cluster.md) | CI, over `contracts/` | [#61](https://github.com/JorisJonkers-dev/estate-kit/issues/61) |
 | Promotion digest test | Staging or production runs a digest that the previous Environment did not | [75](../decisions/0075-three-environments-run-in-the-one-cluster.md) | `e2e/`, nightly and before a release | [#72](https://github.com/JorisJonkers-dev/estate-kit/issues/72) |
+| Tenant key grammar test | A Tenant key outside `<env letter>_<name>` with name `^[a-z][a-z0-9]{1,15}$`, or one whose letter differs from its Environment, is accepted; one failing fixture per refusal | [76](../decisions/0076-tenants-are-the-organisations-the-estate-serves.md) | CI, over `contracts/` | [#61](https://github.com/JorisJonkers-dev/estate-kit/issues/61) |
+| Tenant key reuse test | A key of a Purged Tenant is accepted for a new Tenant | [76](../decisions/0076-tenants-are-the-organisations-the-estate-serves.md) | Service test, every run | [#64](https://github.com/JorisJonkers-dev/estate-kit/issues/64) |
+| Tenant handle test | A handle ending in `-staging` or `-dev`, or held by another Tenant of the Environment, is accepted; a former handle stops redirecting before its grace period ends or still redirects after it | [76](../decisions/0076-tenants-are-the-organisations-the-estate-serves.md) | Service test, every run | [#64](https://github.com/JorisJonkers-dev/estate-kit/issues/64) |
 
 ## Mutation testing
 
