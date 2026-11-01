@@ -10,10 +10,13 @@ links to the page that holds the detail. The decisions behind it are
 
 ## 1. The whole system
 
-Five bounded contexts, each a set of crates, and the outside systems each one
+Six bounded contexts, each a set of crates, and the outside systems each one
 talks to. A Project's CI runs the CLI offline and calls the service to deploy;
 the service links the compiler; Flux applies what the service publishes; the
-components and the host applier act on what the compiler renders.
+components and the host applier act on what the compiler renders. The tenancy
+context writes Tenant resources that the components reconcile, and calls the
+Tenant hooks of multi-tenant Applications
+([record 80](../decisions/0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md)).
 
 ![High-level design: every bounded context and what it talks to](../diagrams/png/hld-system.png)
 

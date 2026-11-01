@@ -51,8 +51,9 @@ within one window was rejected as a service level.
 
 ## Bounded contexts
 
-Five contexts, each boundary its own record
-([record 50](../decisions/0050-five-bounded-contexts.md)), drawn on
+Six contexts, each boundary its own record
+([record 50](../decisions/0050-five-bounded-contexts.md) and
+[record 80](../decisions/0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md)), drawn on
 [The Rust workspace](rust-workspace.md#bounded-contexts). A Project
 is the aggregate root; other Projects refer to it by id only.
 
