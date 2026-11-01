@@ -48,7 +48,7 @@ Project in an Environment, in Migration waves:
   The Project's current version keeps serving a Behind database.
 - A Tenant's Tenant resource marks whether it is a Canary Tenant. A Tenant
   created while a revision is pending receives every pending revision before it
-  serves a request.
+  runs after-create.
 
 The Release Gate refuses to start a new version of the Project in an Environment
 while any of that Project's Tenant databases there is Behind. It answers from
@@ -72,7 +72,7 @@ maintainer retries after the repair, and the component marks it current.
 
 - Easier: one failing Tenant does not stop the others; a bad revision first shows
   on the Canary Tenants; the operation log holds each failure's full output; no
-  Tenant is ever more than one version behind its Project.
+  Tenant database falls two versions behind its Project.
 - Harder: one Behind database blocks a Project's releases in that Environment
   until it is repaired, so the maintainer must act on a Tenant's failure; the
   component must record each database's last good revision.

@@ -12,7 +12,11 @@ A Project whose repository, named by its `repository_id`, Platform Intent lists 
 _Avoid_: participant, registered project
 
 **Prod tag**:
-The signed registry tag `render/<project>:<env>` that names a Project's current render in one Environment. There is one per Project per Environment.
+The signed registry tag `render/<project>:prod` that names a Project's current render in production.
+_Avoid_: pin, live tag
+
+**Environment tag**:
+The signed registry tag `render/<project>:<env>` that names a Project's current render in one Environment. There is one per Project per Environment. The Prod tag is production's Environment tag.
 _Avoid_: pin, live tag
 
 **Render key**:
@@ -178,7 +182,7 @@ The estate's one stable DNS-style name, at most 32 characters, held in Platform 
 _Avoid_: cluster name, estate id
 
 **Tenant database**:
-The Postgres database one Project keeps for one Tenant. A Tenant's data in a Project lives only there, so a Tenant is backed up, restored and destroyed one database at a time.
+The Postgres database one Project keeps for one Tenant. A Tenant's data in a Project lives only there, so a Tenant is backed up, restored and purged one database at a time.
 _Avoid_: tenant schema, shard, partition
 
 **Database server**:

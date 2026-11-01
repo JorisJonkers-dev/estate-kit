@@ -42,8 +42,11 @@ multi-tenant Project. A single-tenant Project keeps its generation as it is.
 database of one Tenant, taken together, on that Tenant's own schedule. It records
 the migration revision of each database. It is encrypted, copied off the cluster,
 and listed in one central catalogue with its Tenant, its Environment, its time and
-those revisions. Retention is set per Environment. A Purge does not delete the
-Tenant's generations; they expire under that retention.
+those revisions. A Purge does not remove the Tenant's generations; they expire under their normal
+retention.
+
+**A Backup generation may be restored into its own Tenant or into another Tenant
+of an equal or lower Environment.**
 
 **Each Postgres server also archives WAL** for point-in-time recovery. This is for
 disaster only: the loss of a whole server. It restores a whole server into a new
@@ -78,8 +81,8 @@ direction.
   none is not loaded into a development Mirror.
 
 **An unmasked staging Mirror makes staging hold production personal data.**
-Staging then needs the access of production for that Tenant's data: only the
-people who may read that Tenant's production data may reach its staging Tenant.
+Staging access must then be treated like production access: who may sign in,
+where logs go, and how long data is kept.
 Pseudonymising does not change the law, so masking reduces the exposure and does
 not remove the duty. The choice to leave a staging Mirror unmasked belongs to the
 maintainer and to nobody who only has staging access.
@@ -104,6 +107,7 @@ maintainer and to nobody who only has staging access.
 - Harder: the catalogue, the schedules and the encrypted copies grow with the
   Tenant count; every Project with personal columns keeps masking rules in step
   with its migrations; a restore into an older Environment can be refused.
+- On acceptance, the backup component's entry in [Mail and components](../design/mail-and-components.md#components) is edited so that its scope per Project becomes scope per Tenant for a multi-tenant Project.
 - Forbidden: a generation that omits a Tenant database of its Tenant or its
   revisions; a restore that changes data before its lock and prepare-restore
   hooks succeed; a restore of a generation newer than the target; a development
@@ -116,7 +120,7 @@ The **Backup generation completeness test** fails when a generation omits a
 Tenant database of its Tenant, omits a database's revision, or is catalogued
 before its encrypted copy is off the cluster. The **Restore order test** fails
 when a restore changes data before its lock and prepare-restore hooks succeed,
-skips a step, or leaves the Tenant locked after a failure. The **Restore revision
+skips a step, or leaves the Tenant under a Tenant lock after a failure. The **Restore revision
 refusal** fails when a generation newer than the target is restored, or the
 refusal omits either revision. The **Mirror masking test** fails when a
 development Mirror is not masked, a staging Mirror that says it is masked is

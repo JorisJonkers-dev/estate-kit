@@ -23,16 +23,17 @@ Tenants and its own data.
 
 Development, staging and production run in the one cluster. This amends
 [record 9](0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md):
-the live render of a Project in an Environment is the signed tag
-`render/<project>:<env>`, one per Environment, no longer `prod` alone.
+the live render of a Project in an Environment is its Environment tag, the
+signed tag `render/<project>:<env>`, one per Environment, no longer the Prod tag
+alone.
 
-A Project in an Environment has its own namespace, `<project>-<env>`. Production
-moves once, by a planned migration, from `<project>-system` to
-`<project>-production`.
+A Project in an Environment has its own namespace, `<project>-<env letter>`:
+`-d`, `-s` and `-p`. Production moves once, by a planned migration, from `<project>-system` to `<project>-p`.
 
-A merge to `main` deploys to development. A published release deploys to
-staging, then to production after the `production` approval, with the same
-digests in all three. Nothing is rebuilt between Environments.
+A merge to `main` deploys a build of `main` to development. A published
+release deploys to staging, then to production after the `production` approval,
+with the same digests in both. Nothing is rebuilt between staging and
+production.
 
 A Project chooses its Environments, and production is required. Between
 Environments only replicas, domains and secret paths may differ, plus one env
@@ -55,15 +56,15 @@ file per Environment. Any other override is refused.
   before production; a Rollback names the environment it moves.
 - Harder: three renders and three namespaces per Project, and a planned move of
   production out of `<project>-system`.
+- On acceptance, [record 9](0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md) is edited so that its "prod is the only one" becomes every Environment of the Project.
 - Forbidden: an override beyond replicas, domains, secret paths and the env
-  file; a Project without production; staging or production running digests
-  that development did not.
+  file; a Project without production; staging and production running different digests for one release.
 
 ## Confirmation
 
 The **Environment override refusal** refuses any per-environment override beyond
 replicas, domains, secret paths and the env file. The **Production required
 check** fails a Project that does not declare production. The **Promotion digest
-test** fails when staging or production run a digest that the previous
-Environment did not, in the **E2E scenarios**
+test** fails when staging and production run different digests for one release,
+in the **E2E scenarios**
 ([record 69](0069-the-deploy-path-is-tested-end-to-end.md)).

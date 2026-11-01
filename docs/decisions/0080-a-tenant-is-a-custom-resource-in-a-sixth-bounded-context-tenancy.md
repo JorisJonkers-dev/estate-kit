@@ -51,19 +51,23 @@ Every Tenant operation is idempotent and safe to retry. Each step, with its
 full error output, goes to an append-only operation log on the shared
 platform-postgres, in the manner of
 [record 23](0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md).
-The lifecycle API is part of the service's OpenAPI contract. The maintainer
-calls it from the estate UI or CLI, and a product's sign-up flow can call it
-with the same lifecycle.
+The operation log is kept 400 days, like the other history. The lifecycle API is
+part of the service's OpenAPI contract. The maintainer calls it from the estate
+UI or CLI, and a product's sign-up flow calls it with a machine identity.
+Operator and Admin roles for the lifecycle API come from identity groups, as
+they do today. A Tenant's resources live in an environment-scoped namespace.
 
 A multi-tenant Application takes part through the Tenant hooks it declares:
 after-create, lock, unlock, prepare-restore and after-restore. The tenancy
 context calls a hook over HTTP with a signed machine token, the Tenant key and
 an operation id. A failed lock or prepare-restore hook aborts the operation
 before any data changes. A failed after hook flags the Tenant and the
-operation log. An Application implements only the hooks it declares.
+operation log. A hook call has a timeout and retries, and an undeclared hook counts as a no-op
+success. An Application implements only the hooks it declares.
 
 During a Tenant lock the Gate serves a standard maintenance page and a 503
-with a Retry-After header, and the shared libraries hold the Tenant's work.
+with a Retry-After header, and the shared libraries hold the Tenant's work. The Tenant's Valkey keys can be
+flushed centrally while the lock holds.
 Destroying is Suspend, then a grace period, then Purge. A Tenant is Active,
 under a Tenant lock, Suspended or purged; the diagram on the design page
 shows the moves.
@@ -87,6 +91,7 @@ shows the moves.
 - Harder: the custom resource definition is a contract that each reconciling
   component follows; five components each carry a finalizer and must release
   it correctly; the service gains a context, a log table and an API surface.
+- On acceptance, [record 50](0050-five-bounded-contexts.md) is edited so that its five contexts become six, with tenancy as the sixth.
 - Forbidden: any writer of a Tenant other than the service; a Purge that
   completes while a finalizer remains; a lock or prepare-restore that changes
   data after its hook failed; an update or delete of an operation log row.
@@ -98,6 +103,8 @@ every participant has released its finalizer. The **Tenant hook abort** check
 shows that a failed lock or prepare-restore hook stops the operation before any
 data changes. The **Tenant one writer** check shows that no identity other than
 the service's can write a Tenant. The **Operation log append-only** check shows
-that an update or delete of an operation log row is refused. The
+that an update or delete of an operation log row is refused. The **Tenant lock
+page test** shows that the Gate serves the standard maintenance page to browsers
+and a 503 with Retry-After to API clients while a Tenant is under a Tenant lock. The
 **`cargo xtask check-layers`** check holds the tenancy context to its allowed
 edges.

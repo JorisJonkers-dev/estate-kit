@@ -24,7 +24,7 @@ cutover, so the shadow's parity with deploy-kit 1.0 is not disturbed.
 
 | Who | What changes for them |
 | --- | --- |
-| estate-kit | The model gains Environments, Tenants and product domains; a sixth bounded context, tenancy, holds the lifecycle; the platform components reconcile a Tenant |
+| estate-kit | The model gains Environments, Tenants and Product domains; a sixth bounded context, tenancy, holds the lifecycle; the platform components reconcile a Tenant |
 | identity (Go) | One identity per Environment, Memberships in many Tenants, Tenant Admins, and change events for Applications |
 | go-commons | The tenancy library for Go: pick the database and key prefix per request or message, and refuse work without exactly one Tenant |
 | rust-commons | The same library for Rust, held to the same language-neutral conformance vectors |
@@ -34,9 +34,9 @@ cutover, so the shadow's parity with deploy-kit 1.0 is not disturbed.
 
 Decided in [record 75](../decisions/0075-three-environments-run-in-the-one-cluster.md), which amends [record 9](../decisions/0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md).
 
-Development, staging and production run in the one cluster. Each Project in each Environment has its own signed tag, `render/<project>:<env>`, and its own namespace, `<project>-<env>`. Production moves once from `<project>-system` by a planned migration.
+Development, staging and production run in the one cluster. Each Project in each Environment has its own signed Environment tag, `render/<project>:<env>`, and its own namespace, `<project>-<env letter>`: `-d`, `-s` and `-p`. Production moves once from `<project>-system` to `<project>-p` by a planned migration.
 
-A merge to `main` deploys to development. A published release deploys to staging, then to production after the `production` approval, with the same digests each time. A Project chooses its Environments, and production is required. Between Environments only replicas, domains and secret paths may differ, plus one env file per Environment. Any other override is refused.
+A merge to `main` deploys a build of `main` to development. A published release deploys to staging, then to production after the `production` approval, with the same digests in both. A Project chooses its Environments, and production is required. Between Environments only replicas, domains and secret paths may differ, plus one env file per Environment. Any other override is refused.
 
 ## Tenants
 
@@ -52,7 +52,7 @@ A User has one account per Environment and Memberships in many Tenants. Tenancy 
 
 Decided in [record 77](../decisions/0077-product-domains-are-admitted-by-platform-intent.md), which rests on [record 10](../decisions/0010-platform-intent-admits-the-projects-and-is-pushed-like-any-project.md).
 
-Platform Intent lists the estate's domains and the Projects admitted to use each. An Application in a multi-tenant Project names its Product domain, and its Tenant hosts are derived: `<handle>.<product domain>` in production, `<handle>-staging.<product domain>` in staging and `<handle>-dev.<product domain>` in development. Every host sits one level below the domain, so one single-level wildcard certificate covers every Environment. A per-environment override may name another Product domain that Platform Intent admits for the Project.
+Platform Intent lists the estate's domains and the Projects admitted to use each. An Application in a multi-tenant Project names its Product domain, and its Tenant hosts are derived: `<handle>.<Product domain>` in production, `<handle>-staging.<Product domain>` in staging and `<handle>-dev.<Product domain>` in development. Every host sits one level below the domain, so one single-level wildcard certificate covers every Environment. A per-environment override may name another Product domain that Platform Intent admits for the Project.
 
 A Product domain that Platform Intent does not admit is refused. Two Projects that claim one Product domain are refused with a contention diagnostic that points at both. A host resolves to a Tenant through a lookup, never by parsing the host, so custom domains can later be added as more rows.
 
@@ -97,9 +97,9 @@ Decided in [record 80](../decisions/0080-a-tenant-is-a-custom-resource-in-a-sixt
 
 A Tenant is a custom resource, one per Tenant in its Environment. Only the estate-kit service writes it. The platform components that hold the Tenant's data (database-catalog, identity, mailbox, backup and secret-grant) reconcile it, and each holds a finalizer, so a Purge completes only when every one has cleaned up.
 
-The tenancy context holds the Tenant model and the Tenant operations: create, add or remove a Project, lock, unlock, suspend, resume, purge and move. Every operation is safe to retry. Each step, with its full error output, goes to an append-only operation log on the shared platform-postgres. The lifecycle API is part of the service's OpenAPI contract, and the maintainer and a product's sign-up flow both call it.
+The tenancy context holds the Tenant model and the Tenant operations, listed in [record 80](../decisions/0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md). Every operation is safe to retry. Each step, with its full error output, goes to an append-only operation log on the shared platform-postgres. The lifecycle API is part of the service's OpenAPI contract, and the maintainer and a product's sign-up flow both call it.
 
-A multi-tenant Application takes part through the Tenant hooks it declares: after-create, lock, unlock, prepare-restore and after-restore. A hook is an HTTP call with a signed machine token, the Tenant key and an operation id. A failed lock or prepare-restore hook aborts before any data changes; a failed after hook flags the Tenant. During a Tenant lock the Gate serves a standard maintenance page and a 503 with Retry-After, and the libraries hold the Tenant's work. Destroying is Suspend, a grace period, then Purge.
+A multi-tenant Application takes part through the Tenant hooks it declares, which [record 80](../decisions/0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md) lists. A hook is an HTTP call with a signed machine token, the Tenant key and an operation id. A failed lock or prepare-restore hook aborts before any data changes; a failed after hook flags the Tenant. During a Tenant lock the Gate serves a standard maintenance page and a 503 with Retry-After, and the libraries hold the Tenant's work. Ending a Tenant is Suspend, a grace period, then Purge.
 
 ![State machine: a Tenant](../diagrams/png/state-tenant.png)
 
@@ -109,7 +109,7 @@ Decided in [record 81](../decisions/0081-migrations-reach-tenant-databases-in-wa
 
 A multi-tenant Project must declare a Liquibase changelog. The compiler refuses `migration: self` and `migration: none` there.
 
-The `migration-run` component runs each revision on every Tenant database of the Project in an Environment, in Migration waves. In production the first wave is the Canary Tenants, and the other waves follow in parallel. In development and staging all Tenant databases run in one wave. A new Tenant receives every pending revision before it serves a request.
+The `migration-run` component runs each revision on every Tenant database of the Project in an Environment, in Migration waves. In production the first wave is the Canary Tenants, and the other waves follow in parallel. In development and staging all Tenant databases run in one wave. A new Tenant's databases are migrated to the current revision before after-create runs.
 
 A failure does not stop the wave. The database is marked Behind at its last good revision, and the full output goes into the operation log. The current version keeps serving it. The Release Gate then refuses a new version of the Project in that Environment until no Tenant database there is Behind, because expand/contract only guarantees that two adjacent versions work together. The refusal is a read of cluster state, so it adds no write to [record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md).
 
@@ -123,7 +123,20 @@ A restore locks the Tenant, runs the prepare-restore hook, replaces the database
 
 A staging or development Tenant may Mirror one production Tenant on a schedule. The data loads where no person can read it and is masked before the target is exposed. Development is always masked; staging is masked only when it says so. Each Project declares masking rules for its own tables, and a Project with none is not loaded into a development Mirror. Staging and production Tenants exist independently.
 
-An unmasked staging Mirror makes staging hold production personal data. Staging access for that Tenant must then be no wider than its production access.
+A Backup generation may be restored into its own Tenant or into another Tenant of an equal or lower Environment.
+
+An unmasked staging Mirror puts production personal data in staging, so staging access must be treated like production access: who may sign in, where logs go, and how long data is kept.
+
+## What identity must do
+
+Identity has its own repository, which records these in its own decisions. They are obligations on identity, not estate-kit records.
+
+- Identity runs once per Environment, each with its own Issuer.
+- It holds Tenants, Memberships, Tenant-scoped Assignments and the Tenant Admin.
+- The Gate resolves a host to a Tenant by lookup, checks the Membership, and signs the Tenant key and that Tenant's App Roles into the Principal and the tokens.
+- An Application refreshes its extended profile from the token at every sign-in. Identity publishes UserChanged, UserRemoved and Membership-removed events on RabbitMQ, keyed by subject and carrying only the synced fields (email and name).
+- Break-glass Memberships for the maintainer are time-limited and audited.
+- Client redirect validation accepts the Tenant hosts under the Client's Product domain.
 
 ## Secrets
 
@@ -137,6 +150,6 @@ A multi-tenant Application writes Tenant-specific secrets at runtime under `…/
 
 Decided in [record 84](../decisions/0084-a-tenant-sends-mail-as-its-product-domain-until-it-verifies-its-own.md). Amends [record 33](../decisions/0033-a-mailbox-is-declared-by-its-local-part-and-owned-by-one-project.md).
 
-A Tenant without a Verified domain sends from `noreply@<product domain>`, with its display name as the sender name. A Tenant Admin can verify a domain of the Tenant's own: the platform names the DKIM, SPF and DMARC records to publish, checks them, and records the domain as verified only when all three are right. The mailbox component then reconciles it from the Tenant resource as its own Stalwart domain with its own DKIM key, and removes it at Purge.
+A Tenant without a Verified domain sends from `noreply@<Product domain>`, with its display name as the sender name. A Tenant Admin can verify a domain of the Tenant's own: the platform names the DKIM, SPF and DMARC records to publish, checks them, and records the domain as verified only when all three are right. The mailbox component then reconciles it from the Tenant resource as its own Stalwart domain with its own DKIM key, and removes it at Purge.
 
 Stalwart's community edition is enough. Its Enterprise tenant feature, and hosted mailboxes for a Tenant's people, are out of scope.
