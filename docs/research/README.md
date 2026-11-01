@@ -21,3 +21,8 @@ Without access the directory stays empty, and nothing here depends on it.
 
 Research notes that quote no paper at length live beside this file, one per
 topic.
+
+| Note | What it covers |
+| --- | --- |
+| [Multi-tenancy](multi-tenancy.md) | Data isolation, pooling, migrations, context propagation, identity, lifecycle, backups, masking and mail for many Tenants |
+| [One cluster or several, and many Tenants in one](multi-cluster.md) | Scaling limits, GitOps across clusters, cells, federation, and in-cluster isolation |

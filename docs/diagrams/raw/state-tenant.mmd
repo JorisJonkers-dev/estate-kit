@@ -1,0 +1,17 @@
+%% title: State machine: a Tenant
+%% layout: [{"layout":"elkLayered","config":{"elk.layered.crossingMinimization.forceNodeModelOrder":true,"elk.direction":"DOWN","elk.spacing.nodeNode":50,"elk.layered.spacing.nodeNodeBetweenLayers":70,"elk.spacing.edgeLabel":6,"elk.layered.nodePlacement.strategy":"NETWORK_SIMPLEX","elk.layered.considerModelOrder.strategy":"NODES_AND_EDGES","elk.hierarchyHandling":"INCLUDE_CHILDREN","elk.nodeSize.constraints":"","edgeStyle":"orthogonal","corners":"rounded"}}]
+stateDiagram-v2
+    direction TB
+    state "Tenant lock" as TenantLock
+    [*] --> Active: create
+    Active --> TenantLock: lock or move
+    TenantLock --> Active: unlock
+    Active --> Suspended: suspend
+    Suspended --> Active: resume
+    Suspended --> Purged: grace period ends, every finalizer released
+    Purged --> [*]
+    classDef bad fill:#0000a4,stroke:#0000b4
+    classDef warn fill:#0000a5,stroke:#0000b5
+    class Suspended warn
+    class TenantLock warn
+    class Purged bad

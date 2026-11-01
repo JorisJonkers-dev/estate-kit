@@ -63,6 +63,12 @@ of the read code. The allowed context edges are not decided on this page:
 `crates/layers.toml` holds them and `check-layers` reads that file. A Project is the aggregate root in the
 compiler; a Rollout is the aggregate root in the service.
 
+A sixth context, **Tenancy**, holds the Tenant model and the Tenant operations
+([record 80](../decisions/0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md),
+which amends [record 50](../decisions/0050-five-bounded-contexts.md)). A Tenant
+is its aggregate root. The layers and the check that holds them are unchanged;
+`crates/layers.toml` still holds the edges.
+
 | Context | Owns | Aggregate roots | Talks to others through |
 | --- | --- | --- | --- |
 | Compiler | The model: Intent in, Resolved Deployment, Deliverable Set out | Project; the Estate is the set of admitted Projects | Its application crate's use cases (`validate`, `plan`, `compose`, `render_hosts`, `generate`) |
@@ -70,6 +76,7 @@ compiler; a Rollout is the aggregate root in the service.
 | Observation | What runs and how it is doing: units, pods, containers, alerts and silences, logs, health, checks | None: read models only, and Silences as its one write | Ports onto Prometheus, Loki, Alertmanager, Gatus and the cluster; rollout history from the Service's API |
 | Hosts | Generations and their rollout across nodes | NodeRollout | Signed host tags only; never a model type |
 | Components | Migration runs, secret grants, database and bucket catalogs, backups, Mailboxes | One per component: MigrationRun, SecretGrant, DatabaseGrant, BucketGrant, BackupGeneration, Mailbox | Rendered objects only |
+| Tenancy | Tenants and their Tenant operations, Tenant hooks, the operation log | Tenant | The Tenant custom resource, which the Components reconcile; the lifecycle API on the Service's HTTP surface |
 
 The context map, with the result.json edge replaced by an in-process call:
 
@@ -82,6 +89,8 @@ The context map, with the result.json edge replaced by an in-process call:
 | Compiler | Components | Published language | The rendered objects' committed schemas |
 | Service | Observation | Published language | Rollout events, read from the Service's HTTP API (the OpenAPI document), not its event store |
 | identity | Service, Observation | Conformist | rust-commons' `Principal` |
+| Tenancy | Components | Published language | The Tenant custom resource and its finalizers |
+| Service | Tenancy | Customer and supplier | The lifecycle API in the OpenAPI document |
 
 ## Layers
 
