@@ -12,7 +12,11 @@ A Project whose repository, named by its `repository_id`, Platform Intent lists 
 _Avoid_: participant, registered project
 
 **Prod tag**:
-The signed registry tag `render/<project>:prod` that names a Project's current render. One tag per environment; `prod` is the only one.
+The signed registry tag `render/<project>:prod` that names a Project's current render in production.
+_Avoid_: pin, live tag
+
+**Environment tag**:
+The signed registry tag `render/<project>:<env>` that names a Project's current render in one Environment. There is one per Project per Environment. The Prod tag is production's Environment tag.
 _Avoid_: pin, live tag
 
 **Render key**:
@@ -117,6 +121,10 @@ _Avoid_: position, span
 For one rendered field, the set of element references that caused its value. Deferred ([record 72](docs/decisions/0072-per-field-provenance-and-explain-are-deferred.md)).
 _Avoid_: origin, lineage
 
+**Causation id**:
+The id of the first request or job that set off a chain of work, carried unchanged by every request, job and message it causes, across Projects. Each step keeps its own trace; the Causation id ties the traces together.
+_Avoid_: correlation id, trace id, request id
+
 ## Hosts
 
 **Infrastructure Intent**:
@@ -145,9 +153,109 @@ _Avoid_: reboot schedule, downtime window
 
 ## Applications
 
+**Environment**:
+One of development, staging and production, lettered `d`, `s` and `p`. All three run in the one cluster, each with its own identity, its own Tenants and its own data. Not a GitHub environment, though the `production` GitHub environment guards production deploys.
+_Avoid_: stage, tier, deployment kind
+
+**Tenant**:
+An organisation whose people and data the estate's Applications serve, within one environment, kept apart from every other Tenant's. The same organisation in staging and in production is two Tenants. Not an operator of the estate: the estate has one maintainer, whatever the number of Tenants. Not deploy-kit's "tenant project", which is any Project other than the platform's.
+_Avoid_: customer, organisation, realm, client, tenant project
+
+**Tenant key**:
+The short, immutable name that identifies a Tenant everywhere inside the estate, and shows which environment it belongs to. It is never shown to the Tenant's people and never reused.
+_Avoid_: tenant id, slug, tenant name
+
+**Tenant handle**:
+The name a Tenant's people see in its URLs. It is unique within an environment and may change; a former handle redirects for a grace period, then is free again.
+_Avoid_: subdomain, slug, vanity name
+
+**Product domain**:
+The domain a multi-tenant Application names, under which every Tenant host is derived. Platform Intent admits it for the Project; two Projects may not claim one.
+_Avoid_: base domain, root domain, vanity domain
+
+**Tenant host**:
+The host at which a Tenant's people reach an Application, derived as the Tenant handle, the environment suffix (none in production) and the Product domain. A host finds its Tenant through a lookup, never by parsing.
+_Avoid_: tenant url, subdomain, vanity host
+
+**Estate name**:
+The estate's one stable DNS-style name, at most 32 characters, held in Platform Intent. It is the seam for a later second cluster or estate.
+_Avoid_: cluster name, estate id
+
+**Tenant database**:
+The Postgres database one Project keeps for one Tenant. A Tenant's data in a Project lives only there, so a Tenant is backed up, restored and purged one database at a time.
+_Avoid_: tenant schema, shard, partition
+
+**Database server**:
+The Postgres server a Tenant's databases live on, recorded with the Tenant and never derived from its key. Each environment has its own; a Tenant moves between them only by an explicit move.
+_Avoid_: database host, shard, cell
+
+**Backup generation**:
+One backup of every Tenant database of one Tenant, taken together on that Tenant's schedule and kept in the central catalogue. A single-tenant Project's generation covers that Project's datastores instead.
+_Avoid_: snapshot, dump, backup run
+
+**Mirror**:
+A staging or development Tenant's link to the production Tenant whose latest Backup generation replaces its data on a schedule. A development Mirror is always masked; a staging Mirror is masked only if it says so.
+_Avoid_: sync, clone, refresh
+
+**Membership**:
+A User's belonging to one Tenant. One User signs in once per environment and may hold Memberships in many Tenants.
+_Avoid_: tenant user, seat, account
+
+**Behind**:
+The state of a Tenant database whose migration failed in a wave, kept at its last good revision with the failure's full output. The Project's current version still serves it, but the Project releases no further version in that environment until no Tenant database is Behind.
+_Avoid_: failed tenant, stuck, drifted
+
+**Canary Tenant**:
+A Tenant its Tenant resource marks to receive each migration first in production, before the other Tenants. A Project's migration runs on its Canary Tenants' databases in the first wave, and the rest follow only if those succeed.
+_Avoid_: pilot, early adopter, test tenant
+
+**Migration wave**:
+One batch of a Project's Tenant databases in one environment that a migration revision runs on together. In production the first wave is the Canary Tenants; the remaining Tenants follow in parallel waves. A failure in a wave marks that database Behind and does not stop the wave.
+_Avoid_: batch, rollout step, shard
+
+**Tenant lock**:
+The brief state in which the platform stops a Tenant's traffic and work around a restore or a move: its people see a standard maintenance page, and no request or message for it is processed. Not a Locked record.
+_Avoid_: maintenance mode, freeze, locked tenant
+
+**Tenant hook**:
+A call the tenancy context makes to a multi-tenant Application for one Tenant at one lifecycle step (after-create, lock, unlock, prepare-restore, after-restore), so the Application can do what the platform cannot see. An Application implements only the hooks it declares.
+_Avoid_: webhook, callback, lifecycle event
+
+**Tenant Admin**:
+A User whose Membership lets them manage their Tenant's Memberships and App Roles, for every Project the Tenant uses. Not estate-kit's Admin, and not identity's Admin.
+_Avoid_: tenant owner, customer admin, superuser
+
+**Gate**:
+The part of identity that resolves a request's host to a Tenant, checks the User's Membership and signs the Principal. Not the Release Gate.
+_Avoid_: forward-auth, proxy, middleware
+
+**Principal**:
+Who is calling an Application, as identity signs it: the User or Machine Identity, its App Roles, and for a multi-tenant Application the Tenant key and that Tenant's App Roles. An Application takes its Tenant only from it.
+_Avoid_: identity, user context, claims
+
+**Tenant header**:
+The broker-neutral header a producer sets on every message to name its one Tenant. A consumer sends a message without one to its dead-letter queue.
+_Avoid_: tenant id header, routing key
+
+**Suspended**:
+The state of a Tenant whose people cannot sign in and whose traffic is refused, while all its data is kept. A Suspended Tenant is purged when its grace period ends, unless it is resumed.
+_Avoid_: disabled, deactivated, frozen
+
+**Purge**:
+The end of a Tenant: its Tenant databases, cache keys, stored objects, Tenant secrets, mail domain and Memberships are removed everywhere. Its Backup generations then expire under their normal retention.
+_Avoid_: delete, destroy, offboard
+
+**Tenant operation**:
+One lifecycle action on a Tenant: create, add a Project, remove a Project, lock, unlock, suspend, resume, purge or move. The tenancy context runs it across every system that holds the Tenant's data, and records each step with its full error output in one operation log.
+_Avoid_: job, task, workflow
+
 **Mailbox**:
 An email address an Application declares by its local part. The same local part declared twice within one Project names one shared Mailbox; across Projects it is refused.
 _Avoid_: email account, mail user
+
+**Verified domain**:
+A domain of a Tenant's own that a Tenant Admin has proven control of, by publishing the DKIM, SPF and DMARC records the platform names and passing its check. It becomes the Tenant's own mail domain, with its own DKIM key. Until then a Tenant sends as its Product domain.
+_Avoid_: custom domain, tenant domain, vanity domain
 
 ## Rewrite and parity
 

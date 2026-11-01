@@ -42,6 +42,11 @@ applications:
 - **Open:** how a Mailbox is shared beyond its Project, if ever, needs its own
   design so that it stays easy to read and short to write.
 
+For a multi-tenant Project the Mailbox also exists on each domain a Tenant has
+verified, and a Tenant without one sends as the Project's product domain. That
+is decided in [record 84](../decisions/0084-a-tenant-sends-mail-as-its-product-domain-until-it-verifies-its-own.md),
+and [Tenancy](tenancy.md#mail) explains it.
+
 ## How a Mailbox is provisioned
 
 Each Project's render carries one Mailbox custom resource per Mailbox, in its
