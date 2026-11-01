@@ -26,6 +26,7 @@ page cites the record N or the page it moved to. Diagrams come from
 | [End to end, crate by crate](end-to-end.md) | A release, a rollback, a host rollout and a component, step by step through the crates |
 | [Inside the compiler](inside-the-compiler.md) | Crates, pipeline, types, alignment with the schemas, caching |
 | [Inside the service](inside-the-service.md) | Crates, the rollout decider, the event log, one writer, the Observation views |
+| [Tenancy](tenancy.md) | Environments, Tenants, hosts, Tenant data, the Tenant of a request, the Tenant resource, migrations, backups, secrets and mail: one section per planned record |
 | [Testing and speed](code-shape-and-speed.md) | Rules for code, every kind of test, gates, mutation testing, speed budgets |
 
 The [plan](../plan/port.md) orders the work, and the

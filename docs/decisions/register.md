@@ -1,6 +1,6 @@
 # The register, as planned
 
-The records to be written, in reading order, with their current status. Each title becomes a file `NNNN-<slug>.md` here when written, from [the template](template.md). Records 42 onwards are placed into reading order when the register is written; the model's own records follow after the cutover.
+The records to be written, in reading order, with their current status. Each title becomes a file `NNNN-<slug>.md` here when written, from [the template](template.md). Records 42 onwards are placed into reading order when the register is written; the model's own records follow after the cutover. Rows 75 to 84 are the ten records of the [tenancy design](../design/tenancy.md); each is planned, with no file yet, so none binds until its record is written.
 
 The [design review](../research/review/README.md) of 2026-10-22 changed or added the rows marked Proposed; they stay Proposed until their records are written and accepted ([#20](https://github.com/JorisJonkers-dev/estate-kit/issues/20)). The move to an all-Rust workspace on 2026-10-29 changed rows 13 to 18, 48, 50 and 55 and added 65 to 71; the records already written are linked. The maintainer accepted 13 to 18 (except 16, already accepted and now merged into 15), 48, 50, 55, 63 and 65 to 71 the same day.
 
@@ -80,3 +80,13 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 72 | [Per-field provenance and `estate-kit explain` are deferred until a scenario needs them](0072-per-field-provenance-and-explain-are-deferred.md) | Proposed |
 | 73 | [The composition queue is a row in a Postgres job table on the shared platform-postgres](0073-the-composition-queue-is-a-row-in-a-postgres-job-table.md) | Proposed |
 | 74 | [The Release Gate and Observation each have named writes, with their own credentials](0074-the-release-gate-and-observation-each-have-a-named-write.md) | Proposed |
+| 75 | Three environments run in the one cluster, with a signed tag and a namespace per Project per environment, and promotion from `main` to development, then release to staging and production | Proposed |
+| 76 | Tenants are the organisations the estate serves, one per environment | Proposed |
+| 77 | Product domains are admitted by Platform Intent and named by a Project, and Tenant hosts are derived from them | Proposed |
+| 78 | A multi-tenant Project keeps one Tenant database per Tenant, on a Database server recorded with the Tenant | Proposed |
+| 79 | The Tenant of a request comes only from the Gate's signed principal, one request or message names exactly one Tenant, and a Causation id ties traces together | Proposed |
+| 80 | A Tenant is a custom resource that platform components reconcile, with Tenant hooks and finalizers, in a sixth bounded context, tenancy | Proposed |
+| 81 | Migrations reach Tenant databases in waves that continue past failure, a Behind database blocks the next release, and multi-tenant Projects use managed Liquibase migrations | Proposed |
+| 82 | Backups are per-Tenant generations on per-Tenant schedules, kept in a central catalogue, and Mirrors refresh staging and development Tenants | Proposed |
+| 83 | Secrets are scoped by environment in their Vault path, and Tenant secrets live beneath their Project | Proposed |
+| 84 | A Tenant sends mail as its product domain until it verifies its own domain | Proposed |

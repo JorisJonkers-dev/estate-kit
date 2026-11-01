@@ -23,6 +23,7 @@
   - [Inside the compiler](design/inside-the-compiler.md)
   - [Inside the service](design/inside-the-service.md)
   - [Testing and speed](design/code-shape-and-speed.md)
+  - [Tenancy](design/tenancy.md)
 - [Decisions](decisions/README.md)
   - [The register, as planned](decisions/register.md)
   - [Record template](decisions/template.md)
@@ -83,3 +84,5 @@
     - [Operations](research/review/operations.md)
     - [Process and the plan](research/review/process-and-plan.md)
   - [Review of the all-Rust redesign](research/rust-redesign-review.md)
+  - [Multi-tenancy](research/multi-tenancy.md)
+  - [One cluster or several, and many Tenants in one](research/multi-cluster.md)
