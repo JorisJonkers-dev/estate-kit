@@ -50,10 +50,13 @@ A User has one account per Environment and Memberships in many Tenants. Tenancy 
 
 ## Domains and hosts
 
-Planned as row 77 of the [register](../decisions/register.md), filled by
-[#141](https://github.com/JorisJonkers-dev/estate-kit/issues/141). Product domains admitted by Platform Intent, named by a Project, and the Tenant hosts derived from them.
+Decided in [record 77](../decisions/0077-product-domains-are-admitted-by-platform-intent.md), which rests on [record 10](../decisions/0010-platform-intent-admits-the-projects-and-is-pushed-like-any-project.md).
 
-_Empty until its record is written._
+Platform Intent lists the estate's domains and the Projects admitted to use each. An Application in a multi-tenant Project names its Product domain, and its Tenant hosts are derived: `<handle>.<product domain>` in production, `<handle>-staging.<product domain>` in staging and `<handle>-dev.<product domain>` in development. Every host sits one level below the domain, so one single-level wildcard certificate covers every Environment. A per-environment override may name another Product domain that Platform Intent admits for the Project.
+
+A Product domain that Platform Intent does not admit is refused. Two Projects that claim one Product domain are refused with a contention diagnostic that points at both. A host resolves to a Tenant through a lookup, never by parsing the host, so custom domains can later be added as more rows.
+
+Platform Intent also holds the estate's stable name, a DNS-style name of at most 32 characters. It is the seam a later second cluster or estate can use as its cluster ID.
 
 ## Tenant data
 
