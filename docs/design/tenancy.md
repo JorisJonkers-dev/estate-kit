@@ -92,10 +92,11 @@ _Empty until its record is written._
 
 ## Secrets
 
-Planned as row 83 of the [register](../decisions/register.md), filled by
-[#147](https://github.com/JorisJonkers-dev/estate-kit/issues/147). Environment-scoped Vault paths and Tenant secrets beneath their Project.
+Decided in [record 83](../decisions/0083-secrets-are-scoped-by-environment-and-tenant-secrets-live-beneath-their-project.md).
 
-_Empty until its record is written._
+Every Vault path an Application reads is `secret/<env>/<project>/…`. The platform derives the environment and the Project, so a secret grant still writes its path relative to its Project and never names the Environment. Each Environment's Applications have a Vault role that reaches only their own Environment's paths, so a staging Application cannot read a production secret.
+
+A multi-tenant Application writes Tenant-specific secrets at runtime under `…/tenants/<tenant key>/`, beneath its Project's path. The path uses the Tenant key, never the handle. A Purge removes everything beneath it.
 
 ## Mail
 
