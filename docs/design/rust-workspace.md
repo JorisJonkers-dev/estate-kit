@@ -69,6 +69,13 @@ which amends [record 50](../decisions/0050-five-bounded-contexts.md)). A Tenant
 is its aggregate root. The layers and the check that holds them are unchanged;
 `crates/layers.toml` still holds the edges.
 
+Tenancy has no binary of its own. Only the service writes a Tenant
+([record 80](../decisions/0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md)),
+so `estate-kit-service` wires `tenancy-app` and the tenancy adapters, and
+`http-api` serves the lifecycle API by calling `tenancy-app`. The tenancy
+adapters are its own: the service's `adapter-kube` and `adapter-postgres` are
+not wired to this context, as Observation keeps its own kube adapter.
+
 | Context | Owns | Aggregate roots | Talks to others through |
 | --- | --- | --- | --- |
 | Compiler | The model: Intent in, Resolved Deployment, Deliverable Set out | Project; the Estate is the set of admitted Projects | Its application crate's use cases (`validate`, `plan`, `compose`, `render_hosts`, `generate`) |
@@ -202,9 +209,16 @@ crates/
     adapter-stalwart/         Stalwart's management API
     adapter-liquibase/        runs the Liquibase JVM and squawk in the image
     adapter-components-kube/  watching the rendered objects
+  tenancy/                    wired into estate-kit-service only, the one writer of a Tenant (record 80)
+    tenant/                   domain: Tenant key and handle grammar, the Tenant states and their moves, grace periods, host lookup rows, a decider per Tenant operation
+    tenancy-app/              application: the Tenant operations (create, add or remove a Project, lock, unlock, suspend, resume, purge, move, restore) and their ports
+    adapter-tenancy-kube/     writes the Tenant custom resource; reads its finalizers and each participant's status
+    adapter-tenancy-postgres/ the append-only operation log and the host lookup (sqlx), on platform-postgres
+    adapter-tenant-hooks/     calls an Application's Tenant hooks over HTTP with a signed machine token, a deadline and retries
+    adapter-tenancy-valkey/   flushes a Tenant's Valkey keys while a Tenant lock holds
 bins/
   estate-kit/                 the CLI: validate, plan, compose, render-hosts, generate, migrate
-  estate-kit-service/         the service: Rollouts, compositions, admission, the Release Gate; the Vault, ghcr and signing adapters
+  estate-kit-service/         the service: Rollouts, compositions, admission, the Release Gate; the Vault, ghcr and signing adapters; the tenancy context and its adapters
   estate-kit-observation/     Observation, its own Deployment: read-only adapters only, no Vault, ghcr or signing credential; serves the embedded UI
   estate-kit-host-applier/    the host applier: wires host-applier-app and the three host adapters
   estate-kit-secret-grant/    one binary and one image per component, named estate-kit-<component>,
