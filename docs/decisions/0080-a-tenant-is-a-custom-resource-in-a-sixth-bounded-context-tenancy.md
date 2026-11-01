@@ -1,5 +1,5 @@
 ---
-status: proposed  # proposed | accepted | locked
+status: accepted  # proposed | accepted | locked
 date: 2026-11-01
 rests-on: [17, 23, 50, 63, 76, 78, 79]
 lessons: [DO-2, CS-3, TM-4]
@@ -91,7 +91,7 @@ shows the moves.
 - Harder: the custom resource definition is a contract that each reconciling
   component follows; five components each carry a finalizer and must release
   it correctly; the service gains a context, a log table and an API surface.
-- On acceptance, [record 50](0050-five-bounded-contexts.md) is edited so that its five contexts become six, with tenancy as the sixth.
+- [Record 50](0050-five-bounded-contexts.md) is amended: its five contexts are now six, with tenancy as the sixth.
 - Forbidden: any writer of a Tenant other than the service; a Purge that
   completes while a finalizer remains; a lock or prepare-restore that changes
   data after its hook failed; an update or delete of an operation log row.

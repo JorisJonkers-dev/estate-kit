@@ -1,5 +1,5 @@
 ---
-status: proposed  # proposed | accepted | locked
+status: accepted  # proposed | accepted | locked
 date: 2026-11-01
 rests-on: [1, 9]
 lessons: [MS-7, MS-4, DO-1]
@@ -56,7 +56,7 @@ file per Environment. Any other override is refused.
   before production; a Rollback names the environment it moves.
 - Harder: three renders and three namespaces per Project, and a planned move of
   production out of `<project>-system`.
-- On acceptance, [record 9](0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md) is edited so that its "prod is the only one" becomes every Environment of the Project.
+- [Record 9](0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md) is amended: a Project has an Environment tag in each of its Environments.
 - Forbidden: an override beyond replicas, domains, secret paths and the env
   file; a Project without production; staging and production running different digests for one release.
 

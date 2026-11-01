@@ -27,7 +27,8 @@ in an incident ([review](../research/review/README.md) D7).
 ## Decision
 
 The live render of a Project in an environment is one signed registry tag,
-`render/<project>:<environment>`. Flux pulls it, and the service moves it. There
+`render/<project>:<environment>`, one for each Environment of the Project
+([record 75](0075-three-environments-run-in-the-one-cluster.md)). Flux pulls it, and the service moves it. There
 is no estate pin commit and no patching of Flux's own objects.
 
 A dedicated machine account holds write access only on the render and host

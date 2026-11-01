@@ -55,7 +55,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 47 | Schemas evolve additively within a major version, checked in CI | Merged into 48 |
 | 48 | [Every committed schema evolves additively within a major version, checked in CI, and the CLI's JSON output has one that the reusable workflows read](0048-the-cli-s-json-output-has-a-committed-schema.md) | Accepted |
 | 49 | Events are versioned and upcast on read, and hold no personal data | Merged into 23 |
-| 50 | [The workspace is five bounded contexts in five layers, and a check holds the crate graph to both](0050-five-bounded-contexts.md) | Accepted |
+| 50 | [The workspace is six bounded contexts in five layers, and a check holds the crate graph to both](0050-five-bounded-contexts.md) | Accepted |
 | 51 | History is kept 400 days; renders are kept by count, age and tag | Moved to [conventions](../design/conventions.md#retention) |
 | 52 | Three service levels: deploy p95, availability, drift detection | Moved to [conventions](../design/conventions.md#service-levels) |
 | 53 | Traces go to Tempo and logs to Loki, keyed by rollout id | Moved to [conventions](../design/conventions.md#telemetry) |
@@ -63,7 +63,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 55 | [Every Go and Python program is characterized before it is rewritten in Rust](0055-every-go-and-python-program-is-characterized-before-it-is-rewritten.md) | Accepted |
 | 56 | Agent files are short, and what must always hold is a check | Moved to [conventions](../design/conventions.md#agent-files) |
 | 57 | Configuration is flags, then environment, then file; secrets only by reference | Moved to [conventions](../design/conventions.md#configuration) |
-| 58 | [Flux is locked down per Project, and the service dry-runs as an identity that cannot write](0058-flux-is-locked-down-per-project-and-the-service-dry-runs-as-an-identity-that-cannot-write.md) | Proposed |
+| 58 | [Flux is locked down per Project, and the service dry-runs as an identity that cannot write](0058-flux-is-locked-down-per-project-and-the-service-dry-runs-as-an-identity-that-cannot-write.md) | Accepted |
 | 59 | [Vault unseal and the API server's datastore backup are decided in fleet-infra; estate-kit assumes them](0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md) | Proposed |
 | 60 | The API server's datastore is backed up off the provider, and its restore is drilled | Merged into 59 |
 | 61 | A rollback moves the tag back to the last Serving render without composing | Merged into 28 |
@@ -79,14 +79,14 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 71 | [A diagnostic is a coded problem with typed, plural locations, and the caller resolves the lines](0071-a-diagnostic-is-a-coded-problem-with-typed-locations.md) | Accepted |
 | 72 | [Per-field provenance and `estate-kit explain` are deferred until a scenario needs them](0072-per-field-provenance-and-explain-are-deferred.md) | Proposed |
 | 73 | [The composition queue is a row in a Postgres job table on the shared platform-postgres](0073-the-composition-queue-is-a-row-in-a-postgres-job-table.md) | Proposed |
-| 74 | [The Release Gate and Observation each have named writes, with their own credentials](0074-the-release-gate-and-observation-each-have-a-named-write.md) | Proposed |
-| 75 | [Three environments run in the one cluster, with a signed tag and a namespace per Project per environment, and promotion from `main` to development, then release to staging and production](0075-three-environments-run-in-the-one-cluster.md) | Proposed |
-| 76 | [Tenants are the organisations the estate serves, one per environment](0076-tenants-are-the-organisations-the-estate-serves.md) | Proposed |
-| 77 | [Product domains are admitted by Platform Intent and named by a Project, and Tenant hosts are derived from them](0077-product-domains-are-admitted-by-platform-intent.md) | Proposed |
-| 78 | [A multi-tenant Project keeps one Tenant database per Tenant, on a Database server recorded with the Tenant](0078-a-multi-tenant-project-keeps-one-tenant-database-per-tenant.md) | Proposed |
-| 79 | [The Tenant of a request comes only from the Gate's signed principal, one request or message names exactly one Tenant, and a Causation id ties traces together](0079-the-tenant-of-a-request-comes-only-from-the-signed-principal.md) | Proposed |
-| 80 | [A Tenant is a custom resource that platform components reconcile, with Tenant hooks and finalizers, in a sixth bounded context, tenancy](0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md) | Proposed |
-| 81 | [Migrations reach Tenant databases in waves that continue past failure, a Behind database blocks the next release, and multi-tenant Projects use managed Liquibase migrations](0081-migrations-reach-tenant-databases-in-waves.md) | Proposed |
-| 82 | [Each Tenant is backed up as a Backup generation on its own schedule, and Mirrors refresh staging and development Tenants](0082-backups-are-per-tenant-generations-and-mirrors-refresh-staging-and-development.md) | Proposed |
-| 83 | [Secrets are scoped by environment in their Vault path, and Tenant secrets live beneath their Project](0083-secrets-are-scoped-by-environment-and-tenant-secrets-live-beneath-their-project.md) | Proposed |
-| 84 | [A Tenant sends mail as its product domain until it verifies its own domain](0084-a-tenant-sends-mail-as-its-product-domain-until-it-verifies-its-own.md) | Proposed |
+| 74 | [The Release Gate and Observation each have named writes, with their own credentials](0074-the-release-gate-and-observation-each-have-a-named-write.md) | Accepted |
+| 75 | [Three environments run in the one cluster, with a signed tag and a namespace per Project per environment, and promotion from `main` to development, then release to staging and production](0075-three-environments-run-in-the-one-cluster.md) | Accepted |
+| 76 | [Tenants are the organisations the estate serves, one per environment](0076-tenants-are-the-organisations-the-estate-serves.md) | Accepted |
+| 77 | [Product domains are admitted by Platform Intent and named by a Project, and Tenant hosts are derived from them](0077-product-domains-are-admitted-by-platform-intent.md) | Accepted |
+| 78 | [A multi-tenant Project keeps one Tenant database per Tenant, on a Database server recorded with the Tenant](0078-a-multi-tenant-project-keeps-one-tenant-database-per-tenant.md) | Accepted |
+| 79 | [The Tenant of a request comes only from the Gate's signed principal, one request or message names exactly one Tenant, and a Causation id ties traces together](0079-the-tenant-of-a-request-comes-only-from-the-signed-principal.md) | Accepted |
+| 80 | [A Tenant is a custom resource that platform components reconcile, with Tenant hooks and finalizers, in a sixth bounded context, tenancy](0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md) | Accepted |
+| 81 | [Migrations reach Tenant databases in waves that continue past failure, a Behind database blocks the next release, and multi-tenant Projects use managed Liquibase migrations](0081-migrations-reach-tenant-databases-in-waves.md) | Accepted |
+| 82 | [Each Tenant is backed up as a Backup generation on its own schedule, and Mirrors refresh staging and development Tenants](0082-backups-are-per-tenant-generations-and-mirrors-refresh-staging-and-development.md) | Accepted |
+| 83 | [Secrets are scoped by environment in their Vault path, and Tenant secrets live beneath their Project](0083-secrets-are-scoped-by-environment-and-tenant-secrets-live-beneath-their-project.md) | Accepted |
+| 84 | [A Tenant sends mail as its product domain until it verifies its own domain](0084-a-tenant-sends-mail-as-its-product-domain-until-it-verifies-its-own.md) | Accepted |
