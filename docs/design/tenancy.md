@@ -115,10 +115,15 @@ A failure does not stop the wave. The database is marked Behind at its last good
 
 ## Backups and Mirrors
 
-Planned as row 82 of the [register](../decisions/register.md), filled by
-[#146](https://github.com/JorisJonkers-dev/estate-kit/issues/146). Backup generations, schedules, the central catalogue, restores and Mirrors.
+Decided in [record 82](../decisions/0082-backups-are-per-tenant-generations-and-mirrors-refresh-staging-and-development.md).
 
-_Empty until its record is written._
+A Backup generation is a logical dump of every Tenant database of one Tenant, taken together on that Tenant's own schedule. It records each database's migration revision, is encrypted, copied off the cluster and listed in one central catalogue. This replaces the backup component's scope per Project for a multi-tenant Project. Each Postgres server also archives WAL for point-in-time recovery, for disaster only.
+
+A restore locks the Tenant, runs the prepare-restore hook, replaces the databases, migrates each up to the target Environment's revision, runs the after-restore hook and unlocks. A generation newer than the target is refused, and the refusal names both revisions.
+
+A staging or development Tenant may Mirror one production Tenant on a schedule. The data loads where no person can read it and is masked before the target is exposed. Development is always masked; staging is masked only when it says so. Each Project declares masking rules for its own tables, and a Project with none is not loaded into a development Mirror. Staging and production Tenants exist independently.
+
+An unmasked staging Mirror makes staging hold production personal data. Staging access for that Tenant must then be no wider than its production access.
 
 ## Secrets
 
