@@ -165,6 +165,18 @@ _Avoid_: tenant id, slug, tenant name
 The name a Tenant's people see in its URLs. It is unique within an environment and may change; a former handle redirects for a grace period, then is free again.
 _Avoid_: subdomain, slug, vanity name
 
+**Product domain**:
+The domain a multi-tenant Application names, under which every Tenant host is derived. Platform Intent admits it for the Project; two Projects may not claim one.
+_Avoid_: base domain, root domain, vanity domain
+
+**Tenant host**:
+The host at which a Tenant's people reach an Application, derived as the Tenant handle, the environment suffix (none in production) and the Product domain. A host finds its Tenant through a lookup, never by parsing.
+_Avoid_: tenant url, subdomain, vanity host
+
+**Estate name**:
+The estate's one stable DNS-style name, at most 32 characters, held in Platform Intent. It is the seam for a later second cluster or estate.
+_Avoid_: cluster name, estate id
+
 **Tenant database**:
 The Postgres database one Project keeps for one Tenant. A Tenant's data in a Project lives only there, so a Tenant is backed up, restored and destroyed one database at a time.
 _Avoid_: tenant schema, shard, partition
