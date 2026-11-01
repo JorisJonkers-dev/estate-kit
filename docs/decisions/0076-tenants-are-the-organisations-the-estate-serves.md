@@ -28,7 +28,7 @@ This replaces the words "no second tenant" in
 [record 1](0001-one-maintainer-one-cluster-one-estate.md) with "no second
 operator or team". A Tenant is a different thing: it is served by the estate and
 does not run it. The estate still has one maintainer, whatever the number of
-Tenants, and the rest of record 1 stands.
+Tenants, and the rest of [record 1](0001-one-maintainer-one-cluster-one-estate.md) stands.
 
 A Tenant has an immutable Tenant key, `<env letter>_<name>`, where the letter is
 that of its Environment and the name matches `^[a-z][a-z0-9]{1,15}$`. The
