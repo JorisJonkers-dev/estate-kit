@@ -1,5 +1,5 @@
 ---
-status: proposed  # proposed | accepted | locked
+status: accepted  # proposed | accepted | locked
 date: 2026-11-01
 rests-on: [1, 75]
 lessons: [MS-7, MS-6]
@@ -65,7 +65,7 @@ they are rewritten in Rust.
   accident in staging.
 - Harder: every multi-tenant Project carries a Tenant key through its data, and a
   handle change keeps a redirect for its grace period.
-- On acceptance, [record 1](0001-one-maintainer-one-cluster-one-estate.md) is edited so that its "no second tenant" becomes "no second operator or team".
+- [Record 1](0001-one-maintainer-one-cluster-one-estate.md) is amended: its "no second tenant" is now "no second operator or team".
 - Forbidden: a Tenant key outside the grammar, with an Environment letter that
   differs from its Environment, or reused; a handle that ends in `-staging` or
   `-dev`, or one that two Tenants of an Environment hold at once; a Tenant that

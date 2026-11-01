@@ -28,15 +28,16 @@ one-off tool, not a permanent rule in the model.
 
 The single cluster is explicit rather than implied: an input that names a second
 cluster is refused, so a later extension stays possible but is not designed for.
-There is no second tenant, no per-team boundary and no second production
-cluster. The premise is reviewed at the horizon of 2028-08-31, or earlier if a
+There is no second operator or team, no per-team boundary and no second
+production cluster. The organisations the estate serves are Tenants
+([record 76](0076-tenants-are-the-organisations-the-estate-serves.md)); they add no operator. The premise is reviewed at the horizon of 2028-08-31, or earlier if a
 second regular human maintainer or a second production cluster appears.
 
 ## Alternatives
 
 | Option | Cost if taken | Why rejected |
 | --- | --- | --- |
-| Design for a team and several clusters | Tenancy, per-team policy and a cluster dimension in every model, paid by one person | None of it catches a mistake on the real estate |
+| Design for a team and several clusters | Per-team boundaries, per-team policy and a cluster dimension in every model, paid by one person | None of it catches a mistake on the real estate |
 | Leave the scale unstated | Each design question reopens the scale argument | The review's largest root cause was a design scaled to an estate that does not exist |
 | A second cluster as a first-class target | A cluster axis in Intent, rendering and rollout | One cluster serves the estate; a seam that costs nothing keeps the door open |
 
@@ -47,7 +48,7 @@ second regular human maintainer or a second production cluster appears.
 - Harder: a second maintainer or cluster is a redesign of the records that rest
   on this, not a configuration change.
 - Forbidden: a model concept, gate or ledger whose only justification is a team,
-  a second tenant or a second cluster; an input that selects among clusters.
+  a second operator or team, or a second cluster; an input that selects among clusters.
 
 ## Confirmation
 

@@ -1,5 +1,5 @@
 ---
-status: proposed  # proposed | accepted | locked
+status: accepted  # proposed | accepted | locked
 date: 2026-11-01
 rests-on: [75, 76, 78, 80, 81]
 lessons: [DR-1]
@@ -107,7 +107,7 @@ maintainer and to nobody who only has staging access.
 - Harder: the catalogue, the schedules and the encrypted copies grow with the
   Tenant count; every Project with personal columns keeps masking rules in step
   with its migrations; a restore into an older Environment can be refused.
-- On acceptance, the backup component's entry in [Mail and components](../design/mail-and-components.md#components) is edited so that its scope per Project becomes scope per Tenant for a multi-tenant Project.
+- The backup component's entry in [Mail and components](../design/mail-and-components.md#components) is amended: its scope is per Tenant for a multi-tenant Project.
 - Forbidden: a generation that omits a Tenant database of its Tenant or its
   revisions; a restore that changes data before its lock and prepare-restore
   hooks succeed; a restore of a generation newer than the target; a development

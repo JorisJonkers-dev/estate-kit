@@ -5,7 +5,7 @@ rests-on: [13, 17, 18]
 lessons: [DO-1, CS-2, MS-1, TM-4, PR-4]
 ---
 
-# The workspace is five bounded contexts in five layers, and a check holds the crate graph to both
+# The workspace is six bounded contexts in five layers, and a check holds the crate graph to both
 
 ## Context
 
@@ -34,8 +34,8 @@ are written down in one place and checked.
 
 ## Decision
 
-The workspace is split into five bounded contexts, a shared foundation, and
-five layers. Every crate belongs to one context (or the foundation) and one
+The workspace is split into six bounded contexts, a shared foundation, and
+five layers. Tenancy is the sixth ([record 80](0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md)). Every crate belongs to one context (or the foundation) and one
 layer.
 
 | Context | Owns | Talks to others through |
@@ -45,6 +45,7 @@ layer.
 | Observation | What runs and how it is doing; read only except Alertmanager silences ([record 74](0074-the-release-gate-and-observation-each-have-a-named-write.md)) | Rollout events, read from the Service's API |
 | Hosts | Generations and their rollout across nodes | Signed host tags only |
 | Components | Migrations, secret grants, catalogs, backups, Mailboxes | Rendered objects only |
+| Tenancy | Tenants and the Tenant operations | The Tenant custom resource, and the Tenant hooks an Application declares |
 
 | Layer | May depend on | Holds |
 | --- | --- | --- |

@@ -1,5 +1,5 @@
 ---
-status: proposed  # proposed | accepted | locked
+status: accepted  # proposed | accepted | locked
 date: 2026-11-01
 rests-on: [33, 76, 77, 80]
 lessons: [DR-1, DO-2]
@@ -71,7 +71,7 @@ their own if they are ever wanted.
   records stays on the product domain until it fixes them.
 - The sending reputation of every Tenant is shared on one IP. A Tenant that
   abuses it harms the others; isolating reputation would be a new record.
-- On acceptance, [record 33](0033-a-mailbox-is-declared-by-its-local-part-and-owned-by-one-project.md) is edited so that a Mailbox's owner is a Project or, for a Tenant's own domain, the Tenant resource.
+- [Record 33](0033-a-mailbox-is-declared-by-its-local-part-and-owned-by-one-project.md) is amended: a Mailbox of a multi-tenant Project also exists on each Verified domain the Tenant resource holds.
 - Forbidden: sending as a domain that has not been verified, an alias used in
   place of a Domain object, and a Verified domain left in Stalwart after a Purge.
 

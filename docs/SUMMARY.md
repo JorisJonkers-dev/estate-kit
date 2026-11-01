@@ -55,7 +55,7 @@
   - [37. Speed budgets; coverage and mutation ratchets](decisions/0037-every-gate-has-a-speed-budget-coverage-and-mutation-are-ratchets.md)
   - [43. The service API is OpenAPI 3.1](decisions/0043-the-service-api-is-an-openapi-3-1-contract.md)
   - [48. Schema evolution and the CLI's JSON schema](decisions/0048-the-cli-s-json-output-has-a-committed-schema.md)
-  - [50. Five bounded contexts](decisions/0050-five-bounded-contexts.md)
+  - [50. Six bounded contexts](decisions/0050-five-bounded-contexts.md)
   - [54. Threat tables and an authorization row per route](decisions/0054-every-trust-boundary-has-a-threat-table-and-every-route-an-authorization-row.md)
   - [55. Characterize before rewriting](decisions/0055-every-go-and-python-program-is-characterized-before-it-is-rewritten.md)
   - [58. Flux lockdown and a dry-run identity](decisions/0058-flux-is-locked-down-per-project-and-the-service-dry-runs-as-an-identity-that-cannot-write.md)

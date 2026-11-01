@@ -24,7 +24,9 @@ An Application declares a Mailbox by its local part only. Within one Project the
 same local part names one shared Mailbox; across Projects the same local part is
 refused with a contention diagnostic that points at both declarations
 ([record 71](0071-a-diagnostic-is-a-coded-problem-with-typed-locations.md)). Each
-Mailbox has exactly one owning Project.
+Mailbox has exactly one owning Project. A Mailbox of a multi-tenant Project also
+exists on each Verified domain of a Tenant; the Tenant resource holds those
+domains ([record 84](0084-a-tenant-sends-mail-as-its-product-domain-until-it-verifies-its-own.md)).
 
 Each Project's render carries one Mailbox custom resource per Mailbox, in its
 own unit. The mailbox component watches them by label and reconciles the mail
