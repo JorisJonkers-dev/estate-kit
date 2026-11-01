@@ -166,7 +166,7 @@ The short, immutable name that identifies a Tenant everywhere inside the estate,
 _Avoid_: tenant id, slug, tenant name
 
 **Tenant handle**:
-The name a Tenant's people see in its URLs. It is unique within an environment and may change; a former handle redirects for a grace period, then is free again.
+The name a Tenant's people see in its URLs. It is unique within an environment and may change; a former handle redirects for a grace period of 90 days, then is free again.
 _Avoid_: subdomain, slug, vanity name
 
 **Product domain**:
@@ -238,7 +238,7 @@ The broker-neutral header a producer sets on every message to name its one Tenan
 _Avoid_: tenant id header, routing key
 
 **Suspended**:
-The state of a Tenant whose people cannot sign in and whose traffic is refused, while all its data is kept. A Suspended Tenant is purged when its grace period ends, unless it is resumed.
+The state of a Tenant whose people cannot sign in and whose traffic is refused, while all its data is kept. A Suspended Tenant is purged when its grace period of 30 days ends, unless it is resumed.
 _Avoid_: disabled, deactivated, frozen
 
 **Purge**:

@@ -37,7 +37,7 @@ and never reuses it, even after a Purge.
 
 A Tenant also has a Tenant handle, which its people see in URLs. It is unique
 within its Environment and can change. A former handle redirects for a grace
-period, then is free again. A handle that ends in `-staging` or `-dev` is
+period of 90 days, then is free again. A handle that ends in `-staging` or `-dev` is
 refused, because the hosts of those Environments end that way.
 
 A User has one account per Environment and holds Memberships in many Tenants.
