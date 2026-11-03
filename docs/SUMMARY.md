@@ -96,3 +96,4 @@
   - [Review of the all-Rust redesign](research/rust-redesign-review.md)
   - [Multi-tenancy](research/multi-tenancy.md)
   - [One cluster or several, and many Tenants in one](research/multi-cluster.md)
+  - [Splitting estate-kit](research/decomposition.md)
