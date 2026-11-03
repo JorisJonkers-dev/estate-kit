@@ -480,8 +480,13 @@ belong with the datastore backup of
 - **Design of Software Architectures.** The DataForge architecture
   description used arc42 with ISO 25010 quality-attribute scenarios, a utility
   tree and decision records. The design review of 2026-10-22 already follows
-  that method. This note's cut criteria are the same quality attributes,
-  applied to the question of where a boundary goes.
+  that method. This note's cut criteria are the same quality attributes
+  (Barbacci et al. 1995; Bass, Clements and Kazman 2021), applied to the
+  question of where a boundary goes. Kruchten's 4+1 views (1995) map onto the
+  three axes above: the development view is the crate and repository axes, the
+  process and physical views are the process axis. Execution viewpoints
+  (Callo Arias et al. 2009) are how the deploy path across the cluster, the
+  nodes and Scaleway should be drawn.
 - **Model-Driven Engineering.** Context Mapper (Kapferer and Zimmermann 2021)
   models bounded contexts and their relations in a DSL and suggests
   decompositions through architectural refactorings; Service Cutter scores
@@ -494,10 +499,21 @@ belong with the datastore backup of
 - **Modeling and Analysis of Concurrent Systems.** The rollout protocol is a
   concurrent system with timing, so it can be modelled in UPPAAL and its end
   states checked, as above.
-- **Service-Oriented Architecture.** The SOA project's lesson was a live
+- **Service-Oriented Architecture.** Two of the course's exam papers speak
+  to this note directly. Vučković (2020), "You Are Not Netflix", argues that a
+  small organisation copying large-company microservices pays their cost
+  without their benefit: the one-maintainer argument above. Megargel et al.
+  (2021) give a decision framework for orchestration, where a conductor drives
+  each step, against choreography, where services react to each other's
+  events. Flux and Flagger reacting to a moved tag is choreography; the
+  Applier of option B with the Conductor is orchestration, which the framework
+  favours when one process must know the state of the whole flow and decide on
+  failure. Knoche and Hasselbring (2018) and Balalaie et al. (2016) describe
+  incremental migrations, the way deploy-kit hands over to estate-kit, and
+  Neri et al. (2020) list the smells to test each proposed boundary against,
+  such as shared persistence. The SOA project's own lesson was a live
   telemetry view over WebSocket through a gateway, beside asynchronous work
-  over a queue. It is the same split as the event stream here: asynchronous
-  work, one live read channel.
+  over a queue: the same split as the event stream here.
 
 ## Records this note would need
 
@@ -554,6 +570,30 @@ leans on most:
   correctness of cloud system management. SOSP 2023.
 - Kleppmann, M., et al. (2024). Bluesky and the AT Protocol: usable
   decentralized social media.
+
+Course readings, in the private course-material repositories:
+
+- Kruchten, P. B. (1995). The 4+1 view model of architecture. *IEEE
+  Software* 12(6).
+- Barbacci, M., Klein, M. H., Longstaff, T. A., Weinstock, C. B. (1995).
+  *Quality Attributes*. CMU/SEI-95-TR-021.
+- Callo Arias, T. B., America, P., Avgeriou, P. (2009). Defining execution
+  viewpoints for a large and complex software-intensive system. WICSA/ECSA
+  2009.
+- Bass, L., Clements, P., Kazman, R. (2021). *Software Architecture in
+  Practice*, 4th ed. Addison-Wesley.
+- Vučković, J. (2020). You are not Netflix. In *Microservices: Science and
+  Engineering*, Springer.
+- Megargel, A., Poskitt, C. M., Shankararaman, V. (2021). Microservices
+  orchestration vs. choreography: a decision framework. EDOC 2021.
+- Knoche, H., Hasselbring, W. (2018). Using microservices for legacy software
+  modernization. *IEEE Software* 35(3).
+- Balalaie, A., Heydarnoori, A., Jamshidi, P. (2016). Microservices
+  architecture enables DevOps: migration to a cloud-native architecture.
+  *IEEE Software* 33(3).
+- Neri, D., Soldani, J., Zimmermann, O., Brogi, A. (2020). Design principles,
+  architectural smells and refactorings for microservices: a multivocal
+  review. *SICS Software-Intensive Cyber-Physical Systems* 35(1-2).
 
 Web sources, read 2026-11-03:
 
