@@ -13,8 +13,9 @@ questions came from the maintainer:
 5. How do we depend less on GitHub, with Tangled or a self-hosted forge behind
    the VPN as the likely destination?
 
-The papers behind this note are in the private `papers/` submodule, under
-`decomposition/` (see [Research](README.md#papers)). The course material it
+The papers behind this note are in the private `papers/` submodule, sorted by
+theme (see [Research](README.md#papers)). The themes that answer each question
+below are listed under "Start from a question" in `papers/INDEX.md`. The course material it
 draws on (Design of Software Architectures, Model-Driven Engineering, Modeling
 and Analysis of Concurrent Systems, Service-Oriented Architecture) is in the
 private coursework repository.
@@ -47,6 +48,10 @@ private coursework repository.
   run the coordinator as a scale-to-zero container at Scaleway, outside the
   cluster. It then survives the control-plane node's own update, no node can
   deploy another, and it costs about nothing inside the free tier.
+- **Scale to zero.** Add Knative or KEDA to the existing k3s cluster rather
+  than renting a functions service. Cold starts decide which Applications may
+  idle, and spreading the control plane across providers is still unmeasured;
+  see [A scale-to-zero layer on the cluster](#a-scale-to-zero-layer-on-the-cluster).
 - **Forge.** About 195 lines of the design pages name GitHub or ghcr. Put the
   forge behind one port with an adapter per forge, and move renders off ghcr
   to a self-hosted registry. That also removes the classic-token problem the
@@ -410,6 +415,39 @@ and both its Serverless Containers and Jobs are managed from its web console.
   Conductor stops new host updates and leaves every node on its current
   generation, which is safe.
 
+### A scale-to-zero layer on the cluster
+
+The serverless half of the question has a cheaper answer than a provider's
+functions service: add a scale-to-zero layer to the k3s cluster the estate
+already runs. Knative Serving (with Kourier) or KEDA (with its HTTP add-on)
+installs beside the existing workloads. For an Application that declares it
+may idle, the compiler would emit a Knative Service, or a KEDA scaler beside
+its Deployment, instead of a plain Deployment. A practitioner recipe for this
+set-up was checked against the literature on 2026-11-03
+(`papers/notes/k3s-serverless-recipe-evidence.md`): of its 28 claims, 10 are
+supported, 11 qualified, 7 untested and none contradicted. What matters for
+estate-kit:
+
+- **The layer itself is sound.** Request-driven autoscaling and scale to zero
+  on self-hosted Kubernetes are well studied, and k3s is a fit for small nodes.
+- **Cold starts decide which Applications may go to zero.** The JVM is the
+  worst case among common runtimes. GraalVM native images start in
+  milliseconds, but builds are slow and reflection is limited. CRaC and CRIU
+  snapshots help most when taken after warm-up. Keeping one replica gives up
+  the saving. A shared pre-warmed pool is a middle way. A Kotlin service
+  therefore needs a native build or a snapshot before it may idle.
+- **Image pulls dominate cold start.** Small images, and a registry or
+  pull-through cache inside the estate, cut it. This argues again for the
+  self-hosted registry in [The registry](#the-registry).
+- **Spreading across providers is the least proven part.** A Raft quorum pays
+  the round trip between providers on every write, and no peer-reviewed study
+  measures etcd or kine over such links. kube-vip and MetalLB move a virtual IP
+  only inside one provider's network. DNS works across providers but resolvers
+  can hold stale records. Replicated block storage across providers pays the
+  round trip on every write. Measure on the estate before putting the control
+  plane or storage across providers. Until then, keep the control plane and
+  replicated storage inside one provider, and let only stateless work cross.
+
 ## Watching a switchover live
 
 | Reader | Where | Shape |
@@ -541,9 +579,9 @@ None of this binds until a record is written and accepted. In reading order:
 
 ## Sources
 
-Papers are in the private `papers/` submodule, folder `decomposition/`, whose
-index gives the DOI of each and whether it was downloaded. The ones this note
-leans on most:
+Papers are in the private `papers/` submodule, in theme folders whose
+`INDEX.md` gives the DOI of each, a summary, and whether it was downloaded. The
+ones this note leans on most:
 
 - Parnas, D. L. (1972). On the criteria to be used in decomposing systems into
   modules. *Communications of the ACM* 15(12).

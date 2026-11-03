@@ -15,7 +15,16 @@ git submodule update --init docs/research/papers
 ```
 
 Without access the directory stays empty, and nothing here depends on it.
-`papers/INDEX.md` lists every paper, with its DOI and why it matters.
+
+The papers are sorted into theme folders grouped by subject, such as
+`papers/hosts/updates-and-upgrades/` and `papers/delivery/progressive-delivery/`.
+Each PDF has a Markdown conversion beside it. Each theme folder's `INDEX.md`
+gives every entry a summary written from its abstract, its DOI, why it matters
+to estate-kit, and whether it is filed or still to fetch. `papers/INDEX.md`
+starts from estate-kit's open questions and points to the themes that answer
+them. `papers/notes/` holds prose that is not one paper: prior-art
+comparisons, the survey method, and the evidence on a k3s serverless recipe.
+Every index is generated from `papers/catalog.json`.
 
 ## Notes
 
