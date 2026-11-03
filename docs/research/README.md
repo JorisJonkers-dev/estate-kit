@@ -26,3 +26,4 @@ topic.
 | --- | --- |
 | [Multi-tenancy](multi-tenancy.md) | Data isolation, pooling, migrations, context propagation, identity, lifecycle, backups, masking and mail for many Tenants |
 | [One cluster or several, and many Tenants in one](multi-cluster.md) | Scaling limits, GitOps across clusters, cells, federation, and in-cluster isolation |
+| [Splitting estate-kit](decomposition.md) | Use cases, subdomains and candidate services; the deploy path without Flux; Flagger; a live view; depending less on GitHub |
