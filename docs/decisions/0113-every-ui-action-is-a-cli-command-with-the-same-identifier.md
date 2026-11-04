@@ -43,8 +43,10 @@ which names one deploy.
 
 This extends [record 43](0043-the-delivery-api-is-an-openapi-3-1-contract.md)
 to Observation: the routes the UI calls on Observation, its views and its
-Silences, are described in a committed OpenAPI document of their own, under
-the same rules. The CLI may have commands the UI lacks, such as `validate` and
+Silences, are described in Observation's own committed OpenAPI document, under
+the same rules. That document is a contract, Locked like Delivery's: changing
+it needs the maintainer's approval in the pull request. The CLI may have
+commands the UI lacks, such as `validate` and
 `plan`, which run offline. The UI may not have an action the CLI lacks.
 [Operating the estate](../design/operating.md) is corrected to say Operators
 act through the UI or the CLI when this record is accepted.
@@ -56,6 +58,7 @@ act through the UI or the CLI when this record is accepted.
 | CLI commands named freely, with a mapping table | A second list of names to keep in step | One identifier needs no mapping |
 | Only mutating actions need a CLI command | An agent cannot read what the UI shows: rollout history, Tenant state, Silences | Agents and CI read as much as they write |
 | Delivery's API only; Observation's views stay UI only | Silences and the read views need a browser | Observation's routes are where the reads are |
+| Observation's routes added to Delivery's document | One document for two processes, each released and versioned on its own | Each context publishes its own contract |
 | The CLI drives the UI's own client code | Two clients share browser concerns and a build | The OpenAPI document already gives both the same operations |
 
 ## Consequences
@@ -73,6 +76,9 @@ act through the UI or the CLI when this record is accepted.
 
 The **UI and CLI parity test** fails when an `operationId` the UI's generated
 client calls has no CLI command that spells it, or a CLI command that calls the
-API spells an `operationId` no committed document holds. The **Authorization
-matrix test** keeps each `operationId` matched to its row, and the **UI stub
-validation** keeps the UI's calls within the documents.
+API spells an `operationId` no committed document holds. The **OpenAPI route
+contract test** and the **OpenAPI lint** hold Observation's document as they
+hold Delivery's. The **Authorization matrix test** keeps each `operationId`
+matched to its row, and the **UI stub validation** keeps the UI's calls within
+the documents. That a change to either document needs the maintainer's
+approval is a review rule.

@@ -61,8 +61,8 @@ Every reconciler estate-kit owns passes these tests before it takes production
 responsibility: each component, the host applier, the Tenant operations and
 Delivery's own reconcile. The destructive reconcilers go first:
 `migration-run`, `backup`, `database-catalog` and `mailbox`. The harness and
-their tests are in place before the cutover's first handover, and each of the
-four passes them before it replaces the program it rewrites.
+the tests for all four exist before the cutover's first handover, and each of
+the four passes them before it replaces its Go or Python program.
 
 ## Alternatives
 

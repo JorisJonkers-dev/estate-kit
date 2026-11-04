@@ -62,12 +62,14 @@ order, written as an executable procedure whose steps name what they depend on:
 9. The time taken and the data lost are recorded against the targets.
 
 The maintainer runs the procedure with the offline admin credential; Delivery
-writes no Flux object. The procedure is tested on a throwaway cluster, then
-drilled on the real estate and timed against the recovery time and point of each
-Recovery class ([the planned record on recovery targets](register.md)). It
-builds on [record 59](0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md),
-which still leaves unseal and the datastore backup to fleet-infra. How often the
-real drill repeats stays open for the maintainer.
+writes no Flux object. The restore order is rehearsed in CI on every release,
+on a throwaway cluster. Once a year the procedure is drilled on the real estate
+and timed against the recovery time and point of each Recovery class
+([the planned record on recovery targets](register.md)). It builds on
+[record 59](0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md),
+which still leaves unseal and the datastore backup to fleet-infra. The k3s
+datastore stays one SQLite file, deliberately different from the applications'
+Postgres.
 
 ## Alternatives
 
@@ -77,14 +79,17 @@ real drill repeats stays open for the maintainer.
 | A second k3s server | A node to run; two etcd members tolerate no failure | No high availability, and no copy of local volumes |
 | Test only on a throwaway cluster | A procedure that has never met the real backups | A drill on the real estate finds what a test cluster lacks |
 | Drill without targets | Any time measured counts as success | The targets come first, and the drill measures them |
-| A single embedded etcd member with snapshots to object storage | A datastore change on the one control-plane node | Worth trying as a variant of the drill, not decided here |
+| A single embedded etcd member with snapshots to object storage | A datastore change on the one control-plane node | The datastore stays SQLite |
+| Rehearse the order only in the yearly drill | A broken order is found once a year, on the real estate | Rehearsed in CI on every release |
+| Drill the real estate more often than yearly | Downtime the maintainer schedules, several times a year | The CI rehearsal on every release covers the order; the yearly drill measures the real backups |
 
 ## Consequences
 
 - Easier: a lost control-plane node has a known order, a known time and a known
   data loss; no data-holding Project starts on an empty store.
 - Harder: the procedure is code to keep current with every store it restores;
-  the drill costs downtime the maintainer schedules.
+  every release waits for the rehearsal; the yearly drill costs downtime the
+  maintainer schedules.
 - Forbidden: resuming a data-holding Project before its volumes are restored; a
   component acting destructively before its store is confirmed restored; the
   registry or the binary cache on the control-plane node.
@@ -93,8 +98,9 @@ real drill repeats stays open for the maintainer.
 
 The **Restore procedure graph check** fails when a step names a dependency that
 is no step, the steps form a cycle, or a Recovery class has no restore step.
-The **Restore order rehearsal** fails when the procedure, run on a throwaway
-cluster from backups alone, does not bring every Project back to Serving, or
-unsuspends a data-holding Project before its volumes are restored. The
-**Cold-rebuild drill record** fails when the last drill on the real estate is
-older than its interval, or its recorded time or data loss exceeds the targets.
+The **Restore order rehearsal** fails when the procedure, run in CI on every
+release on a throwaway cluster from backups alone, does not bring every Project
+back to Serving, or unsuspends a data-holding Project before its volumes are
+restored. The **Cold-rebuild drill record** fails when the last drill on the
+real estate is older than a year, or its recorded time or data loss exceeds the
+targets.

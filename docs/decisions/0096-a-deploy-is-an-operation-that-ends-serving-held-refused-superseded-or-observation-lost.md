@@ -48,7 +48,7 @@ with that outcome's code:
 | Held | The render was published, and a step, object, migration or analysis failed, so the old version keeps serving; with a reason and a deadline | 10 |
 | Refused | Delivery stopped it before the Publication point: admission, digest registration, Pause, composition or dry-run; nothing changed | 11 |
 | Superseded | A newer Operation for the same Project and Environment was composed in its place or published over it before it ended | 12 |
-| Observation lost | Delivery can no longer see what Flux or Flagger did, so it cannot say how the Rollout ended; the Rollout goes on and may still reach Serving | 13 |
+| Observation lost | Delivery has had no observation of Flux or Flagger for 10 minutes, so it cannot say how the Rollout ended; the Rollout goes on and may still reach Serving | 13 |
 
 Exit 1 means the watch itself failed (it could not authenticate or reach
 Delivery) and says nothing of the Operation; exit 2 is a usage error. An
@@ -57,11 +57,15 @@ result for an older revision never completes a newer one. A Rollout that
 reconciliation ends as Abandoned ([record 63](0063-delivery-has-one-writer-and-reconciles-from-observed-state.md))
 ends its Operation as Observation lost. A new Operation whose render is
 unchanged publishes nothing and ends Serving once the fold sees that digest
-serving. Two bounds stay open: how long before the stream says Flux has not
-picked the render up, and how long without sight of Flux or Flagger before
-Observation lost. The exit codes enter the CLI's committed contract
-([record 48](0048-the-cli-s-json-output-has-a-committed-schema.md)) only with
-the maintainer's approval.
+serving. Two bounds apply. When Flux has not picked a published render up
+after 30 seconds, the stream says so, and the Operation goes on. When Delivery
+has had no observation at all for 10 minutes, the Operation ends Observation
+lost. Separately, Delivery alerts when the applied revision trails the latest
+published one for 1 hour, as the low-attention defaults of
+[record 86](0086-the-estate-states-its-defaults-for-a-low-attention-week.md)
+state. The maintainer has approved the exit codes in the table, with 1 and 2
+as above, and they enter the CLI's committed contract
+([record 48](0048-the-cli-s-json-output-has-a-committed-schema.md)).
 
 The stream is SSE. A client resumes with `Last-Event-ID`; if the cursor has
 expired it gets a snapshot and continues; authorisation is checked again on
@@ -89,8 +93,10 @@ answers, never on a Flux object
 
 - Easier: CI branches on the outcome; a run reattaches after a lost job; the
   same stream drives the CI log, the terminal and the UI.
-- Harder: every outcome needs an end-to-end scenario; the bounds after which
-  Delivery reports "not started" or Observation lost must be set and kept.
+- Harder: every outcome needs an end-to-end scenario; the exit codes are a
+  committed contract, so changing one needs the maintainer's approval; a Flux
+  that regularly takes longer than 30 seconds to pick a render up fills the stream
+  with notices.
 - Forbidden: exit 0 for anything but Serving; an Operation advanced by another
   digest's observation; a command that writes a Flux object; cancelling an
   Operation because its caller went away.
@@ -99,7 +105,10 @@ answers, never on a Flux object
 
 The **Operation outcome tests** fail when a recorded sequence of observations
 ends other than its fixture says, another digest advances an Operation, a newer
-Operation does not end the older Superseded, or `estate-kit watch` exits with
-another code. The **Operation idempotency tests** and the **Operation stream
-tests** hold the id and stream rules, and the **Authorization matrix test**
-the commands' rows. The **E2E scenarios** end one Operation in each outcome.
+Operation does not end the older Superseded, the stream does not say a render
+has not been picked up after 30 seconds, an Operation with no observation for
+10 minutes does not end Observation lost, or `estate-kit watch` exits with
+another code than the table, 1 or 2 gives. The **Operation idempotency tests**
+and the **Operation stream tests** hold the id and stream rules, and the
+**Authorization matrix test** the commands' rows. The **E2E scenarios** end one
+Operation in each outcome.

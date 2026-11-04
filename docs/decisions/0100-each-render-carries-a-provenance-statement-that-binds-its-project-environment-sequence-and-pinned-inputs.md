@@ -51,9 +51,10 @@ Flux verifies the signature, as today. Delivery checks the binding when it
 observes the revision Flux applied. The statement must name the Project and
 Environment whose repository holds the tag, and a sequence no higher than the
 tag's. A lower sequence is allowed only for a Rollback that Delivery
-recorded. On a mismatch, Delivery alerts and sets the Project's
-ProjectControl to Paused ([record 28](0028-pause-and-rollback-are-a-cluster-object-per-project.md));
-it does not roll back by itself. A Rollback refuses a target whose statement
+recorded. On a mismatch, Delivery does two things: it alerts, and it sets
+the Project's ProjectControl to Paused
+([record 28](0028-pause-and-rollback-are-a-cluster-object-per-project.md)).
+It does not roll back by itself. A Rollback refuses a target whose statement
 names another Project or Environment; the check needs the public key only, so
 a Rollback still works with Vault sealed. This extends
 [record 21](0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md),
@@ -96,9 +97,9 @@ covers. Image build provenance stays with
 The **Render statement binding test** fails if a render is published without
 its statement, if a statement's subject is not the render's digest or it
 verifies with another key, or if Delivery observes an applied render whose
-statement names another Project, another Environment or a higher sequence
-and neither alerts nor pauses; and if a Rollback to such a render is not
-refused. The **Schema evolution check** holds the predicate's schema. A
-scenario of the **E2E scenarios** places another Environment's signed render
-under a Project's next Sequence tag and asserts the alert and the Pause
+statement names another Project, another Environment or a higher sequence and
+fails either to alert or to pause the Project; and if a Rollback to such a
+render is not refused. The **Schema evolution check** holds the predicate's
+schema. A scenario of the **E2E scenarios** places another Environment's signed
+render under a Project's next Sequence tag and asserts the alert and the Pause
 ([record 69](0069-the-deploy-path-is-tested-end-to-end.md)).

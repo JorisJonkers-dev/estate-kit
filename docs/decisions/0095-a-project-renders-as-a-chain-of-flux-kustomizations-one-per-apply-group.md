@@ -57,16 +57,15 @@ Project is one group, and the observation of
 [record 94](0094-flux-stays-the-one-applier-observed-closely-and-an-estate-kit-applier-waits-for-a-review-trigger.md)
 works on that one Kustomization.
 
-Whether the Release Gate's migration-Job unsuspend becomes an ordinary step
-stays open; the evaluation raises the question and does not settle it. The
-migration Job has its own group either way. If the up Job is rendered
-unsuspended, Flux runs it when its group applies and the workloads wait for its
-completion, so the gate's write for the up Job goes; but the gate's check that
-the release is still proven then has no place to run. The down Job cannot
-become a step in either case: it runs only after a release is held. Until the
-maintainer decides, the unsuspend of
-[record 74](0074-the-release-gate-and-observation-each-have-a-named-write.md) stands, and the migration group's
-health timeout must cover the time the gate waits before starting the Job.
+The Release Gate keeps starting the migration Job by unsuspending it, the
+write [record 74](0074-the-release-gate-and-observation-each-have-a-named-write.md)
+names; the unsuspend is not a step of the chain. The migration Job has its own
+group, rendered suspended. Flux applies the group, and the group turns healthy
+only once the gate has unsuspended the Job and the Job has completed, so the
+workloads wait for both. The migration group's health timeout covers the time
+the gate waits before it starts the Job. The gate's check that the release is
+still proven therefore keeps its place, and the down Job, which runs only
+after a release is held, stays the gate's as well.
 
 ## Alternatives
 
@@ -76,7 +75,7 @@ health timeout must cover the time the gate waits before starting the Job.
 | A Kustomization per object kind | Many more Flux objects, with order where none is needed | Groups only where order is required |
 | A separate service account per group | More identities to narrow and fixture | The Project is the isolation unit of [record 58](0058-flux-is-locked-down-per-project-and-delivery-dry-runs-as-an-identity-that-cannot-write.md) |
 | A ledger cause for the chain in the shadow | Changes the Locked expected-differences ledger | Specification first keeps the closed set of causes |
-| Make the up Job an ordinary step now | The proof check before a migration is lost | Left open for the maintainer |
+| Make the up Job an ordinary step, rendered unsuspended | The gate's check that the release is still proven has no place to run, and the down Job still needs the gate | The gate keeps the unsuspend |
 
 ## Consequences
 
@@ -90,12 +89,16 @@ health timeout must cover the time the gate waits before starting the Job.
   Project at once.
 - Forbidden: a Kustomization of the chain that names another identity or
   namespace than its Project's; a `dependsOn` edge that is not a required edge;
-  a group without health checks on its objects.
+  a group without health checks on its objects; a migration Job rendered
+  unsuspended; a migration group whose health timeout is shorter than the
+  gate's wait.
 
 ## Confirmation
 
 The **Apply group chain fixtures** fail on a render whose Kustomizations differ
 from the derived groups and order, name another service account or namespace,
-carry an edge that is not required, form a cycle or lack health checks, with one
-failing fixture per rule. A scenario of the **E2E scenarios** fails the
-migration group and asserts that no workload of the new render is applied.
+carry an edge that is not required, form a cycle or lack health checks, render
+the migration Job unsuspended, or give the migration group a health timeout
+shorter than the gate's wait, with one failing fixture per rule. A scenario of
+the **E2E scenarios** fails the migration group and asserts that no workload of
+the new render is applied.
