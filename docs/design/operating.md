@@ -112,7 +112,7 @@ Every row is answered in the [review](../research/review/README.md), decisions D
 The control plane is restored in a dependency order that is tested, drilled and timed ([record 106](../decisions/0106-the-control-plane-is-restored-in-a-dependency-order-that-is-tested-drilled-and-timed.md)). After total loss of the control-plane node, the estate is restored in this order:
 
 1. A new host from nixos-anywhere, with its first generation from the cache, and the offline credentials (Recovery key, admin credential, backup decryption keys) from the maintainer's offline store.
-2. The k3s datastore from its off-provider copy. Every Flux Kustomization of a Project that holds data stays suspended until step 5.
+2. The k3s datastore from its off-provider copy. Every Flux Kustomization of a Project that holds data stays suspended until step 7.
 3. Vault from its raft snapshot, unsealed as fleet-infra provides.
 4. The registry and the binary cache, checked reachable; neither depends on the cluster, and neither may run on the control-plane node.
 5. The contents of local-path volumes and platform-postgres, from their off-cluster backups. The backup times are compared and any gap is recorded.
