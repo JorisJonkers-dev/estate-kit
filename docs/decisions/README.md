@@ -9,8 +9,8 @@ follow [MADR](https://adr.github.io/madr/); start from
 [`template.md`](template.md).
 
 The Records job holds these rules, and that a record's status agrees with its
-register row, that every Accepted row has a file, and that a Merged or Moved
-row has none and nothing rests on it (`scripts/check_records.py`).
+register row, that every Accepted row has a file, that a Merged or Moved
+row has none and nothing rests on it, and that a Superseded row keeps its file and names an Accepted record (`scripts/check_records.py`).
 
 Every record has a non-empty Confirmation, and a Confirmation names each check
 it relies on in bold, spelled as the first column of
@@ -27,6 +27,7 @@ review rule, is written without a bold name.
 | Accepted | Decided. Code follows it. |
 | Locked | Accepted, and its Confirmation section names a check that fails when the decision is broken. Only the maintainer may change it. |
 | Merged into N | Folded into record N, which now holds the decision. The number is never reused, and nothing rests on it. |
+| Superseded by N | Replaced by record N, a later Accepted record that reverses or replaces the decision. The file stays, with `status: superseded` and a line under its title naming N, so the old reasoning can still be read. Nothing rests on it; rest on N. |
 | Moved to page | Retired as a record: the page named in the row holds the rule. The number is never reused, nothing rests on it, and it has no file. |
 
 A record changes status in its own pull request. A record that is Locked
