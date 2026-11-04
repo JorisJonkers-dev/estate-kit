@@ -45,7 +45,7 @@ at Traefik.
   revision and dispatches a run. GitHub is the first adapter of each: CI
   identity in `adapter-oidc` (renamed from `adapter-github-oidc`), the other
   two in `adapter-forge-github` (renamed from `adapter-github`). The design
-  pages are renamed when this record is accepted. A second adapter is written
+  pages use these names. A second adapter is written
   only when a forge move is planned.
 - **CI calls with an OIDC token from an admitted issuer**, audience
   `estate-kit`, checked against one claim policy. The policy is scoped by

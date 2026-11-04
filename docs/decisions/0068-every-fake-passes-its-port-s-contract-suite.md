@@ -7,6 +7,10 @@ lessons: [TM-3, TM-4]
 
 # One concept per module, one fake per port that passes its contract suite, oracles only at the seams
 
+Amended by [record 104](0104-every-reconciler-estate-kit-owns-passes-crash-point-stale-read-and-safety-tests-before-it-takes-production-responsibility.md):
+the contract suites gain a crash-point, stale-read and safety harness that every
+reconciler passes before it takes production responsibility.
+
 ## Context
 
 A fake is only as good as its likeness to the real system. The workspace's
@@ -49,6 +53,12 @@ what an absent item reads as). The suite runs:
 
 A behaviour the fake has and the adapter lacks, or the reverse, fails one of
 the two runs.
+
+**A reconciler passes the crash-point harness.** The foundation's `testkit`
+crate drives each reconciler over its port fakes through a crash after every
+write, a lost response, a duplicate request and a stale view, and each
+reconciler declares its safety predicates beside it
+([record 104](0104-every-reconciler-estate-kit-owns-passes-crash-point-stale-read-and-safety-tests-before-it-takes-production-responsibility.md)).
 
 **A naming convention finds all three.** For a port trait `Foo`, its fake is
 `FakeFoo` and its suite is `foo_contract`. The check is grep-level: a script

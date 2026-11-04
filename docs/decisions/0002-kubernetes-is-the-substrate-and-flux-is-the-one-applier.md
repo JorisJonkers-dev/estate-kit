@@ -7,6 +7,10 @@ lessons: [DO-5]
 
 # Kubernetes is the substrate, and Flux is the one applier
 
+Amended by [record 94](0094-flux-stays-the-one-applier-observed-closely-and-an-estate-kit-applier-waits-for-a-review-trigger.md): Flux stays the one applier, observed closely object by object, and an estate-kit Applier is built only when one of its review triggers T1 to T5 fires.
+
+Amended by [record 95](0095-a-project-renders-as-a-chain-of-flux-kustomizations-one-per-apply-group.md): Flux applies a Project's render as a chain of Kustomizations, one per Apply group.
+
 ## Context
 
 Kubernetes earns its place here for two properties, not for scheduling. The API
@@ -24,12 +28,17 @@ estate-kit keeps that, or replaces it with its own applier.
 
 Kubernetes is the substrate for everything the estate runs as a workload, and
 Flux is the one applier of objects into the cluster. Delivery composes,
-dry-runs, signs and moves a tag; Flux pulls the tag and applies. Nothing else
-creates or changes an object in the cluster: not Delivery, not a Project's
+dry-runs, signs and moves a tag; Flux pulls the tag and applies, as a chain of
+Kustomizations, one per Apply group
+([record 95](0095-a-project-renders-as-a-chain-of-flux-kustomizations-one-per-apply-group.md)).
+Nothing else creates or changes an object in the cluster: not Delivery, not a Project's
 CI, not a person with `kubectl` outside a break-glass.
 
 The signed artifact is the seam, so a later record could replace Flux without
-touching the compiler. Hosts beneath the cluster are not in this record's
+touching the compiler; an estate-kit Applier is built only when one of the
+review triggers of
+[record 94](0094-flux-stays-the-one-applier-observed-closely-and-an-estate-kit-applier-waits-for-a-review-trigger.md)
+fires. Hosts beneath the cluster are not in this record's
 scope: a node's configuration is applied by the host applier, which pulls its own
 signed tag.
 
@@ -45,8 +54,8 @@ signed tag.
 
 ## Consequences
 
-- Easier: one applier means one place where drift, pruning and ordering are
-  decided, and one identity to narrow.
+- Easier: one applier, now observed object by object, means one place where
+  drift, pruning and ordering are decided, and one identity to narrow.
 - Harder: the estate keeps paying Kubernetes' overhead and upgrades for two
   properties; Flux's reach must be narrowed to what a render carries.
 - Forbidden: a deploy credential outside the cluster; a second applier; a write

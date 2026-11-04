@@ -46,7 +46,10 @@ order, written as an executable procedure whose steps name what they depend on:
    the offline credentials (Recovery key, admin credential, backup decryption
    keys) from the maintainer's offline store.
 2. The k3s datastore from its off-provider copy. Every Flux Kustomization of a
-   Project that holds data stays suspended until step 5.
+   Project that holds data stays suspended until step 7, when its Project is
+   resumed after the components have applied their Retirement tombstones. The
+   maintainer corrected this from step 5 on 2026-11-04, since Flux is not
+   bootstrapped until step 6.
 3. Vault from its raft snapshot, unsealed as fleet-infra provides.
 4. The registry and the binary cache, checked reachable; neither depends on the
    cluster, and neither may run on the control-plane node.

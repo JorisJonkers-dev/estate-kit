@@ -7,6 +7,8 @@ lessons: [DR-4]
 
 # A rollout is an append-only event log on the shared Postgres
 
+Amended by [record 96](0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md): a deploy call is idempotent on the caller's Operation id, and an Operation ends Serving, Held, Refused, Superseded or Observation lost.
+
 ## Context
 
 A rollout is a deploy run that streams Delivery's work to the deploy job.
@@ -31,8 +33,13 @@ deleted except by the retention job after 400 days
 ([record 51](register.md)). The columns are on the
 [event log section of Delivery page](../design/inside-delivery.md#the-event-log).
 
-A deploy call is idempotent on the Project and the fragment digest: a retry
-returns the same rollout. A stream resumes by sequence, at least once, and the
+A deploy call is idempotent on the caller's Operation id, not the Project and
+the fragment digest: a retry with the same id and the same fragment digest
+returns the same Operation, the same id with another digest is refused, and
+identical content under a new id is a new Operation
+([record 96](0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md)).
+An Operation ends Serving, Held, Refused, Superseded or Observation lost. A
+stream resumes by sequence, at least once, and the
 client drops duplicates.
 
 Every event carries a version, and an event holds no personal data: actors are
@@ -86,8 +93,9 @@ the lint.
 - Delivery's database role cannot `UPDATE` or `DELETE` the events table.
 - The retention job's role can `DELETE` an event older than 400 days and holds
   no other grant on the table; the two roles are distinct.
-- A repeated deploy call with the same Project and fragment digest returns the
-  same rollout, and a stream resumed from a sequence yields only later events.
+- A repeated deploy call with the same Operation id and fragment digest returns
+  the same Operation, and a stream resumed from a sequence yields only later
+  events.
 - Every stored event has a version, and the **Event payload lint** refuses a payload field that
   names a person.
 - An event appended by reconciliation is stored marked reconstructed with its

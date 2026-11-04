@@ -2,10 +2,13 @@
 status: accepted  # proposed | accepted | locked
 date: 2026-11-04
 rests-on: [1, 37]
+amends: [37]
 lessons: [TM-4, TM-5, DR-2]
 ---
 
 # Decision status and Enforcement status are separate, and each check names the mistake it catches
+
+The maintainer added the review value on 2026-11-04 ([#177](https://github.com/JorisJonkers-dev/estate-kit/issues/177)): a record whose Confirmation names no check reads review, never verified.
 
 ## Context
 
@@ -49,12 +52,12 @@ Enforcement status says whether the checks a record names hold it:
 | planned | The check is a row of the table of checks, with the issue that builds it, and no code yet |
 | implemented | The check runs, but outside the required `Pipeline Complete`, or without a negative fixture shown to fail it |
 | verified | The check runs inside `Pipeline Complete`, and its negative fixture fails it |
+| review | The Confirmation names no check, so the rule is held by review only |
 
 Enforcement status is derived, never written by hand. The Status column of the
 table of checks takes these three values, and a record's Enforcement status is
 the lowest among the checks its Confirmation names in bold. A record that names
-no check reads "review rule". The register gains an enforcement column, filled
-by the Records job, when this record is accepted; this record does not add it.
+no check reads review; it is never verified. The register's enforcement column is derived from the table of checks, and the Records job fails when a row disagrees with its derivation.
 An Accepted record may be planned. A Locked record must be verified, which is
 the register's rule ("a record that is Locked without a working check is a
 defect") made checkable.
@@ -100,5 +103,4 @@ column differs from the status derived from the table of checks, when a Locked
 record names a check that is not verified, or when a row of the table of checks
 names no mistake. The **Mutation exclusion review** fails when an exclusion in
 `.cargo/mutants.toml` lacks its mutant, its reason or the link to its reviewing
-pull request. When this record is accepted it replaces the **Mutation
-exclusion count**.
+pull request. It replaces the **Mutation exclusion count**, whose row of the table of checks is retired.

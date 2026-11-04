@@ -7,6 +7,8 @@ lessons: [DR-1]
 
 # A dry-run must pass before anything is applied, and images are built once and promoted, so what dry-ran is what deploys
 
+Amended by [record 97](0097-the-publication-point-is-named-and-tested-and-a-render-that-introduces-a-kind-is-published-in-two-stages.md): the first dry-run covers every changed object that is not Unverifiable by construction, an object that is Unverifiable by construction is dry-run in the second stage of its publication, and the dry-run before any tag moves becomes one before each Publication point.
+
 ## Context
 
 Offline checks catch model errors but not what only the API server knows:
@@ -23,9 +25,13 @@ must only move for a render that has passed.
 
 ## Decision
 
-Nothing is signed, tagged or applied unless Delivery's dry-run passed. Delivery composes, then sends every changed object to the live API server with
-`dryRun=All`, and a dry-run must pass twice: on the release pull request, and
-again right before any tag moves.
+Nothing is signed, tagged or applied unless Delivery's dry-run passed. Delivery composes, then sends every changed object that is not Unverifiable by
+construction to the live API server with `dryRun=All`; an object that is
+Unverifiable by construction is dry-run in the second stage of its publication,
+before it is published
+([record 97](0097-the-publication-point-is-named-and-tested-and-a-render-that-introduces-a-kind-is-published-in-two-stages.md)).
+A dry-run must pass twice: on the release pull request, and
+again before each Publication point.
 
 Images are built once and promoted. The release pull request's build job builds
 candidate images by digest and registers them; the release promotes those same
@@ -56,7 +62,8 @@ it leaves no Deployment record, so production history holds real deploys only
 
 **Deploy dry-run**, the `estate-kit / deploy (dry-run)` check, is required on
 the release pull request. The **Sign-precondition test** asserts Delivery
-refuses to sign a render whose dry-run did not pass in the same deploy, and the
+refuses to sign a render whose dry-run did not pass in the same deploy, in each
+stage of a staged publication, and the
 **Digest registration test** that it refuses a digest that was not registered by the Project's
 own build ([record 8](0008-an-image-digest-is-sealed-into-the-fragment-and-registered-by-its-build.md)).
 The **E2E scenarios** ([record 69](0069-the-deploy-path-is-tested-end-to-end.md))

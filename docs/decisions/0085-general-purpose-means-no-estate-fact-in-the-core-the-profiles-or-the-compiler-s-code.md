@@ -2,6 +2,7 @@
 status: accepted  # proposed | accepted | locked
 date: 2026-11-04
 rests-on: [1]
+amends: [1]
 lessons: [MS-7]
 ---
 
@@ -57,8 +58,7 @@ interface, or a product supported for others. This amends the wording of
 each installation of estate-kit serves one maintainer, one production cluster
 and one estate, and the code holds no fact about which estate that is. That
 record's refusal of a second cluster, its ban on team boundaries and its
-horizon review stand unchanged, and its sentence is rewritten when this record
-is accepted. The Generality tests hold the definition.
+horizon review stand unchanged, and its sentence is rewritten, as [record 1](0001-one-maintainer-one-cluster-one-estate.md) now says. The Generality tests hold the definition.
 
 ## Alternatives
 

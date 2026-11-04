@@ -177,9 +177,10 @@ states("state-mailbox", "State machine: a Mailbox",
        [("[*]", "Declared", ""), ("Declared", "Provisioned", "account created"),
         ("Declared", "Refused", "local part claimed by another Project"),
         ("Provisioned", "Rotating", "rotation due"), ("Rotating", "Provisioned", "new password delivered"),
-        ("Provisioned", "Removed", "dropped from intent"), ("Removed", "[*]", ""), ("Refused", "[*]", "")],
-       labels={"Rotating": "Rotating the password"},
-       tones={"Provisioned": "good", "Refused": "bad"})
+        ("Provisioned", "Retiring", "dropped from intent; tombstone recorded"), ("Retiring", "Provisioned", "declared again within the grace period"), ("Retiring", "Retired", "grace period ended, recovery copy verified"),
+        ("Retired", "[*]", "deleted; the deletion recorded"), ("Refused", "[*]", "")],
+       labels={"Rotating": "Rotating the password", "Retiring": "Retiring (grace period)", "Retired": "Retired, awaiting deletion"},
+       tones={"Provisioned": "good", "Refused": "bad", "Retiring": "warn", "Retired": "warn"})
 
 # ---------------------------------------------------------------------------------------------
 # Class diagrams of the internals.
@@ -550,11 +551,11 @@ g.package("observe", "observe: the Flux observation fold", tone="data")
 g.package("analysis", "analysis: the verdict function", tone="data")
 g.package("gate", "release-gate: verdicts into Flagger's answers", tone="data")
 g.package("compiler", "compiler (use cases)", tone="data")
-for crate, label in [("oidc", "adapter-github-oidc"), ("ghcr", "adapter-ghcr: oci-client"),
+for crate, label in [("oidc", "adapter-oidc"), ("ghcr", "adapter-ghcr: oci-client"),
                      ("vault", "adapter-vault: Transit"), ("kube", "adapter-kube: kube-rs"),
                      ("fluxwatch", "adapter-flux-watch: read-only watches, Receiver"),
                      ("metrics", "adapter-metrics: Prometheus samples"),
-                     ("github", "adapter-github: the App"), ("pg", "adapter-postgres: sqlx")]:
+                     ("github", "adapter-forge-github: the App"), ("pg", "adapter-postgres: sqlx")]:
     g.package(crate, label)
 g.edge("bin", "api", kind="dashed")
 g.edge("api", "app", kind="dashed")

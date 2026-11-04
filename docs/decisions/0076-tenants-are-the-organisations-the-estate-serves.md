@@ -2,6 +2,7 @@
 status: accepted  # proposed | accepted | locked
 date: 2026-11-01
 rests-on: [1, 75]
+amends: [1]
 lessons: [MS-7, MS-6]
 ---
 
@@ -10,6 +11,10 @@ lessons: [MS-7, MS-6]
 Amended by [record 114](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md):
 a Tenant's data is keyed by its Tenant key in shared tables, not held in
 databases named after it. The text below says so.
+
+Amended by [record 109](0109-a-row-level-security-scale-test-at-1000-tenants-runs-before-the-tenancy-machinery.md):
+the Confirmation gains the Render Tenant-count test, which holds that rendered
+objects do not grow with the Tenant count.
 
 ## Context
 
@@ -82,6 +87,8 @@ a key whose letter differs from its Environment. The **Tenant key reuse test**
 fails when a Purged Tenant's key is accepted again. The **Tenant handle test**
 refuses a handle that ends in `-staging` or `-dev` or that another Tenant of the
 Environment holds, and fails when a former handle stops redirecting before its
-grace period ends or still redirects after it. The horizon of more than 1000
-Tenants is held by no check: it is a review rule, read again with the premise of
-[record 1](0001-one-maintainer-one-cluster-one-estate.md).
+grace period ends or still redirects after it. The **Render Tenant-count test**
+fails when an estate fixture with 1000 Tenants renders objects that differ in
+number or name from the same fixture with one Tenant. The horizon of more than
+1000 Tenants is held by no check: it is a review rule, read again with the
+premise of [record 1](0001-one-maintainer-one-cluster-one-estate.md).

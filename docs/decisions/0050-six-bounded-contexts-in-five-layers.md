@@ -7,6 +7,13 @@ lessons: [DO-1, CS-2, MS-1, TM-4, PR-4]
 
 # The workspace is six bounded contexts in five layers, and a check holds the crate graph to both
 
+Amended by [record 80](0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md):
+the workspace is six bounded contexts, with tenancy the sixth.
+
+Amended by [record 104](0104-every-reconciler-estate-kit-owns-passes-crash-point-stale-read-and-safety-tests-before-it-takes-production-responsibility.md):
+the foundation's `testkit` crate gains the crash-point harness that every
+reconciler passes before it takes production responsibility.
+
 ## Context
 
 The design named four contexts: compiler, service, host applier and
@@ -49,7 +56,7 @@ layer.
 
 | Layer | May depend on | Holds |
 | --- | --- | --- |
-| foundation | other foundation crates | Diagnostics, model paths, digests, canonical output, the transformation kit, the test kit. No domain words |
+| foundation | other foundation crates | Diagnostics, model paths, digests, canonical output, the transformation kit, the `testkit` crate with its crash-point harness ([record 104](0104-every-reconciler-estate-kit-owns-passes-crash-point-stale-read-and-safety-tests-before-it-takes-production-responsibility.md)). No domain words |
 | domain | foundation; its own context's domain crates | Types, invariants, pure transformations, deciders. No I/O, no async runtime, no clock |
 | application | domain; foundation | Use cases and the port traits they drive. No concrete adapter |
 | adapter | application (for the ports); foundation; external crates | One outside system each, behind one port |

@@ -7,6 +7,10 @@ lessons: [DO-1]
 
 # Pause and Rollback are a cluster object per Project; a missing object reads as Paused
 
+Amended by [record 97](0097-the-publication-point-is-named-and-tested-and-a-render-that-introduces-a-kind-is-published-in-two-stages.md): a Rollback's tag move is a Publication point, and it moves the Environment tag of the Environment rolled back, not only the Prod tag.
+
+Amended by [record 101](0101-a-rollout-rolls-forward-when-rolling-back-would-run-a-migration-backwards.md): a Rollback is refused when the target render's migration preconditions do not hold and never runs a down migration; an Operator rolls forward instead.
+
 ## Context
 
 Pause and Rollback were pin commits by workflows in the estate repository.
@@ -34,10 +38,16 @@ server and its RBAC can be granted to Delivery alone.
 A Rollback uses that object and nothing else that may be down. It takes the
 writer Lease ([record 63](0063-delivery-has-one-writer-and-reconciles-from-observed-state.md)
 states the window), finds the Project's last Serving render from the registry,
-not from Postgres or the event log, and dry-runs it against today's cluster.
-It then moves the Project's [Environment tag](../../CONTEXT.md) (`render/<project>:<env>`)
-back to that render by read, verify,
-write (the tag is re-read after the write; a different value is a lost race)
+not from Postgres or the event log, reads the migration record `migration-run`
+keeps, and dry-runs it against today's cluster: if the target render's
+migration preconditions do not hold, the Rollback is refused, and a Rollback
+never runs a down migration; an Operator rolls forward instead
+([record 101](0101-a-rollout-rolls-forward-when-rolling-back-would-run-a-migration-backwards.md)).
+It then moves the [Environment tag](../../CONTEXT.md)
+of the Environment rolled back (`render/<project>:<env>`) to that render by read, verify,
+write (the tag is re-read after the write; a different value is a lost race), a
+move that is the Rollback's Publication point
+([record 97](0097-the-publication-point-is-named-and-tested-and-a-render-that-introduces-a-kind-is-published-in-two-stages.md)),
 and sets the Project's `ProjectControl` to Paused. It signs nothing and
 composes nothing, and it reads no secret from Vault: the ghcr token is a
 Kubernetes Secret that the Vault Secrets Operator syncs and Delivery mounts

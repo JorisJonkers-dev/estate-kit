@@ -10,7 +10,7 @@ handles it. If a step below names no crate, the design has a gap.
 | # | What happens | Crate | Port | On failure |
 | --- | --- | --- | --- | --- |
 | 1 | The `validate` job runs `estate-kit validate` on the checkout | `bins/estate-kit` → `compiler::validate` → `step-read`, `step-check` | None: offline | Diagnostics with code and model path; the CLI resolves each path to a line and writes annotations ([Errors in CI](errors-in-ci.md)) |
-| 2 | The release's `deploy` job builds images by digest, then calls `POST /deploys` with its GitHub OIDC token and the fragment digest | `http-api` | `ClaimPolicy` → `adapter-github-oidc` | 401 or 403 as problem+json; the claim policy's fixtures name each refusal |
+| 2 | The release's `deploy` job builds images by digest, then calls `POST /deploys` with its GitHub OIDC token and the fragment digest | `http-api` | `ClaimPolicy` → `adapter-oidc` | 401 or 403 as problem+json; the claim policy's fixtures name each refusal |
 | 3 | The call is accepted idempotently on (Project, fragment digest), and the stream is authenticated by a GitHub token re-requested whenever one is needed | `delivery-app::Deploy` → `rollout::decide` | `EventStore` → `adapter-postgres` | A retry with the same key returns the same rollout ([record 23](../decisions/0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md)) |
 | 4 | The fragment is fetched and every image digest checked as registered by this Project | `delivery-app` | `Registry` → `adapter-ghcr` | `Unavailable` retries with backoff inside the adapter; a digest not registered is a refusal event |
 | 5 | The composition queue coalesces triggers and runs one composition | `rollout` (queue policy) and `delivery-app` (driver) | `JobStore` → `adapter-postgres` | The queue row survives a restart; after it, the writer re-observes and decides again ([record 73](../decisions/0073-the-composition-queue-is-a-row-in-a-postgres-job-table.md)) |
@@ -21,7 +21,7 @@ handles it. If a step below names no crate, the design has a gap.
 | 10 | Flux pulls the tag and applies; Flagger asks the Release Gate before each step | `release-gate` (answer) via `http-api` | `ClusterObservation` → `adapter-kube` | The gate fails closed: 503 with the cause in the log |
 | 11 | Delivery watches Kustomization, OCIRepository and Canary status and appends rollout events | `delivery-app` → `rollout::evolve` | `Cluster`, `EventStore` | A stalled rollout times out into a Held event |
 | 12 | The deploy job streams events over SSE and resumes by sequence after a drop | `http-api` | `EventStore` | At-least-once; the client drops duplicates |
-| 13 | GitHub Deployment status follows each stage (the Reporter today) | `delivery-app` projection | `GitHub` → `adapter-github` | Idempotent upserts; a failed update is retried from the event log |
+| 13 | GitHub Deployment status follows each stage (the Reporter today) | `delivery-app` projection | `GitHub` → `adapter-forge-github` | Idempotent upserts; a failed update is retried from the event log |
 | 14 | The UI shows the rollout beside pods, alerts, logs and checks. Observation's binary serves the UI and reads; the browser calls Delivery's API for Pause and Rollback | `observation-app` in `bins/estate-kit-observation` | `adapter-prometheus`, `-loki`, `-alertmanager`, `-gatus`, `-observation-kube`, `-delivery-api` | A down source greys out its panel; it never blocks a deploy (DO-7) |
 
 Steps 1 to 6 run the same compiler code in CI and in Delivery, because both

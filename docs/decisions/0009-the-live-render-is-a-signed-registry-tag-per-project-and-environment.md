@@ -7,6 +7,10 @@ lessons: [DR-1, DR-2]
 
 # The live render is a signed registry tag per Project and environment
 
+Amended by [record 75](0075-three-environments-run-in-the-one-cluster.md): the
+live render of a Project in an Environment is its Environment tag, one signed
+tag per Environment, no longer the Prod tag alone.
+
 ## Context
 
 The estate used pin commits, written by workflows, to say which render is live.

@@ -7,6 +7,13 @@ lessons: [CS-1, CS-2, CS-3, CS-4, MD-2, MD-3, MD-4, MS-1]
 
 # The compiler is a chain of plain-Rust typed steps through one trace, one crate per step, with no DSL
 
+Amended by [record 88](0088-the-metamodel-is-layered-core-profiles-and-component-kinds-provider-facts-estate-instance.md):
+the model crates gain `model-core` and `model-profile` after parity.
+
+Amended by [record 93](0093-the-rollout-plan-is-compiled-with-checks-bound-to-cohorts-a-failsafe-and-a-held-deadline.md):
+the chain gains the `step-plan` step crate, which compiles each Application's
+rollout plan into the Resolved Deployment.
+
 ## Context
 
 The compiler is a model-to-model chain ending in model-to-text. The
@@ -41,10 +48,11 @@ language of their own.
 
 The compiler is a chain of plain-Rust typed steps through one `Trace`, and each
 arrow is one crate: `step-read` (read and link), `step-check`, `step-lower`,
-`step-compose`, `step-resolve`, `step-outputs`, one `render-*` crate per
-adapter of the 1.0 registry, and `serialize`. Each step crate depends only on
-the model crates (`model-intent`, `model-effective`, `model-resolved`,
-`deliverable`) and the foundation; none depends on another step. The
+`step-compose`, `step-resolve`, `step-plan`, `step-outputs`, one `render-*`
+crate per adapter of the 1.0 registry, and `serialize`. Each step crate depends
+only on the model crates (`model-intent`, `model-effective`, `model-resolved`,
+`deliverable`, and after parity `model-core` and `model-profile`) and the
+foundation; none depends on another step. The
 `compiler` application crate sequences them and is what the CLI and Delivery call. Each step is an ordinary function from one typed value to the
 next plus diagnostics.
 

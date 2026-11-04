@@ -3,15 +3,22 @@
 stateDiagram-v2
     direction TB
     state "Rotating the password" as Rotating
+    state "Retiring (grace period)" as Retiring
+    state "Retired, awaiting deletion" as Retired
     [*] --> Declared
     Declared --> Provisioned: account created
     Declared --> Refused: local part claimed by another Project
     Provisioned --> Rotating: rotation due
     Rotating --> Provisioned: new password delivered
-    Provisioned --> Removed: dropped from intent
-    Removed --> [*]
+    Provisioned --> Retiring: dropped from intent#59; tombstone recorded
+    Retiring --> Provisioned: declared again within the grace period
+    Retiring --> Retired: grace period ended, recovery copy verified
+    Retired --> [*]: deleted#59; the deletion recorded
     Refused --> [*]
     classDef bad fill:#0000a4,stroke:#0000b4
     classDef good fill:#0000a3,stroke:#0000b3
+    classDef warn fill:#0000a5,stroke:#0000b5
     class Provisioned good
     class Refused bad
+    class Retiring warn
+    class Retired warn

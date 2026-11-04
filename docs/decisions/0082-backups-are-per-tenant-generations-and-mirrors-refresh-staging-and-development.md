@@ -20,6 +20,10 @@ object store under a 30-day COMPLIANCE object lock, which is the off-cluster
 copy; whole-database backups keep 7 daily, 4 weekly and 6 monthly snapshots;
 and WAL is archived continuously to the same provider. The text below says so.
 
+Amended by [record 110](0110-a-purge-erases-backup-generations-and-mirrors-from-an-inventory-of-every-copy.md):
+a Purge deletes the Tenant's exports at once and states its erasure date from
+the copy inventory. The text below says so.
+
 ## Context
 
 [Record 114](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md)

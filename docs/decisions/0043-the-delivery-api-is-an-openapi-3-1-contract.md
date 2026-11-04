@@ -7,6 +7,8 @@ lessons: [DR-4]
 
 # The Delivery API is an OpenAPI 3.1 contract
 
+Amended by [record 113](0113-every-ui-action-is-a-cli-command-with-the-same-identifier.md): the routes the UI calls on Observation are described in Observation's own committed OpenAPI document, under the same rules.
+
 ## Context
 
 Delivery ([record 17](0017-delivery-runs-in-the-cluster-in-rust.md)) is
@@ -24,7 +26,11 @@ one catalogue ([record 71](0071-a-diagnostic-is-a-coded-problem-with-typed-locat
 Delivery's API is one OpenAPI 3.1 document, committed under `contracts/`.
 It describes every endpoint and every server-sent event type, and references
 the committed JSON Schemas for payloads. The axum routes are written from it
-and the Vue client is generated from it; neither is the source.
+and the Vue client is generated from it; neither is the source. Observation
+serves the same rule: the routes the UI calls on Observation, its views and its
+Silences, are described in Observation's own committed OpenAPI document, a
+contract Locked like Delivery's
+([record 113](0113-every-ui-action-is-a-cli-command-with-the-same-identifier.md)).
 
 An error is an RFC 9457 problem document whose `type` names one code from the
 catalogue that compiler diagnostics also use, so one rendering path serves every
