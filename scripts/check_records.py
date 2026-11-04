@@ -1,5 +1,5 @@
-"""
-Fail when the decision records break the register's rules.
+#!/usr/bin/env python3
+"""Fail when the decision records break the register's rules.
 
 docs/decisions/README.md: a record's status agrees with its register row; rests-on names rows that
 exist and forms no cycle; an Accepted record rests only on Accepted ones; every lesson a record cites
