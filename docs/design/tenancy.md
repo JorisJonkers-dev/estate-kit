@@ -7,9 +7,9 @@ Until then a section only says which ticket fills it. The decisions are the
 Proposed records that the [register](../decisions/register.md) plans as rows
 75 to 84; where a page and a record disagree, the record wins and the page is
 what gets fixed. The terms are those of the [vocabulary](../vocabulary.md):
-Environment, Tenant, Tenant key, Tenant handle, Tenant database, Database
-server, Backup generation, Mirror, Membership, Behind, Tenant lock, Tenant
-hook, Tenant Admin, Suspended, Purge and Causation id.
+Environment, Tenant, Tenant key, Tenant handle, Tenant export, Backup
+generation, Mirror, Membership, Canary Tenant, Tenant lock, Tenant hook, Tenant
+Admin, Suspended, Purge and Causation id.
 
 The whole design is the spec in
 [issue 137](https://github.com/JorisJonkers-dev/estate-kit/issues/137). Two
@@ -26,9 +26,9 @@ cutover, so the shadow's parity with deploy-kit 1.0 is not disturbed.
 | --- | --- |
 | estate-kit | The model gains Environments, Tenants and Product domains; a sixth bounded context, tenancy, holds the lifecycle; the platform components reconcile a Tenant |
 | identity (Go) | One identity per Environment, Memberships in many Tenants, Tenant Admins, and change events for Applications |
-| go-commons | The tenancy library for Go: pick the database and key prefix per request or message, and refuse work without exactly one Tenant |
+| go-commons | The tenancy library for Go: set `app.tenant_id` in every transaction and the key prefix per request or message, and refuse work without exactly one Tenant |
 | rust-commons | The same library for Rust, held to the same language-neutral conformance vectors |
-| Multi-tenant Applications | Keep one Tenant database per Tenant, take the Tenant from the principal, and implement the Tenant hooks they declare |
+| Multi-tenant Applications | Keep every Tenant in shared tables with `tenant_id` and row-level security, take the Tenant from the principal, and implement the Tenant hooks they declare |
 
 ## Environments
 
@@ -60,13 +60,17 @@ Platform Intent also holds the estate's stable name, a DNS-style name of at most
 
 ## Tenant data
 
-Decided in [record 78](../decisions/0078-a-multi-tenant-project-keeps-one-tenant-database-per-tenant.md).
+Decided in [record 114](../decisions/0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md), which supersedes [record 78](../decisions/0078-a-multi-tenant-project-keeps-one-tenant-database-per-tenant.md)'s database per Tenant.
 
-Each multi-tenant Project keeps one Tenant database per Tenant, named `<tenant key>_<project>` with `-` in the Project name written as `_`, such as `p_acme_tribelt`. It lives on the Database server recorded with the Tenant, never one derived from the key. The shared library opens a pool for a Tenant database on first use and closes it when idle.
+A multi-tenant Project keeps every Tenant's data in shared tables, in one database per Environment, as a single-tenant Project does. Each tenant-scoped table has a `tenant_id` column holding the Tenant key, a row-level security policy on it, and `FORCE ROW LEVEL SECURITY`; only a table the Project declares shared reference data has none. No Tenant moves between Postgres servers. Sharding by `tenant_id` waits for a later record, written only if one database cannot carry the load.
+
+The tenancy library runs `SET LOCAL app.tenant_id = '<tenant key>'` in every transaction, from the signed Principal, so a transaction with no Tenant set matches no rows. A per-Project owner role with `BYPASSRLS` owns the tables, and only `migration-run` Jobs and the backup component use it. Application roles have no `BYPASSRLS` and own no table.
+
+Three leak checks hold this: a schema lint (every table has `tenant_id`, a policy and `FORCE`, unless declared shared reference data), a two-Tenant test per Project (write as one Tenant, read as another or with no Tenant set, and expect nothing) and a role audit (no Application role bypasses the policy or owns a table).
 
 Each Environment has its own Postgres server and its own Valkey, with keys prefixed `<app>:<tenant key>:` and one ACL user per Application limited to `<app>:*`. Each has one RabbitMQ vhost with shared queues. Each Project has one Garage bucket per Environment, with each Tenant's objects under its key.
 
-The [research](../research/multi-tenancy.md#1-data-isolation-on-postgres) recommends shared tables and counts the costs of this choice: about 8 MB per empty database, a pool per database, no query across Tenants, and a migration per database. The maintainer chose it for one implementation instead of a pool and a silo, and met the costs with lazy pools and the recorded Database server.
+The [research](../research/multi-tenancy.md#1-data-isolation-on-postgres) recommends shared tables. The maintainer first chose a database per Tenant, then reversed it on 2026-11-04 for one model to build, migrations without waves, and a cost that does not grow with the Tenant count. A [scale test at 1000 Tenants](../decisions/0109-a-row-level-security-scale-test-at-1000-tenants-runs-before-the-tenancy-machinery.md) measures the policy cost, index use, a noisy Tenant, and a Tenant's export, restore and Purge before the tenancy machinery is built.
 
 ## The Tenant of a request
 
@@ -95,7 +99,7 @@ Locked by default once written.
 
 Decided in [record 80](../decisions/0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md), which amends [record 50](../decisions/0050-six-bounded-contexts-in-five-layers.md): the workspace has six bounded contexts, and tenancy is the sixth.
 
-A Tenant is a custom resource, one per Tenant in its Environment. Only Delivery writes it. The platform components that hold the Tenant's data (database-catalog, identity, mailbox, backup and secret-grant) reconcile it, and each holds a finalizer, so a Purge completes only when every one has cleaned up.
+A Tenant is a custom resource, one per Tenant in its Environment. Only Delivery writes it. The platform components that hold the Tenant's data (identity, mailbox, backup and secret-grant) reconcile it, and each holds a finalizer, so a Purge completes only when every one has cleaned up. A Tenant has no database of its own, so database-catalog does not reconcile it; the backup component deletes the Tenant's rows under each Project's owner role.
 
 The tenancy context holds the Tenant model and the Tenant operations, listed in [record 80](../decisions/0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md). Every operation is safe to retry. Each step, with its full error output, goes to an append-only operation log on the shared platform-postgres. The lifecycle API is part of Delivery's OpenAPI contract, and the maintainer and a product's sign-up flow both call it.
 
@@ -105,23 +109,27 @@ A multi-tenant Application takes part through the Tenant hooks it declares, whic
 
 ## Migrations
 
-Decided in [record 81](../decisions/0081-migrations-reach-tenant-databases-in-waves.md).
+Decided in [record 81](../decisions/0081-migrations-reach-tenant-databases-in-waves.md), as [record 114](../decisions/0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md) amends it.
 
 A multi-tenant Project must declare a Liquibase changelog. The compiler refuses `migration: self` and `migration: none` there.
 
-The `migration-run` component runs each revision on every Tenant database of the Project in an Environment, in Migration waves. In production the first wave is the Canary Tenants, and the other waves follow in parallel. In development and staging all Tenant databases run in one wave. A new Tenant's databases are migrated to the current revision before after-create runs.
+Every revision is expand/contract. The `migration-run` component runs it once per Project database per Environment, in one transaction wherever Postgres allows it, so a failure leaves the old schema. A new Tenant needs no migration.
 
-A failure does not stop the wave. The database is marked Behind at its last good revision, and the full output goes into the operation log. The current version keeps serving it. The Release Gate then refuses a new version of the Project in that Environment until no Tenant database there is Behind, because expand/contract only guarantees that two adjacent versions work together. The refusal is a read of cluster state, so it adds no write to [record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md).
+`migration-run` keeps its migration record in a custom resource it owns. A failed revision marks the Project database failed there, and the current version keeps serving. The Release Gate then refuses further releases of the Project in that Environment until an Operator retries the migration or explicitly requests a [Roll-forward](../decisions/0101-a-rollout-rolls-forward-when-rolling-back-would-run-a-migration-backwards.md); nothing automatic may do either. The refusal is a read of cluster state, so it adds no write to [record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md).
+
+Canary Tenants are only a targeting group for feature flags inside Applications: a flag is on for them first, then for everyone. Deploy canaries stay weight-based through Flagger.
 
 ## Backups and Mirrors
 
-Decided in [record 82](../decisions/0082-backups-are-per-tenant-generations-and-mirrors-refresh-staging-and-development.md).
+Decided in [record 82](../decisions/0082-backups-are-per-tenant-generations-and-mirrors-refresh-staging-and-development.md), as [record 114](../decisions/0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md) amends it, and the Purge in [record 110](../decisions/0110-a-purge-erases-backup-generations-and-mirrors-from-an-inventory-of-every-copy.md).
 
-A Backup generation is a logical dump of every Tenant database of one Tenant, taken together on that Tenant's own schedule. It records each database's migration revision, is encrypted, copied off the cluster and listed in one central catalogue. This replaces the backup component's scope per Project for a multi-tenant Project. Each Postgres server also archives WAL for point-in-time recovery, for disaster only.
+A Backup generation is the set of one Tenant's Tenant exports, taken on that Tenant's own schedule: one export per Project database, `COPY ... WHERE tenant_id` in one snapshot transaction, with that database's migration revision. The exports share no point in time, because Projects own their data and talk through APIs. A generation is encrypted, copied off the cluster and listed in one central catalogue. This replaces the backup component's scope per Project for a multi-tenant Project. Each Postgres server also keeps whole-database backups and archives WAL for point-in-time recovery, for disaster only.
 
-A restore locks the Tenant, runs the prepare-restore hook, replaces the databases, migrates each up to the target Environment's revision, runs the after-restore hook and unlocks. A generation newer than the target is refused, and the refusal names both revisions.
+A restore names the Projects it restores. It refuses an export newer than its database and names both revisions, then locks the Tenant, runs the prepare-restore hook, deletes the Tenant's rows and re-inserts them, runs the after-restore hook and unlocks. An export at the database's revision goes in directly; an older one is loaded into a scratch database at its own revision, migrated forward there, then copied in. A failure after the first delete leaves the Tenant locked.
 
-A staging or development Tenant may Mirror one production Tenant on a schedule. The data loads where no person can read it and is masked before the target is exposed. Development is always masked; staging is masked only when it says so. Each Project declares masking rules for its own tables, and a Project with none is not loaded into a development Mirror. Staging and production Tenants exist independently.
+A staging or development Tenant may Mirror one production Tenant on a schedule. Production's backup component reads the production exports, masks them when the Mirror requires it, and writes them into the target Environment's backup repository, whose password production holds; a lower Environment never holds production's credentials. The target Environment locks its Tenant, deletes its rows, imports the exports under its `tenant_id`, runs the after-restore hooks and unlocks. A failure leaves the Tenant locked. Development is always masked; staging is masked only when it says so. Each Project declares masking rules for its own tables, and a Project with none is not loaded into a development Mirror. Staging and production Tenants exist independently.
+
+A Purge deletes the Tenant's rows and its export snapshots, runs full maintenance on the backup repository, and empties every Mirror target of the Tenant at once. Its entry in the operation log states the erasure date: the expiry of the last copy in the copy inventory. Whole-database backups are kept up to 6 months and WAL no longer than the oldest base backup kept; the 30-day object lock bounds only the Tenant exports.
 
 A Backup generation may be restored into its own Tenant or into another Tenant of an equal or lower Environment.
 

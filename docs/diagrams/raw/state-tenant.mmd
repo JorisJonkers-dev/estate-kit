@@ -4,7 +4,7 @@ stateDiagram-v2
     direction TB
     state "Tenant lock" as TenantLock
     [*] --> Active: create
-    Active --> TenantLock: lock or move
+    Active --> TenantLock: lock, restore or Mirror load
     TenantLock --> Active: unlock
     Active --> Suspended: suspend
     Suspended --> Active: resume

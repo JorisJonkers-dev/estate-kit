@@ -186,7 +186,7 @@ A rendered object the dry-run cannot check because its kind, or the namespace it
 _Avoid_: unknown kind, skipped object
 
 **Recovery class**:
-A group of stored data with one stated recovery time and recovery point, such as the datastore, the registry, Tenant databases or the event log. Not deploy-kit's Durability Class, which says what a volume's data is worth.
+A group of stored data with one stated recovery time and recovery point, such as the datastore, the registry, Project databases or the event log. Not deploy-kit's Durability Class, which says what a volume's data is worth.
 _Avoid_: durability class, tier, backup level
 
 ## Diagnostics and traceability
@@ -267,40 +267,28 @@ _Avoid_: tenant url, subdomain, vanity host
 The estate's one stable DNS-style name, at most 32 characters, held in Platform Intent. It is the seam for a later second cluster or estate.
 _Avoid_: cluster name, estate id
 
-**Tenant database**:
-The Postgres database one Project keeps for one Tenant. A Tenant's data in a Project lives only there, so a Tenant is backed up, restored and purged one database at a time.
-_Avoid_: tenant schema, shard, partition
-
-**Database server**:
-The Postgres server a Tenant's databases live on, recorded with the Tenant and never derived from its key. Each environment has its own; a Tenant moves between them only by an explicit move.
-_Avoid_: database host, shard, cell
+**Tenant export**:
+One Tenant's rows exported from one Project database in one snapshot transaction, with that database's migration revision. A Tenant is restored from its exports Project by Project.
+_Avoid_: dump, tenant backup, tenant snapshot
 
 **Backup generation**:
-One backup of every Tenant database of one Tenant, taken together on that Tenant's schedule and kept in the central catalogue. A single-tenant Project's generation covers that Project's datastores instead.
+The set of one Tenant's Tenant exports, one per Project database that holds its rows, taken on that Tenant's schedule and kept in the central catalogue. The exports share no point in time. A single-tenant Project's generation covers that Project's datastores instead.
 _Avoid_: snapshot, dump, backup run
 
 **Mirror**:
-A staging or development Tenant's link to the production Tenant whose latest Backup generation replaces its data on a schedule. A development Mirror is always masked; a staging Mirror is masked only if it says so.
+A staging or development Tenant's link to the production Tenant whose latest Tenant exports replace its rows on a schedule. Production masks the exports where the Mirror requires it and pushes them to the target Environment, which never holds production's credentials. A development Mirror is always masked; a staging Mirror is masked only if it says so.
 _Avoid_: sync, clone, refresh
 
 **Membership**:
 A User's belonging to one Tenant. One User signs in once per environment and may hold Memberships in many Tenants.
 _Avoid_: tenant user, seat, account
 
-**Behind**:
-The state of a Tenant database whose migration failed in a wave, kept at its last good revision with the failure's full output. The Project's current version still serves it, but the Project releases no further version in that environment until no Tenant database is Behind.
-_Avoid_: failed tenant, stuck, drifted
-
 **Canary Tenant**:
-A Tenant its Tenant resource marks to receive each migration first in production, before the other Tenants. A Project's migration runs on its Canary Tenants' databases in the first wave, and the rest follow only if those succeed.
+A Tenant its Tenant resource marks as a targeting group for feature flags inside Applications: a flag is on for the Canary Tenants first, then for everyone. Migrations and deploys do not use it; a migration reaches every Tenant at once, and deploy canaries are weight-based.
 _Avoid_: pilot, early adopter, test tenant
 
-**Migration wave**:
-One batch of a Project's Tenant databases in one environment that a migration revision runs on together. In production the first wave is the Canary Tenants; the remaining Tenants follow in parallel waves. A failure in a wave marks that database Behind and does not stop the wave.
-_Avoid_: batch, rollout step, shard
-
 **Tenant lock**:
-The brief state in which the platform stops a Tenant's traffic and work around a restore or a move: its people see a standard maintenance page, and no request or message for it is processed. Not a Locked record.
+The brief state in which the platform stops a Tenant's traffic and work around a restore or a Mirror load: its people see a standard maintenance page, and no request or message for it is processed. Not a Locked record.
 _Avoid_: maintenance mode, freeze, locked tenant
 
 **Tenant hook**:
@@ -328,11 +316,11 @@ The state of a Tenant whose people cannot sign in and whose traffic is refused, 
 _Avoid_: disabled, deactivated, frozen
 
 **Purge**:
-The end of a Tenant: its Tenant databases, cache keys, stored objects, Tenant secrets, mail domain and Memberships are removed everywhere. Its Backup generations then expire under their normal retention.
+The end of a Tenant: its rows in every Project database, its Tenant exports, its Mirror targets' data, cache keys, stored objects, Tenant secrets, mail domain and Memberships are removed everywhere. Whole-database backups that still hold its rows expire under their retention, and the Purge states the date the last copy expires.
 _Avoid_: delete, destroy, offboard
 
 **Tenant operation**:
-One lifecycle action on a Tenant: create, add a Project, remove a Project, lock, unlock, suspend, resume, purge, move or restore. The tenancy context runs it across every system that holds the Tenant's data, and records each step with its full error output in one operation log.
+One lifecycle action on a Tenant: create, add a Project, remove a Project, lock, unlock, suspend, resume, purge or restore. The tenancy context runs it across every system that holds the Tenant's data, and records each step with its full error output in one operation log.
 _Avoid_: job, task, workflow
 
 **Mailbox**:

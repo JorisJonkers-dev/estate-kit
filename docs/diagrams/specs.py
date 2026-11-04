@@ -165,7 +165,7 @@ states("state-host-applier", "State machine: the host applier on one node",
                "CurrentNew": "Current (new generation)", "RolledBack": "Rolled back to the previous generation"},
        tones={"CurrentNew": "good", "RolledBack": "bad", "Staged": "warn"})
 states("state-tenant", "State machine: a Tenant",
-       [("[*]", "Active", "create"), ("Active", "TenantLock", "lock or move"), ("TenantLock", "Active", "unlock"),
+       [("[*]", "Active", "create"), ("Active", "TenantLock", "lock, restore or Mirror load"), ("TenantLock", "Active", "unlock"),
         ("Active", "Suspended", "suspend"), ("Suspended", "Active", "resume"),
         ("Suspended", "Purged", "grace period ends, every finalizer released"), ("Purged", "[*]", "")],
        labels={"TenantLock": "Tenant lock"},

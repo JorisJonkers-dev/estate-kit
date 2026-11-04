@@ -1,22 +1,27 @@
 ---
 status: accepted  # proposed | accepted | locked
 date: 2026-11-01
-rests-on: [17, 23, 50, 63, 76, 78, 79]
+rests-on: [17, 23, 50, 63, 76, 79, 114]
 lessons: [DO-2, CS-3, TM-4]
 ---
 
 # A Tenant is a custom resource that platform components reconcile, with Tenant hooks and finalizers, in a sixth bounded context, tenancy
 
+Amended by [record 114](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md):
+a Tenant's data sits in shared tables, so no Tenant moves between servers and
+database-catalog holds no finalizer; a restore deletes the Tenant's rows and
+re-inserts them. The text below says so.
+
 ## Context
 
 [Record 76](0076-tenants-are-the-organisations-the-estate-serves.md) makes the
-Tenant a thing the estate serves, [record 78](0078-a-multi-tenant-project-keeps-one-tenant-database-per-tenant.md)
-gives each multi-tenant Project a Tenant database per Tenant, and
+Tenant a thing the estate serves, [record 114](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md)
+keeps each multi-tenant Project's Tenants in shared tables, and
 [record 79](0079-the-tenant-of-a-request-comes-only-from-the-signed-principal.md)
 says every request names one Tenant. Nothing yet says where a Tenant lives,
 who may change it, or how a Purge knows that every system has let go of the
-Tenant's data. Adding, locking, moving or removing a Tenant touches the
-database catalog, identity, the mailbox, backups and secret grants, and a
+Tenant's data. Adding, locking, restoring or removing a Tenant touches the
+Project databases, identity, the mailbox, backups and secret grants, and a
 crash halfway must leave something to finish, not to repair.
 
 [Record 63](0063-delivery-has-one-writer-and-reconciles-from-observed-state.md)
@@ -33,19 +38,24 @@ are native.
 A Tenant is a custom resource, one per Tenant in its Environment. Only the
 Delivery writes it, under the one-writer rule of
 [record 63](0063-delivery-has-one-writer-and-reconciles-from-observed-state.md).
-The platform components that hold the Tenant's data (database-catalog,
-identity, mailbox, backup and secret-grant) reconcile it, and each holds a
-finalizer on it. A Purge completes only when every participant has cleaned up
+The platform components that hold the Tenant's data (identity, mailbox,
+backup and secret-grant) reconcile it, and each holds a finalizer on it. A
+Tenant has no database of its own, so database-catalog does not reconcile it.
+The backup component, which uses each Project's owner role
+([record 114](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md)), deletes the
+Tenant's rows from a Project database when the Tenant leaves that Project or is
+purged. A Purge completes only when every participant has cleaned up
 and released its finalizer, so a Tenant is never half-purged without the
 maintainer knowing.
 
 A sixth bounded context, tenancy, holds the Tenant model and the Tenant
 operations: create, add a Project, remove a Project, lock, unlock, suspend,
-resume, purge and move. This amends
+resume, restore and purge. This amends
 [record 50](0050-six-bounded-contexts-in-five-layers.md): the workspace is six contexts, and
 the rest of that record, the layers and the check that holds them, stands. The
 tenancy context talks to the others through the same kinds of edge, and
-`crates/layers.toml` stays the one place the allowed edges are written.
+`crates/layers.toml` stays the one place the allowed edges are written. No
+Tenant moves between Postgres servers.
 
 Every Tenant operation is idempotent and safe to retry. Each step, with its
 full error output, goes to an append-only operation log on the shared
@@ -68,6 +78,13 @@ success. An Application implements only the hooks it declares.
 During a Tenant lock the Gate serves a standard maintenance page and a 503
 with a Retry-After header, and the shared libraries hold the Tenant's work. The Tenant's Valkey keys can be
 flushed centrally while the lock holds.
+A restore of one Tenant locks the Tenant, calls the prepare-restore hooks,
+then, in each Project the restore names, deletes the Tenant's rows and
+re-inserts them from its Tenant export, calls the after-restore hooks and
+unlocks.
+[Record 82](0082-backups-are-per-tenant-generations-and-mirrors-refresh-staging-and-development.md)
+says which exports may be restored and how.
+
 Ending a Tenant is Suspend, then a grace period of 30 days, then Purge. A Tenant is Active,
 under a Tenant lock, Suspended or purged; the diagram on the design page
 shows the moves.
@@ -89,7 +106,7 @@ shows the moves.
   crash during an operation is finished by retrying it; a sign-up flow needs no
   second lifecycle.
 - Harder: the custom resource definition is a contract that each reconciling
-  component follows; five components each carry a finalizer and must release
+  component follows; four components each carry a finalizer and must release
   it correctly; Delivery gains a context, a log table and an API surface.
 - [Record 50](0050-six-bounded-contexts-in-five-layers.md) is amended: its five contexts are now six, with tenancy as the sixth.
 - Forbidden: any writer of a Tenant other than Delivery; a Purge that

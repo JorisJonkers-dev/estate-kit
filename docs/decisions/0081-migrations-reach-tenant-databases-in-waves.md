@@ -1,95 +1,107 @@
 ---
 status: accepted  # proposed | accepted | locked
 date: 2026-11-01
-rests-on: [74, 75, 78, 80]
+rests-on: [74, 75, 80, 114]
 lessons: [MS-3, TM-4]
 ---
 
-# Migrations reach Tenant databases in waves that continue past failure, and a Behind database blocks the next release
+# Migrations run once per Project database by expand and contract, a failed migration blocks the next release, and multi-tenant Projects use managed Liquibase migrations
+
+Amended by [record 114](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md):
+a multi-tenant Project keeps one database per Environment, so a revision runs
+once per Project database by expand and contract. Migration waves and the Behind
+state are dropped, a failed migration marks the Project database failed, and
+Canary Tenants only target feature flags. The text below says so.
 
 ## Context
 
-[Record 78](0078-a-multi-tenant-project-keeps-one-tenant-database-per-tenant.md)
-gives a multi-tenant Project one Tenant database per Tenant, so a migration
-revision runs once per database, and once more when a Tenant is created. At more
-than 1000 Tenants no one can watch each run, and one bad revision must not halt
-every other Tenant's migration.
+[Record 114](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md)
+keeps every Tenant of a multi-tenant Project in shared tables, in one database
+per Environment. A migration revision therefore runs once per Project database,
+as it does for a single-tenant Project, whatever the number of Tenants.
 
 The expand/contract rule keeps a schema compatible with two adjacent versions of
-a Project, no more. A Tenant database that missed a revision and then meets the
-version after next has no such guarantee. So a database that failed must be
-repaired before the Project moves on.
+a Project, no more. A database that missed a revision and then meets the version
+after next has no such guarantee, so a database whose migration failed must be
+repaired before the Project moves on. Postgres runs most DDL inside a
+transaction, so a revision that runs in one transaction and fails leaves the old
+schema; a few statements, such as `CREATE INDEX CONCURRENTLY`, cannot run in one.
 
 The `migration-run` component already runs a Project's managed migrations, `up`
 and `down` per revision ([Mail and components](../design/mail-and-components.md#components)).
 The Release Gate already holds named writes and a fail-closed answer
 ([record 74](0074-the-release-gate-and-observation-each-have-a-named-write.md)).
-The Tenant resource and its operation log come from
+The Tenant resource comes from
 [record 80](0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md),
 and [record 75](0075-three-environments-run-in-the-one-cluster.md) gives each
-Environment its own databases to migrate.
+Environment its own databases to migrate. Deploy canaries are weight-based,
+through Flagger.
 
 ## Decision
 
 A multi-tenant Project must declare a Liquibase changelog. The compiler refuses
-`migration: self` and `migration: none` on a multi-tenant Project, because only a
-managed migration can reach every Tenant database in turn.
+`migration: self` and `migration: none` on a multi-tenant Project, because only
+a managed migration is run, recorded and gated by `migration-run`.
 
-The `migration-run` component runs each revision on every Tenant database of the
-Project in an Environment, in Migration waves:
+Every revision is expand/contract: the Project's current version and the
+version before it both work with the schema it leaves. The `migration-run`
+component runs each revision once per Project database per Environment. It runs
+a revision in one transaction wherever Postgres allows it, so a failure leaves
+the old schema.
 
-- In production, the first wave is the Project's Canary Tenants. The component
-  starts the other waves only when that wave has run. The other waves run in
-  parallel, up to a set width.
-- In development and staging every Tenant database is in one wave.
-- A failure does not stop the wave. The component marks that database Behind at
-  its last good revision and writes the full output to the operation log
-  ([record 80](0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md)).
-  The Project's current version keeps serving a Behind database.
-- A Tenant's Tenant resource marks whether it is a Canary Tenant. A Tenant
-  created while a revision is pending receives every pending revision before it
-  runs after-create.
+`migration-run` keeps its migration record in a custom resource it owns, one per
+Project database per Environment. When a revision fails, the record marks that
+Project database failed at that revision, with the error. The Project's current
+version keeps serving. The Release Gate refuses further releases of that Project
+in that Environment while its database is marked failed. It answers from cluster
+state and fails closed, as [record 74](0074-the-release-gate-and-observation-each-have-a-named-write.md)
+requires, so the refusal is a read and adds no write to that record's table. The
+mark clears only when an Operator retries the migration and it succeeds, or
+explicitly requests a Roll-forward
+([record 101](0101-a-rollout-rolls-forward-when-rolling-back-would-run-a-migration-backwards.md));
+nothing automatic may do either.
 
-The Release Gate refuses to start a new version of the Project in an Environment
-while any of that Project's Tenant databases there is Behind. It answers from
-cluster state and fails closed, as [record 74](0074-the-release-gate-and-observation-each-have-a-named-write.md)
-requires, so the refusal is a read and adds no write to that record's table. A
-database stops being Behind when a revision runs on it successfully: the
-maintainer retries after the repair, and the component marks it current.
+A Tenant's Tenant resource marks whether it is a Canary Tenant. Canary Tenants
+are only a targeting group for feature flags inside Applications: a flag is on
+for the Canary Tenants first, then for everyone. A migration reaches every
+Tenant at once, and deploy canaries stay weight-based through Flagger.
 
 ## Alternatives
 
 | Option | Cost if taken | Why rejected |
 | --- | --- | --- |
-| Stop the wave at the first failure | One Tenant's bad data holds back every other Tenant's migration | Failures are per database, and the rest should be migrated |
-| Migrate every Tenant at once, with no Canary Tenants | A bad revision reaches every production Tenant before any failure shows | Canary Tenants show the failure on a few first |
-| Migrate a Tenant database when its first request arrives | A request pays for a migration, and Tenants sit on different versions for long | The platform must know each database's revision and finish the work |
-| Let a Project release while databases are Behind | A Tenant can fall two versions behind, past what expand/contract guarantees | The rule covers two adjacent versions only |
-| Let a Project run `migration: self` and own its Tenant migrations | Each Project invents its own fan-out, with no Behind state and no shared log | One managed path gives one log and one Behind rule |
-| Roll back every database when one fails | A rollback runs on databases that were fine, and may itself fail | A failure is kept as Behind and repaired on its own |
+| Migration waves across a database per Tenant, Canary Tenants first, and a Behind state (this record before [record 114](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md)) | A fan-out, a wave width and a Behind state per Tenant database | One database per Project needs one run |
+| Let a Project release while its database is marked failed | The next version can meet a schema two versions behind, past what expand/contract guarantees | The rule covers two adjacent versions only |
+| Retry a failed migration automatically, or roll forward automatically | A fault repeats, or a release starts on a database nobody has looked at | An Operator retries or requests the Roll-forward |
+| Roll the database back when a revision fails | A down migration runs on production data and may itself fail | A transactional revision already leaves the old schema; the rest are reconciled first ([record 101](0101-a-rollout-rolls-forward-when-rolling-back-would-run-a-migration-backwards.md)) |
+| Let a Project run `migration: self` and own its migrations | No record, no failed mark and no refusal for that Project | One managed path gives one record and one gate |
+| Canary Tenants receive each migration first | Shared tables give every Tenant the same schema, so there is nothing to stage per Tenant | Canary Tenants target feature flags |
 
 ## Consequences
 
-- Easier: one failing Tenant does not stop the others; a bad revision first shows
-  on the Canary Tenants; the operation log holds each failure's full output; no
-  Tenant database falls two versions behind its Project.
-- Harder: one Behind database blocks a Project's releases in that Environment
-  until it is repaired, so the maintainer must act on a Tenant's failure; the
-  component must record each database's last good revision.
+- Easier: a revision runs once, whatever the number of Tenants; a failed
+  transactional revision leaves the schema it found; a new feature reaches the
+  Canary Tenants before everyone; no database falls two versions behind its
+  Project.
+- Harder: a failed migration blocks the Project's releases in that Environment
+  until an Operator acts; every revision must be expand/contract, and one that
+  cannot run in a transaction says so.
 - Forbidden: `migration: self` or `migration: none` on a multi-tenant Project; a
-  wave that stops at a failure; a release while a Tenant database in that
-  Environment is Behind; a database marked Behind without its output in the
-  operation log.
+  release while the Project database in that Environment is marked failed; a
+  failure that leaves no failed mark; an automatic retry or Roll-forward of a
+  failed migration.
 
 ## Confirmation
 
 The **Migration declaration refusal** fails when the compiler accepts
-`migration: self` or `migration: none` on a multi-tenant Project. The **Migration
-wave continuation test** fails when a failing database stops its wave or is not
-marked Behind at its last good revision with its output in the operation log. The
-**Canary wave order test** fails when a production revision reaches a Tenant
-that is not a Canary Tenant before the Canary Tenants have run. The **Behind
-release refusal** fails when the Release Gate allows a new version while a Tenant
-database in that Environment is Behind, and it fails closed when the state
-cannot be read. The expand/contract rule itself is a review rule, and no check
-holds it.
+`migration: self` or `migration: none` on a multi-tenant Project. The **Failed
+migration state test** fails when a failing transactional revision leaves a
+schema other than the one it found, or the Project database is not marked failed
+at that revision in `migration-run`'s record. The **Failed migration release
+refusal** fails when the Release Gate allows a release while the Project
+database in that Environment is marked failed, allows a Roll-forward that no
+Operator requested, or fails open when the record cannot be read. The **Canary
+Tenant group test** fails when the tenancy library's Canary group differs from
+the Tenants whose Tenant resource marks them Canary Tenants. The expand/contract
+rule, and turning a flag on for Canary Tenants first, are review rules, and no
+check holds them.

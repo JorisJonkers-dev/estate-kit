@@ -46,9 +46,11 @@ unreadable record refuses the Rollback the same way. A Rollback never runs a
 down migration: reversing a migration is its own operation, offered only where
 the migration declares a down path. This amends
 [record 28](0028-pause-and-rollback-are-a-cluster-object-per-project.md).
-Where `migration-run` keeps the record stays open: it must be readable from
-the API server alone, so that a Rollback still needs only the API server and
-the registry, and the options are below.
+`migration-run` keeps the record, with the failed mark of
+[record 81](0081-migrations-reach-tenant-databases-in-waves.md), in a custom
+resource it owns, one per Project database per Environment. A Rollback reads it
+from the API server alone, so it still needs only the API server and the
+registry.
 
 A Roll-forward is then the way out. `estate-kit roll-forward <project> --env
 <env>` deploys a fixed fragment the Project has released, as a new Operation
@@ -58,9 +60,12 @@ on the full deploy path, with both dry-runs and the Publication point
 Its failsafe is to hold at the current version, never to revert. A migration
 that is neither idempotent nor transactional and stopped part way is never
 just run again: `migration-run` refuses it until its partial effects are
-reconciled, by a fix migration or by hand, and an Operator records that. A
-Roll-forward on a multi-tenant Project is still refused while one of its Tenant
-databases is Behind ([record 81](0081-migrations-reach-tenant-databases-in-waves.md)).
+reconciled, by a fix migration or by hand, and an Operator records that.
+While a Project database is marked failed
+([record 81](0081-migrations-reach-tenant-databases-in-waves.md)), the Release
+Gate refuses every release of that Project in that Environment, a Roll-forward
+included, unless an Operator explicitly requests the Roll-forward. Nothing
+automatic may request one.
 
 ## Alternatives
 
@@ -70,8 +75,8 @@ databases is Behind ([record 81](0081-migrations-reach-tenant-databases-in-waves
 | Run the down migration as part of a Rollback | A Rollback depends on the database and may fail half way | Data reversal is its own operation |
 | Restore the database from backup on Rollback | Loses every write since the backup | Data restoration is a separate, deliberate operation |
 | Keep the record in the migration's own database table only | A Rollback would read the database, which may be down | Rollback needs only the API server and the registry |
-| Keep the record on a custom resource that `migration-run` owns | A new kind and a new write to name | An option for the open question |
-| Carry the requirement in the render, and the state on the Job's status | The render must know its migration's preconditions at composition | An option for the open question |
+| Carry the requirement in the render, and the state on the Job's status | The render must know its migration's preconditions at composition, and the state goes when the Job is deleted | A custom resource that `migration-run` owns outlives its Jobs |
+| Roll forward automatically from a failed migration | A release starts on a database nobody has looked at | Only an Operator may request it |
 | Retry a failed non-transactional migration | Its partial effects are applied twice | Reconcile first, then run |
 
 ## Consequences
@@ -79,10 +84,12 @@ databases is Behind ([record 81](0081-migrations-reach-tenant-databases-in-waves
 - Easier: a Rollback that would break the old version stops with a reason; the
   maintainer knows when the only safe move is forward.
 - Harder: every migration declares its conditions; `migration-run` records them
-  per run; a fix fragment must be released before a roll-forward can start.
+  per run in a custom resource kind of its own, a write it must be granted; a
+  fix fragment must be released before a roll-forward can start.
 - Forbidden: a Rollback past a migration whose preconditions do not hold; a
   Rollback that runs a down migration; re-running a partly applied
-  non-transactional migration before its effects are reconciled.
+  non-transactional migration before its effects are reconciled; a
+  Roll-forward from a failed migration that no Operator requested.
 
 ## Confirmation
 
@@ -90,7 +97,10 @@ The **Rollback migration refusal** fails when a Rollback to a render whose
 migration preconditions do not hold, or whose record cannot be read, is not
 refused, when the refusal does not name the migration, or when a Rollback runs
 a down migration. The **Migration condition record test** fails when
-`migration-run` records a run without its pre- and postconditions, or starts a
-partly applied non-transactional migration again. A scenario of the **E2E
+`migration-run` records a run without its pre- and postconditions, keeps its
+record anywhere but its custom resource, or starts a partly applied
+non-transactional migration again. The **Failed migration release refusal**
+fails when a Roll-forward from a Project database marked failed starts without
+an Operator's request. A scenario of the **E2E
 scenarios** half-applies a contract migration, sees the Rollback refused, and
 rolls forward to Serving.

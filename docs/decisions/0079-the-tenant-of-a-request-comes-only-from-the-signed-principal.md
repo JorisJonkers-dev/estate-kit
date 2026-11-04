@@ -7,12 +7,18 @@ lessons: [CS-3, TM-4]
 
 # The Tenant of a request comes only from the Gate's signed principal, one request or message names exactly one Tenant, and a Causation id ties traces together
 
+Amended by [record 114](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md):
+a multi-tenant Application keeps its Tenants in shared tables, and the tenancy
+library sets `SET LOCAL app.tenant_id` from the signed Principal in every
+transaction. The text below says so.
+
 ## Context
 
 [Record 76](0076-tenants-are-the-organisations-the-estate-serves.md) makes the
-Tenant a thing the estate serves, and a multi-tenant Application keeps one
-Tenant database per Tenant. If a request could pick its own Tenant, one
-forged header would read another Tenant's database. If a message carried no
+Tenant a thing the estate serves, and a multi-tenant Application keeps its
+Tenants in shared tables, separated by row-level security
+([record 114](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md)). If a request
+could pick its own Tenant, one forged header would read another Tenant's rows. If a message carried no
 Tenant, or two, a consumer would have to guess.
 
 Identity already signs a Principal for every request: the Gate signs a header
@@ -41,6 +47,9 @@ Tenant to its dead-letter queue and never processes it.
 
 Every request and every message names exactly one Tenant. The shared libraries
 refuse work that has none and work that has two, and no API accepts two.
+The tenancy library carries that one Tenant into the database: it runs
+`SET LOCAL app.tenant_id` with it in every transaction, as
+[record 114](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md) sets out.
 
 A Causation id travels unchanged in every outgoing request, job record and
 message that a chain causes. Each step keeps its own trace, and starts a new
@@ -60,7 +69,7 @@ written.
 | The Tenant from the host, parsed by each Application | Each Application re-implements the lookup, and a custom domain needs code in all of them | The Gate resolves the host once, through a lookup, and signs the answer |
 | The Tenant from a request header, checked by the Application | A forged header is one missing check from a breach of another Tenant | An Application trusts only a value identity signed |
 | A request that may name several Tenants | A bug in one query touches two Tenants' data, and no backup, lock or Purge can treat a request as inside one | One request or message names exactly one Tenant |
-| A message without a Tenant is processed with a default | A missing header touches the wrong database | The consumer refuses it and sends it to the dead-letter queue |
+| A message without a Tenant is processed with a default | A missing header touches the wrong Tenant's rows | The consumer refuses it and sends it to the dead-letter queue |
 | A Tenant header defined by one broker's own format | Adding Kafka later rewrites every producer and consumer | A broker-neutral header needs only an adapter per broker |
 | One trace across a whole chain | A job that runs for hours makes one trace unreadable, and latencies stop meaning anything | A trace per step, tied by the Causation id and a link to its cause |
 | The Tenant key as a metric label | One series per Tenant on every metric, past 1000 Tenants | Logs and spans carry the Tenant key; metrics do not |
