@@ -96,7 +96,7 @@ An estate-kit Applier is built only when one of these review triggers fires:
 
 | Trigger | Fires when |
 | --- | --- |
-| T1 Order | A Release Unit or Tenant migration-wave scenario of the end-to-end suite fails under the best chain of Kustomizations plus the Release Gate |
+| T1 Order | A Release Unit or migration scenario of the end-to-end suite fails under the best chain of Kustomizations plus the Release Gate |
 | T2 Latency | Over 20 consecutive production deploys with Receivers in place, the p95 from publication to the first observed apply exceeds 30 seconds |
 | T3 Upstream | A Flux release breaks [record 58](0058-flux-is-locked-down-per-project-and-delivery-dry-runs-as-an-identity-that-cannot-write.md)'s lockdown flags, OCI signature verification or server-side apply and no fixed release follows within one minor; or Flux ships no security release for six months |
 | T4 Explanation | Three stalls in one quarter whose cause the stream could not name and that needed Flux's logs to diagnose |

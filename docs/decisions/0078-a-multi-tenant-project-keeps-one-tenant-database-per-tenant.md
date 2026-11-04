@@ -1,11 +1,13 @@
 ---
-status: accepted  # proposed | accepted | locked
+status: superseded  # proposed | accepted | locked | superseded
 date: 2026-11-01
 rests-on: [75, 76]
 lessons: [MS-7, DR-1]
 ---
 
 # A multi-tenant Project keeps one Tenant database per Tenant, on a Database server recorded with the Tenant
+
+Superseded by [record 114](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md): multi-tenant Projects keep their Tenants in shared tables, separated by row-level security.
 
 ## Context
 

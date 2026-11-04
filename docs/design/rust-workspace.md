@@ -211,7 +211,7 @@ crates/
     adapter-components-kube/  watching the rendered objects
   tenancy/                    wired into estate-kit-delivery only, the one writer of a Tenant (record 80)
     tenant/                   domain: Tenant key and handle grammar, the Tenant states and their moves, grace periods, host lookup rows, a decider per Tenant operation
-    tenancy-app/              application: the Tenant operations (create, add or remove a Project, lock, unlock, suspend, resume, purge, move, restore) and their ports
+    tenancy-app/              application: the Tenant operations (create, add or remove a Project, lock, unlock, suspend, resume, purge, restore) and their ports
     adapter-tenancy-kube/     writes the Tenant custom resource; reads its finalizers and each participant's status
     adapter-tenancy-postgres/ the append-only operation log and the host lookup (sqlx), on platform-postgres
     adapter-tenant-hooks/     calls an Application's Tenant hooks over HTTP with a signed machine token, a deadline and retries

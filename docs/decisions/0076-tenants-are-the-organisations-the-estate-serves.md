@@ -7,6 +7,10 @@ lessons: [MS-7, MS-6]
 
 # Tenants are the organisations the estate serves, one per environment
 
+Amended by [record 114](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md):
+a Tenant's data is keyed by its Tenant key in shared tables, not held in
+databases named after it. The text below says so.
+
 ## Context
 
 [Record 1](0001-one-maintainer-one-cluster-one-estate.md) builds the estate for
@@ -52,7 +56,7 @@ they are rewritten in Rust.
 | --- | --- | --- |
 | Keep "no second tenant" and serve one organisation | The estate's products cannot be sold to another organisation | The maintainer set the direction, with a horizon of more than 1000 Tenants |
 | One Tenant across all Environments | Staging data and production data share an identity, and a test touches a real organisation | An Environment has its own identity and data ([record 75](0075-three-environments-run-in-the-one-cluster.md)) |
-| The handle as the identifier | A rename changes every database name, key prefix and log line | Names that appear in data must never change; the handle is for people only |
+| The handle as the identifier | A rename changes every `tenant_id` value, key prefix and log line | Names that appear in data must never change; the handle is for people only |
 | A mutable Tenant key | An old backup, log line or message can name a different Tenant | The key must name one Tenant for ever |
 | Reusing a key after a Purge | A stale message or restored backup reaches the new Tenant | A key is never reused |
 | A user account per Tenant | One person signs in again for each Tenant and holds many passwords | One User per Environment holds Memberships in many Tenants |
