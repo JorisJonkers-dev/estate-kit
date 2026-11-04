@@ -108,12 +108,12 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 100 | [Each render carries a provenance statement that binds its Project, Environment, sequence and pinned inputs](0100-each-render-carries-a-provenance-statement-that-binds-its-project-environment-sequence-and-pinned-inputs.md) | Proposed |
 | 101 | [A Rollout rolls forward when rolling back would run a migration backwards](0101-a-rollout-rolls-forward-when-rolling-back-would-run-a-migration-backwards.md) | Proposed |
 | 102 | [Analysis is a pure verdict function, and an inconclusive verdict holds](0102-analysis-is-a-pure-verdict-function-and-an-inconclusive-verdict-holds.md) | Proposed |
-| 103 | A release reads every persisted format within its retention, and the previous release reads the new writes | Proposed |
-| 104 | Every reconciler estate-kit owns passes crash-point, stale-read and safety tests before it takes production responsibility | Proposed |
-| 105 | Removal is a Retire lifecycle with durable tombstones, and prune-protected kinds never prune | Proposed |
-| 106 | The control plane is restored in a dependency order that is tested, drilled and timed | Proposed |
-| 107 | Network policy moves from render-only through an audited window to enforcement | Proposed |
-| 108 | Active checks run in the owning components, Observation reads their results, and one heartbeat lives outside the cluster | Proposed |
+| 103 | [A release reads every persisted format within its retention, and the previous release reads the new writes](0103-a-release-reads-every-persisted-format-within-its-retention-and-the-previous-release-reads-the-new-writes.md) | Proposed |
+| 104 | [Every reconciler estate-kit owns passes crash-point, stale-read and safety tests before it takes production responsibility](0104-every-reconciler-estate-kit-owns-passes-crash-point-stale-read-and-safety-tests-before-it-takes-production-responsibility.md) | Proposed |
+| 105 | [Removal is a Retire lifecycle with durable Retirement tombstones and declared moves, and prune-protected kinds never prune](0105-removal-is-a-retire-lifecycle-with-durable-retirement-tombstones-and-declared-moves-and-prune-protected-kinds-never-prune.md) | Proposed |
+| 106 | [The control plane is restored in a dependency order that is tested, drilled and timed](0106-the-control-plane-is-restored-in-a-dependency-order-that-is-tested-drilled-and-timed.md) | Proposed |
+| 107 | [Network policy moves from render-only, through a staged or audited window, to enforcement](0107-network-policy-moves-from-render-only-through-a-staged-or-audited-window-to-enforcement.md) | Proposed |
+| 108 | [Active checks run in the owning components, Observation reads their results, and one heartbeat lives outside the cluster](0108-active-checks-run-in-the-owning-components-observation-reads-their-results-and-one-heartbeat-lives-outside-the-cluster.md) | Proposed |
 | 109 | A feasibility test decides whether one database per Tenant stands, and rendered objects do not grow with the Tenant count | Proposed |
 | 110 | A Purge erases Backup generations and Mirrors at the end of their retention, from an inventory of every copy | Proposed |
 | 111 | [Decision status and Enforcement status are separate, and each check names the mistake it catches](0111-decision-status-and-enforcement-status-are-separate.md) | Proposed |
