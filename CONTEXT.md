@@ -350,7 +350,7 @@ _Avoid_: interface, service, driver
 ## Records and checks
 
 **Enforcement status**:
-The table of checks gives each check one of four statuses: planned (the check is a row of the table of checks, with the issue that builds it, and no code yet), implemented (the check runs, but outside `Pipeline Complete` or without a negative fixture shown to fail it), verified (the check runs inside `Pipeline Complete` and its negative fixture fails it), or retired. A record's Enforcement status is derived from the checks its Confirmation names in bold: the lowest of their statuses in the order planned < implemented < verified; if the Confirmation names no check, the record reads review. Derived from the table of checks, never written by hand.
+Whether the checks a record's Confirmation names hold it, as one of four values: planned (a check is a row of the table of checks, with the issue that builds it, and no code yet), implemented (every named check runs, but at least one runs outside `Pipeline Complete` or has no negative fixture shown to fail it), verified (every named check runs inside `Pipeline Complete` and its negative fixture fails it) or review (the Confirmation names no check, or only retired ones, so the rule is held by review only). It is the lowest status of the live checks the record names, planned < implemented < verified. The table of checks gives each check its own status: planned, implemented, verified, or retired, for a check a later record replaced or removed, kept as a row for history. Derived from the table of checks, never written by hand.
 _Avoid_: check status, lock status
 
 **Generality test**:
