@@ -124,8 +124,8 @@
         <mxCell id="apps" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#eeeeee,#303030);strokeColor=light-dark(#999999,#8a8a8a);fontFamily=Helvetica;" value="multi-tenant Applications" vertex="1">
           <mxGeometry height="56" width="230" x="1103" y="2108" as="geometry" />
         </mxCell>
-        <mxCell id="backup" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#eeeeee,#303030);strokeColor=light-dark(#999999,#8a8a8a);fontFamily=Helvetica;" value="Backup store: Kopia on EU object store" vertex="1">
-          <mxGeometry height="66" width="256" x="610" y="2732" as="geometry" />
+        <mxCell id="backup" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#eeeeee,#303030);strokeColor=light-dark(#999999,#8a8a8a);fontFamily=Helvetica;" value="Backup store: Kopia, on an EU-controlled provider" vertex="1">
+          <mxGeometry height="66" width="323" x="610" y="2732" as="geometry" />
         </mxCell>
         <mxCell id="e1" edge="1" parent="1" source="validate" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="cli" value="runs">
           <mxGeometry relative="1" as="geometry">
@@ -257,13 +257,13 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e19" edge="1" parent="1" source="reconcilers" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.6661;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="backup" value="writes snapshots, archives WAL">
+        <mxCell id="e19" edge="1" parent="1" source="reconcilers" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.6661;exitY=1;entryX=0.5015;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="backup" value="writes snapshots, archives WAL">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-5.5" y="-31" as="offset" />
+            <mxPoint x="-22.5" y="-31" as="offset" />
             <Array as="points">
               <mxPoint x="650" y="2542" />
               <mxPoint x="650" y="2668" />
-              <mxPoint x="738" y="2668" />
+              <mxPoint x="772" y="2668" />
             </Array>
           </mxGeometry>
         </mxCell>

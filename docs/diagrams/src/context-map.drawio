@@ -31,8 +31,8 @@
         <mxCell id="alert" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#eeeeee,#303030);strokeColor=light-dark(#999999,#8a8a8a);fontFamily=Helvetica;" value="Alertmanager" vertex="1">
           <mxGeometry height="56" width="160" x="2384" y="234" as="geometry" />
         </mxCell>
-        <mxCell id="backup" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#eeeeee,#303030);strokeColor=light-dark(#999999,#8a8a8a);fontFamily=Helvetica;" value="Backup store: Kopia on EU object store" vertex="1">
-          <mxGeometry height="66" width="256" x="3196" y="22" as="geometry" />
+        <mxCell id="backup" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#eeeeee,#303030);strokeColor=light-dark(#999999,#8a8a8a);fontFamily=Helvetica;" value="Backup store: Kopia, on an EU-controlled provider" vertex="1">
+          <mxGeometry height="66" width="323" x="3196" y="22" as="geometry" />
         </mxCell>
         <mxCell id="e1" edge="1" parent="1" source="compiler" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="service" value="use cases, in-process (customer, supplier)">
           <mxGeometry relative="1" as="geometry">
@@ -136,7 +136,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="header" value="Context map: the bounded contexts and how they relate" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=light-dark(#1a1a1a,#e8e8e8);fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="12" y="-52" width="3440" height="36" as="geometry" />
+          <mxGeometry x="12" y="-52" width="3507" height="36" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

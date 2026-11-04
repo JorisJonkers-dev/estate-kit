@@ -40,8 +40,8 @@
         <mxCell id="obs" parent="1" style="rounded=1;arcSize=8;html=1;whiteSpace=wrap;fontSize=12;align=center;fillColor=#8C8496;strokeColor=#736782;fontColor=#ffffff;fontFamily=Helvetica;" value="&lt;b&gt;Tempo, Loki, Grafana&lt;/b&gt;&lt;div style=&quot;font-size:11px&quot;&gt;[Software System]&lt;/div&gt;&lt;div&gt;Traces and logs&lt;/div&gt;" vertex="1">
           <mxGeometry height="120" width="309" x="1647" y="1222" as="geometry" />
         </mxCell>
-        <mxCell id="backup" parent="1" style="rounded=1;arcSize=8;html=1;whiteSpace=wrap;fontSize=12;align=center;fillColor=#8C8496;strokeColor=#736782;fontColor=#ffffff;fontFamily=Helvetica;" value="&lt;b&gt;Backup store&lt;/b&gt;&lt;div style=&quot;font-size:11px&quot;&gt;[Software System]&lt;/div&gt;&lt;div&gt;Kopia snapshots, WAL archive; EU object store&lt;/div&gt;" vertex="1">
-          <mxGeometry height="120" width="431" x="1258" y="1592" as="geometry" />
+        <mxCell id="backup" parent="1" style="rounded=1;arcSize=8;html=1;whiteSpace=wrap;fontSize=12;align=center;fillColor=#8C8496;strokeColor=#736782;fontColor=#ffffff;fontFamily=Helvetica;" value="&lt;b&gt;Backup store&lt;/b&gt;&lt;div style=&quot;font-size:11px&quot;&gt;[Software System]&lt;/div&gt;&lt;div&gt;Kopia snapshots, WAL archive; on an EU-controlled provider&lt;/div&gt;" vertex="1">
+          <mxGeometry height="120" width="501" x="1258" y="1592" as="geometry" />
         </mxCell>
         <mxCell id="e1" edge="1" parent="1" source="author" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;dashed=1;dashPattern=6 4;curved=0;exitX=0.5014;exitY=1;entryX=0.5015;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="gh" value="&lt;b&gt;pushes, releases&lt;/b&gt;">
           <mxGeometry relative="1" as="geometry">
@@ -137,12 +137,12 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e12" edge="1" parent="1" source="k8s" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;dashed=1;dashPattern=6 4;curved=0;exitX=0.6676;exitY=1;entryX=0.5012;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="backup" value="&lt;b&gt;writes backups, archives WAL&lt;/b&gt;&lt;div style=&quot;font-size:11px&quot;&gt;[HTTPS]&lt;/div&gt;">
+        <mxCell id="e12" edge="1" parent="1" source="k8s" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;dashed=1;dashPattern=6 4;curved=0;exitX=0.6676;exitY=1;entryX=0.501;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="backup" value="&lt;b&gt;writes backups, archives WAL&lt;/b&gt;&lt;div style=&quot;font-size:11px&quot;&gt;[HTTPS]&lt;/div&gt;">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="21.5" y="109" as="offset" />
+            <mxPoint x="39" y="109" as="offset" />
             <Array as="points">
               <mxPoint x="1213" y="1358" />
-              <mxPoint x="1474" y="1358" />
+              <mxPoint x="1509" y="1358" />
             </Array>
           </mxGeometry>
         </mxCell>
