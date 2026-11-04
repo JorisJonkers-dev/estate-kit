@@ -1,5 +1,5 @@
 ---
-status: proposed  # proposed | accepted | locked
+status: proposed  # proposed | accepted | locked | superseded
 date: YYYY-MM-DD
 rests-on: []      # earlier record numbers this one depends on
 lessons: []       # lesson ids from lessons.md

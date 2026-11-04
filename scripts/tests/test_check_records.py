@@ -233,6 +233,47 @@ class MovedRows(unittest.TestCase):
         self.assertIn("cite the page", found[0].message)
 
 
+class SupersededRows(unittest.TestCase):
+    def superseded(self, tree: Tree, number: int, by: int) -> None:
+        tree.row(number, f"Superseded by {by}")
+        tree.file(number, f"---\nstatus: superseded\nrests-on: []\nlessons: []\n---\n\n# Record {number}\n")
+
+    def test_a_superseded_row_keeps_its_file_and_names_an_accepted_record(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        self.superseded(tree, 2, 1)
+        self.assertEqual(tree.keys(), [])
+
+    def test_a_superseded_row_without_a_file_is_reported(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        tree.row(2, "Superseded by 1")
+        self.assertEqual(tree.keys(), ["superseded-no-file 2"])
+
+    def test_a_superseded_file_must_say_superseded(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        tree.row(2, "Superseded by 1")
+        tree.file(2, "---\nstatus: accepted\nrests-on: []\nlessons: []\n---\n")
+        self.assertEqual(tree.keys(), ["status 2"])
+
+    def test_a_supersession_by_a_proposed_or_missing_record_is_reported(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "proposed")
+        self.superseded(tree, 2, 1)
+        self.superseded(tree, 3, 9)
+        self.assertEqual(tree.keys(), ["superseded-target 2", "superseded-target 3"])
+
+    def test_a_rest_on_a_superseded_row_is_reported(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        self.superseded(tree, 2, 1)
+        tree.record(3, "proposed", rests_on="[2]")
+        found = violations(tree.decisions, tree.lessons, tree.checks)
+        self.assertEqual([v.key for v in found], ["rests-on-superseded 3 2"])
+        self.assertIn("rest on 1", found[0].message)
+
+
 class EveryRecordHasAConfirmation(unittest.TestCase):
     def test_a_record_without_a_confirmation_is_reported(self) -> None:
         tree = Tree(self)
