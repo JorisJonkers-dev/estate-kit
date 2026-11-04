@@ -90,9 +90,9 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 82 | [Each Tenant is backed up as a Backup generation on its own schedule, and Mirrors refresh staging and development Tenants](0082-backups-are-per-tenant-generations-and-mirrors-refresh-staging-and-development.md) | Accepted |
 | 83 | [Secrets are scoped by environment in their Vault path, and Tenant secrets live beneath their Project](0083-secrets-are-scoped-by-environment-and-tenant-secrets-live-beneath-their-project.md) | Accepted |
 | 84 | [A Tenant sends mail as its product domain until it verifies its own domain](0084-a-tenant-sends-mail-as-its-product-domain-until-it-verifies-its-own.md) | Accepted |
-| 85 | General purpose means no estate fact in the core, the profiles or the compiler's code | Proposed |
-| 86 | The estate states its defaults for a low-attention week | Proposed |
-| 87 | Recovery time and recovery point are stated per durability class, and the drill measures them | Proposed |
+| 85 | [General purpose means no estate fact in the core, the profiles or the compiler's code](0085-general-purpose-means-no-estate-fact-in-the-core-the-profiles-or-the-compiler-s-code.md) | Proposed |
+| 86 | [The estate states its defaults for a low-attention week, and every default fails safe](0086-the-estate-states-its-defaults-for-a-low-attention-week.md) | Proposed |
+| 87 | [Recovery time and recovery point are stated per Recovery class before the drill, and the drill measures them](0087-recovery-time-and-recovery-point-are-stated-per-recovery-class.md) | Proposed |
 | 88 | The metamodel is layered: core, profiles and component kinds, provider facts, estate instance | Proposed |
 | 89 | Every persisted or externally read contract has its own identifier, major and supported range | Proposed |
 | 90 | Three generality tests run in CI | Proposed |
@@ -116,6 +116,6 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 108 | Active checks run in the owning components, Observation reads their results, and one heartbeat lives outside the cluster | Proposed |
 | 109 | A feasibility test decides whether one database per Tenant stands, and rendered objects do not grow with the Tenant count | Proposed |
 | 110 | A Purge erases Backup generations and Mirrors at the end of their retention, from an inventory of every copy | Proposed |
-| 111 | Decision status and enforcement status are separate, and each check names the mistake it catches | Proposed |
-| 112 | The write boundary is stated once | Proposed |
-| 113 | Every UI action is a CLI command with the same identifier | Proposed |
+| 111 | [Decision status and Enforcement status are separate, and each check names the mistake it catches](0111-decision-status-and-enforcement-status-are-separate.md) | Proposed |
+| 112 | [The write boundary is stated once, in one table of every writer](0112-the-write-boundary-is-stated-once.md) | Proposed |
+| 113 | [Every UI action is a CLI command with the same identifier](0113-every-ui-action-is-a-cli-command-with-the-same-identifier.md) | Proposed |
