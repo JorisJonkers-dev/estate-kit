@@ -8,7 +8,7 @@ lessons: [TM-4, TM-5, DR-2]
 
 # Decision status and Enforcement status are separate, and each check names the mistake it catches
 
-The maintainer added the review value on 2026-11-04 ([#177](https://github.com/JorisJonkers-dev/estate-kit/issues/177)): a record whose Confirmation names no check reads review, never verified.
+The maintainer added the review value on 2026-11-04 ([#177](https://github.com/JorisJonkers-dev/estate-kit/issues/177)): a record whose Confirmation names no check reads review, never verified. The table of checks also keeps a fourth status, retired, for a check that a later record replaced or removed and whose row stays as history. A retired check holds nothing: a record whose Confirmation names only retired checks reads review.
 
 ## Context
 
@@ -55,8 +55,8 @@ Enforcement status says whether the checks a record names hold it:
 | review | The Confirmation names no check, so the rule is held by review only |
 
 Enforcement status is derived, never written by hand. The Status column of the
-table of checks takes these three values, and a record's Enforcement status is
-the lowest among the checks its Confirmation names in bold. A record that names
+table of checks takes these three values, or retired, and a record's Enforcement
+status is the lowest among the live checks its Confirmation names in bold. A record that names
 no check reads review; it is never verified. The register's enforcement column is derived from the table of checks, and the Records job fails when a row disagrees with its derivation.
 An Accepted record may be planned. A Locked record must be verified, which is
 the register's rule ("a record that is Locked without a working check is a
@@ -91,7 +91,7 @@ ratchets, stands.
 - Easier: a reader sees which rules hold today; Locking a record has a
   mechanical precondition; an equivalent mutant has a legitimate, visible path.
 - Harder: each of the hundred rows needs its mistake written, and the Status
-  column must be moved to the three values; the Records job grows.
+  column must be moved to these values; the Records job grows.
 - Forbidden: an Enforcement status written by hand; a Locked record whose
   checks are not verified; a check row with no mistake; a mutation exclusion
   without its mutant, its reason and its reviewing pull request.

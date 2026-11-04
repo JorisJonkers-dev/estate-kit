@@ -29,7 +29,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-ROW = re.compile(r"^\| (\d+) \| .+? \| ([^|]+) \|")
+NUMBERED = re.compile(r"^\| (\d+) \|")
 LESSON = re.compile(r"^\| ([A-Z]+-\d+) \| .+ \| (\w+) \|$")
 RECORD_FILE = re.compile(r"^(\d{4})-.+\.md$")
 ACCEPTED = {"accepted", "locked"}
@@ -161,18 +161,48 @@ def confirmation(text: str) -> str:
     return "\n".join(body).strip()
 
 
+def cells(line: str) -> list[str]:
+    """The cells of one Markdown table row, trimmed; an empty cell stays an empty string."""
+    return [cell.strip() for cell in re.split(r"\s*\|\s*", line.strip())[1:-1]]
+
+
+def register_rows(register: Path) -> dict[int, tuple[str, str]]:
+    """Each numbered row of the register as {number: (status, enforcement)}, read by its columns.
+
+    A register without an Enforcement column gives every row an empty enforcement."""
+    rows: dict[int, tuple[str, str]] = {}
+    enforcement_column: int | None = None
+    for line in register.read_text(encoding="utf-8").splitlines():
+        if line.startswith("| # |"):
+            header = cells(line)
+            enforcement_column = header.index("Enforcement") if "Enforcement" in header else None
+        elif NUMBERED.match(line):
+            row = cells(line)
+            enforcement = row[enforcement_column] if enforcement_column is not None and enforcement_column < len(row) else ""
+            rows[int(row[0])] = (row[2] if len(row) > 2 else "", enforcement)
+    return rows
+
+
 def check_names(page: Path) -> dict[str, str] | None:
-    """The first column of the table under `## The checks` mapped to its Status cell (first word, lowercased, punctuation stripped); None without one."""
+    """The first column of the table under `## The checks` mapped to its Status cell (first word, lowercased,
+    punctuation stripped); None without a table or without a Status column in its header."""
     names: dict[str, str] | None = None
+    status_column: int | None = None
+    in_header = False
     inside = False
     for line in page.read_text(encoding="utf-8").splitlines():
         if line.startswith("## "):
             inside = line.strip() == "## The checks"
-        elif inside and line.startswith("| ") and not line.startswith(("| Check ", "| ---")):
-            parts = [p.strip() for p in line.split("|")]
-            # parts[0] is empty (before the first |), parts[1] is the check, parts[5] is its Status
-            cell = parts[5].split() if len(parts) > 5 else []
-            names = (names or {}) | {parts[1].strip("`"): cell[0].lower().rstrip(".,;:") if cell else ""}
+            in_header = inside
+            status_column = None
+        elif inside and line.startswith("| ") and not line.startswith("| ---"):
+            row = cells(line)
+            if in_header:
+                status_column = row.index("Status") if "Status" in row else None
+                in_header = False
+            elif status_column is not None:
+                words = row[status_column].split() if status_column < len(row) else []
+                names = (names or {}) | {row[0].strip("`"): words[0].lower().rstrip(".,;:") if words else ""}
     return names
 
 
@@ -194,18 +224,9 @@ def enforcement_status(check_statuses: dict[str, str], check_names_in_confirmati
 
 def violations(decisions: Path, lessons_file: Path, checks_page: Path) -> list[Violation]:
     register = decisions / "register.md"
-    rows = {}
-    enforcement_rows = {}
-    for line in register.read_text(encoding="utf-8").splitlines():
-        if match := ROW.match(line):
-            number = int(match.group(1))
-            rows[number] = match.group(2).lower()
-            # Extract enforcement column if present (4th column)
-            parts = [p.strip() for p in line.split("|")]
-            if len(parts) >= 5 and parts[4].strip():
-                enforcement_rows[number] = parts[4].strip().lower()
-            else:
-                enforcement_rows[number] = ""
+    register_cells = register_rows(register)
+    rows = {number: status.lower() for number, (status, _) in register_cells.items()}
+    enforcement_rows = {number: enforcement.lower() for number, (_, enforcement) in register_cells.items()}
     moved = {number for number, status in rows.items() if MOVED.match(status)}
     merged = {number: int(m.group(1)) for number, status in rows.items() if (m := MERGED.match(status))}
     superseded = {number: int(m.group(1)) for number, status in rows.items() if (m := SUPERSEDED.match(status))}

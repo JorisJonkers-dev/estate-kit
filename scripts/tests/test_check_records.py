@@ -628,6 +628,43 @@ class AcceptedRecordsKeepTheirPromises(unittest.TestCase):
         self.assertEqual(tree.keys(), [])
 
 
+class TablesAreReadByTheirColumns(unittest.TestCase):
+    def test_a_blank_status_cell_is_not_read_as_the_enforcement_value(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        tree.row(2, "", "verified")
+        tree.file(2, "---\nstatus: proposed\n---\n")
+        self.assertEqual(sorted(tree.keys()), ["status 2"])
+
+    def test_the_status_column_of_the_checks_table_may_sit_anywhere(self) -> None:
+        tree = Tree(self)
+        tree.checks.write_text(
+            "## The checks\n\n| Check | Status | Fails when |\n| --- | --- | --- |\n"
+            "| Records | verified | x |\n| `cargo xtask known` | planned | y |\n")
+        tree.record(1, "accepted")
+        self.assertEqual(tree.keys(), [])
+
+    def test_a_checks_table_without_a_status_column_is_reported_once(self) -> None:
+        tree = Tree(self)
+        tree.checks.write_text("## The checks\n\n| Check | Fails when |\n| --- | --- |\n| Known check | x |\n")
+        tree.record(1, "accepted")
+        self.assertIn("no-checks-table", tree.keys())
+        self.assertNotIn("check-status Known check", tree.keys())
+
+    def test_a_short_row_of_the_checks_table_reads_as_an_unknown_status(self) -> None:
+        tree = Tree(self)
+        tree.checks.write_text("## The checks\n\n| Check | Fails when | Status |\n| --- | --- | --- |\n| Known check | x |\n")
+        tree.record(1, "accepted")
+        self.assertIn("check-status Known check", tree.keys())
+
+    def test_a_register_row_shorter_than_its_header_has_no_enforcement(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        register = tree.decisions / "register.md"
+        register.write_text(register.read_text() + "| 2 |\n")
+        self.assertEqual(tree.keys(), [])
+
+
 class TheCommand(unittest.TestCase):
     def test_a_violation_fails(self) -> None:
         tree = Tree(self)
