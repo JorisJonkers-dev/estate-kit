@@ -99,15 +99,15 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 91 | [Platform Intent is split by concern, and each document validates alone](0091-platform-intent-is-split-by-concern-and-each-document-validates-alone.md) | Proposed |
 | 92 | [Capacity is in the Resolved Deployment; cost is estimated outside the Render key and recorded from bills](0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md) | Proposed |
 | 93 | [The rollout plan is compiled, with checks bound to cohorts, a failsafe and a Held deadline](0093-the-rollout-plan-is-compiled-with-checks-bound-to-cohorts-a-failsafe-and-a-held-deadline.md) | Proposed |
-| 94 | Flux stays the one applier, observed closely, and an estate-kit Applier waits for a review trigger | Proposed |
-| 95 | A Project renders as a chain of Flux Kustomizations, one per apply group | Proposed |
-| 96 | A deploy is an Operation that ends Serving, Held, Refused, Superseded or Observation lost | Proposed |
-| 97 | The publication point is named and tested, and a render that introduces a kind is published in two stages | Proposed |
+| 94 | [Flux stays the one applier, observed closely, and an estate-kit Applier waits for a review trigger](0094-flux-stays-the-one-applier-observed-closely-and-an-estate-kit-applier-waits-for-a-review-trigger.md) | Proposed |
+| 95 | [A Project renders as a chain of Flux Kustomizations, one per Apply group](0095-a-project-renders-as-a-chain-of-flux-kustomizations-one-per-apply-group.md) | Proposed |
+| 96 | [A deploy is an Operation that ends Serving, Held, Refused, Superseded or Observation lost](0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md) | Proposed |
+| 97 | [The Publication point is named and tested, and a render that introduces a kind is published in two stages](0097-the-publication-point-is-named-and-tested-and-a-render-that-introduces-a-kind-is-published-in-two-stages.md) | Proposed |
 | 98 | The live pointer is an immutable Sequence tag that Flux selects by version | Proposed |
 | 99 | Renders and host tags live in an off-cluster registry chosen by its features | Proposed |
 | 100 | Each render carries a provenance statement that binds its Project, Environment, sequence and pinned inputs | Proposed |
-| 101 | A Rollout rolls forward when rolling back would run a migration backwards | Proposed |
-| 102 | Analysis is a pure verdict function, and an inconclusive verdict holds | Proposed |
+| 101 | [A Rollout rolls forward when rolling back would run a migration backwards](0101-a-rollout-rolls-forward-when-rolling-back-would-run-a-migration-backwards.md) | Proposed |
+| 102 | [Analysis is a pure verdict function, and an inconclusive verdict holds](0102-analysis-is-a-pure-verdict-function-and-an-inconclusive-verdict-holds.md) | Proposed |
 | 103 | A release reads every persisted format within its retention, and the previous release reads the new writes | Proposed |
 | 104 | Every reconciler estate-kit owns passes crash-point, stale-read and safety tests before it takes production responsibility | Proposed |
 | 105 | Removal is a Retire lifecycle with durable tombstones, and prune-protected kinds never prune | Proposed |
