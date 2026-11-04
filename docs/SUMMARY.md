@@ -109,6 +109,8 @@
   - [112. The write boundary is stated once](decisions/0112-the-write-boundary-is-stated-once.md)
   - [113. Every UI action is a CLI command](decisions/0113-every-ui-action-is-a-cli-command-with-the-same-identifier.md)
   - [114. Multi-tenant Projects keep their Tenants in shared tables with row-level security](decisions/0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md)
+  - [115. Backups are Kopia snapshots in a locked repository per Environment](decisions/0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md)
+  - [116. Estate data stays on EU-controlled providers or owned hardware](decisions/0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md)
 - [Lesson candidates](lesson-candidates.md)
 - [Diagrams](diagrams/README.md)
 - [Research](research/README.md)

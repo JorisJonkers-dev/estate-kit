@@ -1,7 +1,7 @@
 ---
 status: proposed  # proposed | accepted | locked
 date: 2026-11-04
-rests-on: [9, 28, 30, 31, 59]
+rests-on: [9, 28, 30, 31, 59, 116]
 lessons: [DR-1, DR-2]
 ---
 
@@ -43,10 +43,14 @@ small VPS, and the move at about 40 to 80 hours in M5, after the cutover
 Project images and fragments are pushed by each Project's own CI, not by
 Delivery. The evaluation keeps Project images on ghcr for now (section 5).
 
+[record 116](0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md) puts every store of estate data on an EU-controlled provider or
+on owned hardware, for protection against US sanctions, and names ghcr as an
+exception for renders and host tags only until milestone M5.
+
 ## Decision
 
 After the cutover, Delivery publishes renders and host tags to one OCI
-registry outside the cluster, chosen by four features, each shown in the
+registry outside the cluster, chosen by five features, each shown in the
 registry spike before a product is chosen:
 
 1. **Create-only tags.** Delivery's push credential can create a tag and can
@@ -59,11 +63,16 @@ registry spike before a product is chosen:
    ([record 59](0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md)).
 4. **Not on the control-plane node and not in the cluster**, and not on a
    machine that anything the control plane needs to recover runs on.
+5. **EU-controlled or owned.** The registry, its machine and its object
+   storage run on an EU-controlled provider or on owned hardware
+   ([record 116](0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md)).
 
 This supersedes the registry half of
 [record 9](0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md):
 the ghcr machine account, its classic token and the checks on it hold only
-until every Project has moved, and are then retired. Its other rules stand: the push credential reaches Delivery as a Kubernetes Secret that the
+until every Project has moved, and are then retired. The move is done in
+milestone M5, when the ghcr exception of
+[record 116](0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md) ends. Its other rules stand: the push credential reaches Delivery as a Kubernetes Secret that the
 Vault Secrets Operator syncs, so no tag creation reads Vault. The move goes
 one Project at a time, with renders and host tags mirrored first. The port is
 `Registry`, and its adapter becomes `adapter-registry` (renamed from
@@ -72,7 +81,8 @@ record is accepted.
 
 Which product is open: the maintainer chooses after the spike, weighing
 authentication, restore, retention, egress, cost and maintainer hours. The
-candidates are in Alternatives. Project images and fragments stay where each
+candidates are in Alternatives; each must be EU-controlled or owned, and a
+candidate that is not is rejected there. Project images and fragments stay where each
 Project's CI pushes them, on ghcr today. This record does not move them; a
 forge move decides where they go.
 
@@ -80,12 +90,13 @@ forge move decides where they go.
 
 | Option | Cost if taken | Why rejected |
 | --- | --- | --- |
-| Stay on ghcr, with the Lease and read, verify, write | A classic token in the delivery path; no create-only tags, so no [record 98](0098-the-live-pointer-is-an-immutable-sequence-tag-that-flux-selects-by-version.md) | Both defects remain |
-| zot on a small VPS, object-storage back end, with a create-only access policy | One small process and VPS to run, patch and back up | Open: a candidate for the spike |
-| Distribution (the CNCF registry) with a create-only policy in front | The policy is an extra layer to own | Open: a candidate for the spike |
-| Harbor, with tag immutability rules | A database, a cache and several services to run for two kinds of artifact | Open: a candidate for the spike, heavier than the need |
-| A managed OCI registry with scoped keys and immutable tags | Storage and egress charges; one more provider account | Open: a candidate for the spike |
-| Forgejo's package registry, if the forge moves to Forgejo | The registry moves with the forge; tag immutability unknown | Open: a candidate only once a move is planned |
+| Stay on ghcr, with the Lease and read, verify, write | A classic token in the delivery path; no create-only tags, so no [record 98](0098-the-live-pointer-is-an-immutable-sequence-tag-that-flux-selects-by-version.md); a US-controlled provider | Both defects remain, and ghcr's exception under [record 116](0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md) ends at M5 |
+| zot on a small VPS at an EU-controlled provider or on owned hardware, object-storage back end at an EU-controlled provider, with a create-only access policy | One small process and VPS to run, patch and back up | Open: a candidate for the spike |
+| Distribution (the CNCF registry), placed as zot is, with a create-only policy in front | The policy is an extra layer to own | Open: a candidate for the spike |
+| Harbor, placed as zot is, with tag immutability rules | A database, a cache and several services to run for two kinds of artifact | Open: a candidate for the spike, heavier than the need |
+| A managed OCI registry at an EU-controlled provider, with scoped keys and immutable tags | Storage and egress charges; one more provider account | Open: a candidate for the spike, if its provider offers both features |
+| A managed registry at a provider controlled from outside the EU, in any region | Such a provider follows US or other foreign sanctions wherever the data lies | Rejected by [record 116](0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md) |
+| Forgejo's package registry, if the forge moves to a self-hosted Forgejo on owned hardware or at an EU-controlled provider | The registry moves with the forge; tag immutability unknown | Open: a candidate only once a move is planned |
 | An in-cluster registry | A rebuilt cluster cannot pull its renders | [Record 9](0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md) rejects it |
 | The registry on the control-plane node, or beside Vault | One machine loss takes the cluster and its recovery path | Evaluation section 8 |
 | Move images and fragments too, now | Every Project's CI changes before a forge move is planned | The classic token and the tag defects are Delivery's; images are not |
@@ -101,7 +112,8 @@ forge move decides where they go.
 - Forbidden: renders or host tags in the cluster or on the control-plane
   node; a push credential that can update or delete a tag, or reach beyond
   the render and host repositories; a tag creation that reads Vault; a
-  product chosen before it passes the spike.
+  product chosen before it passes the spike; a registry or its storage at a
+  provider that is neither EU-controlled nor owned.
 
 ## Confirmation
 
@@ -112,5 +124,7 @@ credential can push. The **Registry placement check** fails when the
 registry's address resolves to a cluster node. A scenario of the **E2E
 scenarios** rebuilds the test cluster and asserts it pulls every live render
 from the registry alone ([record 69](0069-the-deploy-path-is-tested-end-to-end.md)).
-The **Token grant check** and **Token rotation alert** hold until the classic
-token is retired.
+The **Provider register lint** fails when the registry or its storage is at a
+provider that is neither EU-controlled nor owned, or when ghcr still holds
+renders and host tags once M5 is closed. The **Token grant check** and
+**Token rotation alert** hold until the classic token is retired.
