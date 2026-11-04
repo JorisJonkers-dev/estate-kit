@@ -88,7 +88,7 @@ forward. [Record 81](0081-migrations-reach-tenant-databases-in-waves.md) holds
 the detail. Canary Tenants stay only as a targeting group for feature flags
 inside Applications. Deploy canaries stay weight-based through Flagger.
 
-**The other stores are unchanged from record 78:**
+**The other stores are unchanged from [record 78](0078-a-multi-tenant-project-keeps-one-tenant-database-per-tenant.md):**
 
 | Store | One per | The Tenant is kept apart by |
 | --- | --- | --- |
