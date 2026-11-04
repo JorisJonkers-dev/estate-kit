@@ -185,9 +185,9 @@ _Avoid_: schema version, API version
 A rendered object the dry-run cannot check because its kind, or the namespace it needs, does not exist in the cluster yet. Such objects are published in a first stage before the objects that depend on them.
 _Avoid_: unknown kind, skipped object
 
-**Durability class**:
-A group of stored data with one stated recovery time and recovery point, such as the datastore, the registry, Tenant databases or the event log.
-_Avoid_: tier, backup level
+**Recovery class**:
+A group of stored data with one stated recovery time and recovery point, such as the datastore, the registry, Tenant databases or the event log. Not deploy-kit's Durability Class, which says what a volume's data is worth.
+_Avoid_: durability class, tier, backup level
 
 ## Diagnostics and traceability
 
