@@ -5,22 +5,28 @@
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="bin" parent="1" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="bins/estate-kit-delivery" vertex="1">
-          <mxGeometry height="68" width="222" x="771" y="12" as="geometry" />
+          <mxGeometry height="68" width="222" x="1014" y="12" as="geometry" />
         </mxCell>
         <mxCell id="api" parent="1" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="http-api: axum, SSE, problem+json" vertex="1">
           <mxGeometry height="78" width="240" x="12" y="290" as="geometry" />
         </mxCell>
         <mxCell id="app" parent="1" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="delivery-app: use cases, ports, fakes" vertex="1">
-          <mxGeometry height="78" width="240" x="762" y="578" as="geometry" />
+          <mxGeometry height="78" width="240" x="1005" y="578" as="geometry" />
         </mxCell>
         <mxCell id="rollout" parent="1" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="rollout: the decider" vertex="1">
-          <mxGeometry height="68" width="192" x="575" y="746" as="geometry" />
+          <mxGeometry height="68" width="192" x="973" y="1250" as="geometry" />
         </mxCell>
-        <mxCell id="gate" parent="1" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="release-gate" vertex="1">
-          <mxGeometry height="68" width="150" x="807" y="746" as="geometry" />
+        <mxCell id="observe" parent="1" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="observe: the Flux observation fold" vertex="1">
+          <mxGeometry height="78" width="240" x="981" y="914" as="geometry" />
+        </mxCell>
+        <mxCell id="analysis" parent="1" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="analysis: the verdict function" vertex="1">
+          <mxGeometry height="78" width="240" x="1186" y="1082" as="geometry" />
+        </mxCell>
+        <mxCell id="gate" parent="1" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="release-gate: verdicts into Flagger's answers" vertex="1">
+          <mxGeometry height="78" width="289" x="1160" y="746" as="geometry" />
         </mxCell>
         <mxCell id="compiler" parent="1" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="compiler (use cases)" vertex="1">
-          <mxGeometry height="68" width="192" x="916" y="904" as="geometry" />
+          <mxGeometry height="68" width="192" x="1408" y="914" as="geometry" />
         </mxCell>
         <mxCell id="oidc" parent="1" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="adapter-github-oidc" vertex="1">
           <mxGeometry height="68" width="184" x="292" y="295" as="geometry" />
@@ -34,164 +40,234 @@
         <mxCell id="kube" parent="1" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="adapter-kube: kube-rs" vertex="1">
           <mxGeometry height="68" width="199" x="1025" y="295" as="geometry" />
         </mxCell>
+        <mxCell id="fluxwatch" parent="1" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="adapter-flux-watch: read-only watches, Receiver" vertex="1">
+          <mxGeometry height="78" width="312" x="1264" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="metrics" parent="1" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="adapter-metrics: Prometheus samples" vertex="1">
+          <mxGeometry height="78" width="249" x="1616" y="290" as="geometry" />
+        </mxCell>
         <mxCell id="github" parent="1" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="adapter-github: the App" vertex="1">
-          <mxGeometry height="68" width="214" x="1264" y="295" as="geometry" />
+          <mxGeometry height="68" width="214" x="1905" y="295" as="geometry" />
         </mxCell>
         <mxCell id="pg" parent="1" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="adapter-postgres: sqlx" vertex="1">
-          <mxGeometry height="68" width="207" x="1518" y="295" as="geometry" />
+          <mxGeometry height="68" width="207" x="2159" y="295" as="geometry" />
         </mxCell>
-        <mxCell id="e1" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.1261;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="api" value="">
+        <mxCell id="e1" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.0991;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="api" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="799" y="96" />
+              <mxPoint x="1036" y="96" />
               <mxPoint x="356" y="96" />
               <mxPoint x="356" y="216" />
               <mxPoint x="132" y="216" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e2" edge="1" parent="1" source="api" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.5;exitY=1;entryX=0.125;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="app" value="">
+        <mxCell id="e2" edge="1" parent="1" source="api" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.5;exitY=1;entryX=0.1;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="app" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="132" y="384" />
               <mxPoint x="315" y="384" />
-              <mxPoint x="315" y="524" />
-              <mxPoint x="792" y="524" />
+              <mxPoint x="315" y="534" />
+              <mxPoint x="1029" y="534" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e3" edge="1" parent="1" source="app" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.25;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="rollout" value="">
+        <mxCell id="e3" edge="1" parent="1" source="app" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.2;exitY=1;entryX=0.3333;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="rollout" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="822" y="672" />
-              <mxPoint x="671" y="672" />
+              <mxPoint x="1053" y="672" />
+              <mxPoint x="970" y="672" />
+              <mxPoint x="970" y="1176" />
+              <mxPoint x="1037" y="1176" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e4" edge="1" parent="1" source="app" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="gate" value="">
+        <mxCell id="e4" edge="1" parent="1" source="app" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.4;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="observe" value="drives">
           <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
             <Array as="points">
-              <mxPoint x="882" y="701" />
+              <mxPoint x="1101" y="785" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e5" edge="1" parent="1" source="app" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.75;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="compiler" value="links">
+        <mxCell id="e5" edge="1" parent="1" source="observe" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.5;exitY=1;entryX=0.6667;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="rollout" value="appends events">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint y="35" as="offset" />
+            <mxPoint as="offset" />
             <Array as="points">
-              <mxPoint x="942" y="672" />
-              <mxPoint x="1012" y="672" />
+              <mxPoint x="1101" y="1121" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e6" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.2523;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="oidc" value="wires">
+        <mxCell id="e6" edge="1" parent="1" source="gate" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.5017;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="analysis" value="reads verdicts">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-140" y="79" as="offset" />
+            <mxPoint y="-0.5" as="offset" />
             <Array as="points">
-              <mxPoint x="827" y="106" />
+              <mxPoint x="1305" y="1008" />
+              <mxPoint x="1306" y="1008" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="app" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.6;exitY=1;entryX=0.5017;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="gate" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1149" y="682" />
+              <mxPoint x="1305" y="682" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="app" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.8;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="compiler" value="links">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="40.5" y="113" as="offset" />
+            <Array as="points">
+              <mxPoint x="1197" y="672" />
+              <mxPoint x="1504" y="672" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.1982;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="oidc" value="wires">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-255.5" y="79" as="offset" />
+            <Array as="points">
+              <mxPoint x="1058" y="106" />
               <mxPoint x="384" y="106" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e7" edge="1" parent="1" source="oidc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.5;exitY=1;entryX=0.25;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="app" value="implements a port of">
+        <mxCell id="e10" edge="1" parent="1" source="oidc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.5;exitY=1;entryX=0.2;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="app" value="implements a port of">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-175.5" y="-41" as="offset" />
+            <mxPoint x="-281" y="-51" as="offset" />
             <Array as="points">
-              <mxPoint x="384" y="514" />
-              <mxPoint x="822" y="514" />
+              <mxPoint x="384" y="524" />
+              <mxPoint x="1053" y="524" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e8" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.3739;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="ghcr" value="wires">
+        <mxCell id="e11" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.3018;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="ghcr" value="wires">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-42" y="69" as="offset" />
+            <mxPoint x="-155.5" y="69" as="offset" />
             <Array as="points">
-              <mxPoint x="854" y="116" />
+              <mxPoint x="1081" y="116" />
               <mxPoint x="627" y="116" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e9" edge="1" parent="1" source="ghcr" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.5;exitY=1;entryX=0.375;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="app" value="implements a port of">
+        <mxCell id="e12" edge="1" parent="1" source="ghcr" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.5;exitY=1;entryX=0.3;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="app" value="implements a port of">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-79" y="-31" as="offset" />
+            <mxPoint x="-181.5" y="-41" as="offset" />
             <Array as="points">
-              <mxPoint x="627" y="504" />
-              <mxPoint x="852" y="504" />
+              <mxPoint x="627" y="514" />
+              <mxPoint x="1077" y="514" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e10" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.5;exitY=1;entryX=0.5024;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="vault" value="wires">
+        <mxCell id="e13" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.4009;exitY=1;entryX=0.5024;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="vault" value="wires">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-49" y="59" as="offset" />
+            <Array as="points">
+              <mxPoint x="1103" y="126" />
+              <mxPoint x="882" y="126" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e14" edge="1" parent="1" source="vault" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.5024;exitY=1;entryX=0.4;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="app" value="implements a port of">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-76" y="-31" as="offset" />
+            <Array as="points">
+              <mxPoint x="882" y="504" />
+              <mxPoint x="1101" y="504" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e15" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.5;exitY=1;entryX=0.5025;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="kube" value="wires">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-2.5" as="offset" />
             <Array as="points">
-              <mxPoint x="882" y="187.5" />
+              <mxPoint x="1125" y="187.5" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e11" edge="1" parent="1" source="vault" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.5024;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="app" value="implements a port of">
+        <mxCell id="e16" edge="1" parent="1" source="kube" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.5025;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="app" value="implements a port of">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="2.5" as="offset" />
             <Array as="points">
-              <mxPoint x="882" y="470.5" />
+              <mxPoint x="1125" y="470.5" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e12" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.6261;exitY=1;entryX=0.5025;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="kube" value="wires">
+        <mxCell id="e17" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.5991;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="fluxwatch" value="wires">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="36" y="69" as="offset" />
+            <mxPoint x="77.5" y="59" as="offset" />
             <Array as="points">
-              <mxPoint x="910" y="116" />
-              <mxPoint x="1125" y="116" />
+              <mxPoint x="1147" y="126" />
+              <mxPoint x="1420" y="126" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e13" edge="1" parent="1" source="kube" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.5025;exitY=1;entryX=0.625;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="app" value="implements a port of">
+        <mxCell id="e18" edge="1" parent="1" source="fluxwatch" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.5;exitY=1;entryX=0.6;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="app" value="implements a port of">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="73" y="-31" as="offset" />
+            <mxPoint x="104.5" y="-31" as="offset" />
             <Array as="points">
-              <mxPoint x="1125" y="504" />
-              <mxPoint x="912" y="504" />
+              <mxPoint x="1420" y="504" />
+              <mxPoint x="1149" y="504" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e14" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.7523;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="github" value="wires">
+        <mxCell id="e19" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.6982;exitY=1;entryX=0.502;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="metrics" value="wires">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="135" y="79" as="offset" />
+            <mxPoint x="217" y="69" as="offset" />
             <Array as="points">
-              <mxPoint x="938" y="106" />
-              <mxPoint x="1371" y="106" />
+              <mxPoint x="1169" y="116" />
+              <mxPoint x="1741" y="116" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e15" edge="1" parent="1" source="github" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.5;exitY=1;entryX=0.75;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="app" value="implements a port of">
+        <mxCell id="e20" edge="1" parent="1" source="metrics" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.502;exitY=1;entryX=0.7;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="app" value="implements a port of">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="171" y="-41" as="offset" />
+            <mxPoint x="243" y="-41" as="offset" />
             <Array as="points">
-              <mxPoint x="1371" y="514" />
-              <mxPoint x="942" y="514" />
+              <mxPoint x="1741" y="514" />
+              <mxPoint x="1173" y="514" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e16" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.8739;exitY=1;entryX=0.5024;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="pg" value="wires">
+        <mxCell id="e21" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.8018;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="github" value="wires">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="237" y="89" as="offset" />
+            <mxPoint x="328.5" y="79" as="offset" />
             <Array as="points">
-              <mxPoint x="965" y="96" />
-              <mxPoint x="1622" y="96" />
+              <mxPoint x="1192" y="106" />
+              <mxPoint x="2012" y="106" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e17" edge="1" parent="1" source="pg" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.5024;exitY=1;entryX=0.875;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="app" value="implements a port of">
+        <mxCell id="e22" edge="1" parent="1" source="github" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.5;exitY=1;entryX=0.8;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="app" value="implements a port of">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="271.5" y="-51" as="offset" />
+            <mxPoint x="354" y="-51" as="offset" />
             <Array as="points">
-              <mxPoint x="1622" y="524" />
-              <mxPoint x="972" y="524" />
+              <mxPoint x="2012" y="524" />
+              <mxPoint x="1197" y="524" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e23" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.9009;exitY=1;entryX=0.5024;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="pg" value="wires">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="433" y="89" as="offset" />
+            <Array as="points">
+              <mxPoint x="1214" y="96" />
+              <mxPoint x="2263" y="96" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e24" edge="1" parent="1" source="pg" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.5024;exitY=1;entryX=0.9;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="app" value="implements a port of">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="457.5" y="-61" as="offset" />
+            <Array as="points">
+              <mxPoint x="2263" y="534" />
+              <mxPoint x="1221" y="534" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="header" value="Rust: Delivery's crates and what each depends on" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=light-dark(#1a1a1a,#e8e8e8);fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="12" y="-52" width="1713" height="36" as="geometry" />
+          <mxGeometry x="12" y="-52" width="2354" height="36" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
