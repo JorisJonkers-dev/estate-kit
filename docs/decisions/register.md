@@ -35,8 +35,8 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 27 | A diagnostic names a model path, and the caller resolves the line | Merged into 71 |
 | 28 | [Pause and Rollback are a cluster object per Project; a missing object reads as Paused](0028-pause-and-rollback-are-a-cluster-object-per-project.md) | Proposed |
 | 29 | The compiler renders host data; hand-written modules consume it | Merged into 31 |
-| 30 | [A host applier on each node pulls its signed host tag, and decides a reboot before the Lease](0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md) | Proposed |
-| 31 | [Host data is rendered by the compiler for hand-written modules, and host closures are built in CI and cached outside the cluster](0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md) | Proposed |
+| 30 | [A host applier on each node pulls its signed host tag, decides a reboot before the Lease, and switches on its own only where its Node class's fallback is rehearsed](0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md) | Proposed |
+| 31 | [Host data is rendered by the compiler for hand-written modules, and host closures are built on owned hardware into a signed static cache outside the cluster](0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md) | Proposed |
 | 32 | Node order is derived from the change and the version skew rule | Merged into 30 |
 | 33 | [A Mailbox is declared by its local part and owned by one Project](0033-a-mailbox-is-declared-by-its-local-part-and-owned-by-one-project.md) | Accepted |
 | 34 | [Every part of estate-kit, the components included, lives in this repository at one version](0034-every-part-of-estate-kit-lives-in-this-repository-at-one-version.md) | Accepted |
@@ -114,8 +114,8 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 106 | [The control plane is restored in a dependency order that is tested, drilled and timed](0106-the-control-plane-is-restored-in-a-dependency-order-that-is-tested-drilled-and-timed.md) | Proposed |
 | 107 | [Network policy moves from render-only, through a staged or audited window, to enforcement](0107-network-policy-moves-from-render-only-through-a-staged-or-audited-window-to-enforcement.md) | Proposed |
 | 108 | [Active checks run in the owning components, Observation reads their results, and one heartbeat lives outside the cluster](0108-active-checks-run-in-the-owning-components-observation-reads-their-results-and-one-heartbeat-lives-outside-the-cluster.md) | Proposed |
-| 109 | A feasibility test decides whether one database per Tenant stands, and rendered objects do not grow with the Tenant count | Proposed |
-| 110 | A Purge erases Backup generations and Mirrors at the end of their retention, from an inventory of every copy | Proposed |
+| 109 | [A feasibility test decides whether one database per Tenant stands, and rendered objects do not grow with the Tenant count](0109-a-feasibility-test-decides-whether-one-database-per-tenant-stands.md) | Proposed |
+| 110 | [A Purge erases Backup generations and Mirrors at the end of their retention, from an inventory of every copy](0110-a-purge-erases-backup-generations-and-mirrors-from-an-inventory-of-every-copy.md) | Proposed |
 | 111 | [Decision status and Enforcement status are separate, and each check names the mistake it catches](0111-decision-status-and-enforcement-status-are-separate.md) | Proposed |
 | 112 | [The write boundary is stated once, in one table of every writer](0112-the-write-boundary-is-stated-once.md) | Proposed |
 | 113 | [Every UI action is a CLI command with the same identifier](0113-every-ui-action-is-a-cli-command-with-the-same-identifier.md) | Proposed |
