@@ -13,7 +13,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 5 | [Derivation is total](0005-derivation-is-total.md) | Accepted |
 | 6 | [Every render is a function of pinned inputs](0006-every-render-is-a-function-of-pinned-inputs.md) | Accepted |
 | 7 | [A Project's state lives with the Project](0007-a-project-s-state-lives-with-the-project.md) | Accepted |
-| 8 | [A Project's CI proves itself with a pinned-workflow OIDC token, and Delivery deploys only images its own build registered](0008-an-image-digest-is-sealed-into-the-fragment-and-registered-by-its-build.md) | Proposed |
+| 8 | [A Project's CI proves itself with a pinned-workflow OIDC token from an admitted issuer, and Delivery deploys only images its own build registered](0008-an-image-digest-is-sealed-into-the-fragment-and-registered-by-its-build.md) | Proposed |
 | 9 | [The live render is a signed registry tag per Project and environment](0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md) | Accepted |
 | 10 | [Platform Intent admits the Projects, and it is pushed like any Project; Delivery's copies are a cache](0010-platform-intent-admits-the-projects-and-is-pushed-like-any-project.md) | Accepted |
 | 11 | Platform Intent is pushed like any Project; Delivery's copies are a cache | Merged into 10 |
@@ -103,9 +103,9 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 95 | [A Project renders as a chain of Flux Kustomizations, one per Apply group](0095-a-project-renders-as-a-chain-of-flux-kustomizations-one-per-apply-group.md) | Proposed |
 | 96 | [A deploy is an Operation that ends Serving, Held, Refused, Superseded or Observation lost](0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md) | Proposed |
 | 97 | [The Publication point is named and tested, and a render that introduces a kind is published in two stages](0097-the-publication-point-is-named-and-tested-and-a-render-that-introduces-a-kind-is-published-in-two-stages.md) | Proposed |
-| 98 | The live pointer is an immutable Sequence tag that Flux selects by version | Proposed |
-| 99 | Renders and host tags live in an off-cluster registry chosen by its features | Proposed |
-| 100 | Each render carries a provenance statement that binds its Project, Environment, sequence and pinned inputs | Proposed |
+| 98 | [The live pointer is an immutable Sequence tag that Flux selects by version](0098-the-live-pointer-is-an-immutable-sequence-tag-that-flux-selects-by-version.md) | Proposed |
+| 99 | [Renders and host tags live in an off-cluster registry chosen by its features](0099-renders-and-host-tags-live-in-an-off-cluster-registry-chosen-by-its-features.md) | Proposed |
+| 100 | [Each render carries a provenance statement that binds its Project, Environment, sequence and pinned inputs](0100-each-render-carries-a-provenance-statement-that-binds-its-project-environment-sequence-and-pinned-inputs.md) | Proposed |
 | 101 | [A Rollout rolls forward when rolling back would run a migration backwards](0101-a-rollout-rolls-forward-when-rolling-back-would-run-a-migration-backwards.md) | Proposed |
 | 102 | [Analysis is a pure verdict function, and an inconclusive verdict holds](0102-analysis-is-a-pure-verdict-function-and-an-inconclusive-verdict-holds.md) | Proposed |
 | 103 | A release reads every persisted format within its retention, and the previous release reads the new writes | Proposed |

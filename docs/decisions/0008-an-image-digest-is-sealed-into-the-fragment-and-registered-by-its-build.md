@@ -1,11 +1,11 @@
 ---
 status: proposed  # proposed | accepted | locked
-date: 2026-10-29
-rests-on: [6, 10, 17, 25]
+date: 2026-11-04
+rests-on: [6, 10, 17, 25, 68]
 lessons: [CS-5, DR-1, DR-2, TM-4]
 ---
 
-# A Project's CI proves itself with a pinned-workflow OIDC token, and Delivery deploys only images its own build registered
+# A Project's CI proves itself with a pinned-workflow OIDC token from an admitted issuer, and Delivery deploys only images its own build registered
 
 ## Context
 
@@ -26,12 +26,36 @@ Delivery can restart under it (Recreate,
 Whether a waiting job can request a fresh GitHub token is not known: spike #11
 settles it.
 
+GitHub is load-bearing in five places (OIDC identity, Deployments, check runs,
+workflow dispatch and release-please), none behind a port. The five are not
+equal: CI identity is a security boundary, the status shown on the forge is
+cosmetic, and finding a release is cheap (the architecture evaluation of
+2026-11-04, sections 3.21 and 5). Self-hosted forges are a normal shape ("The
+penumbra of open source", 2022; "Federated software forges with Forgejo",
+2025). The maintainer intends to depend less on GitHub: likely Tangled once it
+has private repositories, or a self-hosted Forgejo behind a VPN with sign-in
+at Traefik.
+
 ## Decision
 
-- **CI calls with a GitHub Actions OIDC token**, audience `estate-kit`, checked
-  against one claim policy. The policy matches `repository_id` and
-  `job_workflow_sha` (the pinned estate-kit reusable workflow) and never `sub`.
-  The claims and the rule on each are listed on
+- **Delivery reaches a forge through three Forge ports.** CI identity verifies
+  a caller's OIDC token against the claim policy. Rollout projection shows each
+  Operation's state on the forge; the event log stays the authority, and a
+  failed projection never fails a Rollout. Release source reads a merged
+  revision and dispatches a run. GitHub is the first adapter of each: CI
+  identity in `adapter-oidc` (renamed from `adapter-github-oidc`), the other
+  two in `adapter-forge-github` (renamed from `adapter-github`). The design
+  pages are renamed when this record is accepted. A second adapter is written
+  only when a forge move is planned.
+- **CI calls with an OIDC token from an admitted issuer**, audience
+  `estate-kit`, checked against one claim policy. The policy is scoped by
+  issuer: each issuer Platform Intent admits has its own rules, and a token
+  is checked only against its own issuer's. Every issuer's rules must state
+  the repository's stable id, the pinned estate-kit reusable workflow's commit
+  and the event; an issuer whose tokens cannot state all three is not
+  admitted. The first issuer is GitHub Actions, where the rules match
+  `repository_id` and `job_workflow_sha` and never `sub`. The claims and the
+  rule on each are listed on
   [Identity and access](../design/identity-and-access.md#the-claim-policy).
 - **The digest travels with the fragment.** The release's deploy job seals each
   Application's image digests into the Intent Fragment it publishes; no lock
@@ -39,7 +63,7 @@ settles it.
 - **The build registers what it built.** The build job and the deploy job are
   split. After the build job pushes its images, an attest step calls an
   OIDC-authenticated route on Delivery that records each digest against the
-  Project's `repository_id` and the run, in the event log.
+  Project's repository id, its issuer and the run, in the event log.
 - **Delivery refuses the rest.** Before composing, Delivery checks that
   every digest in the fragment was registered by that Project's own build, or
   is on Platform Intent's allowlist of third-party images. Anything else is a
@@ -47,11 +71,11 @@ settles it.
 - **The rollout token exchange is deferred.** A Delivery-minted token, scoped to
   one Project and one rollout and read-only on the stream, is not built until
   spike #11 shows whether a deploy job can request a fresh GitHub OIDC token
-  while it waits. Meanwhile the deploy job re-requests a GitHub OIDC token
+  while it waits. Meanwhile the deploy job re-requests an OIDC token
   whenever it needs one and presents it to the stream; the claim policy checks
   it as on any call.
 - **A waiting deploy job keeps authenticating across a Delivery upgrade.** Delivery's Deployment is `Recreate`, so the stream drops while the pod is
-  replaced. The job re-requests a GitHub OIDC token, reconnects, and resumes the
+  replaced. The job re-requests an OIDC token, reconnects, and resumes the
   stream by sequence ([record 23](0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md)).
   No token state lives in Delivery, so nothing is lost by the restart.
 - **People sign in through identity**; group claims map to viewer, operator or
@@ -71,26 +95,38 @@ settles it.
 | Claim policy only | Any admitted Project's CI can seal any digest | The provenance gap D8 named |
 | Keep the estate's images lock | A central list outside the Projects | Each Project's state lives with the Project ([record 7](register.md)) |
 | A digest in the Project file, or a lock block in it | Authors edit what a build should fix, and nothing proves the build made it | The digest is sealed into the fragment and registered by its build |
+| GitHub wired into Delivery with no port | A forge move rewrites Delivery's core | The maintainer intends to move; the ports cost little now |
+| One broad Forge port | A security boundary and a cosmetic status share one contract, and a second forge must implement all of it | The three differ in risk and in how a second forge meets them |
+| One claim policy for every issuer | A token from one issuer can pass on another's rules | Claims mean different things per issuer |
+| A second adapter now (Forgejo), or ForgeFed | Code and fixtures for a forge not yet chosen | Written when a move is planned |
 
 ## Consequences
 
 - Easier: no Project holds a credential for Delivery; what runs can be
   traced to the build that produced it, and the event log is the record; a
-  Delivery upgrade needs no token handover.
-- Harder: the claim policy is a contract with GitHub's token format, settled by
-  spike #11 (open claim: a job can request a fresh token while it waits; owner:
-  the maintainer; the exchange is built only if the spike says it cannot);
-  every Project's workflow has a separate build and attest step.
+  Delivery upgrade needs no token handover; a forge move adds adapters and an
+  issuer, and leaves Delivery's core alone.
+- Harder: the claim policy is a contract with each issuer's token format,
+  settled for GitHub by spike #11 (open claim: a job can request a fresh token
+  while it waits; owner: the maintainer; the exchange is built only if the
+  spike says it cannot); a forge whose CI cannot issue such a token cannot
+  deploy; every Project's workflow has a separate build and attest step.
 - Forbidden: authorising by `sub`; a deploy from a pull request; a render
-  naming a digest that is neither registered by its Project nor allowlisted.
+  naming a digest that is neither registered by its Project nor allowlisted;
+  a token checked against another issuer's rules; a forge name in Delivery's
+  domain or application crates.
 
 ## Confirmation
 
 The **Claim-policy fixtures** hold a pass and a fail token fixture for every
-rule; the suite fails if a rule has no failing fixture. The **Digest
-registration test** composes a fragment with an unregistered digest and asserts
-the refusal and its location. The **E2E scenarios** register, deploy, and then
-try the same digest from another Project; the "Delivery upgraded mid-rollout"
-scenario replaces Delivery pod while a deploy
-job waits and asserts the job re-authenticates and resumes by sequence
+rule of every admitted issuer, including a token from one issuer presented
+under another's rules; the suite fails if a rule has no failing fixture. The
+**Digest registration test** composes a fragment with an unregistered digest
+and asserts the refusal and its location. The **Port contract script** fails
+if a Forge port lacks its fake or its contract suite, and
+**`cargo xtask check-layers`** fails if Delivery's domain or application
+crates depend on a forge adapter. The **E2E scenarios** register, deploy, and
+then try the same digest from another Project; the "Delivery upgraded
+mid-rollout" scenario replaces Delivery pod while a deploy job waits and
+asserts the job re-authenticates and resumes by sequence
 ([record 69](0069-the-deploy-path-is-tested-end-to-end.md)).
