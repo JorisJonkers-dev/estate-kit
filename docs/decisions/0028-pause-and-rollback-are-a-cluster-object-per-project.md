@@ -1,6 +1,6 @@
 ---
-status: proposed  # proposed | accepted | locked
-date: 2026-10-29
+status: accepted  # proposed | accepted | locked
+date: 2026-11-04
 rests-on: [7, 9, 17, 25, 63]
 lessons: [DO-1]
 ---
@@ -35,7 +35,8 @@ A Rollback uses that object and nothing else that may be down. It takes the
 writer Lease ([record 63](0063-delivery-has-one-writer-and-reconciles-from-observed-state.md)
 states the window), finds the Project's last Serving render from the registry,
 not from Postgres or the event log, and dry-runs it against today's cluster.
-It then moves `render/<project>:prod` back to that render by read, verify,
+It then moves the Project's [Environment tag](../../CONTEXT.md) (`render/<project>:<env>`)
+back to that render by read, verify,
 write (the tag is re-read after the write; a different value is a lost race)
 and sets the Project's `ProjectControl` to Paused. It signs nothing and
 composes nothing, and it reads no secret from Vault: the ghcr token is a
@@ -71,5 +72,6 @@ retained exactly as long as their renders. A break-glass runbook covers Delivery
 
 The **Pause refusal test** deletes the object and asserts the next deploy is
 refused as Paused; the **ProjectControl admission fixtures** refuse a write from
-any other identity. A scenario of the **E2E scenarios** seals Vault and rolls a Project back to Serving
+any other identity. A scenario of the **E2E scenarios** seals Vault and rolls a Project back to Serving, and another
+stops platform-postgres and does the same
 ([record 69](0069-the-deploy-path-is-tested-end-to-end.md)).
