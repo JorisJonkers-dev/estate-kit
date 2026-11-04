@@ -13,7 +13,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 5 | [Derivation is total](0005-derivation-is-total.md) | Accepted |
 | 6 | [Every render is a function of pinned inputs](0006-every-render-is-a-function-of-pinned-inputs.md) | Accepted |
 | 7 | [A Project's state lives with the Project](0007-a-project-s-state-lives-with-the-project.md) | Accepted |
-| 8 | [A Project's CI proves itself with a pinned-workflow OIDC token from an admitted issuer, and Delivery deploys only images its own build registered](0008-an-image-digest-is-sealed-into-the-fragment-and-registered-by-its-build.md) | Proposed |
+| 8 | [A Project's CI proves itself with a pinned-workflow OIDC token from an admitted issuer, and Delivery deploys only images its own build registered](0008-an-image-digest-is-sealed-into-the-fragment-and-registered-by-its-build.md) | Accepted |
 | 9 | [The live render is a signed registry tag per Project and environment](0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md) | Accepted |
 | 10 | [Platform Intent admits the Projects, and it is pushed like any Project; Delivery's copies are a cache](0010-platform-intent-admits-the-projects-and-is-pushed-like-any-project.md) | Accepted |
 | 11 | Platform Intent is pushed like any Project; Delivery's copies are a cache | Merged into 10 |
@@ -26,7 +26,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 18 | [Delivery links the compiler's crates; the CLI's JSON output is for CI only](0018-delivery-links-the-compiler.md) | Accepted |
 | 19 | One composition runs at a time | Merged into 63 |
 | 20 | [No render cache: an unchanged render is not published again](0020-no-render-cache-an-unchanged-render-is-not-published-again.md) | Proposed |
-| 21 | [Signing keys: renders and host tags by separate Transit keys, closures by an environment-scoped key, and an offline recovery key](0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md) | Proposed |
+| 21 | [Signing keys: renders and host tags by separate Transit keys, closures by an environment-scoped key, and an offline recovery key](0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md) | Accepted |
 | 22 | Every caller authenticates with an OIDC token checked against a claim policy | Merged into 8 |
 | 23 | [A rollout is an append-only event log on the shared Postgres](0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md) | Accepted |
 | 24 | A rollout is an append-only event log on the shared Postgres | Merged into 23 |
@@ -36,7 +36,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 28 | [Pause and Rollback are a cluster object per Project; a missing object reads as Paused](0028-pause-and-rollback-are-a-cluster-object-per-project.md) | Accepted |
 | 29 | The compiler renders host data; hand-written modules consume it | Merged into 31 |
 | 30 | [A host applier on each node pulls its signed host tag, decides a reboot before the Lease, and switches on its own only where its Node class's fallback is rehearsed](0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md) | Proposed |
-| 31 | [Host data is rendered by the compiler for hand-written modules, and host closures are built on owned hardware into a signed static cache outside the cluster](0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md) | Proposed |
+| 31 | [Host data is rendered by the compiler for hand-written modules, and host closures are built on owned hardware into a signed static cache outside the cluster](0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md) | Accepted |
 | 32 | Node order is derived from the change and the version skew rule | Merged into 30 |
 | 33 | [A Mailbox is declared by its local part and owned by one Project](0033-a-mailbox-is-declared-by-its-local-part-and-owned-by-one-project.md) | Accepted |
 | 34 | [Every part of estate-kit, the components included, lives in this repository at one version](0034-every-part-of-estate-kit-lives-in-this-repository-at-one-version.md) | Accepted |
@@ -64,7 +64,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 56 | Agent files are short, and what must always hold is a check | Moved to [conventions](../design/conventions.md#agent-files) |
 | 57 | Configuration is flags, then environment, then file; secrets only by reference | Moved to [conventions](../design/conventions.md#configuration) |
 | 58 | [Flux is locked down per Project, and Delivery dry-runs as an identity that cannot write](0058-flux-is-locked-down-per-project-and-delivery-dry-runs-as-an-identity-that-cannot-write.md) | Accepted |
-| 59 | [Vault unseal and the API server's datastore backup are decided in fleet-infra; estate-kit assumes them](0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md) | Proposed |
+| 59 | [Vault unseal and the API server's datastore backup are decided in fleet-infra; estate-kit assumes them](0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md) | Accepted |
 | 60 | The API server's datastore is backed up off the provider, and its restore is drilled | Merged into 59 |
 | 61 | A rollback moves the tag back to the last Serving render without composing | Merged into 28 |
 | 62 | ghcr tags move with a machine account's token kept in Vault | Merged into 9 |
@@ -78,7 +78,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 70 | Shared Rust code moves to rust-commons on its third consumer; the sign-in kit is the first | Moved to [conventions](../design/conventions.md#shared-rust-code) |
 | 71 | [A diagnostic is a coded problem with typed, plural locations, and the caller resolves the lines](0071-a-diagnostic-is-a-coded-problem-with-typed-locations.md) | Accepted |
 | 72 | [Per-field provenance and `estate-kit explain` are deferred until a scenario needs them](0072-per-field-provenance-and-explain-are-deferred.md) | Proposed |
-| 73 | [The composition queue is a row in a Postgres job table on the shared platform-postgres](0073-the-composition-queue-is-a-row-in-a-postgres-job-table.md) | Proposed |
+| 73 | [The composition queue is a row in a Postgres job table on the shared platform-postgres](0073-the-composition-queue-is-a-row-in-a-postgres-job-table.md) | Accepted |
 | 74 | [The Release Gate and Observation each have named writes, with their own credentials](0074-the-release-gate-and-observation-each-have-a-named-write.md) | Accepted |
 | 75 | [Three environments run in the one cluster, with a signed tag and a namespace per Project per environment, and promotion from `main` to development, then release to staging and production](0075-three-environments-run-in-the-one-cluster.md) | Accepted |
 | 76 | [Tenants are the organisations the estate serves, one per environment](0076-tenants-are-the-organisations-the-estate-serves.md) | Accepted |
@@ -90,35 +90,35 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 82 | [Each Tenant is backed up as a Backup generation on its own schedule, and Mirrors refresh staging and development Tenants](0082-backups-are-per-tenant-generations-and-mirrors-refresh-staging-and-development.md) | Accepted |
 | 83 | [Secrets are scoped by environment in their Vault path, and Tenant secrets live beneath their Project](0083-secrets-are-scoped-by-environment-and-tenant-secrets-live-beneath-their-project.md) | Accepted |
 | 84 | [A Tenant sends mail as its product domain until it verifies its own domain](0084-a-tenant-sends-mail-as-its-product-domain-until-it-verifies-its-own.md) | Accepted |
-| 85 | [General purpose means no estate fact in the core, the profiles or the compiler's code](0085-general-purpose-means-no-estate-fact-in-the-core-the-profiles-or-the-compiler-s-code.md) | Proposed |
-| 86 | [The estate states its defaults for a low-attention week, and every default fails safe](0086-the-estate-states-its-defaults-for-a-low-attention-week.md) | Proposed |
-| 87 | [Recovery time and recovery point are stated per Recovery class before the drill, and the drill measures them](0087-recovery-time-and-recovery-point-are-stated-per-recovery-class.md) | Proposed |
-| 88 | [The metamodel is layered: core, profiles and Component kinds, Provider facts, Estate instance](0088-the-metamodel-is-layered-core-profiles-and-component-kinds-provider-facts-estate-instance.md) | Proposed |
+| 85 | [General purpose means no estate fact in the core, the profiles or the compiler's code](0085-general-purpose-means-no-estate-fact-in-the-core-the-profiles-or-the-compiler-s-code.md) | Accepted |
+| 86 | [The estate states its defaults for a low-attention week, and every default fails safe](0086-the-estate-states-its-defaults-for-a-low-attention-week.md) | Accepted |
+| 87 | [Recovery time and recovery point are stated per Recovery class before the drill, and the drill measures them](0087-recovery-time-and-recovery-point-are-stated-per-recovery-class.md) | Accepted |
+| 88 | [The metamodel is layered: core, profiles and Component kinds, Provider facts, Estate instance](0088-the-metamodel-is-layered-core-profiles-and-component-kinds-provider-facts-estate-instance.md) | Accepted |
 | 89 | [Every persisted or externally read contract has its own identifier, Contract major and supported range](0089-every-persisted-or-externally-read-contract-has-its-own-identifier-contract-major-and-supported-range.md) | Proposed |
-| 90 | [Three Generality tests run in CI](0090-three-generality-tests-run-in-ci.md) | Proposed |
+| 90 | [Three Generality tests run in CI](0090-three-generality-tests-run-in-ci.md) | Accepted |
 | 91 | [Platform Intent is split by concern, and each document validates alone](0091-platform-intent-is-split-by-concern-and-each-document-validates-alone.md) | Proposed |
-| 92 | [Capacity is in the Resolved Deployment; cost is estimated outside the Render key and recorded from bills](0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md) | Proposed |
-| 93 | [The rollout plan is compiled, with checks bound to cohorts, a failsafe and a Held deadline](0093-the-rollout-plan-is-compiled-with-checks-bound-to-cohorts-a-failsafe-and-a-held-deadline.md) | Proposed |
-| 94 | [Flux stays the one applier, observed closely, and an estate-kit Applier waits for a review trigger](0094-flux-stays-the-one-applier-observed-closely-and-an-estate-kit-applier-waits-for-a-review-trigger.md) | Proposed |
-| 95 | [A Project renders as a chain of Flux Kustomizations, one per Apply group](0095-a-project-renders-as-a-chain-of-flux-kustomizations-one-per-apply-group.md) | Proposed |
-| 96 | [A deploy is an Operation that ends Serving, Held, Refused, Superseded or Observation lost](0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md) | Proposed |
-| 97 | [The Publication point is named and tested, and a render that introduces a kind is published in two stages](0097-the-publication-point-is-named-and-tested-and-a-render-that-introduces-a-kind-is-published-in-two-stages.md) | Proposed |
+| 92 | [Capacity is in the Resolved Deployment; cost is estimated outside the Render key and recorded from bills](0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md) | Accepted |
+| 93 | [The rollout plan is compiled, with checks bound to cohorts, a failsafe and a Held deadline](0093-the-rollout-plan-is-compiled-with-checks-bound-to-cohorts-a-failsafe-and-a-held-deadline.md) | Accepted |
+| 94 | [Flux stays the one applier, observed closely, and an estate-kit Applier waits for a review trigger](0094-flux-stays-the-one-applier-observed-closely-and-an-estate-kit-applier-waits-for-a-review-trigger.md) | Accepted |
+| 95 | [A Project renders as a chain of Flux Kustomizations, one per Apply group](0095-a-project-renders-as-a-chain-of-flux-kustomizations-one-per-apply-group.md) | Accepted |
+| 96 | [A deploy is an Operation that ends Serving, Held, Refused, Superseded or Observation lost](0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md) | Accepted |
+| 97 | [The Publication point is named and tested, and a render that introduces a kind is published in two stages](0097-the-publication-point-is-named-and-tested-and-a-render-that-introduces-a-kind-is-published-in-two-stages.md) | Accepted |
 | 98 | [The live pointer is an immutable Sequence tag that Flux selects by version](0098-the-live-pointer-is-an-immutable-sequence-tag-that-flux-selects-by-version.md) | Proposed |
 | 99 | [Renders and host tags live in an off-cluster registry chosen by its features](0099-renders-and-host-tags-live-in-an-off-cluster-registry-chosen-by-its-features.md) | Proposed |
 | 100 | [Each render carries a provenance statement that binds its Project, Environment, sequence and pinned inputs](0100-each-render-carries-a-provenance-statement-that-binds-its-project-environment-sequence-and-pinned-inputs.md) | Proposed |
-| 101 | [A Rollout rolls forward when rolling back would run a migration backwards](0101-a-rollout-rolls-forward-when-rolling-back-would-run-a-migration-backwards.md) | Proposed |
-| 102 | [Analysis is a pure verdict function, and an inconclusive verdict holds](0102-analysis-is-a-pure-verdict-function-and-an-inconclusive-verdict-holds.md) | Proposed |
+| 101 | [A Rollout rolls forward when rolling back would run a migration backwards](0101-a-rollout-rolls-forward-when-rolling-back-would-run-a-migration-backwards.md) | Accepted |
+| 102 | [Analysis is a pure verdict function, and an inconclusive verdict holds](0102-analysis-is-a-pure-verdict-function-and-an-inconclusive-verdict-holds.md) | Accepted |
 | 103 | [A release reads every persisted format within its retention, and the previous release reads the new writes](0103-a-release-reads-every-persisted-format-within-its-retention-and-the-previous-release-reads-the-new-writes.md) | Proposed |
-| 104 | [Every reconciler estate-kit owns passes crash-point, stale-read and safety tests before it takes production responsibility](0104-every-reconciler-estate-kit-owns-passes-crash-point-stale-read-and-safety-tests-before-it-takes-production-responsibility.md) | Proposed |
-| 105 | [Removal is a Retire lifecycle with durable Retirement tombstones and declared moves, and prune-protected kinds never prune](0105-removal-is-a-retire-lifecycle-with-durable-retirement-tombstones-and-declared-moves-and-prune-protected-kinds-never-prune.md) | Proposed |
-| 106 | [The control plane is restored in a dependency order that is tested, drilled and timed](0106-the-control-plane-is-restored-in-a-dependency-order-that-is-tested-drilled-and-timed.md) | Proposed |
-| 107 | [Network policy moves from render-only, through a staged or audited window, to enforcement](0107-network-policy-moves-from-render-only-through-a-staged-or-audited-window-to-enforcement.md) | Proposed |
-| 108 | [Active checks run in the owning components, Observation reads their results, and one heartbeat lives outside the cluster](0108-active-checks-run-in-the-owning-components-observation-reads-their-results-and-one-heartbeat-lives-outside-the-cluster.md) | Proposed |
-| 109 | [A row-level security scale test at 1000 Tenants runs before the tenancy machinery, and rendered objects do not grow with the Tenant count](0109-a-row-level-security-scale-test-at-1000-tenants-runs-before-the-tenancy-machinery.md) | Proposed |
-| 110 | [A Purge deletes a Tenant's exports and empties its Mirrors at once, and states its erasure date from an inventory of every copy](0110-a-purge-erases-backup-generations-and-mirrors-from-an-inventory-of-every-copy.md) | Proposed |
-| 111 | [Decision status and Enforcement status are separate, and each check names the mistake it catches](0111-decision-status-and-enforcement-status-are-separate.md) | Proposed |
+| 104 | [Every reconciler estate-kit owns passes crash-point, stale-read and safety tests before it takes production responsibility](0104-every-reconciler-estate-kit-owns-passes-crash-point-stale-read-and-safety-tests-before-it-takes-production-responsibility.md) | Accepted |
+| 105 | [Removal is a Retire lifecycle with durable Retirement tombstones and declared moves, and prune-protected kinds never prune](0105-removal-is-a-retire-lifecycle-with-durable-retirement-tombstones-and-declared-moves-and-prune-protected-kinds-never-prune.md) | Accepted |
+| 106 | [The control plane is restored in a dependency order that is tested, drilled and timed](0106-the-control-plane-is-restored-in-a-dependency-order-that-is-tested-drilled-and-timed.md) | Accepted |
+| 107 | [Network policy moves from render-only, through a staged or audited window, to enforcement](0107-network-policy-moves-from-render-only-through-a-staged-or-audited-window-to-enforcement.md) | Accepted |
+| 108 | [Active checks run in the owning components, Observation reads their results, and one heartbeat lives outside the cluster](0108-active-checks-run-in-the-owning-components-observation-reads-their-results-and-one-heartbeat-lives-outside-the-cluster.md) | Accepted |
+| 109 | [A row-level security scale test at 1000 Tenants runs before the tenancy machinery, and rendered objects do not grow with the Tenant count](0109-a-row-level-security-scale-test-at-1000-tenants-runs-before-the-tenancy-machinery.md) | Accepted |
+| 110 | [A Purge deletes a Tenant's exports and empties its Mirrors at once, and states its erasure date from an inventory of every copy](0110-a-purge-erases-backup-generations-and-mirrors-from-an-inventory-of-every-copy.md) | Accepted |
+| 111 | [Decision status and Enforcement status are separate, and each check names the mistake it catches](0111-decision-status-and-enforcement-status-are-separate.md) | Accepted |
 | 112 | [The write boundary is stated once, in one table of every writer](0112-the-write-boundary-is-stated-once.md) | Proposed |
-| 113 | [Every UI action is a CLI command with the same identifier](0113-every-ui-action-is-a-cli-command-with-the-same-identifier.md) | Proposed |
+| 113 | [Every UI action is a CLI command with the same identifier](0113-every-ui-action-is-a-cli-command-with-the-same-identifier.md) | Accepted |
 | 114 | [Multi-tenant Projects keep their Tenants in shared tables, separated by row-level security](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md) | Accepted |
-| 115 | [Backups are Kopia snapshots in one locked repository per Environment on an EU object store, with WAL archived beside them](0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md) | Proposed |
-| 116 | [Every store of estate data runs on an EU-controlled provider or on owned hardware](0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md) | Proposed |
+| 115 | [Backups are Kopia snapshots in one locked repository per Environment on an EU object store, with WAL archived beside them](0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md) | Accepted |
+| 116 | [Every store of estate data runs on an EU-controlled provider or on owned hardware](0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md) | Accepted |
