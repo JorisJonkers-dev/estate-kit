@@ -31,7 +31,7 @@ hexagonal rings, of which three rings and three of four declared ports stayed
 empty while ledger rows enforced rules over nothing.
 
 In Rust a crate is the unit of compilation, of visibility and of a mutant's
-rebuild ([record 50](0050-five-bounded-contexts.md)).
+rebuild ([record 50](0050-six-bounded-contexts-in-five-layers.md)).
 Visibility stops at the crate edge, so a phase type cannot be sealed by a
 constructor hidden from other crates without making one step depend on
 another. The maintainer wants the lessons without the tools and without a
@@ -45,8 +45,7 @@ arrow is one crate: `step-read` (read and link), `step-check`, `step-lower`,
 adapter of the 1.0 registry, and `serialize`. Each step crate depends only on
 the model crates (`model-intent`, `model-effective`, `model-resolved`,
 `deliverable`) and the foundation; none depends on another step. The
-`compiler` application crate sequences them and is what the CLI and the
-service call. Each step is an ordinary function from one typed value to the
+`compiler` application crate sequences them and is what the CLI and Delivery call. Each step is an ordinary function from one typed value to the
 next plus diagnostics.
 
 Phase types are markers in the model crates. Constructing the next phase takes

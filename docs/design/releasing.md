@@ -1,6 +1,6 @@
 # Releasing a Project
 
-Every rollout is a GitHub Actions run in the Project's repository. The service
+Every rollout is a GitHub Actions run in the Project's repository. Delivery
 does all the work, and the deploy job streams it live, from validation to the
 last Flagger promotion.
 
@@ -8,20 +8,19 @@ last Flagger promotion.
 
 A Project has two workflows, `validate` and `deploy`. A dry-run is `deploy`
 with `dry-run: true`, identical except that nothing is signed, tagged or
-applied. Composition is the service's estate-wide step. It appears only as a
+applied. Composition is Delivery's estate-wide step. It appears only as a
 log step, "Composing the estate", and never as the name of a workflow, job or
-check. A separate dry-run workflow or a compose workflow was rejected: the
-service owns composition, so the Project's workflows need not name it.
+check. A separate dry-run workflow or a compose workflow was rejected: Delivery owns composition, so the Project's workflows need not name it.
 A dry-run records no Deployment, and a dry-run environment was rejected, so
 the production history holds real deploys only.
 
 The deploy job owns the Deployment and streams the rollout, so every rollout
-is a run with its approval gates. Deployments created by the service were
+is a run with its approval gates. Deployments created by Delivery were
 rejected.
 
 ## What a dry-run is
 
-The service composes, then sends every changed object to the live API server
+Delivery composes, then sends every changed object to the live API server
 with `dryRun=All` under Flux's field manager, as its own identity. A
 ValidatingAdmissionPolicy refuses that identity any request without `dryRun`,
 so the dry-run identity cannot write ([review](../research/review/README.md) D4). Nothing persists. A dry-run
@@ -33,9 +32,9 @@ release-please PR, and again right before any tag moves.
 
 | Trigger | Workflow | Check | What it does |
 | --- | --- | --- | --- |
-| Ordinary pull request | `validate` | `estate-kit / validate` | Offline checks, then a plan from the service: cross-Project errors and the render diff |
-| Release-please pull request | `deploy`, `dry-run: true` | `estate-kit / deploy (dry-run)`, required | A build job builds candidate images by digest; a separate job registers those digests with the service and runs the full dry-run against the cluster; no Deployment record |
-| Release published | `deploy`, environment `production` | `estate-kit / deploy` | Promotes the candidate digests; the service checks every digest was registered by this Project (D8), dry-runs again, signs with the render signing key, moves `render/<p>:prod` by read, verify, write under the writer Lease, and streams the rollout |
+| Ordinary pull request | `validate` | `estate-kit / validate` | Offline checks, then a plan from Delivery: cross-Project errors and the render diff |
+| Release-please pull request | `deploy`, `dry-run: true` | `estate-kit / deploy (dry-run)`, required | A build job builds candidate images by digest; a separate job registers those digests with Delivery and runs the full dry-run against the cluster; no Deployment record |
+| Release published | `deploy`, environment `production` | `estate-kit / deploy` | Promotes the candidate digests; Delivery checks every digest was registered by this Project (D8), dry-runs again, signs with the render signing key, moves `render/<p>:prod` by read, verify, write under the writer Lease, and streams the rollout |
 
 Cancelling a deploy job only detaches it; the rollout continues. Stopping a
 rollout is a Pause or a Rollback. A dropped stream resumes from its last event.
@@ -71,7 +70,7 @@ stream.
 
 **Step 2, dry-run and signing.** Nothing is signed unless the API server
 accepts the dry-run. A render whose digest is unchanged is not published
-again. The tag is moved with a machine account's token, synced by the Vault Secrets Operator into a Kubernetes Secret the service mounts, because ghcr
+again. The tag is moved with a machine account's token, synced by the Vault Secrets Operator into a Kubernetes Secret Delivery mounts, because ghcr
 refuses GitHub App tokens (D3), and only by the pod holding the writer Lease
 (D9).
 

@@ -57,7 +57,7 @@ Sources:
 | --- | --- | --- | --- | --- |
 | risk | high | S10, S7, S4 | confirmed | medium |
 
-**Concerns:** identity-and-access.md 'Who calls, with what' (row 'Service to GitHub and ghcr'); security.md 'Service to ghcr: the App token is scoped to render/ and host/'; inside-the-service.md 'registry' package
+**Concerns:** identity-and-access.md 'Who calls, with what' (row 'Service to GitHub and ghcr'); security.md 'Service to ghcr: the App token is scoped to render/ and host/'; inside-delivery.md 'registry' package
 
 GitHub's packages documentation says 'GitHub Packages only supports authentication using a personal access token (classic)'. The one other path is the GITHUB_TOKEN of a workflow, for packages linked to that workflow's repository. Nothing documents GitHub App installation tokens for ghcr, and community reports of 'installation not allowed to Write organization package' match that. A classic PAT cannot be scoped to the render/ and host/ prefixes. write:packages covers every package the account can write, and the token is long-lived and tied to a person's account. That breaks three statements in the design: 'Nothing holds a long-lived secret for the service', 'App token scoped to render/ and host/', and the S10 blast radius. Flux's pull credential for private renders has the same problem.
 
@@ -115,7 +115,7 @@ Sources:
 | --- | --- | --- | --- | --- |
 | alternative | high | S4, S5, S6, S13, S15 | weakened | medium |
 
-**Concerns:** inside-the-service.md 'The rollout core', 'The event log', 'One replica'; releasing.md 'Failure paths'; operating.md 'Rollouts no Project run started' ('Missed triggers heal on a timer'); identity-and-access.md 'Authenticating a deploy job'; choices.md 'Rollout log' and 'Concurrency'
+**Concerns:** inside-delivery.md 'The rollout core', 'The event log', 'One replica'; releasing.md 'Failure paths'; operating.md 'Rollouts no Project run started' ('Missed triggers heal on a timer'); identity-and-access.md 'Authenticating a deploy job'; choices.md 'Rollout log' and 'Concurrency'
 
 The service puts a lot of bespoke machinery on the deploy path: a deploy API, natural-key idempotency, a coalescing queue, a rollout state machine, an append-only Postgres log with versioned events, upcasters and 400-day retention, an SSE stream with resume by sequence number, a rollout-token exchange, workflow dispatch, and a timer that heals missed triggers. The timer is the giveaway: the design is edge-triggered. The research's own takeaway 7 recommends many small level-triggered controllers coordinating through API objects, and so do the Borg/Omega/Kubernetes papers. Is the service needed at all? Partly. CI plus Flux alone cannot meet S1 without cluster credentials in CI, because Flux has no dry-run-only mode, and Vault signing should stay in-cluster. So something must dry-run and sign inside the cluster. It does not need to be a request-driven server with its own database. Flux now provides several of these pieces. A generic-oidc Receiver verifies GitHub Actions OIDC tokens with CEL on their claims (for example repository_id and job_workflow_ref) and can filter which resources reconcile by those claims. Kustomization status, CEL health checks and notification providers (commit status, PR comment) report progress. ResourceSet in Flux Operator templates per-tenant OCIRepository and Kustomization objects from inputs.
 
@@ -184,7 +184,7 @@ Sources:
 | --- | --- | --- | --- | --- |
 | weakness | medium | S1, S4, S12 | weakened | medium |
 
-**Concerns:** releasing.md 'What a dry-run is'; inside-the-service.md 'cluster' package ('Server-side dry-run, through client-go'); CONTEXT.md 'Dry-run'
+**Concerns:** releasing.md 'What a dry-run is'; inside-delivery.md 'cluster' package ('Server-side dry-run, through client-go'); CONTEXT.md 'Dry-run'
 
 A dry-run does not persist anything. So when a render introduces a namespace, or a CRD together with a CR of that kind, the dependent objects fail dry-run with 'namespace not found' or 'no matches for kind'. That gives false refusals for exactly the first release of a Project and for any component that adds a CRD. Flux solves this with staging. Its fluxcd/pkg/ssa ResourceManager applies cluster-scoped and class definitions first, waits for them, then applies the rest (ApplyAllStaged). It also offers a server-side dry-run Diff and Secret masking. A client-go reimplementation will diverge from Flux's apply semantics over time: field managers, immutable-field force, and the SSA ignore rules added in Flux 2.9. The dry-run would then pass things Flux rejects, or the reverse. The design does not say what the dry-run does in these cases.
 
@@ -214,7 +214,7 @@ Sources:
 | --- | --- | --- | --- | --- |
 | risk | medium | S12, S7, S2, S6 | weakened | medium |
 
-**Concerns:** operating.md 'UC-9 Gate a traffic switch'; releasing.md 'UC-3 Deploy a release' step 3; overview.md 'Service levels' (deploy p95 under 10 min, 99% availability); inside-the-service.md 'One replica'
+**Concerns:** operating.md 'UC-9 Gate a traffic switch'; releasing.md 'UC-3 Deploy a release' step 3; overview.md 'Service levels' (deploy p95 under 10 min, 99% availability); inside-delivery.md 'One replica'
 
 Flagger's confirm-promotion hook pauses promotion until it returns HTTP 200, and a non-2xx or timeout halts advancement. With the Release Gate inside a single-replica service at a 99% target (about 7 hours a month), every canary in the estate stalls whenever the service restarts or Postgres is down. S7 (deploys fail loudly, serving unaffected) is met, but rollouts stuck mid-canary are not 'Serving'. On speed, a one-line change crosses many stages: the release-please PR, the release, the deploy job, a queue shared by the whole estate, compose, dry-run, sign and push. Flux then notices the tag only on the OCIRepository interval or a reconcile request; there is no ghcr Receiver type. Flagger then runs interval × iterations of analysis, and the Release Gate waits for every member. Nothing assigns a budget per stage, so S12's p95 cannot be checked during the shadow phase.
 

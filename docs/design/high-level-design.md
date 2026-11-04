@@ -4,15 +4,15 @@ What estate-kit will look like as a system, from the whole picture down to
 the classes inside each step, in the order a reader needs them. Each section
 links to the page that holds the detail. The decisions behind it are
 [record 13](../decisions/0013-every-program-is-rust.md),
-[record 18](../decisions/0018-the-service-links-the-compiler.md) and
-[record 50](../decisions/0050-five-bounded-contexts.md) and
+[record 18](../decisions/0018-delivery-links-the-compiler.md) and
+[record 50](../decisions/0050-six-bounded-contexts-in-five-layers.md) and
 [records 67 to 71](../decisions/register.md), all accepted.
 
 ## 1. The whole system
 
 Six bounded contexts, each a set of crates, and the outside systems each one
-talks to. A Project's CI runs the CLI offline and calls the service to deploy;
-the service links the compiler; Flux applies what the service publishes; the
+talks to. A Project's CI runs the CLI offline and calls Delivery to deploy;
+Delivery links the compiler; Flux applies what Delivery publishes; the
 components and the host applier act on what the compiler renders. The tenancy
 context writes Tenant resources that the components reconcile, and calls the
 Tenant hooks of multi-tenant Applications
@@ -28,7 +28,7 @@ The same system at C4 level 2, with the protocol on each edge:
 
 **By layer.** Every crate is in one layer, and every dependency points down.
 `cargo xtask check-layers` refuses any other edge
-([record 50](../decisions/0050-five-bounded-contexts.md)).
+([record 50](../decisions/0050-six-bounded-contexts-in-five-layers.md)).
 
 ![The workspace's layers](../diagrams/png/rust-layers.png)
 
@@ -41,9 +41,9 @@ boundary:
 
 ![The compiler's crates](../diagrams/png/rust-crates.png)
 
-The service's crates, where adapters implement the ports of `service-app`:
+Delivery's crates, where adapters implement the ports of `delivery-app`:
 
-![The service's crates](../diagrams/png/rust-service-crates.png)
+![Delivery's crates](../diagrams/png/rust-delivery-crates.png)
 
 Every crate, with one line on what it holds, is in
 [The crates](rust-workspace.md#the-crates).
@@ -96,13 +96,13 @@ The decisions inside the composition, with every way it can end:
 The rollback, host rollout and component paths are traced the same way in
 [End to end, crate by crate](end-to-end.md).
 
-## 5. The service's code
+## 5. Delivery's code
 
 The use cases are generic over one bundle of ports, so `main` wires the real
 adapters and tests wire the fakes. The queue runs one composition at a time,
 through a runner that isolates the compiler.
 
-![The service's use cases](../diagrams/png/rust-service-app.png)
+![Delivery's use cases](../diagrams/png/rust-delivery-app.png)
 
 A rollout is a pure decider: `decide` turns a command into events, `evolve`
 folds them into state.

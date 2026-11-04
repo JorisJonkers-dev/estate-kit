@@ -56,7 +56,7 @@ and the node contract.
   path) and expected models carry over exactly; rendered files are met in
   structure and rewritten once in the canonical format.
 - **The service links the compiler** instead of running it as a subprocess
-  ([record 18](../decisions/0018-the-service-links-the-compiler.md)).
+  ([record 18](../decisions/0018-delivery-links-the-compiler.md)).
 - **Six components, not three**, and a fifth bounded context for the
   dashboard's read views: the inventory found delivery's catalog, bucket and
   backup jobs and the dashboard's Prometheus, Loki, Alertmanager and Gatus

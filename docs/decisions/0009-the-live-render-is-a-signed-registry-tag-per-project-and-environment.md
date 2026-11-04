@@ -11,11 +11,10 @@ lessons: [DR-1, DR-2]
 
 The estate used pin commits, written by workflows, to say which render is live.
 Without them, something must say it, with no central list to edit and no
-second writer of Flux objects. A signed tag on the registry, moved by the
-service ([record 17](0017-the-service-runs-in-the-cluster-in-rust.md)), is the
+second writer of Flux objects. A signed tag on the registry, moved by Delivery ([record 17](0017-delivery-runs-in-the-cluster-in-rust.md)), is the
 seam Flux already verifies.
 
-The service pushes renders and moves `render/` and `host/` tags on ghcr. The
+Delivery pushes renders and moves `render/` and `host/` tags on ghcr. The
 design assumed a GitHub App token scoped to those packages, but GitHub Packages
 documents only classic personal access tokens, and `GITHUB_TOKEN` for packages
 linked to the workflow's own repository; App installation tokens are refused
@@ -28,12 +27,12 @@ in an incident ([review](../research/review/README.md) D7).
 
 The live render of a Project in an environment is one signed registry tag,
 `render/<project>:<environment>`, one for each Environment of the Project
-([record 75](0075-three-environments-run-in-the-one-cluster.md)). Flux pulls it, and the service moves it. There
+([record 75](0075-three-environments-run-in-the-one-cluster.md)). Flux pulls it, and Delivery moves it. There
 is no estate pin commit and no patching of Flux's own objects.
 
 A dedicated machine account holds write access only on the render and host
 packages. Its classic token lives in Vault and is rotated on a schedule. The
-Vault Secrets Operator syncs it into a Kubernetes Secret, which the service
+Vault Secrets Operator syncs it into a Kubernetes Secret, which Delivery
 mounts, so a tag move never reads Vault. A check lists the account's package
 grants and fails on any other. If spike #10 finds App tokens do work, the token
 half of this record is rewritten.
@@ -43,7 +42,7 @@ half of this record is rewritten.
 | Option | Cost if taken | Why rejected |
 | --- | --- | --- |
 | Estate pin commits | A central list, and a workflow writing it | No central list, and no second writer |
-| The service patching OCIRepository | A second writer of Flux objects | Flux objects have one writer |
+| Delivery patching OCIRepository | A second writer of Flux objects | Flux objects have one writer |
 | The token read from Vault at use | A tag move and a Rollback fail when Vault is sealed | Recovery must not depend on Vault |
 | A promote workflow with `GITHUB_TOKEN` | GitHub Actions latency on every tag move, rollback included | Rollback must be fast and in the cluster |
 | An in-cluster registry mirrored to ghcr | A registry to run; a rebuilt cluster cannot pull its renders | The render store must survive the cluster |
@@ -54,7 +53,7 @@ half of this record is rewritten.
 - Easier: tag moves and Rollback stay in the cluster and work with Vault down
   ([record 28](0028-pause-and-rollback-are-a-cluster-object-per-project.md)).
 - Harder: a long-lived secret exists, now also as a Kubernetes Secret; its
-  scope and rotation are checked, and the Secret is readable by the service
+  scope and rotation are checked, and the Secret is readable by Delivery
   alone.
 - Forbidden: any package grant beyond the render and host packages; a tag move
   that reads the token from Vault.

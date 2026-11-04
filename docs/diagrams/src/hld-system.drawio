@@ -41,13 +41,13 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="service" parent="1" style="swimlane;startSize=30;rounded=1;arcSize=4;absoluteArcSize=1;container=1;collapsible=0;dashed=1;dashPattern=8 4;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fontStyle=1;fillColor=none;swimlaneFillColor=none;strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="Service context: bins/estate-kit-service" vertex="1">
+        <mxCell id="service" parent="1" style="swimlane;startSize=30;rounded=1;arcSize=4;absoluteArcSize=1;container=1;collapsible=0;dashed=1;dashPattern=8 4;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fontStyle=1;fillColor=none;swimlaneFillColor=none;strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="Delivery context: bins/estate-kit-delivery" vertex="1">
           <mxGeometry height="684" width="601" x="837" y="360" as="geometry" />
         </mxCell>
         <mxCell id="api" parent="service" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="http-api" vertex="1">
           <mxGeometry height="68" width="150" x="10" y="60" as="geometry" />
         </mxCell>
-        <mxCell id="sapp" parent="service" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="service-app: use cases and ports" vertex="1">
+        <mxCell id="sapp" parent="service" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="delivery-app: use cases and ports" vertex="1">
           <mxGeometry height="78" width="240" x="161" y="328" as="geometry" />
         </mxCell>
         <mxCell id="rollout" parent="service" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="rollout and release-gate: deciders" vertex="1">

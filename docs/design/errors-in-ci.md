@@ -1,7 +1,7 @@
 # Errors in CI
 
 Every error points at a line in the Project's YAML, whether the binary found it
-offline or the service found it during composition or the dry-run. An error
+offline or Delivery found it during composition or the dry-run. An error
 that is wrong *in relation to* something else points there too, even in
 another Project's repository
 ([record 71](../decisions/0071-a-diagnostic-is-a-coded-problem-with-typed-locations.md)).
@@ -44,7 +44,7 @@ exist, for different jobs.
 
 A server-side dry-run, an admission webhook or a CRD schema refuses a field of
 a rendered object. Each Deliverable keeps the model paths of the elements it
-came from, so the service shows the refusal against those elements, as a
+came from, so Delivery shows the refusal against those elements, as a
 whole. Mapping the refused field to the one line that set it needs
 per-field provenance, which is deferred
 ([record 72](../decisions/0072-per-field-provenance-and-explain-are-deferred.md)).
@@ -88,8 +88,8 @@ and assertions, never user-facing codes.
 
 ## A budget breach is authored input
 
-The service bounds a Composition by a step budget, a memory cap and an input
-budget ([record 18](../decisions/0018-the-service-links-the-compiler.md)).
+Delivery bounds a Composition by a step budget, a memory cap and an input
+budget ([record 18](../decisions/0018-delivery-links-the-compiler.md)).
 A breach means the document asked for more than the estate allows, so it has
 its own refusal code, a primary location on the document that spent the
 budget, and is reported as a 4xx problem. Its fixtures are a looping input and

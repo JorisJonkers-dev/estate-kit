@@ -53,7 +53,7 @@ the switch.
 
 ## Confirmation
 
-Each component's and the service's CI runs its **Characterization fixtures**; the
+Each component's and Delivery's CI runs its **Characterization fixtures**; the
 **Archive checklist** (#53) refuses a program with a failing fixture or an
 unlisted change, and refuses to delete a program's fixtures until the owning
 crate's docs hold its behaviour summary. The pull request that deletes the

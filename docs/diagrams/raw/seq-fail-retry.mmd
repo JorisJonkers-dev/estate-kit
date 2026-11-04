@@ -2,7 +2,7 @@
 sequenceDiagram
     autonumber
     participant CI as deploy job
-    participant S as estate-kit service
+    participant S as Delivery
     participant DB as event log
     CI->>S: deploy (Project, fragment digest)
     S->>DB: rollout created

@@ -9,10 +9,10 @@ lessons: [TM-4]
 
 ## Context
 
-The estate-kit service signs what the clusters and the nodes run, so a
+Delivery signs what the clusters and the nodes run, so a
 mistake in it reaches every host. Its trust boundaries are named on
 [security](../design/security.md#trust-boundaries): runner to edge, browser to
-edge, service to Vault, to ghcr and to the API server, Flux and the host
+edge, Delivery to Vault, to ghcr and to the API server, Flux and the host
 applier to the API, applier to cache, and break-glass. Signing and break-glass
 are the paths most worth examining, and a matrix alone does not examine them.
 
@@ -46,7 +46,7 @@ this record fixes that they exist and that tests enforce the matrix.
 
 ## Confirmation
 
-- The **Authorization matrix test** lists the OpenAPI document's routes ([record 43](0043-the-service-api-is-an-openapi-3-1-contract.md)),
+- The **Authorization matrix test** lists the OpenAPI document's routes ([record 43](0043-the-delivery-api-is-an-openapi-3-1-contract.md)),
   fails on a route with no matrix row and on a row with no route.
 - For each caller and route, the same test asserts the denied rows are refused, with
   a negative fixture for a caller not in the row.

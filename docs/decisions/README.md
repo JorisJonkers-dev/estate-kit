@@ -72,4 +72,6 @@ that states it.
 | #373 tickets tracked in both repositories | Tracked in deploy-kit until the import, then in estate-kit | The rewrite happens where its tests live |
 | Three components; one multi-command binary | Six components, one binary and image each | Each image carries only its own adapters |
 | `anyhow` everywhere; one error type for the workspace | A `thiserror` enum per library crate, `anyhow` only in binaries | Callers match on the failures each crate designs |
+| Three repositories: `estate-model`, estate-kit and the host side | One repository at one version | The god-project worry sits in coupling and versioning, which contract majors and the layer check address; a split waits for a consumer outside the estate ([record 34](0034-every-part-of-estate-kit-lives-in-this-repository-at-one-version.md)) |
+| A serverless host coordinator at Scaleway or OVHcloud that orders node updates from outside the cluster | A host applier on each node that may cordon and evict only its own node | One deployable and one provider fewer; no node holds a right over another ([record 30](0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md)) |
 | Go for the mail provisioner; keeping it in Python with jq and sh | Rust, talking to Stalwart's management API | One backend language |

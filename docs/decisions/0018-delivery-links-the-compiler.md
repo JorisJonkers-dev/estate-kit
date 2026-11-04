@@ -5,24 +5,23 @@ rests-on: [6, 13, 17]
 lessons: [CS-5, CS-6, TM-3]
 ---
 
-# The service links the compiler's crates; the CLI's JSON output is for CI only
+# Delivery links the compiler's crates; the CLI's JSON output is for CI only
 
 ## Context
 
 The earlier design ran the compiler as a subprocess over a directory and a
-`result.json` file, so CI and the service ran identical code across two
+`result.json` file, so CI and Delivery ran identical code across two
 languages, and committed `result.json` fixtures held the TypeScript output to
 what the Go service read. With every program in Rust
-([record 13](0013-every-program-is-rust.md)) and one lockstep version, the
-service and the CLI can call the same function. A wire contract between two
+([record 13](0013-every-program-is-rust.md)) and one lockstep version, Delivery and the CLI can call the same function. A wire contract between two
 halves of one workspace would be upkeep with no reader outside it.
 
 The reasons a subprocess was attractive were isolation: a panic, a runaway
-allocation or a hang in the compiler cannot take the service down.
+allocation or a hang in the compiler cannot take Delivery down.
 
 ## Decision
 
-The service depends on the `compiler` application crate and calls the same
+Delivery depends on the `compiler` application crate and calls the same
 use cases the CLI calls (`validate`, `plan`, `compose`). Composition runs on a
 blocking thread, contained in-process by four limits:
 
@@ -35,18 +34,18 @@ blocking thread, contained in-process by four limits:
   Composition allocates, so many small inputs cannot add up to a large one.
 - The release profile sets `panic = "unwind"`, so a panic fails only the
   Composition that raised it. An abort (out of memory, stack overflow) is not
-  caught: the pod restarts and [record 63](0063-the-service-has-one-writer-and-reconciles-from-observed-state.md)'s
+  caught: the pod restarts and [record 63](0063-delivery-has-one-writer-and-reconciles-from-observed-state.md)'s
   reconcile resumes from observed state.
 
-A budget breach is authored input, not a service fault. It is refused with its
-own refusal code and a primary location on the document, and the service
+A budget breach is authored input, not a Delivery fault. It is refused with its
+own refusal code and a primary location on the document, and Delivery
 reports it as a 4xx problem. A panic fails that Composition with an internal
-problem and leaves the service running. The compiler crates stay pure: no I/O,
-no clock, no environment, so linking them gives the service nothing it can
+problem and leaves Delivery running. The compiler crates stay pure: no I/O,
+no clock, no environment, so linking them gives Delivery nothing it can
 misuse.
 
 The CLI's `--json` output keeps a committed schema, because the reusable
-workflows and the GitHub annotations read it. The service does not read it.
+workflows and the GitHub annotations read it. Delivery does not read it.
 
 ## Alternatives
 
@@ -57,9 +56,8 @@ workflows and the GitHub annotations read it. The service does not read it.
 
 ## Consequences
 
-- Easier: one call, typed end to end; no `result.json` consumer fixtures; the
-  service's tests use the real compiler with fake ports.
-- Harder: a compiler bug that corrupts memory could affect the service.
+- Easier: one call, typed end to end; no `result.json` consumer fixtures; Delivery's tests use the real compiler with fake ports.
+- Harder: a compiler bug that corrupts memory could affect Delivery.
   `unsafe_code = "forbid"` in every compiler crate rules out unsafe code in
   our crates only, not in their dependencies; those are vetted when they are
   added. An abort takes the pod down until it restarts.
@@ -73,7 +71,7 @@ workflows and the GitHub annotations read it. The service does not read it.
 bans, and clippy's `disallowed-methods`) refuse a dependency from any compiler
 crate on `tokio`, `reqwest` or any adapter crate, and refuse `std::env`,
 `std::fs` and `SystemTime::now` in them. The **Composition budget tests** are
-three service tests that each fail one Composition and assert that the next
+three Delivery tests that each fail one Composition and assert that the next
 one succeeds: a looping input (the step budget trips), an oversized input (the
 memory cap trips) and a transformation that panics. The first two assert the
 budget refusal code, its document location and a 4xx problem; the third

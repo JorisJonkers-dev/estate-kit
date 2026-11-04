@@ -7,8 +7,8 @@
         <mxCell id="cluster" parent="1" style="swimlane;startSize=30;rounded=1;arcSize=4;absoluteArcSize=1;container=1;collapsible=0;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fontStyle=1;fillColor=none;swimlaneFillColor=none;strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="«execution environment» Kubernetes cluster" vertex="1">
           <mxGeometry height="666" width="1428" x="12" y="12" as="geometry" />
         </mxCell>
-        <mxCell id="svc" parent="cluster" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="estate-kit service" vertex="1">
-          <mxGeometry height="56" width="176" x="573.71" y="250" as="geometry" />
+        <mxCell id="svc" parent="cluster" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="Delivery" vertex="1">
+          <mxGeometry height="56" width="160" x="585.14" y="250" as="geometry" />
         </mxCell>
         <mxCell id="pg" parent="cluster" style="shape=cylinder3;size=10;boundedLbl=1;backgroundOutline=1;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="platform-postgres: event log" vertex="1">
           <mxGeometry height="74" width="240" x="1178" y="136" as="geometry" />
@@ -39,7 +39,7 @@
         </mxCell>
         <mxCell id="e1" edge="1" parent="cluster" source="flagger" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.5;entryX=0;entryY=0.3334;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="svc" value="Release Gate webhook">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-34.03" as="offset" />
+            <mxPoint x="-39.74" as="offset" />
             <Array as="points">
               <mxPoint x="454" y="246.33" />
               <mxPoint x="454" y="268.67" />
@@ -48,7 +48,7 @@
         </mxCell>
         <mxCell id="e2" edge="1" parent="cluster" source="obs" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.25;entryX=0;entryY=0.6666;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="svc" value="reads rollout events">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="104.98" as="offset" />
+            <mxPoint x="99.27" as="offset" />
             <Array as="points">
               <mxPoint x="233" y="543" />
               <mxPoint x="233" y="287.33" />
@@ -57,7 +57,7 @@
         </mxCell>
         <mxCell id="e5" edge="1" parent="cluster" source="svc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.8334;entryX=0;entryY=0.25;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="api" value="dry-run, read; Job unsuspend, gate record">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-30.44" as="offset" />
+            <mxPoint x="-28.15" as="offset" />
             <Array as="points">
               <mxPoint x="784" y="296.67" />
               <mxPoint x="784" y="415" />
@@ -68,7 +68,7 @@
         </mxCell>
         <mxCell id="e7" edge="1" parent="cluster" source="svc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.6666;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="vault" value="sign">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="52.48" as="offset" />
+            <mxPoint x="54.77" as="offset" />
             <Array as="points">
               <mxPoint x="794" y="287.33" />
               <mxPoint x="794" y="374" />
@@ -77,7 +77,7 @@
         </mxCell>
         <mxCell id="e8" edge="1" parent="cluster" source="svc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.1666;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="idp" value="sign-in">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="104.81" as="offset" />
+            <mxPoint x="107.1" as="offset" />
             <Array as="points">
               <mxPoint x="784" y="259.33" />
               <mxPoint x="784" y="68" />
@@ -86,7 +86,7 @@
         </mxCell>
         <mxCell id="e9" edge="1" parent="cluster" source="svc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.3334;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="pg" value="appends">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="56.98" as="offset" />
+            <mxPoint x="59.27" as="offset" />
             <Array as="points">
               <mxPoint x="794" y="268.67" />
               <mxPoint x="794" y="173" />
@@ -95,9 +95,9 @@
         </mxCell>
         <mxCell id="e10" edge="1" parent="cluster" source="svc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="obj" value="writes">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="9.14" as="offset" />
+            <mxPoint x="11.43" as="offset" />
             <Array as="points">
-              <mxPoint x="963.86" y="278" />
+              <mxPoint x="961.57" y="278" />
             </Array>
           </mxGeometry>
         </mxCell>

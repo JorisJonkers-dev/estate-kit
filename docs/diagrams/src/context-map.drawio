@@ -7,8 +7,8 @@
         <mxCell id="compiler" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="Compiler context: the model" vertex="1">
           <mxGeometry height="56" width="240" x="12" y="224" as="geometry" />
         </mxCell>
-        <mxCell id="service" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="Service context: rollouts" vertex="1">
-          <mxGeometry height="56" width="230" x="668.25" y="123" as="geometry" />
+        <mxCell id="service" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="Delivery context: rollouts" vertex="1">
+          <mxGeometry height="56" width="237" x="663" y="123" as="geometry" />
         </mxCell>
         <mxCell id="observation" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="Observation context: what runs" vertex="1">
           <mxGeometry height="66" width="240" x="1472" y="12" as="geometry" />
@@ -24,7 +24,7 @@
         </mxCell>
         <mxCell id="e1" edge="1" parent="1" source="compiler" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.25;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="service" value="use cases, in-process (customer, supplier)">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="40.88" as="offset" />
+            <mxPoint x="43.5" as="offset" />
             <Array as="points">
               <mxPoint x="268" y="238" />
               <mxPoint x="268" y="151" />
@@ -33,7 +33,7 @@
         </mxCell>
         <mxCell id="e2" edge="1" parent="1" source="service" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.25;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="observation" value="rollout events (published language)">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="36.38" as="offset" />
+            <mxPoint x="35.5" as="offset" />
             <Array as="points">
               <mxPoint x="916" y="137" />
               <mxPoint x="916" y="45" />
@@ -61,9 +61,9 @@
         </mxCell>
         <mxCell id="e5" edge="1" parent="1" source="service" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="tenancy" value="lifecycle API (customer, supplier)">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="0.88" as="offset" />
+            <mxPoint as="offset" />
             <Array as="points">
-              <mxPoint x="1174.63" y="151" />
+              <mxPoint x="1175.5" y="151" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -83,7 +83,7 @@
         </mxCell>
         <mxCell id="e7" edge="1" parent="1" source="service" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.75;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="api" value="Release Gate: unsuspend a Job, gate record, under the writer Lease">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="41.38" as="offset" />
+            <mxPoint x="40.5" as="offset" />
             <Array as="points">
               <mxPoint x="916" y="165" />
               <mxPoint x="916" y="249" />

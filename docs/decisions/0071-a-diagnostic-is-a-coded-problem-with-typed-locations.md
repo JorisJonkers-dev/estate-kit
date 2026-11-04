@@ -11,7 +11,7 @@ lessons: [CS-3, MS-9]
 
 A diagnostic today carries one file and one model path, and the CLI resolves
 the path to a line at the fragment's source commit. Errors are RFC 9457
-problems, and the same catalogue serves the binary and the service. This
+problems, and the same catalogue serves the binary and Delivery. This
 record folds two earlier rows into one: row 27 (a diagnostic names a model
 path, and the caller resolves the line) and row 44 (errors are RFC 9457
 problems drawn from one catalogue). Neither had a file.
@@ -47,7 +47,7 @@ were once part of this record. They are a separate, deferred question in
 
 1. **A diagnostic is a coded problem.** It has one refusal code from the one
    catalogue, a severity, a message and help, and its locations. The code is
-   also the problem+json `type`. The binary and the service draw from the
+   also the problem+json `type`. The binary and Delivery draw from the
    same catalogue.
 2. **Locations are typed and plural.** A diagnostic has one primary location
    and any number of labelled related locations. A location is authored

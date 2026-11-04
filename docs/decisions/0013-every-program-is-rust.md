@@ -38,16 +38,15 @@ one), which weakened the Go service's change safety.
 
 ## Decision
 
-Every program in estate-kit is Rust: the compiler and its CLI, the service, the
+Every program in estate-kit is Rust: the compiler and its CLI, Delivery, the
 host applier, and the six components (migration runner, secret grant, database
 catalog, bucket catalog, backup and mailbox). They live in one Cargo workspace, at one version, laid out in the
-layers of [record 50](0050-five-bounded-contexts.md).
-The UI stays Vue; npm is confined to building its static assets, which the
-service embeds. Python stays only for this repository's documentation checks.
+layers of [record 50](0050-six-bounded-contexts-in-five-layers.md).
+The UI stays Vue; npm is confined to building its static assets, which Delivery embeds. Python stays only for this repository's documentation checks.
 
 The components are ported lazily, after the cutover. Each keeps running from
 delivery (or stalwart-provisioner, or liquibase-runner) until its rewrite is
-due, so the critical path is the compiler and the service. The ban on Go,
+due, so the critical path is the compiler and Delivery. The ban on Go,
 TypeScript and Python in shipped images and in the reusable workflows a Project
 runs applies to a component from the moment its rewrite lands; until then its
 old image is the one that ships.
@@ -62,16 +61,16 @@ How the code is shaped is on the design pages
 | Option | Cost if taken | Why rejected |
 | --- | --- | --- |
 | TypeScript compiler to 1.0, Go service, Rust later (review D1) | Three backend toolchains during the cutover; the compiler is ported later anyway | The maintainer is not keeping the TypeScript tool; the port happens once, to 1.0 |
-| Rust compiler, Go service and components | Two backend toolchains; a wire contract between two halves of one product; weak Go mutation tooling | One language gives one set of gates, one dependency audit, and lets the service link the compiler |
+| Rust compiler, Go service and components | Two backend toolchains; a wire contract between two halves of one product; weak Go mutation tooling | One language gives one set of gates, one dependency audit, and lets Delivery link the compiler |
 | Go for everything | No sum types for a model of about 100 refusal codes; gremlins 0.x for mutation | Change safety is the scenario the review ranks highest after upkeep |
-| Port all six components before the cutover | Six rewrites on the critical path, ahead of the compiler and the service, for jobs that already work | The components do not block the cutover; each is ported when its rewrite is due |
+| Port all six components before the cutover | Six rewrites on the critical path, ahead of the compiler and Delivery, for jobs that already work | The components do not block the cutover; each is ported when its rewrite is due |
 | Leptos or another Rust UI | The dashboard's Vue code is rewritten; WebAssembly tooling joins | The UI is not backend; Vue stays by the maintainer's choice |
 
 ## Consequences
 
 - Easier: one toolchain on the backend (rustup, cargo, clippy, cargo-deny,
-  cargo-mutants, cargo-llvm-cov); the service links the compiler crates
-  ([record 18](0018-the-service-links-the-compiler.md)); Cargo enforces layering.
+  cargo-mutants, cargo-llvm-cov); Delivery links the compiler crates
+  ([record 18](0018-delivery-links-the-compiler.md)); Cargo enforces layering.
 - Harder: everything in delivery, estate-dashboard's API, liquibase-runner and
   stalwart-provisioner is rewritten, so their behaviour is characterized first
   ([record 55](register.md)). YAML input and canonical output are bespoke code

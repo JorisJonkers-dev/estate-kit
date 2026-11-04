@@ -14,7 +14,7 @@ passed is untested (TM-4). deploy-kit learned this with mutation testing: a
 full run per pull request cost 9 to 18 minutes and took 80% of its CI minutes,
 and its spurious failures sat in files the pull request had not changed
 ([deploy-kit ADR 0063](https://github.com/JorisJonkers-dev/deploy-kit/blob/main/docs/adr/architecture/0063-coverage-and-mutation-are-ratchets.md);
-TM-5). The workspace's small crates ([record 50](0050-five-bounded-contexts.md))
+TM-5). The workspace's small crates ([record 50](0050-six-bounded-contexts-in-five-layers.md))
 make per-crate runs cheap, if the graph is kept that way.
 
 ## Decision

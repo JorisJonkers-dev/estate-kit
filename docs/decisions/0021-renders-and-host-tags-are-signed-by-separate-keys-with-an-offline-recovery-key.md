@@ -21,7 +21,7 @@ any workflow could read it. How the closures are built and cached is
 ## Decision
 
 - **Two Transit keys.** The render signing key signs `render/<project>:prod`
-  artifacts; the host signing key signs `host/<node>:prod` tags. The service's Vault policy can use
+  artifacts; the host signing key signs `host/<node>:prod` tags. Delivery's Vault policy can use
   each only for its own signing path.
 - **An environment-scoped cache signing key.** The key that signs the binary
   cache's closures is a GitHub environment secret, usable only on `main` and
@@ -32,7 +32,7 @@ any workflow could read it. How the closures are built and cached is
   break-glass, when Vault is gone.
 - **One signature format, fixed by a contract test.** The format (a cosign
   signature with transparency-log upload off, so repository names stay out of
-  public Rekor) is signed by the service's signer and verified by the pinned
+  public Rekor) is signed by Delivery's signer and verified by the pinned
   Flux and the host verifier in one test. Spike #17 settles signature replay
   and rollback behaviour in Flux.
 

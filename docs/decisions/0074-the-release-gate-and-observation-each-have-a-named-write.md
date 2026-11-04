@@ -27,17 +27,16 @@ There are three writes. Nothing else in either context writes.
 
 | Write | Context | Credential | Lease |
 | --- | --- | --- | --- |
-| Unsuspend a migration Job (patch `spec.suspend`) | Service, in the Release Gate | A service account of its own, limited by RBAC to `patch` on Jobs in admitted Projects' namespaces | The writer Lease: taken before the write, checked still held |
-| Create or update the Application's gate record (one ConfigMap per Application) | Service, in the Release Gate | The same service account, limited to ConfigMaps of that name | The writer Lease |
+| Unsuspend a migration Job (patch `spec.suspend`) | Delivery, in the Release Gate | A service account of its own, limited by RBAC to `patch` on Jobs in admitted Projects' namespaces | The writer Lease: taken before the write, checked still held |
+| Create or update the Application's gate record (one ConfigMap per Application) | Delivery, in the Release Gate | The same service account, limited to ConfigMaps of that name | The writer Lease |
 | Create or expire a Silence in Alertmanager | Observation | A credential for the Alertmanager silences API only, held by Observation's own binary | None: a Silence changes no rollout and no tag |
 
 The Release Gate's webhook answer stays a read of cluster state and takes no
-credential from Flagger. The Job unsuspend and the record are made by the
-service's reconcile under the Lease, never inside the answer to an
-unauthenticated request. The service's dry-run identity stays unable to write
-([record 58](0058-flux-is-locked-down-per-project-and-the-service-dry-runs-as-an-identity-that-cannot-write.md)).
+credential from Flagger. The Job unsuspend and the record are made by Delivery's reconcile under the Lease, never inside the answer to an
+unauthenticated request. Delivery's dry-run identity stays unable to write
+([record 58](0058-flux-is-locked-down-per-project-and-delivery-dry-runs-as-an-identity-that-cannot-write.md)).
 Observation still holds no Vault, ghcr or signing credential, and none that can
-deploy, pause or roll back ([record 50](0050-five-bounded-contexts.md)). Its
+deploy, pause or roll back ([record 50](0050-six-bounded-contexts-in-five-layers.md)). Its
 mirror of Silences lives in its own Postgres schema and nothing else reads it.
 
 ## Alternatives
@@ -47,7 +46,7 @@ mirror of Silences lives in its own Postgres schema and nothing else reads it.
 | Say the gate never writes and drop the unsuspend | Migration Jobs never start, or something else must start them | The behaviour is characterized and the rollout depends on it ([record 55](0055-every-go-and-python-program-is-characterized-before-it-is-rewritten.md)) |
 | Move the Job unsuspend into the Components context | A second writer of Jobs beside the gate's decision | The unsuspend follows the gate's answer; one writer holds the Lease |
 | Drop silences from the Rust Observation | The dashboard loses a feature it has today | Operators silence alerts from it |
-| Silences through the service's credential | The rollout core holds an Alertmanager write | The read side would then sit beside a deploy credential |
+| Silences through Delivery's credential | The rollout core holds an Alertmanager write | The read side would then sit beside a deploy credential |
 
 ## Consequences
 

@@ -7,6 +7,10 @@ move here when deploy-kit is imported.
 
 ## Delivery
 
+**Delivery**:
+The bounded context, and its one process in the cluster (`estate-kit-delivery`), that admits Projects, composes, dry-runs, signs and publishes renders, observes what Flux and Flagger do with them, records each Rollout and serves the API and the event stream. It never applies: Flux does. Capitalised, it is this context; it is not the old `delivery` repository it replaces.
+_Avoid_: the service, Conductor, deployer
+
 **Admitted Project**:
 A Project whose repository, named by its `repository_id`, Platform Intent lists as allowed to deploy.
 _Avoid_: participant, registered project
@@ -24,7 +28,7 @@ The digest of everything a Project's render depends on: its fragment, Platform I
 _Avoid_: cache key, input hash, signing key
 
 **Render signing key**:
-The Vault Transit key that signs `render/<project>:prod`. Flux verifies renders against it. The service's Vault policy may use it only for that path; it never signs a host tag.
+The Vault Transit key that signs `render/<project>:prod`. Flux verifies renders against it. Delivery's Vault policy may use it only for that path; it never signs a host tag.
 _Avoid_: render key, Transit key
 
 **Host signing key**:
@@ -44,31 +48,31 @@ The state of an Application whose release failed: its old version keeps serving 
 _Avoid_: stuck, failed
 
 **Pause**:
-The state of a Project whose Prod tag the service does not move. Composition still checks it and Flux still applies the render the tag names. It is recorded in the Project's ProjectControl; a missing or unreadable ProjectControl reads as Paused. An Operator resumes it, and a Rollback leaves the Project Paused.
+The state of a Project whose Prod tag Delivery does not move. Composition still checks it and Flux still applies the render the tag names. It is recorded in the Project's ProjectControl; a missing or unreadable ProjectControl reads as Paused. An Operator resumes it, and a Rollback leaves the Project Paused.
 _Avoid_: freeze, suspend
 
 **ProjectControl**:
-The custom resource, one per admitted Project in its own namespace, that records whether the Project is Paused and the render it is held at after a Rollback. Only the service writes it.
+The custom resource, one per admitted Project in its own namespace, that records whether the Project is Paused and the render it is held at after a Rollback. Only Delivery writes it.
 _Avoid_: control file, pause object
 
 **Rollout**:
-One Project's release, from the moment the service moves its Prod tag until it ends Serving, Held or Refused. The service records it as an append-only log of Rollout events and reports it as a GitHub Deployment in the environment `production`. Not a Kubernetes `Deployment`.
+One Project's release, from the moment Delivery moves its Prod tag until it ends Serving, Held or Refused. Delivery records it as an append-only log of Rollout events and reports it as a GitHub Deployment in the environment `production`. Not a Kubernetes `Deployment`.
 _Avoid_: deployment, release run
 
 **Release Gate**:
-The service's answer to Flagger, from cluster state, for each member of a switchover: may this member's new version start, and may it be promoted. It fails closed. Its answer reads cluster state; its only writes are the Application's record and the unsuspend of a migration Job, made by the service under the Writer Lease. Not the Kubernetes readiness gate.
+Delivery's answer to Flagger, from cluster state, for each member of a switchover: may this member's new version start, and may it be promoted. It fails closed. Its answer reads cluster state; its only writes are the Application's record and the unsuspend of a migration Job, made by Delivery under the Writer Lease. Not the Kubernetes readiness gate.
 _Avoid_: gate controller, promotion check
 
 **Writer Lease**:
-The coordination Lease in the API server that the one service pod takes immediately before it signs a render or moves a tag, and checks it still holds before the move. The move is read, verify, write: the tag is read again after the write, and a different value is a lost race, because ghcr has no compare-and-swap. It has a time-to-live.
+The coordination Lease in the API server that the one Delivery pod takes immediately before it signs a render or moves a tag, and checks it still holds before the move. The move is read, verify, write: the tag is read again after the write, and a different value is a lost race, because ghcr has no compare-and-swap. It has a time-to-live.
 _Avoid_: leader election, lock
 
 **Machine account**:
-The dedicated GitHub account whose classic token, synced from Vault into a Kubernetes Secret the service mounts, moves the `render/` and `host/` tags on ghcr. It has write access only on the render and host packages.
+The dedicated GitHub account whose classic token, synced from Vault into a Kubernetes Secret Delivery mounts, moves the `render/` and `host/` tags on ghcr. It has write access only on the render and host packages.
 _Avoid_: bot, service token
 
 **Composition**:
-The service's estate-wide step that unions every admitted Project's fragment and renders them. It names no workflow, job or check.
+Delivery's estate-wide step that unions every admitted Project's fragment and renders them. It names no workflow, job or check.
 _Avoid_: compose job, deploy
 
 **Plan**:
@@ -84,7 +88,7 @@ One entry in a rollout's append-only log; a rollout's state is the fold of its e
 _Avoid_: status update, log line
 
 **Reconstructed event**:
-A Rollout event that reconciliation appended after a crash, marked as reconstructed and naming the observation it was inferred from. The service did not see it happen.
+A Rollout event that reconciliation appended after a crash, marked as reconstructed and naming the observation it was inferred from. Delivery did not see it happen.
 _Avoid_: backfill, replayed event
 
 **Observation**:
@@ -102,6 +106,88 @@ _Avoid_: deployer, SRE
 **Admin**:
 A signed-in person who may also change what the estate admits: Platform Intent and Infrastructure Intent.
 _Avoid_: owner, superuser
+
+**Operation**:
+One deploy of one Project to one Environment, from the request to the end of its Rollout, identified by its Operation id. Delivery returns the Operation id and the URL of its event stream to the caller. Losing the caller does not end the Operation.
+_Avoid_: job, run, deploy request
+
+**Operation id**:
+The identifier of an Operation, unique within its Project and Environment. Each Rollout event of the Operation carries it, and the Rollout's source revision and render digest are bound to it.
+_Avoid_: run id, request id, correlation id
+
+**Apply group**:
+A set of a Project's rendered objects that Flux applies as one Kustomization, after the groups it depends on are healthy. The compiler derives the groups and their order, for example cluster-scoped kinds and namespaces, then grants and secrets, then the migration Job, then workloads, then routes.
+_Avoid_: wave, stage, phase, reconcile unit
+
+**Superseded**:
+The end of a Rollout that a newer Operation for the same Project and Environment replaced before it reached Serving, Held or Refused.
+_Avoid_: cancelled, aborted, replaced
+
+**Observation lost**:
+The end of an Operation's stream when Delivery can no longer see what Flux or Flagger did, so it cannot say how the Rollout ended. It is not a failure of the Rollout, which may still reach Serving.
+_Avoid_: timeout, unknown, disconnected
+
+**Publication point**:
+The step after which a render is visible to Flux: the moment its tag is created in the registry. Before it, an interrupted Operation has changed nothing the cluster can read; after it, the render may be applied.
+_Avoid_: commit, push, release point
+
+**Sequence tag**:
+An immutable registry tag that names one published render of one Project in one Environment, numbered so that a later publication has a higher version. Flux follows the highest; the registry refuses to change a tag once created. A Rollback creates a new Sequence tag that names an older, already-signed digest.
+_Avoid_: pin, live tag, moving tag
+
+**Roll-forward**:
+Recovering from a failed Rollout by publishing a new render that fixes it, when rolling back would run a migration backwards.
+_Avoid_: fix forward, hotfix
+
+**Retire**:
+The lifecycle step that removes an object a Project no longer declares, from the outside systems that hold it, after a Retirement tombstone has been recorded. A kind that is prune-protected is never removed by a render change alone.
+_Avoid_: delete, prune, drop
+
+**Retirement tombstone**:
+The durable record that an object was declared and is now retired: what it was, where its data went and when it may be removed for good. A component keeps it so that a rename or a lost render never deletes data.
+_Avoid_: soft delete, deletion marker
+
+**Analysis verdict**:
+The answer of the pure analysis function for one check of a Rollout: pass, fail or inconclusive. An inconclusive verdict holds the Rollout; it never promotes.
+_Avoid_: score, result, health
+
+**Forge port**:
+One of the three narrow ports through which Delivery reaches a forge: CI identity (who is calling), Rollout projection (where a Rollout is shown) and release source (where a Project's releases come from). GitHub is the first adapter of each.
+_Avoid_: forge adapter, git provider, SCM
+
+## Model and contracts
+
+**Model layer**:
+One of the four layers of the metamodel, each depending only on the ones before it: the core, which knows no target or provider; profiles and component kinds; provider facts; and the estate instance.
+_Avoid_: tier, level, module
+
+**Profile**:
+The part of the metamodel for one target, such as Kubernetes or NixOS. It refines core concepts for that target and knows no provider.
+_Avoid_: target model, backend
+
+**Component kind**:
+A kind of platform component a Project may declare, such as a Database or a Mailbox, defined from the capabilities of the core and the profiles.
+_Avoid_: resource type, plugin, CRD
+
+**Provider facts**:
+Pinned data about one provider's behaviour, such as an idle timeout or a token model, read by the compiler as input. Never compiler code or schema meaning.
+_Avoid_: provider config, quirks
+
+**Estate instance**:
+The estate's own data: Platform Intent, Infrastructure Intent and the Projects' fragments. Every fact about this estate lives here or in Provider facts.
+_Avoid_: estate config, deployment data
+
+**Contract major**:
+The major version of one persisted or externally read contract, such as the Rollout event schema or host data, with its own identifier and supported range, apart from estate-kit's own version.
+_Avoid_: schema version, API version
+
+**Unverifiable by construction**:
+A rendered object the dry-run cannot check because its kind, or the namespace it needs, does not exist in the cluster yet. Such objects are published in a first stage before the objects that depend on them.
+_Avoid_: unknown kind, skipped object
+
+**Durability class**:
+A group of stored data with one stated recovery time and recovery point, such as the datastore, the registry, Tenant databases or the event log.
+_Avoid_: tier, backup level
 
 ## Diagnostics and traceability
 
@@ -140,7 +226,7 @@ The agent on each NixOS node that pulls its signed generation and switches to it
 _Avoid_: deployer, updater
 
 **Host tag**:
-The signed registry tag `host/<node>:prod` that names the generation a node should run. The service moves it once the closures are built and the VM tests pass.
+The signed registry tag `host/<node>:prod` that names the generation a node should run. Delivery moves it once the closures are built and the VM tests pass.
 _Avoid_: host pin, target generation
 
 **Node class**:
@@ -272,3 +358,13 @@ _Avoid_: allowlist, diff exceptions
 **Port**:
 A trait in an application crate that names one thing the core needs from an outside system, such as `Registry` or `Signer`. A port has one adapter crate, one hand-written fake and one contract suite. The `Ports` wiring bundle, whose associated types are ports, is not a port.
 _Avoid_: interface, service, driver
+
+## Records and checks
+
+**Enforcement status**:
+Whether the check a record's Confirmation names runs today, is built but not yet required, or is planned. It is kept apart from the record's decision status (Proposed, Accepted, Locked), so an Accepted record can still say its check does not run.
+_Avoid_: check status, lock status
+
+**Generality test**:
+A CI test that proves the core is free of estate facts: a new Component kind built from existing capabilities, the NixOS profile, and a second estate's fixture all pass without a change to the core or the compiler.
+_Avoid_: portability test

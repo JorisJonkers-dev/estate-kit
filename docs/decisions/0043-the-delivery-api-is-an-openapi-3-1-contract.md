@@ -5,11 +5,11 @@ rests-on: [15, 17]
 lessons: [DR-4]
 ---
 
-# The service API is an OpenAPI 3.1 contract
+# The Delivery API is an OpenAPI 3.1 contract
 
 ## Context
 
-The service ([record 17](0017-the-service-runs-in-the-cluster-in-rust.md)) is
+Delivery ([record 17](0017-delivery-runs-in-the-cluster-in-rust.md)) is
 called by Project CI, the Vue UI, Observation and the Release Gate. Its payload
 shapes are already contract: the committed JSON Schemas
 ([record 15](0015-the-rust-types-agree-with-the-committed-schemas-on-their-corpus.md)).
@@ -21,7 +21,7 @@ one catalogue ([record 71](0071-a-diagnostic-is-a-coded-problem-with-typed-locat
 
 ## Decision
 
-The service's API is one OpenAPI 3.1 document, committed under `contracts/`.
+Delivery's API is one OpenAPI 3.1 document, committed under `contracts/`.
 It describes every endpoint and every server-sent event type, and references
 the committed JSON Schemas for payloads. The axum routes are written from it
 and the Vue client is generated from it; neither is the source.

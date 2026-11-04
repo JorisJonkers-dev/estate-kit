@@ -5,11 +5,11 @@ rests-on: [9, 17, 23]
 lessons: [DO-6, TM-4]
 ---
 
-# The service has one writer and reconciles from observed state
+# Delivery has one writer and reconciles from observed state
 
 ## Context
 
-The service signs renders and moves tags ([record 17](0017-the-service-runs-in-the-cluster-in-rust.md)).
+Delivery signs renders and moves tags ([record 17](0017-delivery-runs-in-the-cluster-in-rust.md)).
 Two writers at once could sign and move the same Project's tag from two
 compositions, and two compositions at once could each publish a render built
 from inputs the other moved. The design ran one replica with no leader election, but a
@@ -17,7 +17,7 @@ one-replica Deployment with the default rolling update surges to two pods
 during every update, so for a while two writers run
 ([review](../research/review/README.md) D9, finding ops-3).
 
-The service's own record of a rollout, the event log ([record 23](0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md)),
+Delivery's own record of a rollout, the event log ([record 23](0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md)),
 can also be wrong after a crash: an event may be written for a tag move that
 never happened, or a tag may have moved without its event. Flux keeps applying
 the last tags throughout, so the cluster, not the log, is what runs.
@@ -28,26 +28,26 @@ registry can refuse a move because the tag changed since it was read.
 
 ## Decision
 
-1. **One pod, never two, and one composition at a time.** The service's Deployment uses strategy `Recreate`,
+1. **One pod, never two, and one composition at a time.** Delivery's Deployment uses strategy `Recreate`,
    so an update stops the old pod before it starts the new one. The pod runs one
 composition at a time; triggers that arrive meanwhile merge into the next
 composition. A composition covers all its inputs and publishes nothing if an
 input moved during the run. Where the queue is kept is
 [record 73](0073-the-composition-queue-is-a-row-in-a-postgres-job-table.md).
-2. **A Lease before every write.** The service takes a coordination Lease in
+2. **A Lease before every write.** Delivery takes a coordination Lease in
    the API server immediately before it signs a render or moves a tag, and
    checks it is still the holder before the write. A pod that is not the
    holder signs and moves nothing.
 3. **Observed state over the log.** On startup, and whenever a step's outcome
-   is unknown, the service rebuilds each unfinished rollout from what it can
+   is unknown, Delivery rebuilds each unfinished rollout from what it can
    observe: the Project's tag in ghcr, and Flux's Kustomization and
    OCIRepository status and Flagger's Canary status. It appends the events the
    observation implies, or ends the rollout with an Abandoned event. It never
    replays a write because the log says it is due.
-4. **A tag move is read, verify, write, read again.** The service reads the
+4. **A tag move is read, verify, write, read again.** Delivery reads the
    tag, verifies that it still names the digest the decision was made from,
    checks the Lease, writes, and reads the tag again. If the second read shows
-   any value other than the one written, the move lost a race: the service
+   any value other than the one written, the move lost a race: Delivery
    stops, observes, and decides again. It never retries a write on the old
    decision ([record 23](0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md)). Signing a digest twice yields a valid
    signature, so signing needs no such check.
@@ -83,14 +83,14 @@ input moved during the run. Where the queue is kept is
 
 All but the last are **Single-writer tests**.
 
-- A deployment test fails if the service's Deployment strategy is not `Recreate`.
-- A service test runs two instances against fakes and asserts that only the
+- A deployment test fails if Delivery's Deployment strategy is not `Recreate`.
+- A Delivery test runs two instances against fakes and asserts that only the
   Lease holder signs or moves a tag.
-- A service test makes the fake registry change the tag between the write and
+- A Delivery test makes the fake registry change the tag between the write and
   the re-read, and asserts that the move is reported as a lost race and not
   retried on the old decision.
-- A service test queues two triggers during one composition and asserts that
+- A Delivery test queues two triggers during one composition and asserts that
   one composition follows, covering both.
-- A scenario of the **E2E scenarios** kills the service after each write step and asserts that the
-  restarted service ends the rollout with the outcome the cluster shows
+- A scenario of the **E2E scenarios** kills Delivery after each write step and asserts that the
+  restarted Delivery ends the rollout with the outcome the cluster shows
   ([record 69](0069-the-deploy-path-is-tested-end-to-end.md)).

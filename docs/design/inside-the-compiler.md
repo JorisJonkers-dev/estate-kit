@@ -5,8 +5,7 @@ and implements deploy-kit's 1.0 specification
 ([record 67](../decisions/0067-the-compiler-is-written-to-the-1-0-contract.md)).
 Its design is deploy-kit's: a chain of typed models, one pure step per arrow,
 ports for everything that touches the world. Cargo's crate graph replaces
-dependency-cruiser. The same `compiler` crate serves the CLI in CI and the
-service in the cluster ([record 18](../decisions/0018-the-service-links-the-compiler.md)).
+dependency-cruiser. The same `compiler` crate serves the CLI in CI and Delivery in the cluster ([record 18](../decisions/0018-delivery-links-the-compiler.md)).
 How each step carries the MDE course's lessons is
 [Transformations without a DSL](transformations.md).
 
@@ -65,7 +64,7 @@ The read step validates against the schemas; a corpus-agreement test runs
 every corpus document through the schema and through the typed conversion. The
 types must refuse everything the schema refuses and may refuse more, and the
 whole diagnostic set recorded for each document must match. No language generates its types from the schemas,
-and no test compares generated schema bytes. The service's routes are held to
+and no test compares generated schema bytes. Delivery's routes are held to
 the committed OpenAPI document the same way, and the Vue client is generated
 from it.
 
@@ -76,7 +75,7 @@ from it.
 `estate-kit` reads fragments from a directory and writes renders and
 diagnostics to an output directory. With `--json` it prints one document,
 validated against a committed schema, that the reusable workflows read for
-annotations and summaries. The service does not read it: it calls the
+annotations and summaries. Delivery does not read it: it calls the
 `compiler` crate directly. Renders are written in a canonical YAML style
 specified on one page ([record 64](../decisions/register.md)).
 
@@ -87,7 +86,7 @@ on every lockstep release, because the compiler version is part of the key. The
 render key stays as provenance: the hash of the fragment digest, the Platform
 Intent digest, the ClusterState digest, the compiler version and the Surface
 declarations that Link reads from other Projects. When a
-render's digest equals the one already behind the Project's tag, the service
+render's digest equals the one already behind the Project's tag, Delivery
 publishes nothing and moves nothing. Inside one run, each fragment is parsed
 once.
 

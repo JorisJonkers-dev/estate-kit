@@ -18,7 +18,7 @@ Kubernetes cluster, and the NixOS hosts that cluster runs on. It replaces
 - **One model and one compiler.** A Rust binary validates authored intent
   offline and renders it: Kubernetes objects for Projects, typed host data for
   NixOS nodes. It implements deploy-kit's 1.0 specification.
-- **A service in the cluster** that links the same compiler. It composes the
+- **Delivery, a process in the cluster,** that links the same compiler. It composes the
   estate, dry-runs every change against the API server, signs each render
   through Vault Transit, and moves the Project's `render/<p>:prod` tag. Flux
   stays the one applier.
