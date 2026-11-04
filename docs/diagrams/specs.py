@@ -48,7 +48,7 @@ sequence("seq-deploy-1-admit", "Deploy, step 1 of 3: the deploy job hands a rele
          [("CI", "deploy job"), ("R", "compiler binary"), ("O", "ghcr"), ("S", "Delivery")],
          [("CI", "R", "validate offline"), ("R", "CI", "no diagnostics", "reply"),
           ("CI", "O", "promote digests, publish the Intent Fragment"),
-          ("CI", "S", "deploy (GitHub OIDC token)"), ("S", "CI", "rollout id, event stream opens", "reply")])
+          ("CI", "S", "deploy (GitHub OIDC token, Operation id)"), ("S", "CI", "Operation id, stream URL; the stream opens", "reply")])
 sequence("seq-deploy-2-dryrun", "Deploy, step 2 of 3: compose, dry-run, sign and move the prod tag",
          [("S", "Delivery"), ("R", "compiler binary"), ("K", "API server"), ("V", "Vault Transit"), ("O", "ghcr")],
          [("S", "O", "pull the admitted fragments"), ("S", "S", "every digest registered by its Project?"),
@@ -62,9 +62,12 @@ sequence("seq-deploy-2-dryrun", "Deploy, step 2 of 3: compose, dry-run, sign and
            [("K", "S", "rejected", "reply"), ("note", "S", "Project isolated, prod tag unchanged")])])
 sequence("seq-deploy-3-switch", "Deploy, step 3 of 3: Flux applies and Flagger switches traffic",
          [("F", "Flux"), ("O", "ghcr"), ("K", "API server"), ("FG", "Flagger"), ("S", "Delivery"), ("CI", "deploy job")],
-         [("F", "O", "pull the prod tag, verify its signature"), ("F", "K", "apply"),
+         [("S", "F", "call the Project's Receiver after the Publication point"),
+          ("F", "O", "pull the prod tag, verify its signature"),
+          ("F", "K", "apply the chain of Kustomizations, one per Apply group"),
+          ("S", "K", "watch, read-only: Kustomizations, Canaries, Events, inventoried objects"),
           ("FG", "S", "Release Gate webhook"), ("S", "FG", "promote once every member is healthy", "reply"),
-          ("S", "CI", "settled: Serving or Held", "reply")])
+          ("S", "CI", "Operation stream: Serving, Held, Superseded or Observation lost", "reply")])
 sequence("seq-dry-run", "Dry-run of a release pull request",
          [("CI", "deploy job, dry-run"), ("S", "Delivery"), ("K", "API server"), ("GH", "GitHub")],
          [("CI", "CI", "build candidate images"), ("CI", "S", "deploy, dry-run (GitHub OIDC token)"),

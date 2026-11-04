@@ -15,12 +15,16 @@ hand-written fake that passes the same contract suite as its adapter
 | Crate | Layer | Holds | Outside system |
 | --- | --- | --- | --- |
 | `rollout` | domain | The Rollout decider and its events, the upcasters (once a second version exists), the composition queue policy | None |
+| `observe` | domain | The pure fold of Flux, Flagger and object observations into Rollout events ([record 94](../decisions/0094-flux-stays-the-one-applier-observed-closely-and-an-estate-kit-applier-waits-for-a-review-trigger.md)) | None |
+| `analysis` | domain | The pure verdict function: pass, fail or inconclusive ([record 102](../decisions/0102-analysis-is-a-pure-verdict-function-and-an-inconclusive-verdict-holds.md)) | None |
 | `release-gate` | domain | The Release Gate's answer from a ClusterObservation; probing and warmup rules | None |
 | `delivery-app` | application | Deploy, DryRun, Plan, Pause, Resume, Rollback, Admit, Gate; the port traits and their fakes | None |
 | `adapter-github-oidc` | adapter | The CI token's claim policy | GitHub's OIDC discovery |
 | `adapter-ghcr` | adapter | Fragments, renders, tags, registered digests | ghcr, with a machine account's token from a mounted Secret |
 | `adapter-vault` | adapter | Signs a render or host tag with its own Transit key | Vault Transit |
-| `adapter-kube` | adapter | Server-side dry-run as Delivery's own identity; Flux and Flagger status; the ClusterState snapshot; the writer Lease; the Pause object | API server, through kube-rs |
+| `adapter-kube` | adapter | Server-side dry-run as Delivery's own identity; the ClusterState snapshot; the writer Lease; the Pause object | API server, through kube-rs |
+| `adapter-flux-watch` | adapter | The read-only watches of Flux and Flagger objects, inventories and Events, and the Receiver call ([record 94](../decisions/0094-flux-stays-the-one-applier-observed-closely-and-an-estate-kit-applier-waits-for-a-review-trigger.md)) | API server, through kube-rs; the Project's Flux Receiver |
+| `adapter-metrics` | adapter | Read-only samples for analysis ([record 102](../decisions/0102-analysis-is-a-pure-verdict-function-and-an-inconclusive-verdict-holds.md)) | Prometheus |
 | `adapter-github` | adapter | Deployment status, check runs | GitHub App |
 | `adapter-postgres` | adapter | The append-only rollout event log and the job table | A database on the shared platform-postgres |
 | `http-api` | adapter | axum routes from the OpenAPI document, SSE, problem+json, authentication layers | None |
@@ -79,9 +83,30 @@ composition runs normally.
 
 ## What it reads from the cluster
 
-Delivery follows Flux by watching Kustomization and OCIRepository status,
-not by taking Flux events: Flux and Flagger cannot send projected
-service-account tokens. The Release Gate answers Flagger from cluster state
+Delivery observes Flux closely
+([record 94](../decisions/0094-flux-stays-the-one-applier-observed-closely-and-an-estate-kit-applier-waits-for-a-review-trigger.md)):
+it watches, read-only, the Project's Kustomizations, OCIRepository and Canary
+objects, the Events in `flux-system` and the Project's namespaces, and every
+object in each step's inventory, and it writes no Flux object. Each observation
+becomes a versioned Rollout event with its sequence number
+([record 23](../decisions/0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md)),
+so the Rollout is the fold of what Delivery saw, never Flux's summary as the
+truth. Delivery computes each object's health itself, by the kstatus rules, and
+correlates observations by the render digest Flux reports as applied. It
+watches rather than taking Flux's or Flagger's event notifications, which are
+pushes it cannot authenticate. The Release Gate's webhook is different: Flagger
+asks a question, and the answer changes nothing in the cluster.
+
+The fold lives in `observe`, a domain crate; the read-only watches and the
+Receiver call live in `adapter-flux-watch`
+([record 94](../decisions/0094-flux-stays-the-one-applier-observed-closely-and-an-estate-kit-applier-waits-for-a-review-trigger.md)).
+After the Publication point, Delivery calls the Project's Flux Receiver, so
+Flux fetches the new render at once; the reconcile interval stays as the
+fallback if the call is lost. What stays opaque is said, not hidden: the
+stream can say a render was not picked up, but not why, because Flux's own
+queue is not visible; Flux's errors are shown verbatim, not parsed.
+
+The Release Gate answers Flagger from cluster state
 only, so no unauthenticated request can change anything. Its two writes, the
 unsuspend of a migration Job and the Application's record, are made by Delivery's reconcile under the writer Lease with a service account of their own
 ([record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)). Delivery dry-runs

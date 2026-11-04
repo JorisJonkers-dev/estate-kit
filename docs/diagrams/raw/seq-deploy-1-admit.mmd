@@ -8,5 +8,5 @@ sequenceDiagram
     CI->>R: validate offline
     R-->>CI: no diagnostics
     CI->>O: promote digests, publish the Intent Fragment
-    CI->>S: deploy (GitHub OIDC token)
-    S-->>CI: rollout id, event stream opens
+    CI->>S: deploy (GitHub OIDC token, Operation id)
+    S-->>CI: Operation id, stream URL#59; the stream opens

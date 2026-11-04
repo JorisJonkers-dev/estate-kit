@@ -59,7 +59,8 @@ Release-please opens or updates its pull request. Outcome: the required check
 ## UC-3 Deploy a release
 
 A release is published and the production environment's approver allows it.
-Outcome: the Deployment shows Serving, Held or Refused.
+Outcome: the Deployment shows the Operation's outcome: Serving, Held, Refused,
+Superseded or Observation lost.
 
 ![UC-3 Deploy a release](../diagrams/png/uc3-deploy.png)
 
@@ -88,17 +89,122 @@ Outcome: they see where it is and why it stopped.
 
 ![UC-4 Watch the rollout live](../diagrams/png/uc4-watch.png)
 
+## The Operation
+
+A deploy is one Operation of one Project to one Environment
+([record 96](../decisions/0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md)).
+The caller mints its Operation id (the reusable deploy workflow mints one per
+run attempt), and Delivery returns it with the URL of its stream. Every
+Rollout event carries it, and the source revision and render digest are bound
+to it. A retry with the same id and the same fragment digest returns the same
+Operation; the same id with another digest is refused; identical content under
+a new id is a new Operation. Losing the caller never cancels an Operation;
+`estate-kit watch <operation>` reattaches.
+
+## The Receiver call and the Kustomization chain
+
+After the Publication point, Delivery calls the Project's Flux Receiver, so
+Flux fetches the new render at once; the reconcile interval stays as the
+fallback if the call is lost
+([record 94](../decisions/0094-flux-stays-the-one-applier-observed-closely-and-an-estate-kit-applier-waits-for-a-review-trigger.md)).
+Each Apply group is its own Flux Kustomization, joined by `dependsOn` and
+health checks, under the Project's one service account
+([record 95](../decisions/0095-a-project-renders-as-a-chain-of-flux-kustomizations-one-per-apply-group.md)).
+Delivery watches, read-only, the Project's Kustomizations, OCIRepository and
+Canary objects, Events in `flux-system` and the Project's namespaces, and
+every object in each step's inventory. It computes each object's health itself
+by the kstatus rules and never takes Flux's summary as the truth.
+
+## The Publication point and two-stage publication
+
+The Publication point is the move of the Environment tag by read, verify,
+write and read again
+([record 97](../decisions/0097-the-publication-point-is-named-and-tested-and-a-render-that-introduces-a-kind-is-published-in-two-stages.md)).
+No other step makes a render visible to Flux. Code tests an interruption on
+each side of it. Interrupted before it, a render may be pushed and signed but
+no tag names it; the restarted Delivery finds no change Flux can read and
+decides again from the inputs. Interrupted after it, the restarted Delivery
+observes the tag, follows the Rollout by observation, and never publishes
+again on the log's word.
+
+A render that introduces a kind or a namespace is published in two stages.
+The plan names each object that is Unverifiable by construction: one whose
+kind or namespace the API server does not yet serve because this render brings
+it. The first stage is the full render without those objects, dry-run and
+published as usual. Once Flux has applied it and the API server serves the new
+kinds and namespaces, the full render is dry-run again and published as the
+second stage, in the same Operation.
+
+## The five outcomes
+
+An Operation ends in exactly one of five outcomes, and `estate-kit watch` exits
+with that outcome's code
+([record 96](../decisions/0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md)):
+
+| Outcome | When | Exit |
+| --- | --- | --- |
+| Serving | The intended digest is the applied revision of every Apply group's Kustomization, every inventoried object is healthy by the kstatus rules, that digest's migration has completed, and every Canary has promoted that digest | 0 |
+| Held | The render was published, and a step, object, migration or analysis failed, so the old version keeps serving; with a reason and a deadline | 10 |
+| Refused | Delivery stopped it before the Publication point: admission, digest registration, Pause, composition or dry-run; nothing changed | 11 |
+| Superseded | A newer Operation for the same Project and Environment was composed in its place or published over it before it ended | 12 |
+| Observation lost | Delivery has had no observation of Flux or Flagger for 10 minutes, so it cannot say how the Rollout ended; the Rollout goes on and may still reach Serving | 13 |
+
+Exit 1 means the watch itself failed (it could not authenticate or reach
+Delivery) and says nothing of the Operation; exit 2 is a usage error.
+
+Two bounds apply. When Flux has not picked a published render up after
+30 seconds, the stream says so, and the Operation goes on. When Delivery has
+had no observation at all for 10 minutes, the Operation ends Observation lost.
+Separately, Delivery alerts when the applied revision trails the latest
+published one for 1 hour, as the low-attention defaults of
+[record 86](../decisions/0086-the-estate-states-its-defaults-for-a-low-attention-week.md) state.
+
+## Roll-forward
+
+A Rollback reads the migration state before it dry-runs. If the current state
+does not meet the target render's migration preconditions, the Rollback is
+refused with a code that names the migration that blocks it, and nothing is
+published
+([record 101](../decisions/0101-a-rollout-rolls-forward-when-rolling-back-would-run-a-migration-backwards.md)).
+A Roll-forward is then the way out: `estate-kit roll-forward <project> --env
+<env>` deploys a fixed fragment the Project has released, as a new Operation
+on the full deploy path, with both dry-runs and the Publication point. Its
+failsafe is to hold at the current version, never to revert.
+
+## Analysis verdicts
+
+Analysis is a pure function in its own domain crate, `analysis`
+([record 102](../decisions/0102-analysis-is-a-pure-verdict-function-and-an-inconclusive-verdict-holds.md)):
+from one check's declaration and the samples for its window, it returns an
+Analysis verdict, pass, fail or inconclusive, with a reason. Too little
+traffic and missing telemetry are inconclusive, never pass and never fail.
+
+The Release Gate turns verdicts into Flagger's answers. Every check passing
+lets it answer yes. A fail sets off the plan's declared failsafe; by default
+the gate answers yes on the rollback hook, so Flagger reverts traffic, the old
+version keeps serving, and the Operation ends Held with the check's reason. An
+inconclusive verdict holds: the gate answers no on the confirm hooks, which
+pause the canary, and never gives it as an error on a hook that counts toward
+a rollback. Inconclusive never promotes, and a Rollout held past the plan's
+deadline pages the maintainer and stays held; time never promotes it.
+
 ## States of a rollout
 
-A rollout ends in exactly one of Serving, Held or Refused.
+A Rollout ends in exactly one of Serving, Held or Refused. The Operation that
+follows it can also end Superseded, when a newer Operation takes its place, or
+Observation lost, when Delivery stops seeing Flux and Flagger; the Rollout then
+goes on, and may still reach Serving
+([record 96](../decisions/0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md)).
 
 ![States of a rollout](../diagrams/png/state-rollout.png)
 
 ## Failure paths
 
-**A deploy call is retried.** A deploy call is idempotent on (project, fragment
-digest): a retry after a lost response returns the same rollout, and no second
-rollout starts.
+**A deploy call is retried.** A deploy call is idempotent on its Operation id:
+a retry after a lost response, with the same id and the same fragment digest,
+returns the same Operation, and no second Rollout starts. The same content
+under a new id is a new Operation
+([record 96](../decisions/0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md)).
 
 ![Failure: a retried deploy call](../diagrams/png/seq-fail-retry.png)
 

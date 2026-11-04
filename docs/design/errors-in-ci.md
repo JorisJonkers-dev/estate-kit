@@ -94,3 +94,23 @@ A breach means the document asked for more than the estate allows, so it has
 its own refusal code, a primary location on the document that spent the
 budget, and is reported as a 4xx problem. Its fixtures are a looping input and
 an oversized input. A panic is not a refusal: it is an internal problem.
+
+## The `estate-kit watch` exit codes
+
+`estate-kit watch` streams an Operation's Rollout events over SSE until the
+Operation ends, and exits with a code that names the outcome
+([record 96](../decisions/0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md)):
+
+| Exit | Meaning |
+| --- | --- |
+| 0 | Serving — the intended digest is applied in every step, healthy, with migration complete and Canaries promoted |
+| 10 | Held — the render was published, and a step, object, migration or analysis failed; the old version keeps serving |
+| 11 | Refused — Delivery stopped before the Publication point; nothing changed |
+| 12 | Superseded — a newer Operation for the same Project and Environment was composed or published over this one |
+| 13 | Observation lost — Delivery had no observation of Flux or Flagger for 10 minutes; the Rollout may still reach Serving |
+| 1 | Watch failed — could not authenticate or reach Delivery; says nothing of the Operation |
+| 2 | Usage error — invalid arguments |
+
+A CI author can branch on these codes. Exit 0 is success; 10 and 11 are
+expected failures; 12 means a newer deploy took over; 13 means the view was
+lost; 1 and 2 are command failures.

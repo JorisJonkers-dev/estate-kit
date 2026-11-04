@@ -7,8 +7,10 @@ sequenceDiagram
     participant FG as Flagger
     participant S as Delivery
     participant CI as deploy job
+    S->>F: call the Project's Receiver after the Publication point
     F->>O: pull the prod tag, verify its signature
-    F->>K: apply
+    F->>K: apply the chain of Kustomizations, one per Apply group
+    S->>K: watch, read-only: Kustomizations, Canaries, Events, inventoried objects
     FG->>S: Release Gate webhook
     S-->>FG: promote once every member is healthy
-    S-->>CI: settled: Serving or Held
+    S-->>CI: Operation stream: Serving, Held, Superseded or Observation lost
