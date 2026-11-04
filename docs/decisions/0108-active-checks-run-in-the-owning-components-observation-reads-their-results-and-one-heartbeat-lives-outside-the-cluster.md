@@ -39,8 +39,9 @@ raises an alert.
 This record confirms
 [record 50](0050-six-bounded-contexts-in-five-layers.md) and
 [record 74](0074-the-release-gate-and-observation-each-have-a-named-write.md):
-Observation stays read-only apart from silences, and gains no credential and no
-write.
+Observation stays read-only apart from silences and the cost ledger of
+[record 92](0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md),
+and gains no credential and no write for an active check.
 
 An active check runs in the component that owns the outside system it touches.
 `backup` restores a Backup generation into a throwaway instance on a schedule
@@ -52,10 +53,14 @@ what runs matches what was declared), alerts on a failed or missing result with
 the owning Project and its runbook, and checks that its own telemetry pipeline
 keeps the records it is sent.
 
-One heartbeat lives outside the cluster. The cluster sends it on a schedule, and
-when it stops, an alert is raised from outside. Where it runs (a provider's
-uptime check, or a scheduled job on a machine off the cluster) stays open for
-the maintainer, provided it shares no machine with the control plane.
+One heartbeat lives outside the cluster. It is Alertmanager's Watchdog alert,
+which always fires while the alerting pipeline works. Alertmanager sends it on
+a schedule to a hosted dead-man's switch from an EU-based provider, such as
+healthchecks.io, and when it stops arriving, that service raises the alert from
+outside. The service shares no machine with the control plane. The heartbeat
+holds no estate data, so the rule that a store of estate data runs on an
+EU-controlled provider or on owned hardware does not bind it; an EU-based
+service is still preferred.
 
 ## Alternatives
 
@@ -65,25 +70,31 @@ the maintainer, provided it shares no machine with the control plane.
 | A separate checker component | One more process with every component's credentials | The owner already holds the credential and knows the meaning |
 | Passive checks only | A backup that cannot restore looks healthy until it is needed | Only a restore proves a backup |
 | Health inside the cluster only | A silent cluster raises no alert | A checker cannot report its own disappearance |
+| A scheduled job on a machine the maintainer runs off the cluster | One more machine to keep up, whose own failure is silent | A hosted dead-man's switch is someone else's uptime |
+| A hosted uptime check that probes the cluster from outside | An open endpoint, and a probe that passes while alerting is broken | The Watchdog proves the whole alerting path, not only reachability |
 
 ## Consequences
 
 - Easier: a backup that cannot be restored, or mail that cannot be delivered, is
   found on a schedule; Observation keeps one write; a silent cluster pages.
 - Harder: `backup` and `mailbox` each schedule, run and publish a check; the
-  heartbeat is one more thing to keep off the cluster.
+  heartbeat depends on a hosted service and its account.
 - Forbidden: an active check in Observation; a credential or a write for
-  Observation beyond silences; a heartbeat that runs on the cluster it watches.
+  Observation beyond silences and the cost ledger and read-only billing
+  credentials of
+  [record 92](0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md);
+  a heartbeat that runs on the cluster it watches.
 
 ## Confirmation
 
 The **RBAC fixtures** still fail when Observation's credential grants anything
-beyond silences, and **`cargo xtask check-layers`** still refuses an edge from
-Observation to a component's adapters. The **Active check result tests** fail
-when `backup` or `mailbox` runs its check without publishing a result with its
-time and outcome, or publishes a pass for a failed restore or an undelivered
-probe. The **Silent failure scenarios** fail when a seeded failure (an
-unreadable Backup generation, an undelivered probe mail, a telemetry pipeline
-that drops records, a running state that differs from the declared one) raises
-no alert. The **External heartbeat drill** fails when stopping the cluster's
-heartbeat raises no alert from outside the cluster within its bound.
+beyond its named writes, and **`cargo xtask check-layers`** still refuses an
+edge from Observation to a component's adapters. The **Active check result
+tests** fail when `backup` or `mailbox` runs its check without publishing a
+result with its time and outcome, or publishes a pass for a failed restore or
+an undelivered probe. The **Silent failure scenarios** fail when a seeded
+failure (an unreadable Backup generation, an undelivered probe mail, a
+telemetry pipeline that drops records, a running state that differs from the
+declared one) raises no alert. The **External heartbeat drill** fails when
+stopping the Watchdog heartbeat raises no alert from the hosted dead-man's
+switch within its bound.

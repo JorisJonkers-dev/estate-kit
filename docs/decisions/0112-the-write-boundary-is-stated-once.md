@@ -55,10 +55,10 @@ platform render installs write what they derive, as listed.
 | Writer | What it writes | Credential |
 | --- | --- | --- |
 | Flux, per Project | The objects of that Project's render, in its target namespaces | The Project's own service account, named by its Kustomization; Flux's default account has no rights |
-| Flux, for the platform | The platform render: namespaces, per-Project service accounts, Flux sources, CRDs and admission policies | Proposed: the platform Kustomization's service account, the only one with cluster-scoped rights |
+| Flux, for the platform | The platform render: namespaces, per-Project service accounts, Flux sources, CRDs and admission policies | The platform Kustomization's service account, the only one with cluster-scoped rights |
 | Delivery | Every change with `dryRun`; without it, only the Lease `estate-kit-writer` and ProjectControl objects | Delivery's service account, held there by the ValidatingAdmissionPolicy |
 | Delivery's Release Gate | `spec.suspend` of a migration Job; one gate ConfigMap per Application | A service account of its own, limited by RBAC to those, under the writer Lease |
-| Delivery's tenancy context | The spec of Tenant resources | Proposed: a service account of its own, limited to Tenant resources, under the writer Lease |
+| Delivery's tenancy context | The spec of Tenant resources | A service account of its own, limited to Tenant resources, under the writer Lease, as the Release Gate's is under [record 74](0074-the-release-gate-and-observation-each-have-a-named-write.md) |
 | A Tenant's participants | Each its own finalizer and status condition on a Tenant, and the status of the objects it reconciles | Each component's own service account |
 | Flagger | Canary status, and the workloads, Services and routes it derives from a Canary | Flagger's service account |
 | Other controllers the platform installs | What they derive and their status; the Vault Secrets Operator writes the Secrets it syncs, the machine account's among them | Each its own service account |
@@ -76,24 +76,28 @@ Observation and a Project's CI write nothing into the API server.
 | Delivery | Rollout events, registered digests, the job table and the Tenant operation log | Its database role: insert and select on the logs, and its own rows of the job table |
 | The retention job | Deletion of expired Rollout events | Its own database role, delete only |
 | Delivery | GitHub Deployment statuses and check runs | The GitHub App's installation token |
-| Observation | Silences in Alertmanager, and its mirror of them in its own schema | A credential for the silences API only |
+| Observation | Silences in Alertmanager, its mirror of them and the cost ledger's rows in its own schema ([record 92](0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md)) | A credential for the silences API only, and a database role for its own schema only |
 | A Project's CI | Its images and its Intent Fragment in its own packages; digest registrations through Delivery's API | The job's own token; the GitHub OIDC token for Delivery |
 | estate-kit's CI on `main` | Signed host closures in the binary cache | The environment-scoped cache signing key, after a reviewer approves |
 | A component | Its one outside system: Vault policies, Postgres roles, Garage buckets, Stalwart accounts or backup copies | A credential for that system alone |
 | The maintainer, in a break-glass | A signature over a render or a host tag | The offline Recovery key |
 
-One question stays open for the maintainer: whether Tenant writes take a
-service account of their own, as proposed above, or a third exemption in the
-policy of [record 58](0058-flux-is-locked-down-per-project-and-delivery-dry-runs-as-an-identity-that-cannot-write.md) for Delivery's identity. The platform Kustomization's
-service account is also proposed here, since no record names it. The participants' row reads the
-**Tenant one writer** check as covering a Tenant's spec only.
+Delivery writes Tenant resources under a service account of its own, the
+pattern [record 74](0074-the-release-gate-and-observation-each-have-a-named-write.md)
+set for the Release Gate, not under a third exemption in the policy of
+[record 58](0058-flux-is-locked-down-per-project-and-delivery-dry-runs-as-an-identity-that-cannot-write.md)
+for Delivery's identity. Flux applies the platform render under the platform
+Kustomization's service account, which this record names because no other
+does. The participants' row reads the **Tenant one writer** check as covering a
+Tenant's spec only.
 
 ## Alternatives
 
 | Option | Cost if taken | Why rejected |
 | --- | --- | --- |
 | Correct each record in place and keep the lists apart | Four lists drift again on the next write | One table, cited, cannot disagree with itself |
-| Tenant writes as a third exemption for Delivery's identity | The dry-run identity's policy widens with each new write | Kept open for the maintainer; the proposal follows the own-credential pattern of [record 74](0074-the-release-gate-and-observation-each-have-a-named-write.md) |
+| Tenant writes as a third exemption for Delivery's identity | The dry-run identity's policy widens with each new write | A write gets its own credential, as in [record 74](0074-the-release-gate-and-observation-each-have-a-named-write.md) |
+| The platform render applied under Flux's default account | Flux's default account gains cluster-scoped rights that every Project's Kustomization could fall back to | Flux's default account has no rights; the platform has its own |
 | Say only Flux writes, and leave controllers unstated | Flagger and the other controllers write without a row, so no check covers them | A boundary that omits writers is not a boundary |
 | List only the writes into the API server | The registry, signing keys and logs are where a stray write does the most harm | The tags and signatures decide what runs |
 
@@ -111,7 +115,9 @@ service account is also proposed here, since no record names it. The participant
 
 The **Write table check** fails when a Role, ClusterRole or binding in the
 platform render grants a write verb to an identity with no row, or wider than
-its row. The rows keep their own checks: the **Dry-run admission fixtures**,
-the **ProjectControl admission fixtures**, the **RBAC fixtures**, the **Tenant
-one writer**, the **Eviction fixture**, the **Token grant check**, the
-**Event-log tests** and the **Operation log append-only** check.
+its row (a grant to Delivery's own identity on Tenant resources among them), or
+when the platform Kustomization names a service account other than its own. The
+rows keep their own checks: the **Dry-run admission fixtures**, the
+**ProjectControl admission fixtures**, the **RBAC fixtures**, the **Tenant one
+writer**, the **Eviction fixture**, the **Token grant check**, the **Event-log
+tests** and the **Operation log append-only** check.
