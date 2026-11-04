@@ -665,6 +665,43 @@ class TablesAreReadByTheirColumns(unittest.TestCase):
         self.assertEqual(tree.keys(), [])
 
 
+class TablesWithoutALastPipeOrAFixedOrder(unittest.TestCase):
+    def test_a_register_row_without_its_closing_pipe_keeps_its_enforcement(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        register = tree.decisions / "register.md"
+        register.write_text(register.read_text().replace("| Accepted | verified |", "| Accepted | verified"))
+        self.assertEqual(tree.keys(), [])
+
+    def test_a_checks_row_without_its_closing_pipe_keeps_its_status(self) -> None:
+        tree = Tree(self)
+        tree.checks.write_text("## The checks\n\n| Check | Status |\n| --- | --- |\n| Records | verified\n")
+        tree.record(1, "accepted")
+        self.assertEqual(tree.keys(), [])
+
+    def test_the_register_may_put_enforcement_before_status(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        (tree.decisions / "register.md").write_text(
+            "# The register\n\n| # | Record | Enforcement | Status |\n| --- | --- | --- | --- |\n"
+            "| 1 | Record 1 | verified | Accepted |\n")
+        self.assertEqual(tree.keys(), [])
+
+    def test_the_register_header_may_name_its_first_column_otherwise(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        register = tree.decisions / "register.md"
+        register.write_text(register.read_text().replace("| # |", "| No. |"))
+        self.assertEqual(tree.keys(), [])
+
+    def test_a_check_with_an_unknown_status_holds_nothing(self) -> None:
+        tree = Tree(self)
+        tree.checks.write_text("## The checks\n\n| Check | Status |\n| --- | --- |\n| Records | runs today |\n")
+        tree.row(1, "Accepted", "review")
+        tree.file(1, "---\nstatus: accepted\n---\n")
+        self.assertEqual(tree.keys(), ["check-status Records"])
+
+
 class TheCommand(unittest.TestCase):
     def test_a_violation_fails(self) -> None:
         tree = Tree(self)

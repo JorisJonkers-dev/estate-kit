@@ -163,23 +163,25 @@ def confirmation(text: str) -> str:
 
 def cells(line: str) -> list[str]:
     """The cells of one Markdown table row, trimmed; an empty cell stays an empty string."""
-    return [cell.strip() for cell in re.split(r"\s*\|\s*", line.strip())[1:-1]]
+    body = line.strip().removeprefix("|").removesuffix("|")
+    return [cell.strip() for cell in re.split(r"\s*\|\s*", body)]
 
 
 def register_rows(register: Path) -> dict[int, tuple[str, str]]:
-    """Each numbered row of the register as {number: (status, enforcement)}, read by its columns.
+    """Each numbered row of the register as {number: (status, enforcement)}, read by the header's column names.
 
-    A register without an Enforcement column gives every row an empty enforcement."""
+    The header is the table row before the numbered rows. A register without an Enforcement column gives every
+    row an empty enforcement."""
     rows: dict[int, tuple[str, str]] = {}
-    enforcement_column: int | None = None
+    header: list[str] = []
     for line in register.read_text(encoding="utf-8").splitlines():
-        if line.startswith("| # |"):
-            header = cells(line)
-            enforcement_column = header.index("Enforcement") if "Enforcement" in header else None
-        elif NUMBERED.match(line):
+        if NUMBERED.match(line):
             row = cells(line)
-            enforcement = row[enforcement_column] if enforcement_column is not None and enforcement_column < len(row) else ""
-            rows[int(row[0])] = (row[2] if len(row) > 2 else "", enforcement)
+            status = header.index("Status") if "Status" in header else 2
+            enforcement = header.index("Enforcement") if "Enforcement" in header else len(row)
+            rows[int(row[0])] = (row[status] if status < len(row) else "", row[enforcement] if enforcement < len(row) else "")
+        elif line.startswith("|") and not line.startswith("| ---"):
+            header = cells(line)
     return rows
 
 
@@ -207,19 +209,14 @@ def check_names(page: Path) -> dict[str, str] | None:
 
 
 def enforcement_status(check_statuses: dict[str, str], check_names_in_confirmation: list[str]) -> str:
-    """Derive the enforcement status for a record from its named checks."""
-    # Filter to checks that are in the table and not retired
-    statuses = [
-        check_statuses[name]
-        for name in check_names_in_confirmation
-        if name in check_statuses and check_statuses[name] != "retired"
-    ]
-    if not statuses:
-        return "review"
-    # Order: planned < implemented < verified
+    """The lowest status of the live checks a record names (planned < implemented < verified); review when there is none.
+
+    A check that is retired, missing from the table or has an unknown status holds nothing: the Records check
+    reports the last two on their own."""
     order = {"planned": 0, "implemented": 1, "verified": 2}
-    lowest = min(statuses, key=lambda s: order.get(s, 3))
-    return lowest
+    live = [check_statuses.get(name, "") for name in check_names_in_confirmation]
+    known = [status for status in live if status in order]
+    return min(known, key=order.__getitem__) if known else "review"
 
 
 def violations(decisions: Path, lessons_file: Path, checks_page: Path) -> list[Violation]:
@@ -243,7 +240,7 @@ def violations(decisions: Path, lessons_file: Path, checks_page: Path) -> list[V
     found = []
     known = check_names(checks_page)
     if known is None:
-        found.append(Violation("no-checks-table", checks_page, "the page has no table of checks under '## The checks'"))
+        found.append(Violation("no-checks-table", checks_page, "the page has no table of checks with a Status column under '## The checks'"))
     # Validate check statuses
     if known is not None:
         for check_name, status in known.items():
