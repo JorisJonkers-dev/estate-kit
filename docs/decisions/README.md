@@ -10,7 +10,9 @@ follow [MADR](https://adr.github.io/madr/); start from
 
 The Records job holds these rules, and that a record's status agrees with its
 register row, that every Accepted row has a file, that a Merged or Moved
-row has none and nothing rests on it, and that a Superseded row keeps its file and names an Accepted record (`scripts/check_records.py`).
+row has none and nothing rests on it, that a Superseded row keeps its file and
+names an Accepted record, and that an Accepted record's `amends` and
+`supersedes` targets carry their back-links and rows (`scripts/check_records.py`).
 
 Every record has a non-empty Confirmation, and a Confirmation names each check
 it relies on in bold, spelled as the first column of
@@ -52,6 +54,16 @@ own records (engines, grants, exposure and the rest) are rewritten after the cut
   Accepted one whose Confirmation names a failing check, so agents stop and ask
   instead of working around it. Accepted only was rejected; readers should see
   the lock while tooling still parses the record.
+- **A record declares what it amends or supersedes.** Two optional front-matter
+  fields, `amends: [N, ...]` and `supersedes: [N, ...]`, sit beside `rests-on`;
+  a record whose prose says it "extends" another lists that one under `amends`.
+  Each amended record carries, directly under its H1 and one line per amending
+  record, `Amended by [record M](file): <one sentence of what changed>.` It
+  keeps that line as history, and its body is edited to match. A superseded
+  record keeps its "Superseded by" line and an unchanged body. A Proposed
+  record may declare its targets, but nothing is applied until it is accepted.
+  The Records job fails with `amends-no-backlink`, `amends-missing` or
+  `supersedes-row` when an Accepted declaration is not carried into its target.
 
 ## Rejected without a record
 

@@ -10,6 +10,10 @@ the superseded row. A row "Moved to [page](link)" is retired: its rule lives on 
 Accepted, and nothing rests on it.
 Every record file has a non-empty Confirmation, and each check it names, in bold, is a row of the
 checks table on the design page (the first column of the table under "## The checks").
+An Accepted or Locked record may declare in its front matter the records it amends (`amends`) and
+supersedes (`supersedes`). Every amended record carries, directly under its title, a line
+`Amended by [record M](...): <what changed>`; every superseded record's row reads
+"Superseded by M" and its file says `status: superseded`. Proposed records are exempt.
 
     check_records.py [--decisions DIR] [--lessons FILE] [--checks FILE]
 """
@@ -45,6 +49,8 @@ class Record:
     status: str
     rests_on: list[str]
     lessons: list[str]
+    amends: list[str]
+    supersedes: list[str]
 
 
 def front_matter(text: str) -> dict[str, str]:
@@ -74,7 +80,34 @@ def read_record(path: Path, number: int) -> Record:
         status=fields.get("status", ""),
         rests_on=items(fields.get("rests-on", "")),
         lessons=items(fields.get("lessons", "")),
+        amends=items(fields.get("amends", "")),
+        supersedes=items(fields.get("supersedes", "")),
     )
+
+
+def backlinks(text: str) -> list[str]:
+    """The back-link paragraphs directly under the title, one space-joined line each."""
+    lines = text.splitlines()
+    try:
+        start = next(index for index, line in enumerate(lines) if line.startswith("# ")) + 1
+    except StopIteration:
+        return []
+    paragraphs = []
+    current: list[str] = []
+    for line in [*lines[start:], ""]:
+        if line.startswith("## "):
+            break
+        if line.strip():
+            current.append(line)
+        elif current:
+            paragraphs.append(" ".join(" ".join(current).split()))
+            current = []
+    found = []
+    for paragraph in paragraphs:
+        if not re.match(r"^(Amended|Superseded) by \[record ", paragraph):
+            break
+        found.append(paragraph)
+    return found
 
 
 def cycles(edges: dict[int, list[int]]) -> list[list[int]]:
@@ -219,6 +252,35 @@ def violations(decisions: Path, lessons_file: Path, checks_page: Path) -> list[V
                 found.append(Violation(f"lesson {number} {lesson}", record.path, f"cites {lesson}, but there is no lesson {lesson}"))
             elif lessons[lesson] != "Keep":
                 found.append(Violation(f"lesson {number} {lesson}", record.path, f"cites {lesson}, which curation dropped"))
+        if record.status not in ACCEPTED:
+            continue
+        for target in record.amends:
+            if not target.isdigit() or int(target) not in records:
+                found.append(Violation(
+                    f"amends-missing {number} {target}", record.path,
+                    f"amends {target}, which has no record file"))
+                continue
+            amended = records[int(target)]
+            if not any(
+                re.match(rf"Amended by \[record {number}\]\([^)]+\):\s*\S", paragraph)
+                for paragraph in backlinks(amended.path.read_text(encoding="utf-8"))
+            ):
+                found.append(Violation(
+                    f"amends-no-backlink {number} {int(target)}", record.path,
+                    f"amends {int(target)}, but {int(target)} has no "
+                    f"'Amended by [record {number}](...)' line under its title"))
+        for target in record.supersedes:
+            if not target.isdigit():
+                found.append(Violation(
+                    f"supersedes-row {number} {target}", record.path,
+                    f"supersedes {target}, which is not a record number"))
+                continue
+            old = records.get(int(target))
+            if superseded.get(int(target)) != number or old is None or old.status != "superseded":
+                found.append(Violation(
+                    f"supersedes-row {number} {int(target)}", record.path,
+                    f"supersedes {int(target)}, but its row does not read 'Superseded by {number}' "
+                    "with a file whose status is superseded"))
     for members in cycles(edges):
         found.append(Violation(
             "cycle " + ",".join(map(str, members)), records[members[0]].path,
