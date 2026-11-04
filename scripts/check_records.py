@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
-"""Fail when the decision records break the register's rules.
+"""
+Fail when the decision records break the register's rules.
 
 docs/decisions/README.md: a record's status agrees with its register row; rests-on names rows that
 exist and forms no cycle; an Accepted record rests only on Accepted ones; every lesson a record cites
@@ -14,6 +14,10 @@ An Accepted or Locked record may declare in its front matter the records it amen
 supersedes (`supersedes`). Every amended record carries, directly under its title, a line
 `Amended by [record M](...): <what changed>`; every superseded record's row reads
 "Superseded by M" and its file says `status: superseded`. Proposed records are exempt.
+The register's Enforcement column is derived from the table of checks: a record's Confirmation
+names checks in bold; their statuses (planned, implemented, verified, retired) give the record's
+enforcement (review if no check, otherwise the lowest status in the order planned < implemented < verified).
+The Records check fails when a register row's Enforcement disagrees with this derivation.
 
     check_records.py [--decisions DIR] [--lessons FILE] [--checks FILE]
 """
@@ -25,7 +29,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-ROW = re.compile(r"^\| (\d+) \| .+ \| (\w+(?: into \d+| by \d+| to \[[^\]]+\]\([^)]+\))?) \|$")
+ROW = re.compile(r"^\| (\d+) \| .+? \| ([^|]+) \|")
 LESSON = re.compile(r"^\| ([A-Z]+-\d+) \| .+ \| (\w+) \|$")
 RECORD_FILE = re.compile(r"^(\d{4})-.+\.md$")
 ACCEPTED = {"accepted", "locked"}
@@ -156,24 +160,51 @@ def confirmation(text: str) -> str:
     return "\n".join(body).strip()
 
 
-def check_names(page: Path) -> set[str] | None:
-    """The first column of the table under `## The checks`, backticks stripped; None without one."""
-    names: set[str] | None = None
+def check_names(page: Path) -> dict[str, str] | None:
+    """The first column of the table under `## The checks` mapped to its Status cell (first word, lowercased, punctuation stripped); None without one."""
+    names: dict[str, str] | None = None
     inside = False
     for line in page.read_text(encoding="utf-8").splitlines():
         if line.startswith("## "):
             inside = line.strip() == "## The checks"
         elif inside and line.startswith("| ") and not line.startswith(("| Check ", "| ---")):
-            names = (names or set()) | {line.split("|")[1].strip().strip("`")}
+            parts = [p.strip() for p in line.split("|")]
+            # parts[0] is empty (before the first |), parts[1] is the check, parts[5] is its Status
+            cell = parts[5].split() if len(parts) > 5 else []
+            names = (names or {}) | {parts[1].strip("`"): cell[0].lower().rstrip(".,;:") if cell else ""}
     return names
+
+
+def enforcement_status(check_statuses: dict[str, str], check_names_in_confirmation: list[str]) -> str:
+    """Derive the enforcement status for a record from its named checks."""
+    # Filter to checks that are in the table and not retired
+    statuses = [
+        check_statuses[name]
+        for name in check_names_in_confirmation
+        if name in check_statuses and check_statuses[name] != "retired"
+    ]
+    if not statuses:
+        return "review"
+    # Order: planned < implemented < verified
+    order = {"planned": 0, "implemented": 1, "verified": 2}
+    lowest = min(statuses, key=lambda s: order.get(s, 3))
+    return lowest
 
 
 def violations(decisions: Path, lessons_file: Path, checks_page: Path) -> list[Violation]:
     register = decisions / "register.md"
     rows = {}
+    enforcement_rows = {}
     for line in register.read_text(encoding="utf-8").splitlines():
         if match := ROW.match(line):
-            rows[int(match.group(1))] = match.group(2).lower()
+            number = int(match.group(1))
+            rows[number] = match.group(2).lower()
+            # Extract enforcement column if present (4th column)
+            parts = [p.strip() for p in line.split("|")]
+            if len(parts) >= 5 and parts[4].strip():
+                enforcement_rows[number] = parts[4].strip().lower()
+            else:
+                enforcement_rows[number] = ""
     moved = {number for number, status in rows.items() if MOVED.match(status)}
     merged = {number: int(m.group(1)) for number, status in rows.items() if (m := MERGED.match(status))}
     superseded = {number: int(m.group(1)) for number, status in rows.items() if (m := SUPERSEDED.match(status))}
@@ -191,6 +222,11 @@ def violations(decisions: Path, lessons_file: Path, checks_page: Path) -> list[V
     known = check_names(checks_page)
     if known is None:
         found.append(Violation("no-checks-table", checks_page, "the page has no table of checks under '## The checks'"))
+    # Validate check statuses
+    if known is not None:
+        for check_name, status in known.items():
+            if status not in ("planned", "implemented", "verified", "retired"):
+                found.append(Violation(f"check-status {check_name}", checks_page, f"check {check_name!r} has unknown status {status!r}"))
     edges: dict[int, list[int]] = {}
     for number, record in sorted(records.items()):
         if number not in rows:
@@ -216,11 +252,19 @@ def violations(decisions: Path, lessons_file: Path, checks_page: Path) -> list[V
         body = confirmation(text)
         if not body:
             found.append(Violation(f"no-confirmation {number}", record.path, "has no Confirmation, or an empty one"))
-        for name in dict.fromkeys(" ".join(m.group(1).split()).strip("`") for m in CHECK_NAME.finditer(body)):
+        named = list(dict.fromkeys(" ".join(m.group(1).split()).strip("`") for m in CHECK_NAME.finditer(body)))
+        for name in named:
             if known is not None and name not in known:
                 found.append(Violation(
                     f"unknown-check {number} {name}", record.path,
                     f"the Confirmation names {name!r}, which is not in the table of checks"))
+        if known is not None and number in rows and number not in merged and number not in moved:
+            derived = enforcement_status(known, named)
+            cell = enforcement_rows.get(number, "")
+            if cell != derived:
+                found.append(Violation(
+                    f"enforcement {number}", record.path,
+                    f"row {number} says {cell or 'nothing'}; the table of checks gives {derived}"))
         edges[number] = []
         for rest in record.rests_on:
             if not rest.isdigit() or int(rest) not in rows:
