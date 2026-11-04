@@ -702,6 +702,22 @@ class TablesWithoutALastPipeOrAFixedOrder(unittest.TestCase):
         self.assertEqual(tree.keys(), ["check-status Records"])
 
 
+class SeparatorsAndMissingColumns(unittest.TestCase):
+    def test_a_separator_row_with_alignment_colons_is_not_the_header(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        register = tree.decisions / "register.md"
+        register.write_text(register.read_text().replace("| --- | --- | --- | --- |", "| :--- | :---: | ---: | --- |"))
+        self.assertEqual(tree.keys(), [])
+
+    def test_a_register_without_a_status_column_is_reported_once(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        register = tree.decisions / "register.md"
+        register.write_text(register.read_text().replace("| Status |", "| State |"))
+        self.assertEqual(tree.keys().count("no-register-status"), 1)
+
+
 class TheCommand(unittest.TestCase):
     def test_a_violation_fails(self) -> None:
         tree = Tree(self)

@@ -167,8 +167,12 @@ def cells(line: str) -> list[str]:
     return [cell.strip() for cell in re.split(r"\s*\|\s*", body)]
 
 
-def register_rows(register: Path) -> dict[int, tuple[str, str]]:
-    """Each numbered row of the register as {number: (status, enforcement)}, read by the header's column names.
+SEPARATOR = re.compile(r"^\|[\s:|-]+$")
+
+
+def register_rows(register: Path) -> tuple[dict[int, tuple[str, str]], bool]:
+    """Each numbered row of the register as {number: (status, enforcement)}, read by the header's column names,
+    and whether the header has a Status column.
 
     The header is the table row before the numbered rows. A register without an Enforcement column gives every
     row an empty enforcement."""
@@ -177,12 +181,12 @@ def register_rows(register: Path) -> dict[int, tuple[str, str]]:
     for line in register.read_text(encoding="utf-8").splitlines():
         if NUMBERED.match(line):
             row = cells(line)
-            status = header.index("Status") if "Status" in header else 2
+            status = header.index("Status") if "Status" in header else len(row)
             enforcement = header.index("Enforcement") if "Enforcement" in header else len(row)
             rows[int(row[0])] = (row[status] if status < len(row) else "", row[enforcement] if enforcement < len(row) else "")
-        elif line.startswith("|") and not line.startswith("| ---"):
+        elif line.startswith("|") and not SEPARATOR.match(line):
             header = cells(line)
-    return rows
+    return rows, "Status" in header
 
 
 def check_names(page: Path) -> dict[str, str] | None:
@@ -197,7 +201,7 @@ def check_names(page: Path) -> dict[str, str] | None:
             inside = line.strip() == "## The checks"
             in_header = inside
             status_column = None
-        elif inside and line.startswith("| ") and not line.startswith("| ---"):
+        elif inside and line.startswith("|") and not SEPARATOR.match(line):
             row = cells(line)
             if in_header:
                 status_column = row.index("Status") if "Status" in row else None
@@ -221,7 +225,7 @@ def enforcement_status(check_statuses: dict[str, str], check_names_in_confirmati
 
 def violations(decisions: Path, lessons_file: Path, checks_page: Path) -> list[Violation]:
     register = decisions / "register.md"
-    register_cells = register_rows(register)
+    register_cells, has_status = register_rows(register)
     rows = {number: status.lower() for number, (status, _) in register_cells.items()}
     enforcement_rows = {number: enforcement.lower() for number, (_, enforcement) in register_cells.items()}
     moved = {number for number, status in rows.items() if MOVED.match(status)}
@@ -239,6 +243,8 @@ def violations(decisions: Path, lessons_file: Path, checks_page: Path) -> list[V
 
     found = []
     known = check_names(checks_page)
+    if not has_status:
+        found.append(Violation("no-register-status", register, "the register's header has no Status column"))
     if known is None:
         found.append(Violation("no-checks-table", checks_page, "the page has no table of checks with a Status column under '## The checks'"))
     # Validate check statuses
