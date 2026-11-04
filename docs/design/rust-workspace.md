@@ -79,7 +79,7 @@ not wired to this context, as Observation keeps its own kube adapter.
 | Context | Owns | Aggregate roots | Talks to others through |
 | --- | --- | --- | --- |
 | Compiler | The model: Intent in, Resolved Deployment, Deliverable Set out | Project; the Estate is the set of admitted Projects | Its application crate's use cases (`validate`, `plan`, `compose`, `render_hosts`, `generate`) |
-| Delivery | Rollouts, compositions, admission, Pause and Rollback, the Release Gate (with its Job unsuspend and per-Application record, under the writer Lease: [record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)) | Rollout (event-sourced); Composition | The compiler's use cases, called in-process ([record 18](../decisions/0018-delivery-links-the-compiler.md)) |
+| Delivery | Rollouts, compositions, admission, Pause and Rollback, the close observation of Flux, the Release Gate (with its Job unsuspend and per-Application record, under the writer Lease: [record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)) | Rollout (event-sourced); Composition | The compiler's use cases, called in-process ([record 18](../decisions/0018-delivery-links-the-compiler.md)) |
 | Observation | What runs and how it is doing: units, pods, containers, alerts and silences, logs, health, checks | None: read models only, and Silences as its one write | Ports onto Prometheus, Loki, Alertmanager, Gatus and the cluster; rollout history from Delivery's API |
 | Hosts | Generations and their rollout across nodes | NodeRollout | Signed host tags only; never a model type |
 | Components | Migration runs, secret grants, database and bucket catalogs, backups, Mailboxes | One per component: MigrationRun, SecretGrant, DatabaseGrant, BucketGrant, BackupGeneration, Mailbox | Rendered objects only |
@@ -109,8 +109,8 @@ Dependencies point inward and downward only.
 
 | Layer | May depend on | Holds | Forbidden |
 | --- | --- | --- | --- |
-| foundation | foundation | Diagnostics with a generic Location, model paths, digests, canonical YAML and JSON, spanned YAML reading, the trace store (generic over its source key), the pure decide step, the test kit | Domain words; async; I/O (the test kit alone may, and only as a dev-dependency) |
-| domain | foundation; its context's domain | Model types, invariants, transformation steps, deciders, state machines | `tokio`, `kube`, `sqlx`, `reqwest`, `axum`; `std::env`, `std::fs`, `SystemTime::now` |
+| foundation | foundation | Diagnostics with a generic Location, model paths, digests, canonical YAML and JSON, spanned YAML reading, the trace store (generic over its source key), the pure decide step, the test kit (oracle and crash-point harnesses) | Domain words; async; I/O (the test kit alone may, and only as a dev-dependency) |
+| domain | foundation; its context's domain | Model types, invariants, transformation steps, deciders, state machines, the analysis verdict function, the Flux observation fold | `tokio`, `kube`, `sqlx`, `reqwest`, `axum`; `std::env`, `std::fs`, `SystemTime::now` |
 | application | its context's domain; foundation; the application crate of an upstream context that `crates/layers.toml` names (Delivery links the compiler: [record 18](../decisions/0018-delivery-links-the-compiler.md)) | Use cases, port traits, drivers, the fakes behind a `fakes` feature | Any adapter crate |
 | adapter | its context's application; foundation; external crates | One outside system each | Another adapter; a domain crate's internals |
 | binary | anything | `main`, typed configuration, wiring | Logic: a binary is wiring only |
@@ -140,9 +140,9 @@ crates/
     canonical/                the canonical YAML and JSON emitters (record 64), and Digest
     trace/                    the trace store, generic over its source key: source element to produced element, create-then-link
     reconcile/                the pure decide step (desired and observed in, actions out) and a generic Action type; no port, no I/O
-    testkit/                  read-only oracle harness, structural diff before byte diff, builders
+    testkit/                  read-only oracle harness, structural diff before byte diff, builders, the crash-point harness
   compiler/
-    model-intent/             Project, Platform and Infrastructure Intent as authored; ElementRef, and the constructors that turn a Project, Platform Intent or a ClusterState fact into a diagnostics Location
+    model-intent/             Project, Platform and Infrastructure Intent as authored; the `core`, `profile::kubernetes`, `profile::nixos` and `kind` modules; ElementRef, and the constructors that turn a Project, Platform Intent or a ClusterState fact into a diagnostics Location
     model-effective/          Intent after lowering
     model-resolved/           the Resolved Deployment and host plans
     deliverable/              the narrow object model of every rendered file, and the `Renderer` port the render crates implement
@@ -151,6 +151,7 @@ crates/
     step-lower/               shared declarations settled into effective values
     step-compose/             the union of admitted Projects: departures, Moves, assets, set-wide refusals
     step-resolve/             derivation of every mechanism; one module per concept
+    step-plan/                the rollout plan: checks bound to cohorts, the failsafe, the Held deadline
     step-outputs/             what is not a Deliverable: Flux sources, the node contract, labels, host data
     render-kubernetes/        one crate per adapter of the 1.0 registry:
     render-networking/          kubernetes, networking, traefik, vault-policy,
@@ -160,18 +161,24 @@ crates/
     render-vso/
     render-prometheus/
     render-grafana/
+    render-nix/               host data from Infrastructure Intent, for hand-written NixOS modules
     serialize/                domain: Deliverable Set to bytes through `canonical`; path ownership; the list of files to write
     adapter-fs/               adapter: reads authored YAML and env files, writes rendered files atomically; implements the compiler's `Files` port
     generate/                 an Application's App Roles in its language (go, kotlin, python, rust, ts)
+    cost-estimate/            application: the plan's cost estimate from the capacity report and the Admin's price table; never a render input
     compiler/                 application: validate, plan, compose, render_hosts, generate, migrate; the `Files` port
   delivery/
     rollout/                  domain: the Rollout decider, events and their upcasters, the composition queue policy
-    release-gate/             domain: the Release Gate's answer from a ClusterObservation; probing and warmup rules
+    observe/                  domain: the pure fold of Flux, Flagger and object observations into Rollout events
+    analysis/                 domain: the pure verdict function, pass, fail or inconclusive
+    release-gate/             domain: the Release Gate's answer from the rollout plan, Analysis verdicts and cluster state
     delivery-app/             application: Deploy, DryRun, Plan, Pause, Resume, Rollback, Admit, Gate; the ports
     adapter-postgres/         the event log and the job table (sqlx)
     adapter-ghcr/             fragments, renders, tags (oci-client) with the machine token
     adapter-vault/            Transit signing and token reads
     adapter-kube/             server-side dry-run, Flux and Flagger status, ClusterState capture, the writer Lease, the Pause object
+    adapter-flux-watch/       the read-only watches of Flux objects, inventories and Events, and the Receiver call
+    adapter-metrics/          read-only samples from Prometheus for analysis
     adapter-github/           Deployment status, check runs (GitHub App)
     adapter-github-oidc/      the CI token's claim policy
     http-api/                 axum routes from the OpenAPI document, SSE, problem+json
@@ -233,17 +240,48 @@ contracts/                    JSON Schemas and corpus, OpenAPI, the error catalo
 oracles/                      hand-reviewed expected outputs, read-only to tests
 ```
 
-The render crates are the eight adapters of deploy-kit 1.0's closed registry,
-one crate each, and they are step crates, not adapter-layer crates: they do no
-I/O. They implement one `Renderer` port, so that trait has more than one
-implementation and earns its place (CS-2). The port lives in `deliverable`,
-beside the type it returns, so a render crate depends on `deliverable` and the
-models and never on `compiler`, and `compiler` depends on the render crates
-with no cycle. Each context's `-app` crate drives the same `reconcile` decide
-step through its own ports; one loop trait in foundation would have needed
-those ports in foundation. `step-outputs` is the step
-#373 introduced for outputs that are not Deliverables; its final name is
-settled against `CONTEXT.md` when it is written.
+The eight `render-*` crates for Kubernetes are the adapters of deploy-kit 1.0's
+closed registry, one crate each, and they are step crates, not adapter-layer
+crates: they do no I/O. They implement one `Renderer` port, so that trait has
+more than one implementation and earns its place (CS-2). The port lives in
+`deliverable`, beside the type it returns, so a render crate depends on
+`deliverable` and the models and never on `compiler`, and `compiler` depends on
+the render crates with no cycle. `render-nix` is a render crate outside that
+registry: it renders host data from Infrastructure Intent, which hand-written
+NixOS modules consume ([record 31](../decisions/0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md)).
+Each context's `-app` crate drives the same `reconcile` decide step through its
+own ports; one loop trait in foundation would have needed those ports in
+foundation. `step-outputs` is the step #373 introduced for outputs that are not
+Deliverables; its final name is settled against `CONTEXT.md` when it is written.
+
+### The crates and modules the evaluation added
+
+| Crate or module | Context | Crate layer | Holds | Record |
+| --- | --- | --- | --- | --- |
+| `step-plan` | Compiler | domain | The rollout plan compiled into the Resolved Deployment: checks bound to cohorts, the failsafe and the Held deadline | [record 93](../decisions/0093-the-rollout-plan-is-compiled-with-checks-bound-to-cohorts-a-failsafe-and-a-held-deadline.md) |
+| `render-nix` | Compiler | domain | Host data from Infrastructure Intent for hand-written NixOS modules | [record 31](../decisions/0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md) |
+| `cost-estimate` | Compiler | application | The plan's cost estimate from the capacity report and the Admin's price table, outside the Render key | [record 92](../decisions/0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md) |
+| `observe` | Delivery | domain | The pure fold of Flux, Flagger and object observations into Rollout events | [record 94](../decisions/0094-flux-stays-the-one-applier-observed-closely-and-an-estate-kit-applier-waits-for-a-review-trigger.md) |
+| `adapter-flux-watch` | Delivery | adapter | The read-only watches of Flux objects, inventories and Events, and the Receiver call | [record 94](../decisions/0094-flux-stays-the-one-applier-observed-closely-and-an-estate-kit-applier-waits-for-a-review-trigger.md) |
+| `analysis` | Delivery | domain | The pure verdict function: pass, fail or inconclusive | [record 102](../decisions/0102-analysis-is-a-pure-verdict-function-and-an-inconclusive-verdict-holds.md) |
+| `adapter-metrics` | Delivery | adapter | Read-only samples from Prometheus for analysis | [record 102](../decisions/0102-analysis-is-a-pure-verdict-function-and-an-inconclusive-verdict-holds.md) |
+| `testkit` crash-point harness | Foundation | foundation | Drives a reconciler over its port fakes through a crash after every write, a lost response, a duplicate request and a stale view | [record 104](../decisions/0104-every-reconciler-estate-kit-owns-passes-crash-point-stale-read-and-safety-tests-before-it-takes-production-responsibility.md) |
+
+During the port, the four Model layers are modules of `model-intent`:
+
+| Module of `model-intent` | Model layer | Holds |
+| --- | --- | --- |
+| `core` | Core | The concepts any estate has, with no target or provider word |
+| `profile::kubernetes` | Profiles | Kubernetes, with the capabilities it offers |
+| `profile::nixos` | Profiles | NixOS, with the capabilities it offers |
+| `kind` | Component kinds | One Component kind per platform component |
+
+`core` names no target or provider and imports neither `profile` nor `kind`
+([record 88](../decisions/0088-the-metamodel-is-layered-core-profiles-and-component-kinds-provider-facts-estate-instance.md)).
+After parity the modules become the crates `model-core` and `model-profile`, and
+`crates/layers.toml` holds their edges. [Models and
+metamodels](models-and-metamodels.md#the-four-model-layers) holds the four
+layers in full.
 
 ### What goes in rust-commons, and what stays
 

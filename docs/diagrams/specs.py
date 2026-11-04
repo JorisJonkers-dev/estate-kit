@@ -496,13 +496,15 @@ g.package("svc", "delivery-app")
 g.package("app", "compiler (use cases)")
 g.group("steps", "step and render crates: none depends on another")
 STEPS = {"read": "step-read", "check": "step-check", "lower": "step-lower", "compose": "step-compose",
-         "resolve": "step-resolve", "outputs": "step-outputs", "render": "render-* (8 crates)", "serialize": "serialize"}
+         "resolve": "step-resolve", "plan": "step-plan", "outputs": "step-outputs",
+         "render": "render-* (8 crates)", "nix": "render-nix: host data", "serialize": "serialize"}
 for crate, label in STEPS.items():
     g.package(crate, label, parent="steps")
-g.package("models", "model-intent, model-effective, model-resolved", tone="data")
+g.package("models", "model-intent (core, profile, kind), model-effective, model-resolved", tone="data")
 g.package("deliverable", "deliverable: Deliverable, Renderer", tone="data")
 g.package("fs", "adapter-fs: reads files, atomic write")
-g.package("foundation", "foundation: diagnostics, yaml-source, canonical, trace", tone="data")
+g.package("cost", "cost-estimate: capacity and prices")
+g.package("foundation", "foundation: diagnostics, yaml-source, canonical, trace, testkit (crash-point harness)", tone="data")
 g.edge("cli", "app", "depends on", kind="dashed")
 g.edge("cli", "fs", "wires", kind="dashed")
 g.edge("fs", "app", "implements the Files port of", kind="dashed")
@@ -510,6 +512,8 @@ g.edge("svc", "app", "links", kind="dashed")
 for crate in STEPS:
     g.edge("app", crate, kind="dashed")
     g.edge(crate, "models", kind="dashed")
+g.edge("app", "cost", "calls", kind="dashed")
+g.edge("cost", "models", kind="dashed")
 g.edge("render", "deliverable", "implements Renderer, builds", kind="dashed")
 g.edge("serialize", "deliverable", "reads", kind="dashed")
 g.edge("models", "foundation", kind="dashed")
@@ -520,18 +524,25 @@ g.package("bin", "bins/estate-kit-delivery", tone="accent")
 g.package("api", "http-api: axum, SSE, problem+json")
 g.package("app", "delivery-app: use cases, ports, fakes")
 g.package("rollout", "rollout: the decider", tone="data")
-g.package("gate", "release-gate", tone="data")
+g.package("observe", "observe: the Flux observation fold", tone="data")
+g.package("analysis", "analysis: the verdict function", tone="data")
+g.package("gate", "release-gate: verdicts into Flagger's answers", tone="data")
 g.package("compiler", "compiler (use cases)", tone="data")
 for crate, label in [("oidc", "adapter-github-oidc"), ("ghcr", "adapter-ghcr: oci-client"),
                      ("vault", "adapter-vault: Transit"), ("kube", "adapter-kube: kube-rs"),
+                     ("fluxwatch", "adapter-flux-watch: read-only watches, Receiver"),
+                     ("metrics", "adapter-metrics: Prometheus samples"),
                      ("github", "adapter-github: the App"), ("pg", "adapter-postgres: sqlx")]:
     g.package(crate, label)
 g.edge("bin", "api", kind="dashed")
 g.edge("api", "app", kind="dashed")
 g.edge("app", "rollout", kind="dashed")
+g.edge("app", "observe", "drives", kind="dashed")
+g.edge("observe", "rollout", "appends events", kind="dashed")
+g.edge("gate", "analysis", "reads verdicts", kind="dashed")
 g.edge("app", "gate", kind="dashed")
 g.edge("app", "compiler", "links", kind="dashed")
-for crate in ("oidc", "ghcr", "vault", "kube", "github", "pg"):
+for crate in ("oidc", "ghcr", "vault", "kube", "fluxwatch", "metrics", "github", "pg"):
     g.edge("bin", crate, "wires", kind="dashed")
     g.edge(crate, "app", "implements a port of", kind="dashed")
 g.done()
