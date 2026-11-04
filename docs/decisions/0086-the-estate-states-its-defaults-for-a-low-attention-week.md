@@ -1,7 +1,7 @@
 ---
 status: proposed  # proposed | accepted | locked
 date: 2026-11-04
-rests-on: [1, 25, 28, 63, 80, 81]
+rests-on: [1, 25, 28, 63, 80, 81, 114]
 lessons: [CS-3]
 ---
 
@@ -33,8 +33,9 @@ an unknown outcome is rebuilt from observed state and never replayed
 ([record 63](0063-delivery-has-one-writer-and-reconciles-from-observed-state.md));
 a failed lock or prepare-restore hook aborts a Tenant operation
 ([record 80](0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md));
-a Behind database blocks the next release
-([record 81](0081-migrations-reach-tenant-databases-in-waves.md)). Nothing
+a Project database marked failed by a failed migration blocks further releases
+([record 81](0081-migrations-reach-tenant-databases-in-waves.md),
+[record 114](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md)). Nothing
 gathers them, and nothing says what the rule for a new one is.
 
 ## Decision
@@ -64,9 +65,9 @@ in the record that creates it.
 | A credential is expired or cannot be verified | Fail closed |
 | Vault is sealed | Nothing is signed; a Rollback still works |
 | Delivery is down | Nothing new deploys; Flux keeps serving the last renders |
-| A Tenant database is Behind | No new version of that Project in that Environment |
+| A migration fails and its Project database is marked failed | No release of that Project in that Environment until an Operator retries the migration or requests a Roll-forward |
 | A lock or prepare-restore Tenant hook fails | The Tenant operation stops before any data changes |
-| A Suspended Tenant reaches the end of its grace period | The Purge proceeds; its Backup generations remain until their retention ends |
+| A Suspended Tenant reaches the end of its grace period | The Purge proceeds; its Tenant exports go at once, and whole-database backups that hold its rows remain until their retention ends |
 | A Retire grace period ends | Delete only after a verified recovery copy exists |
 | A backup reconciler is down | Alert; nothing else changes |
 | A node class has no rehearsed fallback | No automatic host rollout for that class |
@@ -107,6 +108,6 @@ The **Default scenarios** check fails when a row of the table has no scenario
 in the end-to-end suite or no Delivery or component test, or when its scenario
 ends other than the row says. The rows already held by a check keep it: the
 **Pause refusal test**, the **Sign-precondition test**, the **Single-writer
-tests**, the **Behind release refusal**, the **Tenant hook abort** and the
+tests**, the **Failed migration release refusal**, the **Tenant hook abort** and the
 **Purge grace test**. Whether a new record's default fails safe is a review
 rule.

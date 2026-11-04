@@ -120,3 +120,5 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 112 | [The write boundary is stated once, in one table of every writer](0112-the-write-boundary-is-stated-once.md) | Proposed |
 | 113 | [Every UI action is a CLI command with the same identifier](0113-every-ui-action-is-a-cli-command-with-the-same-identifier.md) | Proposed |
 | 114 | [Multi-tenant Projects keep their Tenants in shared tables, separated by row-level security](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md) | Accepted |
+| 115 | [Backups are Kopia snapshots in one locked repository per Environment on an EU object store, with WAL archived beside them](0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md) | Proposed |
+| 116 | [Every store of estate data runs on an EU-controlled provider or on owned hardware](0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md) | Proposed |

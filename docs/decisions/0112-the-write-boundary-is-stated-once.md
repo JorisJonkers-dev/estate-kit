@@ -1,7 +1,7 @@
 ---
 status: proposed  # proposed | accepted | locked
 date: 2026-11-04
-rests-on: [2, 9, 17, 21, 23, 28, 30, 50, 58, 63, 74, 80]
+rests-on: [2, 9, 17, 21, 23, 28, 30, 50, 58, 63, 74, 80, 101, 114, 115]
 lessons: [DR-3, DO-1]
 ---
 
@@ -59,6 +59,7 @@ platform render installs write what they derive, as listed.
 | Delivery | Every change with `dryRun`; without it, only the Lease `estate-kit-writer` and ProjectControl objects | Delivery's service account, held there by the ValidatingAdmissionPolicy |
 | Delivery's Release Gate | `spec.suspend` of a migration Job; one gate ConfigMap per Application | A service account of its own, limited by RBAC to those, under the writer Lease |
 | Delivery's tenancy context | The spec of Tenant resources | A service account of its own, limited to Tenant resources, under the writer Lease, as the Release Gate's is under [record 74](0074-the-release-gate-and-observation-each-have-a-named-write.md) |
+| `migration-run` | Its migration record: one custom resource per Project database per Environment, with the migration's preconditions, postconditions and failed mark ([record 101](0101-a-rollout-rolls-forward-when-rolling-back-would-run-a-migration-backwards.md)) | Its own service account, limited by RBAC to that kind |
 | A Tenant's participants | Each its own finalizer and status condition on a Tenant, and the status of the objects it reconciles | Each component's own service account |
 | Flagger | Canary status, and the workloads, Services and routes it derives from a Canary | Flagger's service account |
 | Other controllers the platform installs | What they derive and their status; the Vault Secrets Operator writes the Secrets it syncs, the machine account's among them | Each its own service account |
@@ -79,7 +80,10 @@ Observation and a Project's CI write nothing into the API server.
 | Observation | Silences in Alertmanager, its mirror of them and the cost ledger's rows in its own schema ([record 92](0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md)) | A credential for the silences API only, and a database role for its own schema only |
 | A Project's CI | Its images and its Intent Fragment in its own packages; digest registrations through Delivery's API | The job's own token; the GitHub OIDC token for Delivery |
 | estate-kit's CI on `main` | Signed host closures in the binary cache | The environment-scoped cache signing key, after a reviewer approves |
-| A component | Its one outside system: Vault policies, Postgres roles, Garage buckets, Stalwart accounts or backup copies | A credential for that system alone |
+| A component | Its one outside system: Vault policies, Postgres roles, Garage buckets or Stalwart accounts | A credential for that system alone |
+| `migration-run` Jobs | DDL and backfills in their Project's database | The per-Project owner role with `BYPASSRLS` ([record 114](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md)) |
+| The backup component | Tenant exports, and the deletes and re-inserts of a restore, a Mirror load and a Purge, in each Project database | The per-Project owner role; the role audit allows only it and `migration-run` |
+| The backup component | Snapshots in its Environment's Kopia repository; in production, also the Mirror exports it pushes into a lower Environment's | Each repository's password and its Environment's writer key, which cannot delete an object version ([record 115](0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md)) |
 | The maintainer, in a break-glass | A signature over a render or a host tag | The offline Recovery key |
 
 Delivery writes Tenant resources under a service account of its own, the
@@ -120,4 +124,5 @@ when the platform Kustomization names a service account other than its own. The
 rows keep their own checks: the **Dry-run admission fixtures**, the
 **ProjectControl admission fixtures**, the **RBAC fixtures**, the **Tenant one
 writer**, the **Eviction fixture**, the **Token grant check**, the **Event-log
-tests** and the **Operation log append-only** check.
+tests**, the **Operation log append-only** check, the **Tenant role audit** and
+the **Backup repository credential check**.

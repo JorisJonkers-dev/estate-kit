@@ -14,6 +14,12 @@ Tenant's rows; production pushes each Mirror's export, masked where the Mirror
 requires, to the target Environment; and a Purge deletes the exports and states
 its erasure date. The text below says so.
 
+Amended by [record 115](0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md):
+each Tenant export is a source in its Environment's Kopia repository, on an EU
+object store under a 30-day COMPLIANCE object lock, which is the off-cluster
+copy; whole-database backups keep 7 daily, 4 weekly and 6 monthly snapshots;
+and WAL is archived continuously to the same provider. The text below says so.
+
 ## Context
 
 [Record 114](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md)
@@ -53,15 +59,19 @@ is one Tenant's rows exported from one Project database
 (`COPY ... WHERE tenant_id = ...`, table by table) in one snapshot transaction,
 so it is consistent within its own database. It carries that database's
 migration revision. There is no shared point in time across Projects. The backup
-component takes a generation on the Tenant's own schedule, encrypts it, copies it
-off the cluster, and lists it in one central catalogue with its Tenant, its
-Environment, its time and each export's revision.
+component takes a generation on the Tenant's own schedule and writes each
+export as a snapshot of its own Kopia source into its Environment's Kopia
+repository, which encrypts it and keeps it off the cluster in a locked bucket
+([record 115](0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md)). It lists the generation in one central catalogue with its Tenant,
+its Environment, its time and each export's revision.
 
 **A Backup generation may be restored into its own Tenant or into another Tenant
 of an equal or lower Environment,** under the target's `tenant_id`.
 
 **Each Postgres server also keeps whole-database backups and archives WAL** for
-point-in-time recovery. This is for disaster only: the loss of a whole server. It
+point-in-time recovery. The whole-database backups are snapshots in the same
+repository, kept 7 daily, 4 weekly and 6 monthly; WAL is archived continuously
+to the same provider. This is for disaster only: the loss of a whole server. It
 restores a whole server into a new cluster and is never used to restore one
 Tenant.
 
@@ -88,7 +98,7 @@ retries the restore.
 **A Mirror refreshes a staging or development Tenant from one production Tenant.**
 The Tenant resource names the production Tenant and a schedule. Production's
 backup component reads that Tenant's latest exports, masks them when the Mirror
-requires it, and writes them into the target Environment's backup repository,
+requires it, and writes them into the target Environment's Kopia repository,
 whose password production holds. A lower Environment never holds production's
 credentials. The target Environment then loads the exports into its shared
 database under a Tenant lock: it locks the target Tenant, deletes its rows,

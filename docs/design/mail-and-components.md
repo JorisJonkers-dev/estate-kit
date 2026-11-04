@@ -17,7 +17,7 @@ they do not own; each component's `-app` crate drives it through its own ports (
 | `secret-grant` | delivery's Vault policy job (Go) | A Project's Vault policies, auth roles and generated keys |
 | `database-catalog` | delivery's postgres-catalog (Go) | A Project's Postgres roles, databases, grants and Vault database roles |
 | `bucket-catalog` | delivery's garage-catalog (Go) | A Project's Garage buckets, keys and grants |
-| `backup` | delivery's backup and offcluster jobs (Go) | A Project's backup generations, and for a multi-tenant Project one per Tenant, made of Tenant exports ([record 82](../decisions/0082-backups-are-per-tenant-generations-and-mirrors-refresh-staging-and-development.md)), and their encrypted off-cluster copies |
+| `backup` | delivery's backup and offcluster jobs (Go) | A Project's backup generations, and for a multi-tenant Project one per Tenant, made of Tenant exports ([record 82](../decisions/0082-backups-are-per-tenant-generations-and-mirrors-refresh-staging-and-development.md)), as Kopia snapshots in its Environment's locked repository ([record 115](../decisions/0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md)), and the weekly restore rehearsal |
 | `mailbox` | stalwart-provisioner (Python, jq and sh) | A Project's Mailbox objects, through Stalwart's management API |
 
 ## Mailboxes
