@@ -31,6 +31,23 @@ record, and a check enforces it.
 Chosen because they are numbers the maintainer will act on. A host rollout
 within one window was rejected as a service level.
 
+## Deploy timing bounds
+
+These bounds sit beside the service levels, so one page holds the numbers.
+The service levels above are unchanged.
+
+| Bound | Value | Record |
+| --- | --- | --- |
+| Stream reports "not picked up" | 30 seconds | [record 96](../decisions/0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md) |
+| Operation ends Observation lost | 10 minutes without an observation | [record 96](../decisions/0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md) |
+| Alert when the applied revision trails the latest published one | 1 hour | [record 86](../decisions/0086-the-estate-states-its-defaults-for-a-low-attention-week.md) |
+
+## Backup retention
+
+| What | Retention | Record |
+| --- | --- | --- |
+| Whole-database backups (Kopia snapshots) | 7 daily, 4 weekly, 6 monthly | [record 115](../decisions/0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md) |
+
 ## Contracts and their evolution
 
 - **Schemas.** CI diffs each committed schema against the last release,
