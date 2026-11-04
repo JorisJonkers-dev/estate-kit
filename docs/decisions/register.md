@@ -93,12 +93,12 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 85 | [General purpose means no estate fact in the core, the profiles or the compiler's code](0085-general-purpose-means-no-estate-fact-in-the-core-the-profiles-or-the-compiler-s-code.md) | Proposed |
 | 86 | [The estate states its defaults for a low-attention week, and every default fails safe](0086-the-estate-states-its-defaults-for-a-low-attention-week.md) | Proposed |
 | 87 | [Recovery time and recovery point are stated per Recovery class before the drill, and the drill measures them](0087-recovery-time-and-recovery-point-are-stated-per-recovery-class.md) | Proposed |
-| 88 | The metamodel is layered: core, profiles and component kinds, provider facts, estate instance | Proposed |
-| 89 | Every persisted or externally read contract has its own identifier, major and supported range | Proposed |
-| 90 | Three generality tests run in CI | Proposed |
-| 91 | Platform Intent is split by concern, and each document validates alone | Proposed |
-| 92 | Capacity is in the Resolved Deployment; cost is estimated outside the render key and recorded from bills | Proposed |
-| 93 | The rollout plan is compiled, with checks bound to cohorts, a failsafe and a Held deadline | Proposed |
+| 88 | [The metamodel is layered: core, profiles and Component kinds, Provider facts, Estate instance](0088-the-metamodel-is-layered-core-profiles-and-component-kinds-provider-facts-estate-instance.md) | Proposed |
+| 89 | [Every persisted or externally read contract has its own identifier, Contract major and supported range](0089-every-persisted-or-externally-read-contract-has-its-own-identifier-contract-major-and-supported-range.md) | Proposed |
+| 90 | [Three Generality tests run in CI](0090-three-generality-tests-run-in-ci.md) | Proposed |
+| 91 | [Platform Intent is split by concern, and each document validates alone](0091-platform-intent-is-split-by-concern-and-each-document-validates-alone.md) | Proposed |
+| 92 | [Capacity is in the Resolved Deployment; cost is estimated outside the Render key and recorded from bills](0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md) | Proposed |
+| 93 | [The rollout plan is compiled, with checks bound to cohorts, a failsafe and a Held deadline](0093-the-rollout-plan-is-compiled-with-checks-bound-to-cohorts-a-failsafe-and-a-held-deadline.md) | Proposed |
 | 94 | Flux stays the one applier, observed closely, and an estate-kit Applier waits for a review trigger | Proposed |
 | 95 | A Project renders as a chain of Flux Kustomizations, one per apply group | Proposed |
 | 96 | A deploy is an Operation that ends Serving, Held, Refused, Superseded or Observation lost | Proposed |
