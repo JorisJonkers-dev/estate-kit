@@ -63,6 +63,19 @@ Each component binary watches the objects its Projects render
 `reconcile`), and changes only that in its one outside system. It never
 deletes what it does not own, and reports stale entries instead.
 
+## Scenarios the Accepted records add
+
+The E2E suite ([record 69](../decisions/0069-the-deploy-path-is-tested-end-to-end.md))
+runs these scenarios beside the use cases above.
+
+| Scenario | Record |
+| --- | --- |
+| Postgres is stopped during a rollback, and the Project still rolls back to Serving | [record 28](../decisions/0028-pause-and-rollback-are-a-cluster-object-per-project.md) |
+| Delivery is killed after each write | [record 104](../decisions/0104-every-reconciler-estate-kit-owns-passes-crash-point-stale-read-and-safety-tests-before-it-takes-production-responsibility.md) |
+| A deploy is interrupted on each side of the Publication point | [record 97](../decisions/0097-the-publication-point-is-named-and-tested-and-a-render-that-introduces-a-kind-is-published-in-two-stages.md) |
+| The Release Gate refuses a release while the Project database is marked failed by a migration | [record 114](../decisions/0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md) |
+| The weekly restore rehearsal restores each store's latest snapshot into throwaway containers and checks what it reads back | [record 115](../decisions/0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md) |
+
 ## What is cross-cutting, and where it lives
 
 | Concern | Where | How |
