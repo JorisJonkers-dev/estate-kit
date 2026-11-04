@@ -46,9 +46,12 @@ When an Application, Process, volume, bucket, database or Mailbox leaves Intent,
 `estate-kit plan` lists it as retiring, not deleted. Objects without durable
 state are pruned by Flux as before. For a prune-protected object, its owning
 component first records a Retirement tombstone: what is retiring, since when,
-and under which policy. The policy is set per kind and per class of data:
-suspend the object, wait a grace period, verify a recovery copy, then let the
-owning component delete it and record the deletion. Declaring the object again
+and under which policy. The tombstone is a custom resource of the owning
+component, so it is restored with the datastore, before the components resume.
+The policy is set per kind and per class of data: suspend the object, wait a
+grace period, verify a recovery copy, then let the owning component delete it
+and record the deletion. The grace period is 30 days unless the policy states
+another. Declaring the object again
 within the grace period cancels the retirement. A tombstone survives a render
 change, a lost render and a restore, and a component applies its tombstones
 before restored data serves, so a restore never brings back what was retired.
@@ -62,8 +65,7 @@ retirement. This amends
 a Mailbox that leaves Intent, or whose Project leaves, is retired, never removed
 by a render change, and a rename moves the account. Tenant removal keeps
 [record 80](0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md)'s
-lifecycle. Where a tombstone is stored, and each policy's grace periods, stay
-open for the maintainer.
+lifecycle.
 
 ## Alternatives
 
@@ -72,8 +74,8 @@ open for the maintainer.
 | Let Flux prune everything a render omits | A rename or a lost render deletes data | Durable state must not depend on one render |
 | Protect, and leave retired objects for the maintainer by hand (today) | Claims, namespaces, records and accounts pile up, and nobody knows which are retired | Removal must actually remove, on a stated policy |
 | Infer a move from a removal plus an addition | A wrong guess moves or deletes data silently | The heuristic only refuses; the author declares |
-| A tombstone as a custom resource of the owning component | Restored with the datastore, before components resume; one more kind to version | Open: the store is the maintainer's choice |
-| A tombstone as a row on platform-postgres, or a mark in the outside system | No new kind; restored with its own store, which may be later or lost with the object | Open, with the option above |
+| A tombstone as a row on platform-postgres, or a mark in the outside system | No new kind; restored with its own store, which may be later or lost with the object | A custom resource is restored with the datastore, before the components resume |
+| No default grace period; each policy sets its own | A policy that forgets its grace period deletes at once | 30 days unless a policy says otherwise |
 | Re-design Tenant removal here | Two lifecycles for one Tenant | [Record 80](0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md) already holds it |
 
 ## Consequences
@@ -81,8 +83,9 @@ open for the maintainer.
 - Easier: a rename never deletes a Mailbox; a lost or old render never deletes
   durable data; a retired object is removed on a stated policy, with a recovery
   copy, instead of lingering.
-- Harder: every component that owns a durable kind keeps tombstones and policies;
-  an author declares each move; retirement takes a grace period.
+- Harder: every component that owns a durable kind defines a tombstone kind,
+  versioned as a persisted format, and keeps its policies; an author declares
+  each move; retirement takes a grace period, 30 days by default.
 - Forbidden: pruning a prune-protected kind; deleting a durable object without a
   tombstone, before its grace period ends, or without a verified recovery copy;
   inferring a move.
@@ -91,10 +94,10 @@ open for the maintainer.
 
 The **Prune protection test** fails when a rendered object of a prune-protected
 kind lacks the prune-disabled mark. The **Retire refusal fixtures** fail when
-the plan accepts a removal and an addition of the same kind under the same owner
-with no declared move or confirmed retirement, or treats a declared move as a
-retirement. The **Retirement tombstone tests** fail when a component deletes a
-durable object without a tombstone, before its grace period, or without a
-verified recovery copy; when a cancelled retirement still deletes; or when
-restored data serves before the tombstones are applied. The **Mailbox fixtures**
-keep their contention cases.
+the plan accepts a removal and an addition of the same kind under the same
+owner with no declared move or confirmed retirement, or treats a declared move
+as a retirement. The **Retirement tombstone tests** fail when a component
+deletes a durable object without a tombstone, before its grace period (30 days
+unless its policy says otherwise), or without a verified recovery copy; when a
+cancelled retirement still deletes; or when restored data serves before the
+tombstones are applied. The **Mailbox fixtures** keep their contention cases.

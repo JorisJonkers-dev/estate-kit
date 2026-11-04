@@ -63,8 +63,8 @@ Each carries its Contract major and a version
 The upcaster that
 [record 23](0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md)
 defers still comes with the second version of an event, and it now comes with
-the samples and tests below. Wider downgrades (two
-releases or more) are not promised.
+the samples and tests below. The downgrade window is one release: wider
+downgrades (two releases or more) are not promised.
 
 ## Alternatives
 

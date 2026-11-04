@@ -52,8 +52,9 @@ at Traefik.
   issuer: each issuer Platform Intent admits has its own rules, and a token
   is checked only against its own issuer's. Every issuer's rules must state
   the repository's stable id, the pinned estate-kit reusable workflow's commit
-  and the event; an issuer whose tokens cannot state all three is not
-  admitted. The first issuer is GitHub Actions, where the rules match
+  and the event. A forge whose CI cannot issue OIDC tokens that state all
+  three is not admitted, and there is no fallback to a long-lived token for
+  it. The first issuer is GitHub Actions, where the rules match
   `repository_id` and `job_workflow_sha` and never `sub`. The claims and the
   rule on each are listed on
   [Identity and access](../design/identity-and-access.md#the-claim-policy).
@@ -91,6 +92,7 @@ at Traefik.
 | Trust the repository name | A recreated repository with the old name takes the Project over | `repository_id` survives renames; names do not |
 | Pin the workflow by ref | A moved tag runs other code with the same claim | `job_workflow_sha` |
 | A shared secret per Project | Long-lived secrets in every repository | OIDC needs none |
+| A long-lived token for a forge whose CI cannot issue such an OIDC token | A secret that outlives every run, for the forge least able to protect it | Such a forge is not admitted; no fallback |
 | GitHub artifact attestations, verified with sigstore | A sigstore verifier and a TUF fetch on the deploy path | Heavier than the problem; a later upgrade, not a blocker |
 | Claim policy only | Any admitted Project's CI can seal any digest | The provenance gap D8 named |
 | Keep the estate's images lock | A central list outside the Projects | Each Project's state lives with the Project ([record 7](register.md)) |
@@ -111,7 +113,10 @@ at Traefik.
   while it waits; owner: the maintainer; the exchange is built only if the
   spike says it cannot); a forge whose CI cannot issue such a token cannot
   deploy; every Project's workflow has a separate build and attest step.
-- Forbidden: authorising by `sub`; a deploy from a pull request; a render
+- Forbidden: authorising by `sub`; a deploy from a pull request; a
+  long-lived token in place of an OIDC token; admitting an issuer whose
+  tokens cannot state the repository's stable id, the pinned workflow's
+  commit and the event; a render
   naming a digest that is neither registered by its Project nor allowlisted;
   a token checked against another issuer's rules; a forge name in Delivery's
   domain or application crates.
@@ -120,7 +125,9 @@ at Traefik.
 
 The **Claim-policy fixtures** hold a pass and a fail token fixture for every
 rule of every admitted issuer, including a token from one issuer presented
-under another's rules; the suite fails if a rule has no failing fixture. The
+under another's rules; the suite fails if a rule has no failing fixture, if
+Platform Intent admits an issuer whose rules do not state all three claims, or
+if a call with a long-lived token is accepted. The
 **Digest registration test** composes a fragment with an unregistered digest
 and asserts the refusal and its location. The **Port contract script** fails
 if a Forge port lacks its fake or its contract suite, and

@@ -62,8 +62,8 @@ which is already signed. It signs nothing and composes nothing, so it still
 needs only the API server and the registry, as
 [record 28](0028-pause-and-rollback-are-a-cluster-object-per-project.md) promises.
 Delivery alerts on a tag it did not create, and when the applied revision
-trails the highest published tag for longer than a bound. Flux ignores a
-lower or replayed tag.
+trails the highest published tag for 1 hour. Flux ignores a lower or
+replayed tag.
 
 This amends [record 9](0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md)
 (a tag per Project and Environment becomes a repository of Sequence tags per
@@ -81,8 +81,8 @@ verification and the tag format, on the pinned Flux; and create-only tags on
 each candidate registry. Owner: the maintainer; due before M5 starts. Until
 then the tag-move rule of
 [record 63](0063-delivery-has-one-writer-and-reconciles-from-observed-state.md)
-stands unchanged. If the spike fails, this record is rewritten. The tag format, the alert's bound, and whether host tags follow the
-same rule ([record 30](0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md))
+stands unchanged. If the spike fails, this record is rewritten. The tag
+format, and whether host tags follow the same rule ([record 30](0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md)),
 stay open.
 
 ## Alternatives
@@ -119,7 +119,7 @@ tag, or if the refused writer retries on its old decision. The **Sequence
 selection test** fails if the pinned Flux applies anything but the highest
 signed Sequence tag, or applies a lower, replayed or unsigned one. The
 **Sequence tag alert test** fails if a tag Delivery did not create, or an
-applied revision that trails the highest tag past its bound, raises no alert.
+applied revision that trails the highest tag for 1 hour, raises no alert.
 The **Single-writer tests** keep holding the Lease. The **E2E scenarios** roll
 a Project back with Vault sealed and assert a new tag at the old digest, and
 rebuild the test cluster and assert it finds every live render from the

@@ -60,7 +60,7 @@ in the record that creates it.
 | A composition input moved during the run | Publish nothing; compose again |
 | A Sequence tag already exists | The registry refuses; Delivery observes and decides again |
 | A lower or replayed Sequence tag appears | Flux ignores it; Delivery alerts on the unknown tag |
-| The applied revision differs from the latest published one for longer than a bound | Alert; running workloads keep serving |
+| The applied revision trails the latest published one, or the highest Sequence tag, for 1 hour | Alert; running workloads keep serving |
 | A credential is expired or cannot be verified | Fail closed |
 | Vault is sealed | Nothing is signed; a Rollback still works |
 | Delivery is down | Nothing new deploys; Flux keeps serving the last renders |
@@ -76,9 +76,10 @@ The rows for Unverifiable by construction, the Analysis verdict and its Held
 deadline, Sequence tags, Retire, node-class fallbacks and Observation lost
 name mechanisms that other Proposed records
 decide. Each such row binds when its mechanism's record is accepted, and that
-record cites this table rather than restating the default. The length of the
-bound on applied-revision drift stays open for the maintainer; the current
-drift objective is 24 hours ([conventions](../design/conventions.md#service-levels)).
+record cites this table rather than restating the default. The bound on an
+applied revision that trails the published one is 1 hour; the separate
+objective that drift is found within 24 hours stands
+([conventions](../design/conventions.md#service-levels)).
 
 ## Alternatives
 
