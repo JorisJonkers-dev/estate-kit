@@ -2,6 +2,7 @@
 status: accepted  # proposed | accepted | locked
 date: 2026-11-04
 rests-on: [1, 37]
+amends: [37]
 lessons: [TM-4, TM-5, DR-2]
 ---
 
@@ -102,5 +103,4 @@ column differs from the status derived from the table of checks, when a Locked
 record names a check that is not verified, or when a row of the table of checks
 names no mistake. The **Mutation exclusion review** fails when an exclusion in
 `.cargo/mutants.toml` lacks its mutant, its reason or the link to its reviewing
-pull request. When this record is accepted it replaces the **Mutation
-exclusion count**.
+pull request. It replaces the **Mutation exclusion count**, whose row of the table of checks is retired.

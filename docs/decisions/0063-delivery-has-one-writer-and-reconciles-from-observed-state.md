@@ -7,6 +7,10 @@ lessons: [DO-6, TM-4]
 
 # Delivery has one writer and reconciles from observed state
 
+Amended by [record 94](0094-flux-stays-the-one-applier-observed-closely-and-an-estate-kit-applier-waits-for-a-review-trigger.md): point 3's observation list is rewritten to the close observation of Flux, object by object.
+
+Amended by [record 96](0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md): a reconciliation that ends a rollout as Abandoned ends its Operation Observation lost.
+
 ## Context
 
 Delivery signs renders and moves tags ([record 17](0017-delivery-runs-in-the-cluster-in-rust.md)).
@@ -39,10 +43,15 @@ input moved during the run. Where the queue is kept is
    checks it is still the holder before the write. A pod that is not the
    holder signs and moves nothing.
 3. **Observed state over the log.** On startup, and whenever a step's outcome
-   is unknown, Delivery rebuilds each unfinished rollout from what it can
-   observe: the Project's tag in ghcr, and Flux's Kustomization and
-   OCIRepository status and Flagger's Canary status. It appends the events the
-   observation implies, or ends the rollout with an Abandoned event. It never
+   is unknown, Delivery rebuilds each unfinished rollout from what it observes
+   closely ([record 94](0094-flux-stays-the-one-applier-observed-closely-and-an-estate-kit-applier-waits-for-a-review-trigger.md)):
+   the Project's tag in ghcr, the Project's Kustomizations, OCIRepository and
+   Canary objects, Events in `flux-system` and the Project's namespaces, and
+   every object in each step's inventory, with each object's health computed
+   by the kstatus rules and Flux's summary never taken as the truth. It
+   appends the events the
+   observation implies, or ends the Operation Observation lost ([record 96](0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md)).
+   It never
    replays a write because the log says it is due.
 4. **A tag move is read, verify, write, read again.** Delivery reads the
    tag, verifies that it still names the digest the decision was made from,

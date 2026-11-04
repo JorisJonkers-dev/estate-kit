@@ -2,6 +2,7 @@
 status: accepted  # proposed | accepted | locked
 date: 2026-11-04
 rests-on: [2, 23, 58, 63, 74]
+amends: [2, 63]
 lessons: [DO-4, DO-5]
 ---
 
@@ -43,7 +44,7 @@ This amends [record 2](0002-kubernetes-is-the-substrate-and-flux-is-the-one-appl
 consequences (one applier, now watched object by object, and a review clause),
 the observation list of [record 63](0063-delivery-has-one-writer-and-reconciles-from-observed-state.md),
 point 3, and the section of [Inside Delivery](../design/inside-delivery.md#what-it-reads-from-the-cluster)
-on what Delivery reads, which are rewritten when this record is accepted.
+on what Delivery reads. All three are rewritten to say so.
 "Flux, observed closely" has eight parts:
 
 1. **One identity.** A deploy is one Operation, bound to its Project,

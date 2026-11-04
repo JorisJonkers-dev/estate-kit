@@ -7,6 +7,10 @@ lessons: [MS-4, CS-1]
 
 # Three models: Intent, Resolved Deployment, Deliverable Set
 
+Amended by [record 93](0093-the-rollout-plan-is-compiled-with-checks-bound-to-cohorts-a-failsafe-and-a-held-deadline.md):
+the Resolved Deployment also holds the rollout plan the compiler derives for
+each Application.
+
 ## Context
 
 The estate once ran two layers, with resolution private to the renderer. It
@@ -24,8 +28,9 @@ the next by a transformation. They are not metamodels of one another.
   Application knows and the platform cannot. It holds no mechanism. Project
   Intent is one per Project; Platform Intent is the estate's.
 - **Resolved Deployment** is derived. It records every decision the platform
-  made on the author's behalf, including each file's path, and nothing is
-  decided after it.
+  made on the author's behalf, including each file's path and the rollout plan
+  of each Application ([record 93](0093-the-rollout-plan-is-compiled-with-checks-bound-to-cohorts-a-failsafe-and-a-held-deadline.md)),
+  and nothing is decided after it.
 - **Deliverable Set** is the serialised files, and holds no decision. Renderers
   print what the Resolved Deployment says.
 

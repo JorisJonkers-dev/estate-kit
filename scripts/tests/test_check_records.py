@@ -600,6 +600,34 @@ class EveryRuleStillRunsAfterAnotherFails(unittest.TestCase):
         self.assertEqual(sorted(tree.keys()), ["no-checks-table", "no-confirmation 1"])
 
 
+class AcceptedRecordsKeepTheirPromises(unittest.TestCase):
+    def tree_with(self, status: str, sentence: str) -> Tree:
+        tree = Tree(self)
+        tree.row(1, status.capitalize(), "verified")
+        tree.file(1, f"---\nstatus: {status}\n---\n\n# Record 1\n\n{sentence}\n")
+        return tree
+
+    def test_an_accepted_record_that_waits_for_its_acceptance_is_reported(self) -> None:
+        tree = self.tree_with("accepted", "The page is rewritten when this record is accepted.")
+        self.assertEqual(tree.keys(), ["pending-on-accept 1"])
+
+    def test_the_phrase_wrapped_over_two_lines_is_found(self) -> None:
+        tree = self.tree_with("accepted", "It is rewritten When this\nrecord is accepted.")
+        self.assertEqual(tree.keys(), ["pending-on-accept 1"])
+
+    def test_a_locked_record_is_held_to_it_too(self) -> None:
+        tree = self.tree_with("locked", "Done when this record is accepted.")
+        self.assertEqual(tree.keys(), ["pending-on-accept 1"])
+
+    def test_a_proposed_record_may_make_the_promise(self) -> None:
+        tree = self.tree_with("proposed", "The page is rewritten when this record is accepted.")
+        self.assertEqual(tree.keys(), [])
+
+    def test_an_accepted_record_without_the_phrase_passes(self) -> None:
+        tree = self.tree_with("accepted", "The page was rewritten.")
+        self.assertEqual(tree.keys(), [])
+
+
 class TheCommand(unittest.TestCase):
     def test_a_violation_fails(self) -> None:
         tree = Tree(self)

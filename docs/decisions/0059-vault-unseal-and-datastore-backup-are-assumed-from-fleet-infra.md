@@ -7,6 +7,10 @@ lessons: [DR-1, DR-2]
 
 # Vault unseal and the API server's datastore backup are decided in fleet-infra; estate-kit assumes them
 
+Amended by [record 87](0087-recovery-time-and-recovery-point-are-stated-per-recovery-class.md):
+the sentence about "a target, not a fact" now cites the recovery times and
+recovery points stated per Recovery class.
+
 ## Context
 
 Two production risks sit under the design but are operations on today's estate,
@@ -33,7 +37,10 @@ It records that it assumes both, and what it relies on:
   first, which the host applier's node order requires.
 
 Spikes #12 and #14 prove the unseal path and the restore. Until fleet-infra
-carries both, estate-kit's host and recovery pages describe a target, not a fact.
+carries both, estate-kit's host and recovery pages describe a target, not a
+fact; the targets are the recovery times and recovery points stated per
+Recovery class in
+[record 87](0087-recovery-time-and-recovery-point-are-stated-per-recovery-class.md).
 
 ## Alternatives
 

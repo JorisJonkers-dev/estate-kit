@@ -2,6 +2,7 @@
 status: accepted  # proposed | accepted | locked
 date: 2026-11-04
 rests-on: [1, 59, 82, 114]
+amends: [59]
 lessons: [DR-1, DR-2]
 ---
 
@@ -42,8 +43,7 @@ This amends the assumption of
 [record 59](0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md).
 fleet-infra still decides how the datastore and Vault are backed up, but
 estate-kit now states what it needs from them as targets, and the drill shows
-whether fleet-infra's mechanism meets them. When this record is accepted, the
-sentence in that record about "a target, not a fact" cites this table.
+whether fleet-infra's mechanism meets them. The sentence in that record about "a target, not a fact" cites this table.
 
 The maintainer set the targets below on 2026-11-04. The column "How it is
 met" names the mechanism the drill measures; where it is estate-kit's, it is

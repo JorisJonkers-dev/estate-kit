@@ -7,6 +7,14 @@ lessons: [MS-7]
 
 # One maintainer, one cluster, one estate
 
+Amended by [record 76](0076-tenants-are-the-organisations-the-estate-serves.md):
+"no second tenant" becomes "no second operator or team", because the
+organisations the estate serves are Tenants and add no operator.
+
+Amended by [record 85](0085-general-purpose-means-no-estate-fact-in-the-core-the-profiles-or-the-compiler-s-code.md):
+general purpose means no fact about this estate in the core, the Profiles, the
+Component kinds or the compiler's code, not several clusters.
+
 ## Context
 
 The estate is run by one regular human maintainer, on one production cluster,
@@ -22,9 +30,12 @@ rest on it need rereading.
 ## Decision
 
 estate-kit is built for one maintainer, one production cluster and one estate
-of about thirty Applications. Each concept, check and ledger stays only if it
-catches a mistake that maintainer can make on that estate. A job done once is a
-one-off tool, not a permanent rule in the model.
+of about thirty Applications. It is general purpose in one sense only: no fact
+about this estate lives in the core, the Profiles, the Component kinds or the
+compiler's code ([record 85](0085-general-purpose-means-no-estate-fact-in-the-core-the-profiles-or-the-compiler-s-code.md)).
+Each concept, check and ledger stays only if it catches a mistake that
+maintainer can make on that estate. A job done once is a one-off tool, not a
+permanent rule in the model.
 
 The single cluster is explicit rather than implied: an input that names a second
 cluster is refused, so a later extension stays possible but is not designed for.

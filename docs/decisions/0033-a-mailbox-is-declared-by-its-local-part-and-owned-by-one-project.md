@@ -7,6 +7,14 @@ lessons: [DO-1, CS-3]
 
 # A Mailbox is declared by its local part and owned by one Project
 
+Amended by [record 84](0084-a-tenant-sends-mail-as-its-product-domain-until-it-verifies-its-own.md):
+a Mailbox of a multi-tenant Project also exists on each Verified domain of its
+Tenant.
+
+Amended by [record 105](0105-removal-is-a-retire-lifecycle-with-durable-retirement-tombstones-and-declared-moves-and-prune-protected-kinds-never-prune.md):
+a Mailbox that leaves Intent, or whose Project leaves, is retired with a
+Retirement tombstone, and a renamed local part moves the account.
+
 ## Context
 
 Applications send mail through the estate's mail server. An Application needs
@@ -47,7 +55,10 @@ needs its own record.
 
 - Authoring a Mailbox is one word.
 - A contention fails at compile time, not at the mail server.
-- A Project's units own their Mailboxes, so removing a Project removes them.
+- A Project's units own their Mailboxes, so a Mailbox that leaves Intent, or
+  whose Project leaves, is retired with a Retirement tombstone, never removed by
+  a render change; a renamed local part moves the account
+  ([record 105](0105-removal-is-a-retire-lifecycle-with-durable-retirement-tombstones-and-declared-moves-and-prune-protected-kinds-never-prune.md)).
 - Sharing across Projects is forbidden until a record allows it.
 
 ## Confirmation

@@ -7,6 +7,12 @@ lessons: [DO-1]
 
 # The Release Gate and Observation each have named writes, with their own credentials
 
+Amended by [record 92](0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md): Observation appends cost-ledger rows to its own schema, with a role for that schema only and no Lease, and it also holds read-only billing credentials.
+
+Amended by [record 93](0093-the-rollout-plan-is-compiled-with-checks-bound-to-cohorts-a-failsafe-and-a-held-deadline.md): the Release Gate answers from the compiled rollout plan, the Analysis verdicts and cluster state.
+
+Amended by [record 102](0102-analysis-is-a-pure-verdict-function-and-an-inconclusive-verdict-holds.md): the gate's answer stays a read, and an inconclusive verdict holds.
+
 ## Context
 
 The redesign said the Release Gate never writes and that Observation is read
@@ -23,20 +29,29 @@ so the pages that say "read only" can name the exception and nothing more.
 
 ## Decision
 
-There are three writes. Nothing else in either context writes.
+There are four writes. Nothing else in either context writes.
 
 | Write | Context | Credential | Lease |
 | --- | --- | --- | --- |
 | Unsuspend a migration Job (patch `spec.suspend`) | Delivery, in the Release Gate | A service account of its own, limited by RBAC to `patch` on Jobs in admitted Projects' namespaces | The writer Lease: taken before the write, checked still held |
 | Create or update the Application's gate record (one ConfigMap per Application) | Delivery, in the Release Gate | The same service account, limited to ConfigMaps of that name | The writer Lease |
 | Create or expire a Silence in Alertmanager | Observation | A credential for the Alertmanager silences API only, held by Observation's own binary | None: a Silence changes no rollout and no tag |
+| Append cost-ledger rows to its own schema | Observation | A role for that schema only | None |
 
-The Release Gate's webhook answer stays a read of cluster state and takes no
+The Release Gate's webhook answer stays a read (of the compiled rollout plan,
+the Analysis verdicts and cluster state,
+[record 93](0093-the-rollout-plan-is-compiled-with-checks-bound-to-cohorts-a-failsafe-and-a-held-deadline.md)),
+and an inconclusive Analysis verdict holds
+([record 102](0102-analysis-is-a-pure-verdict-function-and-an-inconclusive-verdict-holds.md));
+it takes no
 credential from Flagger. The Job unsuspend and the record are made by Delivery's reconcile under the Lease, never inside the answer to an
 unauthenticated request. Delivery's dry-run identity stays unable to write
 ([record 58](0058-flux-is-locked-down-per-project-and-delivery-dry-runs-as-an-identity-that-cannot-write.md)).
 Observation still holds no Vault, ghcr or signing credential, and none that can
-deploy, pause or roll back ([record 50](0050-six-bounded-contexts-in-five-layers.md)). Its
+deploy, pause or roll back ([record 50](0050-six-bounded-contexts-in-five-layers.md)); the
+only credentials it holds outside the cluster are read-only billing
+credentials ([record 92](0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md)).
+Its
 mirror of Silences lives in its own Postgres schema and nothing else reads it.
 
 ## Alternatives

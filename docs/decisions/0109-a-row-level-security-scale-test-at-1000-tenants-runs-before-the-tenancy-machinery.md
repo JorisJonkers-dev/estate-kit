@@ -2,6 +2,7 @@
 status: accepted  # proposed | accepted | locked | superseded
 date: 2026-11-04
 rests-on: [76, 81, 82, 114]
+amends: [76, 114]
 lessons: [DR-1, DR-2, MS-7]
 ---
 
@@ -66,8 +67,7 @@ raise the threshold or add a mitigation such as sharding by `tenant_id`.
 The number of rendered objects does not depend on the number of Tenants. A
 Tenant is never an input that adds, removes or names a rendered object.
 
-When this record is accepted, the **Tenancy scale test** and the **Tenancy scale
-gate** join the Confirmation of
+The **Tenancy scale test** and the **Tenancy scale gate** join the Confirmation of
 [record 114](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md),
 and the **Render Tenant-count test** joins that of
 [record 76](0076-tenants-are-the-organisations-the-estate-serves.md).

@@ -7,6 +7,12 @@ lessons: [TM-4, TM-5]
 
 # Every gate has a speed budget; coverage and mutation are ratchets
 
+Amended by [record 111](0111-decision-status-and-enforcement-status-are-separate.md):
+an equivalent mutant may be excluded after review, and the weekly full run
+reports the count of exclusions instead of holding it at zero. The Enforcement
+status of this record's Confirmation is derived from the table of checks
+(planned, implemented, verified or review), never written by hand.
+
 ## Context
 
 A gate that is too slow is skipped or resented, and one that has only ever
@@ -29,7 +35,10 @@ rise. A crate joins the 100% gate when its tests are in; until then it reports.
 Mutation runs with cargo-mutants on every push to main, limited to the lines
 changed since the last green report and sharded, never on a pull request. A
 weekly full run, sharded, opens an issue per survivor. An equivalent mutant is
-rewritten, not excluded, and the number of exclusions is held at zero.
+rewritten where the code can be made clearer, and where it cannot, it may be
+excluded: each exclusion names the one mutant, says why it is equivalent, and
+links the pull request in which the maintainer reviewed it. The weekly full run
+reports the count of exclusions; the count is not held at zero.
 
 ## Alternatives
 
@@ -45,7 +54,8 @@ rewritten, not excluded, and the number of exclusions is held at zero.
 - A pull request waits only for lint, unit and integration tests.
 - A weak test is found on main within one run, and a full audit happens weekly.
 - A budget breach is a defect in the gate, with an owner.
-- Excluding a mutant needs a reason and an issue; it is a design smell first.
+- Excluding a mutant needs its mutant, its reason and its reviewing pull
+  request; it is a design smell first.
 
 ## Confirmation
 
@@ -55,5 +65,6 @@ rewritten, not excluded, and the number of exclusions is held at zero.
 - The **Ratchet step** compares each crate's coverage and mutation score with the
   committed baseline and fails on a drop; a negative fixture lowers a baseline
   and expects the failure.
-- The **Mutation exclusion count** checks the exclusions in
-  `.cargo/mutants.toml` against zero.
+- The **Mutation exclusion review** fails when an exclusion in
+  `.cargo/mutants.toml` lacks its mutant, its reason or the link to its
+  reviewing pull request.

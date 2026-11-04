@@ -37,6 +37,7 @@ MERGED = re.compile(r"^merged into (\d+)$")
 MOVED = re.compile(r"^moved to \[")
 SUPERSEDED = re.compile(r"^superseded by (\d+)$")
 CHECK_NAME = re.compile(r"\*\*([^*]+)\*\*")
+PENDING = re.compile(r"when\s+this\s+record\s+is\s+accepted", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -253,6 +254,10 @@ def violations(decisions: Path, lessons_file: Path, checks_page: Path) -> list[V
         if not body:
             found.append(Violation(f"no-confirmation {number}", record.path, "has no Confirmation, or an empty one"))
         named = list(dict.fromkeys(" ".join(m.group(1).split()).strip("`") for m in CHECK_NAME.finditer(body)))
+        if record.status in ACCEPTED and PENDING.search(text):
+            found.append(Violation(
+                f"pending-on-accept {number}", record.path,
+                "an Accepted record still promises a change 'when this record is accepted'; make it, and say what was done"))
         for name in named:
             if known is not None and name not in known:
                 found.append(Violation(

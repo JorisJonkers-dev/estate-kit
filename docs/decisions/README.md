@@ -12,7 +12,8 @@ The Records job holds these rules, and that a record's status agrees with its
 register row, that every Accepted row has a file, that a Merged or Moved
 row has none and nothing rests on it, that a Superseded row keeps its file and
 names an Accepted record, and that an Accepted record's `amends` and
-`supersedes` targets carry their back-links and rows (`scripts/check_records.py`).
+`supersedes` targets carry their back-links and rows, and that no Accepted record
+still promises a change "when this record is accepted" (`scripts/check_records.py`).
 The register's Enforcement column is derived from the table of checks and the Records job fails when it disagrees.
 
 Every record has a non-empty Confirmation, and a Confirmation names each check

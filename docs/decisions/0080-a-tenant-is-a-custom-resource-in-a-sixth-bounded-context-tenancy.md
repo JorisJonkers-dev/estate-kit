@@ -2,6 +2,7 @@
 status: accepted  # proposed | accepted | locked
 date: 2026-11-01
 rests-on: [17, 23, 50, 63, 76, 79, 114]
+amends: [50]
 lessons: [DO-2, CS-3, TM-4]
 ---
 
@@ -11,6 +12,10 @@ Amended by [record 114](0114-multi-tenant-projects-keep-their-tenants-in-shared-
 a Tenant's data sits in shared tables, so no Tenant moves between servers and
 database-catalog holds no finalizer; a restore deletes the Tenant's rows and
 re-inserts them. The text below says so.
+
+Amended by [record 110](0110-a-purge-erases-backup-generations-and-mirrors-from-an-inventory-of-every-copy.md):
+a Purge works from a copy inventory of every copy that holds the Tenant's data
+and states its erasure date. The text below says so.
 
 ## Context
 
@@ -46,7 +51,9 @@ The backup component, which uses each Project's owner role
 Tenant's rows from a Project database when the Tenant leaves that Project or is
 purged. A Purge completes only when every participant has cleaned up
 and released its finalizer, so a Tenant is never half-purged without the
-maintainer knowing.
+maintainer knowing. Its entry in the operation log states the erasure date, the
+expiry of the last copy in the copy inventory of
+[record 110](0110-a-purge-erases-backup-generations-and-mirrors-from-an-inventory-of-every-copy.md).
 
 A sixth bounded context, tenancy, holds the Tenant model and the Tenant
 operations: create, add a Project, remove a Project, lock, unlock, suspend,

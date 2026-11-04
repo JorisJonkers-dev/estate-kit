@@ -7,6 +7,10 @@ lessons: [CS-5]
 
 # Every render is a function of pinned inputs
 
+Amended by [record 88](0088-the-metamodel-is-layered-core-profiles-and-component-kinds-provider-facts-estate-instance.md):
+Provider facts become a pinned input by digest beside ClusterState after the
+cutover.
+
 ## Context
 
 An earlier specification called purity its load-bearing property, and its own
@@ -18,8 +22,10 @@ lock. Reproducibility failed when it was most needed.
 ## Decision
 
 A render reads a closed set of pinned inputs and nothing else: the Project's
-fragment, Platform Intent, the ClusterState snapshot and the compiler version,
-each carried by digest. It never reads the live cluster, a secret value, the
+fragment, Platform Intent, the ClusterState snapshot, Provider facts and the
+compiler version, each carried by digest. Provider facts join the set after the
+cutover ([record 88](0088-the-metamodel-is-layered-core-profiles-and-component-kinds-provider-facts-estate-instance.md)).
+It never reads the live cluster, a secret value, the
 clock, a counter or state remembered from an earlier render. Live facts reach a
 render by one route only: Delivery captures them as a ClusterState snapshot,
 which is digested and becomes an input.

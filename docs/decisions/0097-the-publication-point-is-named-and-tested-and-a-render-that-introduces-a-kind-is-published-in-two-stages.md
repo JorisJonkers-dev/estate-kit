@@ -2,6 +2,7 @@
 status: accepted  # proposed | accepted | locked
 date: 2026-11-04
 rests-on: [9, 25, 28, 58, 63, 69]
+amends: [25, 28]
 lessons: [TM-6]
 ---
 

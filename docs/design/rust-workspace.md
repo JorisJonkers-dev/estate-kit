@@ -32,7 +32,7 @@ The inventory of 2026-10-29, counted on each repository's `main`:
 | --- | --- | --- |
 | deploy-kit compiler (TypeScript, 1.0.1) | 19.5k source lines, 36.6k test lines; 7 adapters plus grafana | The compiler context, step by step ([record 67](../decisions/0067-the-compiler-is-written-to-the-1-0-contract.md)) |
 | delivery Release Gate | 2.4k lines: Flagger webhooks, the tend loop, migration Job unsuspend, traffic probing, warmup | Delivery: `release-gate` domain, served by `http-api` |
-| delivery Reporter | 0.7k: GitHub Deployment statuses per rollout stage | Delivery: a projection of rollout events through `adapter-github` |
+| delivery Reporter | 0.7k: GitHub Deployment statuses per rollout stage | Delivery: a projection of rollout events through `adapter-forge-github` |
 | delivery Collector | 0.3k: the ClusterState snapshot | Delivery: `adapter-kube` captures it live, digested into the render key |
 | delivery vault-policy | 0.7k | Component: `secret-grant` |
 | delivery postgres-catalog, garage-catalog | 0.4k each: roles, databases, buckets, keys, grants | Components: `database-catalog`, `bucket-catalog` |
@@ -179,8 +179,8 @@ crates/
     adapter-kube/             server-side dry-run, Flux and Flagger status, ClusterState capture, the writer Lease, the Pause object
     adapter-flux-watch/       the read-only watches of Flux objects, inventories and Events, and the Receiver call
     adapter-metrics/          read-only samples from Prometheus for analysis
-    adapter-github/           Deployment status, check runs (GitHub App)
-    adapter-github-oidc/      the CI token's claim policy
+    adapter-forge-github/     Deployment status, check runs (GitHub App)
+    adapter-oidc/             the CI token's claim policy
     http-api/                 axum routes from the OpenAPI document, SSE, problem+json
   observation/
     observation-app/          application: the dashboard's read models and their ports
@@ -289,7 +289,7 @@ layers in full.
 | --- | --- | --- |
 | Reading the Principal from the Gate's signed header | rust-commons `identity` (exists) | Already shared |
 | Browser sign-in for the UI (OIDC code flow, PKCE, back-channel logout, step-up) | rust-commons, as identity#113's Rust sign-in kit | Every Rust app with a UI needs it; it must pass identity's flow-conformance suite |
-| The GitHub OIDC claim policy | estate-kit `adapter-github-oidc` | One consumer |
+| The GitHub OIDC claim policy | estate-kit `adapter-oidc` | One consumer |
 | Typed configuration, telemetry setup, health endpoints | estate-kit `foundation` until a third Rust service needs them | [workspace ADR-0017](https://github.com/JorisJonkers-dev/workspace/blob/main/docs/decisions/ADR-0017-go-commons-extracts-on-third-use.md): third use |
 | Testcontainers harness for Postgres, Vault, a registry | estate-kit `testkit` until a third use | Same rule |
 

@@ -19,13 +19,13 @@ hand-written fake that passes the same contract suite as its adapter
 | `analysis` | domain | The pure verdict function: pass, fail or inconclusive ([record 102](../decisions/0102-analysis-is-a-pure-verdict-function-and-an-inconclusive-verdict-holds.md)) | None |
 | `release-gate` | domain | The Release Gate's answer from a ClusterObservation; probing and warmup rules | None |
 | `delivery-app` | application | Deploy, DryRun, Plan, Pause, Resume, Rollback, Admit, Gate; the port traits and their fakes | None |
-| `adapter-github-oidc` | adapter | The CI token's claim policy | GitHub's OIDC discovery |
+| `adapter-oidc` | adapter | The CI token's claim policy | GitHub's OIDC discovery |
 | `adapter-ghcr` | adapter | Fragments, renders, tags, registered digests | ghcr, with a machine account's token from a mounted Secret |
 | `adapter-vault` | adapter | Signs a render or host tag with its own Transit key | Vault Transit |
 | `adapter-kube` | adapter | Server-side dry-run as Delivery's own identity; the ClusterState snapshot; the writer Lease; the Pause object | API server, through kube-rs |
 | `adapter-flux-watch` | adapter | The read-only watches of Flux and Flagger objects, inventories and Events, and the Receiver call ([record 94](../decisions/0094-flux-stays-the-one-applier-observed-closely-and-an-estate-kit-applier-waits-for-a-review-trigger.md)) | API server, through kube-rs; the Project's Flux Receiver |
 | `adapter-metrics` | adapter | Read-only samples for analysis ([record 102](../decisions/0102-analysis-is-a-pure-verdict-function-and-an-inconclusive-verdict-holds.md)) | Prometheus |
-| `adapter-github` | adapter | Deployment status, check runs | GitHub App |
+| `adapter-forge-github` | adapter | Deployment status, check runs | GitHub App |
 | `adapter-postgres` | adapter | The append-only rollout event log and the job table | A database on the shared platform-postgres |
 | `http-api` | adapter | axum routes from the OpenAPI document, SSE, problem+json, authentication layers | None |
 | `bins/estate-kit-delivery` | binary | Configuration and wiring. It serves no UI: Observation's binary does | None |

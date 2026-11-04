@@ -2,6 +2,7 @@
 status: accepted  # proposed | accepted | locked
 date: 2026-11-04
 rests-on: [43, 48, 50, 54]
+amends: [43]
 lessons: []
 ---
 
@@ -48,8 +49,8 @@ the same rules. That document is a contract, Locked like Delivery's: changing
 it needs the maintainer's approval in the pull request. The CLI may have
 commands the UI lacks, such as `validate` and
 `plan`, which run offline. The UI may not have an action the CLI lacks.
-[Operating the estate](../design/operating.md) is corrected to say Operators
-act through the UI or the CLI when this record is accepted.
+[Operating the estate](../design/operating.md) now says Operators
+act through the UI or the CLI.
 
 ## Alternatives
 

@@ -551,11 +551,11 @@ g.package("observe", "observe: the Flux observation fold", tone="data")
 g.package("analysis", "analysis: the verdict function", tone="data")
 g.package("gate", "release-gate: verdicts into Flagger's answers", tone="data")
 g.package("compiler", "compiler (use cases)", tone="data")
-for crate, label in [("oidc", "adapter-github-oidc"), ("ghcr", "adapter-ghcr: oci-client"),
+for crate, label in [("oidc", "adapter-oidc"), ("ghcr", "adapter-ghcr: oci-client"),
                      ("vault", "adapter-vault: Transit"), ("kube", "adapter-kube: kube-rs"),
                      ("fluxwatch", "adapter-flux-watch: read-only watches, Receiver"),
                      ("metrics", "adapter-metrics: Prometheus samples"),
-                     ("github", "adapter-github: the App"), ("pg", "adapter-postgres: sqlx")]:
+                     ("github", "adapter-forge-github: the App"), ("pg", "adapter-postgres: sqlx")]:
     g.package(crate, label)
 g.edge("bin", "api", kind="dashed")
 g.edge("api", "app", kind="dashed")

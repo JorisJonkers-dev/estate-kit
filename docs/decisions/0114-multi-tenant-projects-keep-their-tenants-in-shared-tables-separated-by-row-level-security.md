@@ -2,10 +2,16 @@
 status: accepted  # proposed | accepted | locked | superseded
 date: 2026-11-04
 rests-on: [74, 75, 76, 79]
+amends: [76, 79, 80, 81, 82]
+supersedes: [78]
 lessons: [MS-7, DR-2, TM-4]
 ---
 
 # Multi-tenant Projects keep their Tenants in shared tables, separated by row-level security
+
+Amended by [record 109](0109-a-row-level-security-scale-test-at-1000-tenants-runs-before-the-tenancy-machinery.md):
+the Confirmation gains the Tenancy scale test and the Tenancy scale gate, which
+measure the shared tables at 1000 Tenants before the tenancy machinery is built.
 
 ## Context
 
@@ -151,4 +157,9 @@ opens a transaction without `SET LOCAL app.tenant_id` from the signed
 Principal, or sets it for a session. The **Failed migration release refusal**
 fails when the Release Gate allows a release while the Project database is
 marked failed. The **Valkey scope test**, the **Object prefix test** and the
-**Environment store fixtures** hold the other stores.
+**Environment store fixtures** hold the other stores. The **Tenancy scale test**
+fails when a measure misses its threshold at 1000 Tenants, or a run omits a
+measure. The **Tenancy scale gate** fails when the workspace holds a tenancy
+crate other than `tenant` and no scale result is committed, or the committed
+result shows a miss that links neither an open issue nor the record written
+after a second miss.
