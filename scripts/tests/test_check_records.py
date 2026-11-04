@@ -55,9 +55,21 @@ class Tree:
         lines += [f"| {n} | Record {n} | {s} |" for n, s in self.rows]
         (self.decisions / "register.md").write_text("# The register\n\n" + "\n".join(lines) + "\n")
 
-    def record(self, number: int, status: str, rests_on: str = "[]", lessons: str = "[]") -> None:
+    def record(
+        self,
+        number: int,
+        status: str,
+        rests_on: str = "[]",
+        lessons: str = "[]",
+        amends: str = "[]",
+        supersedes: str = "[]",
+    ) -> None:
         self.row(number, status.capitalize())
-        self.file(number, f"---\nstatus: {status}  # proposed | accepted | locked\nrests-on: {rests_on}\nlessons: {lessons}\n---\n\n# Record {number}\n")
+        self.file(
+            number,
+            f"---\nstatus: {status}  # proposed | accepted | locked\nrests-on: {rests_on}\n"
+            f"amends: {amends}\nsupersedes: {supersedes}\nlessons: {lessons}\n---\n\n# Record {number}\n",
+        )
 
     def file(self, number: int, text: str, confirmation: str | None = "Held by the **Known check**.") -> None:
         if confirmation is not None:
@@ -272,6 +284,149 @@ class SupersededRows(unittest.TestCase):
         found = violations(tree.decisions, tree.lessons, tree.checks)
         self.assertEqual([v.key for v in found], ["rests-on-superseded 3 2"])
         self.assertIn("rest on 1", found[0].message)
+
+
+class AmendedRecordsCarryABackLink(unittest.TestCase):
+    def amended(self, tree: Tree, number: int, body: str, status: str = "accepted") -> None:
+        tree.row(number, status.capitalize())
+        tree.file(
+            number,
+            f"---\nstatus: {status}\nrests-on: []\nlessons: []\n---\n\n# Record {number}\n\n{body}\n",
+        )
+
+    def test_a_back_link_under_the_title_passes(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted", amends="[2]")
+        self.amended(tree, 2, "Amended by [record 1](0001-record-1.md): It changed the rule.")
+        self.assertEqual(tree.keys(), [])
+
+    def test_a_missing_back_link_is_reported(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted", amends="[2]")
+        self.amended(tree, 2, "Some other paragraph.")
+        self.assertEqual(tree.keys(), ["amends-no-backlink 1 2"])
+
+    def test_a_link_in_the_body_does_not_count(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted", amends="[2]")
+        self.amended(tree, 2, "## Context\n\nSee [record 1](0001-record-1.md) for the change.")
+        self.assertEqual(tree.keys(), ["amends-no-backlink 1 2"])
+
+    def test_two_amenders_may_share_consecutive_paragraphs(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted", amends="[3]")
+        tree.record(2, "accepted", amends="[3]")
+        self.amended(
+            tree,
+            3,
+            "Amended by [record 1](0001-record-1.md): The first change.\n\n"
+            "Amended by [record 2](0002-record-2.md): A second\nchange wrapped\nover several lines.",
+        )
+        self.assertEqual(tree.keys(), [])
+
+    def test_a_back_link_with_nothing_after_the_colon_is_reported(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted", amends="[2]")
+        self.amended(tree, 2, "Amended by [record 1](0001-record-1.md):")
+        self.assertEqual(tree.keys(), ["amends-no-backlink 1 2"])
+
+    def test_a_back_link_to_a_longer_number_does_not_satisfy(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted", amends="[2]")
+        self.amended(tree, 2, "Amended by [record 11](0011-record-11.md): It changed the rule.")
+        self.assertEqual(tree.keys(), ["amends-no-backlink 1 2"])
+
+    def test_a_back_link_after_a_plain_paragraph_is_reported(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted", amends="[2]")
+        self.amended(
+            tree,
+            2,
+            "A plain paragraph.\n\nAmended by [record 1](0001-record-1.md): It changed the rule.",
+        )
+        self.assertEqual(tree.keys(), ["amends-no-backlink 1 2"])
+
+    def test_a_file_without_a_title_has_no_back_link(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        tree.row(2, "Accepted")
+        tree.file(2, "---\nstatus: accepted\nrests-on: []\nlessons: []\n---\nAmended by [record 1](0001-record-1.md): It changed.\n")
+        tree.record(3, "accepted", amends="[2]")
+        self.assertEqual(tree.keys(), ["amends-no-backlink 3 2"])
+
+    def test_a_file_that_ends_with_the_back_link_still_counts(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted", amends="[2]")
+        tree.row(2, "Accepted")
+        tree.file(
+            2,
+            "---\nstatus: accepted\nrests-on: []\nlessons: []\n---\n\n# Record 2\n\n"
+            "Amended by [record 1](0001-record-1.md): It changed.",
+            confirmation=None,
+        )
+        self.assertEqual(tree.keys(), ["no-confirmation 2"])
+
+    def test_amending_a_number_with_no_file_is_reported(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted", amends="[9]")
+        self.assertEqual(tree.keys(), ["amends-missing 1 9"])
+
+    def test_amending_a_number_that_is_not_a_number_is_reported(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted", amends="[the old one]")
+        self.assertEqual(tree.keys(), ["amends-missing 1 the old one"])
+
+    def test_a_locked_record_is_held_to_the_same_rule(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "locked", amends="[2]")
+        self.amended(tree, 2, "Some other paragraph.")
+        self.assertEqual(tree.keys(), ["amends-no-backlink 1 2"])
+
+    def test_a_proposed_record_amends_nothing_yet(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "proposed", amends="[9]")
+        self.assertEqual(tree.keys(), [])
+
+
+class SupersededDeclarations(unittest.TestCase):
+    def superseded(self, tree: Tree, number: int, status: str = "superseded") -> None:
+        tree.row(number, "Superseded by 1")
+        tree.file(number, f"---\nstatus: {status}\nrests-on: []\nlessons: []\n---\n\n# Record {number}\n")
+
+    def test_a_declared_supersession_with_its_row_passes(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted", supersedes="[2]")
+        self.superseded(tree, 2)
+        self.assertEqual(tree.keys(), [])
+
+    def test_a_row_that_does_not_name_the_superseder_is_reported(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted", supersedes="[2]")
+        tree.record(2, "accepted")
+        self.assertIn("supersedes-row 1 2", tree.keys())
+
+    def test_a_superseded_file_must_say_superseded(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted", supersedes="[2]")
+        self.superseded(tree, 2, status="accepted")
+        self.assertIn("supersedes-row 1 2", tree.keys())
+
+    def test_a_supersession_of_a_row_without_a_file_is_reported(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted", supersedes="[2]")
+        tree.row(2, "Superseded by 1")
+        self.assertIn("supersedes-row 1 2", tree.keys())
+
+    def test_a_supersession_of_a_number_that_is_not_a_number_is_reported(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted", supersedes="[the old one]")
+        self.assertEqual(tree.keys(), ["supersedes-row 1 the old one"])
+
+    def test_a_proposed_record_supersedes_nothing_yet(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "proposed", supersedes="[2]")
+        tree.record(2, "proposed")
+        self.assertEqual(tree.keys(), [])
 
 
 class EveryRecordHasAConfirmation(unittest.TestCase):

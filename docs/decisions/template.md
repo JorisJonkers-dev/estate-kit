@@ -2,6 +2,8 @@
 status: proposed  # proposed | accepted | locked | superseded
 date: YYYY-MM-DD
 rests-on: []      # earlier record numbers this one depends on
+amends: []       # records whose decision this one changes or extends; each gets an "Amended by" line under its title
+supersedes: []   # records this one replaces; each row reads "Superseded by" this record
 lessons: []       # lesson ids from lessons.md
 ---
 
