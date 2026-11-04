@@ -177,9 +177,10 @@ states("state-mailbox", "State machine: a Mailbox",
        [("[*]", "Declared", ""), ("Declared", "Provisioned", "account created"),
         ("Declared", "Refused", "local part claimed by another Project"),
         ("Provisioned", "Rotating", "rotation due"), ("Rotating", "Provisioned", "new password delivered"),
-        ("Provisioned", "Removed", "dropped from intent"), ("Removed", "[*]", ""), ("Refused", "[*]", "")],
-       labels={"Rotating": "Rotating the password"},
-       tones={"Provisioned": "good", "Refused": "bad"})
+        ("Provisioned", "Retiring", "dropped from intent; tombstone recorded"), ("Retiring", "Provisioned", "declared again within the grace period"), ("Retiring", "Retired", "grace period ended, recovery copy verified"),
+        ("Retired", "[*]", "deleted; the deletion recorded"), ("Refused", "[*]", "")],
+       labels={"Rotating": "Rotating the password", "Retiring": "Retiring (grace period)", "Retired": "Retired, awaiting deletion"},
+       tones={"Provisioned": "good", "Refused": "bad", "Retiring": "warn", "Retired": "warn"})
 
 # ---------------------------------------------------------------------------------------------
 # Class diagrams of the internals.

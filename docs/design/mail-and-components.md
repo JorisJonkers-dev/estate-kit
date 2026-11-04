@@ -20,6 +20,9 @@ they do not own; each component's `-app` crate drives it through its own ports (
 | `backup` | delivery's backup and offcluster jobs (Go) | A Project's backup generations, and for a multi-tenant Project one per Tenant, made of Tenant exports ([record 82](../decisions/0082-backups-are-per-tenant-generations-and-mirrors-refresh-staging-and-development.md)), as Kopia snapshots in its Environment's locked repository ([record 115](../decisions/0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md)), and the weekly restore rehearsal |
 | `mailbox` | stalwart-provisioner (Python, jq and sh) | A Project's Mailbox objects, through Stalwart's management API |
 
+Every reconciler estate-kit owns passes crash-point, stale-read and safety tests
+before it takes production responsibility ([record 104](../decisions/0104-every-reconciler-estate-kit-owns-passes-crash-point-stale-read-and-safety-tests-before-it-takes-production-responsibility.md)). The harness and the tests for the four destructive reconcilers (`migration-run`, `backup`, `database-catalog` and `mailbox`) exist before the cutover's first handover, and each of the four passes them before it replaces its Go or Python program.
+
 ## Mailboxes
 
 An Application lists the addresses it needs by local part. The platform derives
@@ -54,6 +57,33 @@ own unit. The mailbox component watches them by label and reconciles Stalwart.
 Adding a Project re-renders nothing else.
 
 ![Sequence: provisioning a Mailbox](../diagrams/png/seq-mailbox.png)
+
+## Retire policy and tombstone
+
+When a Mailbox, or any other durable object, leaves Intent, it is not deleted
+by Flux. Prune-protected kinds (namespaces, claims with recoverable or
+irreplaceable volumes, Mailboxes, buckets, databases) carry the prune-disabled
+mark ([record 105](../decisions/0105-removal-is-a-retire-lifecycle-with-durable-retirement-tombstones-and-declared-moves-and-prune-protected-kinds-never-prune.md)).
+
+The owning component records a Retirement tombstone: what is retiring, since
+when, and under which policy. The tombstone is a custom resource of the owning
+component, so it is restored with the datastore before the components resume.
+The policy is set per kind and per class of data: suspend the object, wait a
+grace period, verify a recovery copy, then let the owning component delete it
+and record the deletion. The grace period is 30 days unless the policy states
+another. Declaring the object again within the grace period cancels the
+retirement. A tombstone survives a render change, a lost render and a restore,
+and a component applies its tombstones before restored data serves, so a
+restore never brings back what was retired.
+
+Moves are declared, never inferred. A renamed Mailbox local part is a
+`moved_from` in Intent. A removal and an addition of the same kind under the
+same owner, with no declared move, is refused by the plan until the author
+declares the move or confirms the retirement. So a Mailbox that leaves Intent,
+or whose Project leaves, is retired, never removed by a render change, and a
+rename moves the account, as
+[record 33](../decisions/0033-a-mailbox-is-declared-by-its-local-part-and-owned-by-one-project.md)
+now says.
 
 ## UC-13 Declare a Mailbox
 
