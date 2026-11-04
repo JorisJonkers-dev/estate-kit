@@ -40,7 +40,7 @@ The hardware-held key, kept offline, that Flux and every Host applier trust besi
 _Avoid_: backup key, root key
 
 **Serving**:
-The outcome of a Rollout whose new version has been promoted and now takes the Project's traffic. A Rollout ends in exactly one of Serving, Held or Refused.
+The outcome of a Rollout whose new version has been promoted and now takes the Project's traffic. A Rollout ends in exactly one of Serving, Held, Refused, Superseded or Observation lost.
 _Avoid_: live, deployed
 
 **Held**:
@@ -56,7 +56,7 @@ The custom resource, one per admitted Project in its own namespace, that records
 _Avoid_: control file, pause object
 
 **Rollout**:
-One Project's release, from the moment Delivery moves its Prod tag until it ends Serving, Held or Refused. Delivery records it as an append-only log of Rollout events and reports it as a GitHub Deployment in the environment `production`. Not a Kubernetes `Deployment`.
+One Project's release, from the moment Delivery moves its Prod tag until it ends Serving, Held, Refused, Superseded or Observation lost. Delivery records it as an append-only log of Rollout events and reports it as a GitHub Deployment in the environment `production`. Not a Kubernetes `Deployment`.
 _Avoid_: deployment, release run
 
 **Release Gate**:
