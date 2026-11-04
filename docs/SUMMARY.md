@@ -103,6 +103,8 @@
   - [106. The control plane is restored in a tested order](decisions/0106-the-control-plane-is-restored-in-a-dependency-order-that-is-tested-drilled-and-timed.md)
   - [107. Network policy moves to enforcement through a window](decisions/0107-network-policy-moves-from-render-only-through-a-staged-or-audited-window-to-enforcement.md)
   - [108. Active checks run in their components, with an outside heartbeat](decisions/0108-active-checks-run-in-the-owning-components-observation-reads-their-results-and-one-heartbeat-lives-outside-the-cluster.md)
+  - [109. A feasibility test decides whether database per Tenant stands](decisions/0109-a-feasibility-test-decides-whether-one-database-per-tenant-stands.md)
+  - [110. A Purge erases Backup generations and Mirrors from an inventory of every copy](decisions/0110-a-purge-erases-backup-generations-and-mirrors-from-an-inventory-of-every-copy.md)
   - [111. Decision status and Enforcement status are separate](decisions/0111-decision-status-and-enforcement-status-are-separate.md)
   - [112. The write boundary is stated once](decisions/0112-the-write-boundary-is-stated-once.md)
   - [113. Every UI action is a CLI command](decisions/0113-every-ui-action-is-a-cli-command-with-the-same-identifier.md)
