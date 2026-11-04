@@ -27,16 +27,23 @@ still work when the cluster is down.
 
 ## A host rollout
 
-CI builds and signs every node's closure into an off-cluster binary cache and
-runs the VM tests. The cache's signing key is an environment-scoped secret,
-limited to main with a reviewer
-([record 21](../decisions/0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md)). Then Delivery moves the host tags,
-signed with the host key; each tag binds its closure's store path. Each applier
-fetches and verifies its closure first, which disrupts nothing. Only the switch
-and the reboot are serialised, under a cluster-wide Lease, with pods leaving
-through the Eviction API so PodDisruptionBudgets hold. Each applier has its own
-credential, and a ValidatingAdmissionPolicy limits its evictions to its own
-node.
+The closure builder runs on owned hardware with KVM, as the estate-kit CI job
+beside nix-config. It builds every node's closure into a signed, static Nix
+cache on object storage: narinfo and NAR files, with no process to run
+([record 31](../decisions/0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md)). The cache lives off the cluster, on no machine the control
+plane needs to recover, so a node fetches and verifies its generation while the
+cluster is down. Nodes only read it and trust it through
+`trusted-public-keys`; only the closure builder writes it. Its location is
+named in Platform Intent. The cache's signing key is environment-scoped and held
+by the builder; only the builder's signing job can use it
+([record 21](../decisions/0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md)),
+and it never reaches a node or the cluster. Delivery moves the host
+tags only after the build and the VM tests pass; each tag binds its closure's
+store path. Each applier fetches and verifies its closure first, which disrupts
+nothing. Only the switch and the reboot are serialised, under a cluster-wide
+Lease, with pods leaving through the Eviction API so PodDisruptionBudgets hold.
+Each applier has its own credential, and a ValidatingAdmissionPolicy limits its
+evictions to its own node.
 
 ![Sequence: a host rollout](../diagrams/png/seq-host-rollout.png)
 

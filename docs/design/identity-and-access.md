@@ -15,10 +15,14 @@ refuses GitHub App tokens ([review](../research/review/README.md) D3). It lives 
 | Delivery to Vault | Vault Kubernetes auth | Delivery's own service account |
 | Delivery to GitHub | GitHub App installation token | Not OIDC: GitHub issues it per installation |
 | Delivery to ghcr | A machine account's classic PAT, synced by the Vault Secrets Operator into a Kubernetes Secret Delivery mounts, so a tag move never reads Vault | Write only on the render and host packages; a check fails on any other grant; rotated on a schedule (D3) |
-| Service to the API server | Its own service account | Dry-run only: a ValidatingAdmissionPolicy refuses a write by Delivery's identity without `dryRun` other than to its writer Lease, by its name, and to ProjectControl objects (D4) |
+| Service to the API server | Its own service account | Dry-run only: a ValidatingAdmissionPolicy refuses a write by Delivery's identity without `dryRun` other than to its writer Lease, by its name, and to ProjectControl objects ([record 17](../decisions/0017-delivery-runs-in-the-cluster-in-rust.md), [record 58](../decisions/0058-flux-is-locked-down-per-project-and-delivery-dry-runs-as-an-identity-that-cannot-write.md)) |
 | Release Gate to the API server | A service account of its own | Patch migration Jobs and write one record ConfigMap per Application, under the writer Lease ([record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)) |
 | Observation to Alertmanager | A credential for the silences API only | Create and expire silences, nothing else ([record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)) |
 | Host applier to the API server | A credential per node | Cordon, evict and the rollout Lease, limited by policy to its own node (D2) |
+
+The write boundary, one place, is in [Security](security.md#the-write-boundary),
+and the rule for where estate data is kept is in
+[Security](security.md#where-estate-data-is-kept).
 
 ## The claim policy
 
