@@ -33,7 +33,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 25 | [A dry-run must pass before anything is applied, and images are built once and promoted, so what dry-ran is what deploys](0025-a-dry-run-must-pass-before-anything-is-applied-and-what-dry-ran-is-what-deploys.md) | Accepted |
 | 26 | Images are built once and promoted, so what dry-ran is what deploys | Merged into 25 |
 | 27 | A diagnostic names a model path, and the caller resolves the line | Merged into 71 |
-| 28 | [Pause and Rollback are a cluster object per Project; a missing object reads as Paused](0028-pause-and-rollback-are-a-cluster-object-per-project.md) | Proposed |
+| 28 | [Pause and Rollback are a cluster object per Project; a missing object reads as Paused](0028-pause-and-rollback-are-a-cluster-object-per-project.md) | Accepted |
 | 29 | The compiler renders host data; hand-written modules consume it | Merged into 31 |
 | 30 | [A host applier on each node pulls its signed host tag, decides a reboot before the Lease, and switches on its own only where its Node class's fallback is rehearsed](0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md) | Proposed |
 | 31 | [Host data is rendered by the compiler for hand-written modules, and host closures are built on owned hardware into a signed static cache outside the cluster](0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md) | Proposed |
