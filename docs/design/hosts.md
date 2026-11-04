@@ -2,8 +2,7 @@
 
 The same model and compiler that render Projects also render each NixOS node's
 configuration. A separate host applier on every node switches it, one node at a
-time, and reboots only inside its maintenance window. It is built alongside the
-service, by the maintainer's choice against the [review](../research/review/README.md)'s advice to defer it (D2);
+time, and reboots only inside its maintenance window. It is built alongside Delivery, by the maintainer's choice against the [review](../research/review/README.md)'s advice to defer it (D2);
 break-glass and enrolment stay on deploy-rs and nixos-anywhere, generated from
 the same host data.
 
@@ -19,7 +18,7 @@ still work when the cluster is down.
 | Authored in | Project Intent | Infrastructure Intent (sites, nodes, maintenance windows) |
 | Compiler output | Kubernetes objects | Typed host data, consumed by hand-written NixOS modules |
 | Gate before applying | Server-side dry-run | Build every closure, plus a NixOS VM test per Node class |
-| Signed pointer | `render/<p>:prod` | `host/<node>:prod`, moved by the service |
+| Signed pointer | `render/<p>:prod` | `host/<node>:prod`, moved by Delivery |
 | Applier | Flux | Host applier on each node |
 
 ## Where each host input comes from
@@ -31,7 +30,7 @@ still work when the cluster is down.
 CI builds and signs every node's closure into an off-cluster binary cache and
 runs the VM tests. The cache's signing key is an environment-scoped secret,
 limited to main with a reviewer
-([record 21](../decisions/0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md)). Then the service moves the host tags,
+([record 21](../decisions/0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md)). Then Delivery moves the host tags,
 signed with the host key; each tag binds its closure's store path. Each applier
 fetches and verifies its closure first, which disrupts nothing. Only the switch
 and the reboot are serialised, under a cluster-wide Lease, with pods leaving
@@ -84,7 +83,7 @@ likewise upgrades servers before agents.
 
 `frankfurt-contabo-1` is the only control-plane node. While it switches or
 reboots, inside its window, the API pauses: workloads keep serving, but Flux,
-Flagger and the service wait. Its k3s datastore is one SQLite file; a timer
+Flagger and Delivery wait. Its k3s datastore is one SQLite file; a timer
 copies a backup of it, with the server token, off the provider, and a restore
 runbook rebuilt on nixos-anywhere has been drilled in a VM (D5). Vault on the
 same node unseals itself through a cloud KMS (D6). Both are decided in
@@ -124,7 +123,7 @@ host data is rendered, and its class is built and VM-tested.
 
 ## UC-11 Roll out a host change
 
-CI passes the host gate, and the service moves the host tags. Outcome: every
+CI passes the host gate, and Delivery moves the host tags. Outcome: every
 node runs the new generation, one at a time, rebooting only in its window.
 
 ![UC-11 Roll out a host change](../diagrams/png/uc11-roll-out-hosts.png)

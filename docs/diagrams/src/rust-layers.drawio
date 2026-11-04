@@ -4,8 +4,8 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="binary" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="binary: estate-kit, estate-kit-service, estate-kit-observation, estate-kit-host-applier, one per component" vertex="1">
-          <mxGeometry height="106" width="640" x="41" y="12" as="geometry" />
+        <mxCell id="binary" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="binary: estate-kit, estate-kit-delivery, estate-kit-observation, estate-kit-host-applier, one per component" vertex="1">
+          <mxGeometry height="106" width="643" x="40" y="12" as="geometry" />
         </mxCell>
         <mxCell id="adapter" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="adapter: one outside system each; kube, sqlx, axum, oci-client live only here" vertex="1">
           <mxGeometry height="86" width="484" x="12" y="288" as="geometry" />
@@ -53,9 +53,9 @@
         </mxCell>
         <mxCell id="e5" edge="1" parent="1" source="binary" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.6672;exitY=1;entryX=0.6667;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="application" value="calls">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint y="-52" as="offset" />
+            <mxPoint y="-52.5" as="offset" />
             <Array as="points">
-              <mxPoint x="468" y="134" />
+              <mxPoint x="469" y="134" />
               <mxPoint x="551" y="134" />
               <mxPoint x="551" y="490" />
               <mxPoint x="364" y="490" />
@@ -63,7 +63,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="header" value="Rust: the workspace's layers; every dependency points down" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=light-dark(#1a1a1a,#e8e8e8);fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="12" y="-52" width="669" height="36" as="geometry" />
+          <mxGeometry x="12" y="-52" width="671" height="36" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

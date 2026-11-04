@@ -44,13 +44,13 @@ use_case("uc13-mailbox", "Use case 13: declare a Mailbox", ["Application author"
 # Sequences: one interaction each.
 # ---------------------------------------------------------------------------------------------
 
-sequence("seq-deploy-1-admit", "Deploy, step 1 of 3: the deploy job hands a release to the service",
-         [("CI", "deploy job"), ("R", "compiler binary"), ("O", "ghcr"), ("S", "estate-kit service")],
+sequence("seq-deploy-1-admit", "Deploy, step 1 of 3: the deploy job hands a release to Delivery",
+         [("CI", "deploy job"), ("R", "compiler binary"), ("O", "ghcr"), ("S", "Delivery")],
          [("CI", "R", "validate offline"), ("R", "CI", "no diagnostics", "reply"),
           ("CI", "O", "promote digests, publish the Intent Fragment"),
           ("CI", "S", "deploy (GitHub OIDC token)"), ("S", "CI", "rollout id, event stream opens", "reply")])
 sequence("seq-deploy-2-dryrun", "Deploy, step 2 of 3: compose, dry-run, sign and move the prod tag",
-         [("S", "estate-kit service"), ("R", "compiler binary"), ("K", "API server"), ("V", "Vault Transit"), ("O", "ghcr")],
+         [("S", "Delivery"), ("R", "compiler binary"), ("K", "API server"), ("V", "Vault Transit"), ("O", "ghcr")],
          [("S", "O", "pull the admitted fragments"), ("S", "S", "every digest registered by its Project?"),
           ("S", "R", "compose the estate"),
           ("R", "S", "renders, diagnostics", "reply"), ("S", "K", "apply, dryRun=All, as the dry-run identity"),
@@ -61,17 +61,17 @@ sequence("seq-deploy-2-dryrun", "Deploy, step 2 of 3: compose, dry-run, sign and
            "dry-run rejected",
            [("K", "S", "rejected", "reply"), ("note", "S", "Project isolated, prod tag unchanged")])])
 sequence("seq-deploy-3-switch", "Deploy, step 3 of 3: Flux applies and Flagger switches traffic",
-         [("F", "Flux"), ("O", "ghcr"), ("K", "API server"), ("FG", "Flagger"), ("S", "estate-kit service"), ("CI", "deploy job")],
+         [("F", "Flux"), ("O", "ghcr"), ("K", "API server"), ("FG", "Flagger"), ("S", "Delivery"), ("CI", "deploy job")],
          [("F", "O", "pull the prod tag, verify its signature"), ("F", "K", "apply"),
           ("FG", "S", "Release Gate webhook"), ("S", "FG", "promote once every member is healthy", "reply"),
           ("S", "CI", "settled: Serving or Held", "reply")])
 sequence("seq-dry-run", "Dry-run of a release pull request",
-         [("CI", "deploy job, dry-run"), ("S", "estate-kit service"), ("K", "API server"), ("GH", "GitHub")],
+         [("CI", "deploy job, dry-run"), ("S", "Delivery"), ("K", "API server"), ("GH", "GitHub")],
          [("CI", "CI", "build candidate images"), ("CI", "S", "deploy, dry-run (GitHub OIDC token)"),
           ("S", "K", "compose, apply dryRun=All"), ("K", "S", "accepted or rejected", "reply"),
           ("S", "CI", "diagnostics, render diff", "reply"), ("CI", "GH", "annotations, check run, job summary")])
 sequence("seq-rollback", "Roll back a Project: the fast path signs and composes nothing",
-         [("@Op", "Operator"), ("S", "estate-kit service"), ("K", "API server"), ("O", "ghcr"), ("GH", "GitHub")],
+         [("@Op", "Operator"), ("S", "Delivery"), ("K", "API server"), ("O", "ghcr"), ("GH", "GitHub")],
          [("@Op", "S", "roll back"), ("S", "K", "dry-run the last Serving render"),
           ("alt", "dry-run accepted",
            [("K", "S", "accepted", "reply"), ("S", "K", "take the writer Lease"),
@@ -80,24 +80,24 @@ sequence("seq-rollback", "Roll back a Project: the fast path signs and composes 
            "dry-run rejected",
            [("K", "S", "rejected", "reply"), ("S", "GH", "dispatch deploy in watch mode: re-compose")])])
 sequence("seq-auth", "Authenticate a deploy call with a GitHub OIDC token",
-         [("CI", "deploy job"), ("GO", "GitHub OIDC"), ("S", "estate-kit service")],
+         [("CI", "deploy job"), ("GO", "GitHub OIDC"), ("S", "Delivery")],
          [("CI", "GO", "request an ID token, audience estate-kit"), ("GO", "CI", "JWT", "reply"),
           ("CI", "S", "deploy, Bearer JWT"), ("S", "S", "repository_id and owner id admitted?"),
           ("S", "S", "claim policy: event_name, job_workflow_sha, ref_type, runner, environment"),
           ("S", "CI", "rollout id", "reply"),
-          ("CI", "GO", "token expired or service restarted: request a fresh ID token"),
+          ("CI", "GO", "token expired or Delivery restarted: request a fresh ID token"),
           ("GO", "CI", "JWT", "reply"),
           ("CI", "S", "watch, resume after the last sequence, Bearer JWT"),
           ("S", "S", "the same claim policy"),
           ("S", "CI", "events since that sequence", "reply")])
 sequence("seq-cache", "Skip publishing an unchanged render",
-         [("S", "estate-kit service"), ("R", "compiler binary"), ("O", "ghcr")],
+         [("S", "Delivery"), ("R", "compiler binary"), ("O", "ghcr")],
          [("S", "R", "render this Project"), ("R", "S", "render, digest", "reply"),
           ("S", "O", "digest behind render/<p>:prod?"), ("O", "S", "current digest", "reply"),
           ("alt", "same digest", [("S", "S", "publish nothing, move nothing, record why")],
            "different digest", [("S", "O", "push, sign, move the tag after the dry-run")])])
 sequence("seq-host-rollout", "Roll out a host change, one node at a time",
-         [("CI", "CI"), ("C", "binary cache"), ("S", "estate-kit service"), ("O", "ghcr"), ("A", "host applier"), ("K", "API server")],
+         [("CI", "CI"), ("C", "binary cache"), ("S", "Delivery"), ("O", "ghcr"), ("A", "host applier"), ("K", "API server")],
          [("CI", "C", "push signed closures"), ("CI", "CI", "VM test per node class"),
           ("CI", "S", "host rollout (GitHub OIDC token)"), ("S", "O", "move host/<node>:prod"),
           ("A", "O", "poll the tag, verify it"), ("A", "C", "fetch and verify the closure"),
@@ -105,32 +105,32 @@ sequence("seq-host-rollout", "Roll out a host change, one node at a time",
           ("A", "K", "take the Lease, evict pods"), ("A", "A", "switch or reboot, health check"),
           ("A", "K", "uncordon, release the Lease")])
 sequence("seq-mailbox", "Provision a Mailbox",
-         [("S", "estate-kit service"), ("F", "Flux"), ("K", "API server"), ("M", "mailbox component"), ("ST", "Stalwart"), ("V", "Vault")],
+         [("S", "Delivery"), ("F", "Flux"), ("K", "API server"), ("M", "mailbox component"), ("ST", "Stalwart"), ("V", "Vault")],
          [("S", "F", "Project render with Mailbox objects"), ("F", "K", "apply the Mailbox"),
           ("M", "K", "watch Mailboxes by label"), ("M", "V", "read the generated password"),
           ("M", "ST", "create or update the account"), ("M", "K", "write status")])
 sequence("seq-platform-push", "Push Platform Intent like any Project",
-         [("CI", "estate repo CI"), ("O", "ghcr"), ("S", "estate-kit service"), ("R", "compiler binary")],
+         [("CI", "estate repo CI"), ("O", "ghcr"), ("S", "Delivery"), ("R", "compiler binary")],
          [("CI", "R", "validate Platform Intent"), ("CI", "O", "publish the platform fragment"),
           ("CI", "S", "deploy (GitHub OIDC token, platform)"), ("S", "S", "cache the new copy"),
           ("S", "R", "compose the estate"), ("S", "CI", "rollout stream", "reply")])
 sequence("seq-drift-check", "Nightly drift check",
-         [("S", "estate-kit service, nightly"), ("G", "GitHub"), ("O", "ghcr"), ("DB", "service cache")],
+         [("S", "Delivery, nightly"), ("G", "GitHub"), ("O", "ghcr"), ("DB", "Delivery cache")],
          [("S", "G", "latest release of each admitted repository"), ("S", "O", "latest fragment and prod tag"),
           ("S", "DB", "cached copies"), ("S", "S", "compare all three"),
           ("opt", "they differ", [("S", "G", "report the drift as an issue or a check")])])
 sequence("seq-fail-retry", "Failure: the deploy response is lost and the job retries",
-         [("CI", "deploy job"), ("S", "estate-kit service"), ("DB", "event log")],
+         [("CI", "deploy job"), ("S", "Delivery"), ("DB", "event log")],
          [("CI", "S", "deploy (Project, fragment digest)"), ("S", "DB", "rollout created"),
           ("S", "CI", "response lost (timeout)", "reply"), ("CI", "S", "retry: same Project and digest"),
           ("S", "DB", "find the existing rollout"), ("S", "CI", "same rollout id, no second run", "reply")])
 sequence("seq-fail-stream", "Failure: the event stream drops and resumes",
-         [("CI", "deploy job"), ("S", "estate-kit service"), ("DB", "event log")],
+         [("CI", "deploy job"), ("S", "Delivery"), ("DB", "event log")],
          [("S", "CI", "events 1 to 41", "reply"), ("CI", "CI", "connection drops"),
           ("CI", "S", "watch, resume after 41"), ("S", "DB", "events since 41"),
           ("S", "CI", "events 42 onwards, duplicates dropped", "reply")])
 sequence("seq-fail-dryrun", "Failure: the API server rejects the dry-run",
-         [("S", "estate-kit service"), ("K", "API server"), ("DB", "event log"), ("CI", "deploy job")],
+         [("S", "Delivery"), ("K", "API server"), ("DB", "event log"), ("CI", "deploy job")],
          [("S", "K", "apply, dryRun=All"), ("K", "S", "rejected: immutable field", "reply"),
           ("S", "DB", "Refused event, Project isolated"), ("S", "CI", "problem+json with the model path", "reply"),
           ("CI", "CI", "annotate the YAML line, fail the job")])
@@ -287,7 +287,7 @@ g.system("cli", "estate-kit CLI", "Validates and plans offline", kind="container
 g.system("ui", "UI", "Rollouts, Projects, hosts", kind="container", tech="Vue, embedded in Observation", parent="ek")
 g.system("obs", "Observation", "Read-only views of what runs; creates and expires Silences", kind="container",
          tech="Rust, its own binary and Deployment", parent="ek")
-g.system("svc", "service", "Composes, dry-runs, signs, streams rollouts, runs the Release Gate", kind="container",
+g.system("svc", "Delivery", "Composes, dry-runs, signs, streams rollouts, runs the Release Gate", kind="container",
          tech="Rust, links the compiler", parent="ek")
 g.system("pg", "event log", "Append-only rollout events", kind="database", tech="platform-postgres", parent="ek")
 g.system("applier", "host applier", "Switches one node at a time", kind="container", tech="Rust, systemd", parent="ek")
@@ -325,7 +325,7 @@ g.group("registry", "«device» registry", kind="node")
 g.store("ghcr", "ghcr: fragments, renders, tags", parent="registry")
 g.group("cluster", "«execution environment» Kubernetes cluster", kind="node")
 g.box("edge", "Traefik edge", parent="cluster")
-g.box("svc", "estate-kit service", tone="accent", parent="cluster")
+g.box("svc", "Delivery", tone="accent", parent="cluster")
 g.store("pg", "Postgres", parent="cluster")
 g.box("flux", "Flux", parent="cluster")
 g.box("flagger", "Flagger", parent="cluster")
@@ -344,7 +344,7 @@ g.done()
 
 g = Graph("deploy-in-cluster", "Deployment: inside the cluster")
 g.group("cluster", "«execution environment» Kubernetes cluster", kind="node")
-g.box("svc", "estate-kit service", tone="accent", parent="cluster")
+g.box("svc", "Delivery", tone="accent", parent="cluster")
 g.store("pg", "platform-postgres: event log", parent="cluster")
 g.box("flagger", "Flagger", parent="cluster")
 g.box("vault", "Vault Transit", parent="cluster")
@@ -396,7 +396,7 @@ g.done()
 g = Graph("context", "Context: how a release reaches the cluster")
 g.box("ci", "Project CI")
 g.box("estate", "estate repository")
-g.box("svc", "estate-kit service", tone="accent")
+g.box("svc", "Delivery", tone="accent")
 g.store("ghcr", "ghcr")
 g.box("flux", "Flux")
 g.box("work", "Project workloads")
@@ -454,7 +454,7 @@ g.artifact("mods", "hand-written NixOS modules")
 g.box("comp", "compile: host data", tone="accent")
 g.box("build", "CI: build closures, VM tests", tone="accent")
 g.store("cache", "signed binary cache")
-g.box("svc", "service: move host tags", tone="accent")
+g.box("svc", "Delivery: move host tags", tone="accent")
 g.box("agent", "host applier", tone="accent")
 for a, b, label in [("ii", "comp", ""), ("pi", "comp", ""), ("ver", "comp", ""), ("comp", "build", "host data"),
                     ("mods", "build", ""), ("build", "cache", "pushes"), ("build", "svc", "passed"),
@@ -492,7 +492,7 @@ g.done()
 
 g = Graph("rust-crates", "Rust: the compiler's crates and what each depends on", direction="DOWN")
 g.package("cli", "bins/estate-kit", tone="accent")
-g.package("svc", "service-app")
+g.package("svc", "delivery-app")
 g.package("app", "compiler (use cases)")
 g.group("steps", "step and render crates: none depends on another")
 STEPS = {"read": "step-read", "check": "step-check", "lower": "step-lower", "compose": "step-compose",
@@ -515,10 +515,10 @@ g.edge("serialize", "deliverable", "reads", kind="dashed")
 g.edge("models", "foundation", kind="dashed")
 g.done()
 
-g = Graph("rust-service-crates", "Rust: the service's crates and what each depends on", direction="DOWN")
-g.package("bin", "bins/estate-kit-service", tone="accent")
+g = Graph("rust-delivery-crates", "Rust: Delivery's crates and what each depends on", direction="DOWN")
+g.package("bin", "bins/estate-kit-delivery", tone="accent")
 g.package("api", "http-api: axum, SSE, problem+json")
-g.package("app", "service-app: use cases, ports, fakes")
+g.package("app", "delivery-app: use cases, ports, fakes")
 g.package("rollout", "rollout: the decider", tone="data")
 g.package("gate", "release-gate", tone="data")
 g.package("compiler", "compiler (use cases)", tone="data")
@@ -537,7 +537,7 @@ for crate in ("oidc", "ghcr", "vault", "kube", "github", "pg"):
 g.done()
 
 g = Graph("rust-layers", "Rust: the workspace's layers; every dependency points down", direction="DOWN", layer_gap=70)
-g.box("binary", "binary: estate-kit, estate-kit-service, estate-kit-observation, estate-kit-host-applier, one per component", tone="accent")
+g.box("binary", "binary: estate-kit, estate-kit-delivery, estate-kit-observation, estate-kit-host-applier, one per component", tone="accent")
 g.box("adapter", "adapter: one outside system each; kube, sqlx, axum, oci-client live only here")
 g.box("application", "application: use cases, port traits, one fake per port")
 g.box("domain", "domain: models, steps, deciders, invariants; no I/O, no async, no clock")
@@ -589,7 +589,7 @@ g = Graph("components", "Components: the parts of estate-kit (blue) and what eac
 # boundary groups the parts: draw.io lays a container out on its own, so edges that leave it
 # would run backwards.
 g.artifact("intent", "authored intent")
-g.box("service", "service (Rust)", tone="accent")
+g.box("service", "Delivery (Rust)", tone="accent")
 g.box("compiler", "compiler crates (Rust)", tone="accent")
 g.box("observation", "observation (Rust)", tone="accent")
 g.box("ui", "ui (Vue)", tone="accent")
@@ -612,7 +612,7 @@ g.done()
 
 g = Graph("context-map", "Context map: the bounded contexts and how they relate")
 g.box("compiler", "Compiler context: the model", tone="accent")
-g.box("service", "Service context: rollouts", tone="accent")
+g.box("service", "Delivery context: rollouts", tone="accent")
 g.box("observation", "Observation context: what runs", tone="accent")
 g.box("applier", "Hosts context: generations", tone="accent")
 g.box("components", "Component contexts: migrations, secrets, catalogs, backups, mailboxes", tone="accent")
@@ -635,7 +635,7 @@ g.box("runner", "GitHub runner", parent="internet")
 g.box("browser", "operator's browser", parent="internet")
 g.group("cluster", "cluster", kind="trust")
 g.box("edge", "Traefik edge", parent="cluster")
-g.box("svc", "estate-kit service", tone="accent", parent="cluster")
+g.box("svc", "Delivery", tone="accent", parent="cluster")
 g.box("vault", "Vault", parent="cluster")
 g.box("api", "Kubernetes API", parent="cluster")
 g.group("host", "node", kind="trust")
@@ -666,9 +666,9 @@ g.group("compiler", "Compiler context")
 g.package("cli", "bins/estate-kit", tone="accent", parent="compiler")
 g.package("capp", "compiler: validate, plan, compose, render_hosts", parent="compiler")
 g.package("steps", "read, link, check, lower, compose, resolve, render, serialize", tone="data", parent="compiler")
-g.group("service", "Service context: bins/estate-kit-service")
+g.group("service", "Delivery context: bins/estate-kit-delivery")
 g.package("api", "http-api", tone="accent", parent="service")
-g.package("sapp", "service-app: use cases and ports", parent="service")
+g.package("sapp", "delivery-app: use cases and ports", parent="service")
 g.package("rollout", "rollout and release-gate: deciders", tone="data", parent="service")
 g.package("sadapt", "adapters: postgres, ghcr, vault, kube, github, github-oidc", parent="service")
 g.group("obs", "Observation context")
@@ -760,7 +760,7 @@ classes("rust-step-render", "Rust: eight renderers behind one trait, and one ser
            ("Serializer", "Deliverable", "dep", "writes"), ("Serializer", "CanonicalEmitter", "dep", "through")],
         tones={"Renderer": "accent", "Deliverable": "data"})
 
-classes("rust-service-app", "Rust: the service's use cases, generic over one bundle of ports",
+classes("rust-delivery-app", "Rust: Delivery's use cases, generic over one bundle of ports",
         [("Ports", "trait", ["type EventStore", "type Registry", "type Signer", "type Cluster", "type GitHub",
                              "type Clock"]),
          ("Deploy", None, ["ports: P", "run(DeployCommand) Result<RolloutId, Problem>"]),
@@ -787,7 +787,7 @@ classes("rust-reconcile", "Rust: one pure decide step in foundation, one driver 
         tones={"reconcile": "accent"})
 
 sequence("seq-compose-crates", "Control flow: one deploy call through the crates",
-         [("CI", "deploy job"), ("H", "http-api"), ("D", "service-app Deploy"), ("R", "rollout decider"),
+         [("CI", "deploy job"), ("H", "http-api"), ("D", "delivery-app Deploy"), ("R", "rollout decider"),
           ("E", "adapter-postgres"), ("Q", "composition queue"), ("C", "compiler compose"),
           ("K", "adapter-kube"), ("V", "adapter-vault"), ("G", "adapter-ghcr")],
          [("CI", "H", "POST /deploys (OIDC token, fragment digest)"),
@@ -820,8 +820,8 @@ g.decision("ok", "every fragment checks?")
 g.box("isolate", "isolate the refused fragments, record Refused", tone="warn")
 g.box("compose", "compose and resolve the rest")
 g.decision("budget", "within budget and deadline, no panic?")
-g.terminal("failed", "composition fails with an internal problem; the service runs on", tone="bad")
-g.box("dry", "server-side dry-run as the service's own identity")
+g.terminal("failed", "composition fails with an internal problem; Delivery runs on", tone="bad")
+g.box("dry", "server-side dry-run as Delivery's own identity")
 g.decision("dryok", "dry-run clean?")
 g.terminal("refused", "diagnostics on the YAML lines; nothing moves", tone="bad")
 g.decision("changed", "render digest differs from the tag's?")

@@ -15,13 +15,13 @@ compiler's inside, and [Testing and speed](code-shape-and-speed.md) the gates.
 | Adapters build a narrow object model, never upstream client types | [deploy-kit ADR 0058](https://github.com/JorisJonkers-dev/deploy-kit/blob/main/docs/adr/architecture/0058-every-step-links-through-one-trace.md) | `deliverable` declares only the fields the estate sets; `k8s-openapi` is not a dependency |
 | Errors are coded diagnostics in a list; panics are compiler bugs | [deploy-kit ADR 0059](https://github.com/JorisJonkers-dev/deploy-kit/blob/main/docs/adr/architecture/0059-failures-are-a-diagnostic-list.md) | `diagnostics` foundation crate |
 | No env, clock, randomness, process or file system inside a step | [deploy-kit ADR 0061](https://github.com/JorisJonkers-dev/deploy-kit/blob/main/docs/adr/architecture/0061-the-process-lives-in-one-boundary-file.md) | clippy `disallowed-methods` per layer |
-| Layer and reachability rules live on the module graph, with negative fixtures | [deploy-kit ADR 0060](https://github.com/JorisJonkers-dev/deploy-kit/blob/main/docs/adr/architecture/0060-boundaries-enforced-on-the-graph.md) | `cargo xtask check-layers` ([record 50](../decisions/0050-five-bounded-contexts.md)) |
+| Layer and reachability rules live on the module graph, with negative fixtures | [deploy-kit ADR 0060](https://github.com/JorisJonkers-dev/deploy-kit/blob/main/docs/adr/architecture/0060-boundaries-enforced-on-the-graph.md) | `cargo xtask check-layers` ([record 50](../decisions/0050-six-bounded-contexts-in-five-layers.md)) |
 | A rule that matches nothing passes silently | blueshell's ArchUnit "controllers do not call services" never fired | Every rule ships with a fixture that must fail |
 | Map by hand at boundaries; mapping libraries were removed | [blueshell API ADR-004](https://github.com/ESA-Blueshell/website/blob/main/docs/adr/api/ADR-004-manual-mapping-at-api-boundaries.md) | `From` and `TryFrom` impls, written out |
 | No command bus; one use case per command | [blueshell API ADR-002](https://github.com/ESA-Blueshell/website/blob/main/docs/adr/api/ADR-002-command-pattern-with-command-bus.md), translated | One function or struct per use case; cross-cutting work is a tower layer |
 | A package moves to commons on its third use, not before | [workspace ADR-0017](https://github.com/JorisJonkers-dev/workspace/tree/main/docs/decisions) | `rust-commons` grows only when a third Rust consumer needs it |
 | Contract first: the committed document is the only interface source | [workspace ADR-0016](https://github.com/JorisJonkers-dev/workspace/blob/main/docs/decisions/ADR-0016-go-vue-contract-first-standard.md) | OpenAPI, JSON Schemas and the error catalogue live in `contracts/` |
-| Migrations run from their own image, never from the service | [workspace ADR-0021](https://github.com/JorisJonkers-dev/workspace/blob/main/docs/decisions/ADR-0021-liquibase-runner-is-the-one-migration-path.md) | The service's event-store schema ships as a migration-runner image |
+| Migrations run from their own image, never from Delivery | [workspace ADR-0021](https://github.com/JorisJonkers-dev/workspace/blob/main/docs/decisions/ADR-0021-liquibase-runner-is-the-one-migration-path.md) | Delivery's event-store schema ships as a migration-runner image |
 | The DB row is the queue; jobs dedupe on a key; a sweeper recovers stale ones | [blueshell API ADR-023](https://github.com/ESA-Blueshell/website/blob/main/docs/adr/api/ADR-023-job-consolidation-and-reliable-execution.md) (reversed RabbitMQ) | The composition queue and component jobs |
 
 ## What is being replaced, and where it goes
@@ -31,9 +31,9 @@ The inventory of 2026-10-29, counted on each repository's `main`:
 | Today | Size | Goes to |
 | --- | --- | --- |
 | deploy-kit compiler (TypeScript, 1.0.1) | 19.5k source lines, 36.6k test lines; 7 adapters plus grafana | The compiler context, step by step ([record 67](../decisions/0067-the-compiler-is-written-to-the-1-0-contract.md)) |
-| delivery Release Gate | 2.4k lines: Flagger webhooks, the tend loop, migration Job unsuspend, traffic probing, warmup | Service: `release-gate` domain, served by `http-api` |
-| delivery Reporter | 0.7k: GitHub Deployment statuses per rollout stage | Service: a projection of rollout events through `adapter-github` |
-| delivery Collector | 0.3k: the ClusterState snapshot | Service: `adapter-kube` captures it live, digested into the render key |
+| delivery Release Gate | 2.4k lines: Flagger webhooks, the tend loop, migration Job unsuspend, traffic probing, warmup | Delivery: `release-gate` domain, served by `http-api` |
+| delivery Reporter | 0.7k: GitHub Deployment statuses per rollout stage | Delivery: a projection of rollout events through `adapter-github` |
+| delivery Collector | 0.3k: the ClusterState snapshot | Delivery: `adapter-kube` captures it live, digested into the render key |
 | delivery vault-policy | 0.7k | Component: `secret-grant` |
 | delivery postgres-catalog, garage-catalog | 0.4k each: roles, databases, buckets, keys, grants | Components: `database-catalog`, `bucket-catalog` |
 | delivery backup, offcluster | 0.9k: generations, a consistent SQLite copy, age encryption, S3 upload | Component: `backup` |
@@ -52,38 +52,38 @@ and its own port traits.
 ## Bounded contexts
 
 The four earlier contexts stay and a fifth is added
-([record 50](../decisions/0050-five-bounded-contexts.md)): **Observation**, the read side the dashboard serves today. It ships as its own binary and
+([record 50](../decisions/0050-six-bounded-contexts-in-five-layers.md)): **Observation**, the read side the dashboard serves today. It ships as its own binary and
 Deployment with its own read-only adapters, and holds no Vault, ghcr or signing
 credential. Its one write is Alertmanager silences, with a credential for that
 API alone ([record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)). It holds
 no credential that can deploy, pause or roll back, as estate-dashboard holds
-none now; keeping it out of the Service's process keeps the rollout core free
-of Prometheus, Loki and Alertmanager, and keeps the service's credentials out
+none now; keeping it out of Delivery's process keeps the rollout core free
+of Prometheus, Loki and Alertmanager, and keeps Delivery's credentials out
 of the read code. The allowed context edges are not decided on this page:
 `crates/layers.toml` holds them and `check-layers` reads that file. A Project is the aggregate root in the
-compiler; a Rollout is the aggregate root in the service.
+compiler; a Rollout is the aggregate root in Delivery.
 
 A sixth context, **Tenancy**, holds the Tenant model and the Tenant operations
 ([record 80](../decisions/0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md),
-which amends [record 50](../decisions/0050-five-bounded-contexts.md)). A Tenant
+which amends [record 50](../decisions/0050-six-bounded-contexts-in-five-layers.md)). A Tenant
 is its aggregate root. The layers and the check that holds them are unchanged;
 `crates/layers.toml` still holds the edges.
 
-Tenancy has no binary of its own. Only the service writes a Tenant
+Tenancy has no binary of its own. Only Delivery writes a Tenant
 ([record 80](../decisions/0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md)),
-so `estate-kit-service` wires `tenancy-app` and the tenancy adapters, and
+so `estate-kit-delivery` wires `tenancy-app` and the tenancy adapters, and
 `http-api` serves the lifecycle API by calling `tenancy-app`. The tenancy
-adapters are its own: the service's `adapter-kube` and `adapter-postgres` are
+adapters are its own: Delivery's `adapter-kube` and `adapter-postgres` are
 not wired to this context, as Observation keeps its own kube adapter.
 
 | Context | Owns | Aggregate roots | Talks to others through |
 | --- | --- | --- | --- |
 | Compiler | The model: Intent in, Resolved Deployment, Deliverable Set out | Project; the Estate is the set of admitted Projects | Its application crate's use cases (`validate`, `plan`, `compose`, `render_hosts`, `generate`) |
-| Service | Rollouts, compositions, admission, Pause and Rollback, the Release Gate (with its Job unsuspend and per-Application record, under the writer Lease: [record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)) | Rollout (event-sourced); Composition | The compiler's use cases, called in-process ([record 18](../decisions/0018-the-service-links-the-compiler.md)) |
-| Observation | What runs and how it is doing: units, pods, containers, alerts and silences, logs, health, checks | None: read models only, and Silences as its one write | Ports onto Prometheus, Loki, Alertmanager, Gatus and the cluster; rollout history from the Service's API |
+| Delivery | Rollouts, compositions, admission, Pause and Rollback, the Release Gate (with its Job unsuspend and per-Application record, under the writer Lease: [record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)) | Rollout (event-sourced); Composition | The compiler's use cases, called in-process ([record 18](../decisions/0018-delivery-links-the-compiler.md)) |
+| Observation | What runs and how it is doing: units, pods, containers, alerts and silences, logs, health, checks | None: read models only, and Silences as its one write | Ports onto Prometheus, Loki, Alertmanager, Gatus and the cluster; rollout history from Delivery's API |
 | Hosts | Generations and their rollout across nodes | NodeRollout | Signed host tags only; never a model type |
 | Components | Migration runs, secret grants, database and bucket catalogs, backups, Mailboxes | One per component: MigrationRun, SecretGrant, DatabaseGrant, BucketGrant, BackupGeneration, Mailbox | Rendered objects only |
-| Tenancy | Tenants and their Tenant operations, Tenant hooks, the operation log | Tenant | The Tenant custom resource, which the Components reconcile; the lifecycle API on the Service's HTTP surface |
+| Tenancy | Tenants and their Tenant operations, Tenant hooks, the operation log | Tenant | The Tenant custom resource, which the Components reconcile; the lifecycle API on Delivery's HTTP surface |
 
 The context map, with the result.json edge replaced by an in-process call:
 
@@ -91,18 +91,18 @@ The context map, with the result.json edge replaced by an in-process call:
 
 | Upstream | Downstream | Relationship | Published language |
 | --- | --- | --- | --- |
-| Compiler | Service | Customer and supplier | `compiler::CompositionResult` and `Diagnostic` |
+| Compiler | Delivery | Customer and supplier | `compiler::CompositionResult` and `Diagnostic` |
 | Compiler | Hosts | Anticorruption layer | Host data (Nix attribute sets), via signed host tags |
 | Compiler | Components | Published language | The rendered objects' committed schemas |
-| Service | Observation | Published language | Rollout events, read from the Service's HTTP API (the OpenAPI document), not its event store |
-| identity | Service, Observation | Conformist | rust-commons' `Principal` |
+| Delivery | Observation | Published language | Rollout events, read from Delivery's HTTP API (the OpenAPI document), not its event store |
+| identity | Delivery, Observation | Conformist | rust-commons' `Principal` |
 | Tenancy | Components | Published language | The Tenant custom resource and its finalizers |
-| Service | Tenancy | Customer and supplier | The lifecycle API in the OpenAPI document |
+| Delivery | Tenancy | Customer and supplier | The lifecycle API in the OpenAPI document |
 
 ## Layers
 
 Each crate is in one context and one layer
-([record 50](../decisions/0050-five-bounded-contexts.md)).
+([record 50](../decisions/0050-six-bounded-contexts-in-five-layers.md)).
 Dependencies point inward and downward only.
 
 ![The workspace's layers](../diagrams/png/rust-layers.png)
@@ -111,7 +111,7 @@ Dependencies point inward and downward only.
 | --- | --- | --- | --- |
 | foundation | foundation | Diagnostics with a generic Location, model paths, digests, canonical YAML and JSON, spanned YAML reading, the trace store (generic over its source key), the pure decide step, the test kit | Domain words; async; I/O (the test kit alone may, and only as a dev-dependency) |
 | domain | foundation; its context's domain | Model types, invariants, transformation steps, deciders, state machines | `tokio`, `kube`, `sqlx`, `reqwest`, `axum`; `std::env`, `std::fs`, `SystemTime::now` |
-| application | its context's domain; foundation; the application crate of an upstream context that `crates/layers.toml` names (the Service links the compiler: [record 18](../decisions/0018-the-service-links-the-compiler.md)) | Use cases, port traits, drivers, the fakes behind a `fakes` feature | Any adapter crate |
+| application | its context's domain; foundation; the application crate of an upstream context that `crates/layers.toml` names (Delivery links the compiler: [record 18](../decisions/0018-delivery-links-the-compiler.md)) | Use cases, port traits, drivers, the fakes behind a `fakes` feature | Any adapter crate |
 | adapter | its context's application; foundation; external crates | One outside system each | Another adapter; a domain crate's internals |
 | binary | anything | `main`, typed configuration, wiring | Logic: a binary is wiring only |
 
@@ -164,10 +164,10 @@ crates/
     adapter-fs/               adapter: reads authored YAML and env files, writes rendered files atomically; implements the compiler's `Files` port
     generate/                 an Application's App Roles in its language (go, kotlin, python, rust, ts)
     compiler/                 application: validate, plan, compose, render_hosts, generate, migrate; the `Files` port
-  service/
+  delivery/
     rollout/                  domain: the Rollout decider, events and their upcasters, the composition queue policy
     release-gate/             domain: the Release Gate's answer from a ClusterObservation; probing and warmup rules
-    service-app/              application: Deploy, DryRun, Plan, Pause, Resume, Rollback, Admit, Gate; the ports
+    delivery-app/             application: Deploy, DryRun, Plan, Pause, Resume, Rollback, Admit, Gate; the ports
     adapter-postgres/         the event log and the job table (sqlx)
     adapter-ghcr/             fragments, renders, tags (oci-client) with the machine token
     adapter-vault/            Transit signing and token reads
@@ -181,8 +181,8 @@ crates/
     adapter-loki/             logs and streams (read only)
     adapter-alertmanager/     alerts and history, read; Silences, the one write, under its own credential
     adapter-gatus/            checks (read only)
-    adapter-observation-kube/ read-only watches of units, pods and containers, with its own service account; the service's adapter-kube is not wired to this context
-    adapter-service-api/      rollout history and events, read from the Service's HTTP API
+    adapter-observation-kube/ read-only watches of units, pods and containers, with its own service account; Delivery's adapter-kube is not wired to this context
+    adapter-delivery-api/      rollout history and events, read from Delivery's HTTP API
   hosts/
     host-rollout/             domain: node order, the reboot decision, the applier state machine
     host-applier-app/         application: the host applier's driver, one reconcile step over six ports, deciding with `reconcile`
@@ -209,7 +209,7 @@ crates/
     adapter-stalwart/         Stalwart's management API
     adapter-liquibase/        runs the Liquibase JVM and squawk in the image
     adapter-components-kube/  watching the rendered objects
-  tenancy/                    wired into estate-kit-service only, the one writer of a Tenant (record 80)
+  tenancy/                    wired into estate-kit-delivery only, the one writer of a Tenant (record 80)
     tenant/                   domain: Tenant key and handle grammar, the Tenant states and their moves, grace periods, host lookup rows, a decider per Tenant operation
     tenancy-app/              application: the Tenant operations (create, add or remove a Project, lock, unlock, suspend, resume, purge, move, restore) and their ports
     adapter-tenancy-kube/     writes the Tenant custom resource; reads its finalizers and each participant's status
@@ -218,7 +218,7 @@ crates/
     adapter-tenancy-valkey/   flushes a Tenant's Valkey keys while a Tenant lock holds
 bins/
   estate-kit/                 the CLI: validate, plan, compose, render-hosts, generate, migrate
-  estate-kit-service/         the service: Rollouts, compositions, admission, the Release Gate; the Vault, ghcr and signing adapters; the tenancy context and its adapters
+  estate-kit-delivery/         Delivery: Rollouts, compositions, admission, the Release Gate; the Vault, ghcr and signing adapters; the tenancy context and its adapters
   estate-kit-observation/     Observation, its own Deployment: read-only adapters only, no Vault, ghcr or signing credential; serves the embedded UI
   estate-kit-host-applier/    the host applier: wires host-applier-app and the three host adapters
   estate-kit-secret-grant/    one binary and one image per component, named estate-kit-<component>,
@@ -346,4 +346,4 @@ uses.
   table on the shared platform-postgres, like blueshell's job table
   ([record 73](../decisions/0073-the-composition-queue-is-a-row-in-a-postgres-job-table.md)).
   The single writer already reconciles from observed state
-  ([record 63](../decisions/0063-the-service-has-one-writer-and-reconciles-from-observed-state.md)).
+  ([record 63](../decisions/0063-delivery-has-one-writer-and-reconciles-from-observed-state.md)).

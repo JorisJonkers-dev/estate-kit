@@ -9,7 +9,7 @@ lessons: []
 
 ## Context
 
-estate-kit holds the compiler, the service, the host applier, the UI and six
+estate-kit holds the compiler, Delivery, the host applier, the UI and six
 components that act on what a render declares. The components were separate
 repositories, shared by submodule or by release. A change to the model then
 needed a pull request in each, and a compatibility matrix said which component

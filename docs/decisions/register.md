@@ -1,6 +1,6 @@
 # The register, as planned
 
-The records to be written, in reading order, with their current status. Each title becomes a file `NNNN-<slug>.md` here when written, from [the template](template.md). Records 42 onwards are placed into reading order when the register is written; the model's own records follow after the cutover. Rows 75 to 84 are the ten records of the [tenancy design](../design/tenancy.md); each is planned, with no file yet, so none binds until its record is written.
+The records, in reading order, with their current status. Each title becomes a file `NNNN-<slug>.md` here when written, from [the template](template.md). Records 42 onwards are placed into reading order when the register is written; the model's own records follow after the cutover. Rows 75 to 84 are the ten records of the [tenancy design](../design/tenancy.md), accepted on 2026-11-02. Rows 85 to 113 are the records the architecture evaluation of 2026-11-04 implies; each is planned, with no file yet, until its record is written, and the evaluation's amendments to records 8, 28, 30 and 31 are made in those records while they are Proposed.
 
 The [design review](../research/review/README.md) of 2026-10-22 changed or added the rows marked Proposed; they stay Proposed until their records are written and accepted ([#20](https://github.com/JorisJonkers-dev/estate-kit/issues/20)). The move to an all-Rust workspace on 2026-10-29 changed rows 13 to 18, 48, 50 and 55 and added 65 to 71; the records already written are linked. The maintainer accepted 13 to 18 (except 16, already accepted and now merged into 15), 48, 50, 55, 63 and 65 to 71 the same day.
 
@@ -13,17 +13,17 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 5 | [Derivation is total](0005-derivation-is-total.md) | Accepted |
 | 6 | [Every render is a function of pinned inputs](0006-every-render-is-a-function-of-pinned-inputs.md) | Accepted |
 | 7 | [A Project's state lives with the Project](0007-a-project-s-state-lives-with-the-project.md) | Accepted |
-| 8 | [A Project's CI proves itself with a pinned-workflow OIDC token, and the service deploys only images its own build registered](0008-an-image-digest-is-sealed-into-the-fragment-and-registered-by-its-build.md) | Proposed |
+| 8 | [A Project's CI proves itself with a pinned-workflow OIDC token, and Delivery deploys only images its own build registered](0008-an-image-digest-is-sealed-into-the-fragment-and-registered-by-its-build.md) | Proposed |
 | 9 | [The live render is a signed registry tag per Project and environment](0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md) | Accepted |
-| 10 | [Platform Intent admits the Projects, and it is pushed like any Project; the service's copies are a cache](0010-platform-intent-admits-the-projects-and-is-pushed-like-any-project.md) | Accepted |
-| 11 | Platform Intent is pushed like any Project; the service's copies are a cache | Merged into 10 |
+| 10 | [Platform Intent admits the Projects, and it is pushed like any Project; Delivery's copies are a cache](0010-platform-intent-admits-the-projects-and-is-pushed-like-any-project.md) | Accepted |
+| 11 | Platform Intent is pushed like any Project; Delivery's copies are a cache | Merged into 10 |
 | 12 | [Infrastructure Intent declares sites, nodes and maintenance windows](0012-infrastructure-intent-declares-sites-nodes-and-maintenance-windows.md) | Accepted |
 | 13 | [Every program in estate-kit is Rust, in one Cargo workspace; only the UI is Vue](0013-every-program-is-rust.md) | Accepted |
 | 14 | [The compiler is a chain of plain-Rust typed steps through one trace, one crate per step, with no DSL](0014-the-compiler-is-a-chain-of-typed-models-one-crate-per-step.md) | Accepted |
 | 15 | [The Rust types agree with the committed schemas on their corpus](0015-the-rust-types-agree-with-the-committed-schemas-on-their-corpus.md) | Accepted |
 | 16 | The committed JSON Schemas are the contract | Merged into 15 |
-| 17 | [The service runs in the cluster, in Rust: it composes, and Flux applies](0017-the-service-runs-in-the-cluster-in-rust.md) | Accepted |
-| 18 | [The service links the compiler's crates; the CLI's JSON output is for CI only](0018-the-service-links-the-compiler.md) | Accepted |
+| 17 | [Delivery runs in the cluster, in Rust: it composes, and Flux applies](0017-delivery-runs-in-the-cluster-in-rust.md) | Accepted |
+| 18 | [Delivery links the compiler's crates; the CLI's JSON output is for CI only](0018-delivery-links-the-compiler.md) | Accepted |
 | 19 | One composition runs at a time | Merged into 63 |
 | 20 | [No render cache: an unchanged render is not published again](0020-no-render-cache-an-unchanged-render-is-not-published-again.md) | Proposed |
 | 21 | [Signing keys: renders and host tags by separate Transit keys, closures by an environment-scoped key, and an offline recovery key](0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md) | Proposed |
@@ -48,14 +48,14 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 40 | Records are read in order and cite their lessons | Moved to [decision records](README.md#how-records-are-kept) |
 | 41 | A record has a status; a locked record needs a failing check | Moved to [decision records](README.md#how-records-are-kept) |
 | 42 | The shadow composition is inert | Merged into 67 |
-| 43 | [The service API is an OpenAPI 3.1 contract](0043-the-service-api-is-an-openapi-3-1-contract.md) | Accepted |
+| 43 | [The Delivery API is an OpenAPI 3.1 contract](0043-the-delivery-api-is-an-openapi-3-1-contract.md) | Accepted |
 | 44 | Errors are RFC 9457 problems drawn from one catalogue | Merged into 71 |
 | 45 | Deploy calls are idempotent on project and fragment digest; streams resume by sequence | Merged into 23 |
 | 46 | IDs are UUIDv7, times RFC 3339 in UTC, and absent means unset | Moved to [conventions](../design/conventions.md#primitives) |
 | 47 | Schemas evolve additively within a major version, checked in CI | Merged into 48 |
 | 48 | [Every committed schema evolves additively within a major version, checked in CI, and the CLI's JSON output has one that the reusable workflows read](0048-the-cli-s-json-output-has-a-committed-schema.md) | Accepted |
 | 49 | Events are versioned and upcast on read, and hold no personal data | Merged into 23 |
-| 50 | [The workspace is six bounded contexts in five layers, and a check holds the crate graph to both](0050-five-bounded-contexts.md) | Accepted |
+| 50 | [The workspace is six bounded contexts in five layers, and a check holds the crate graph to both](0050-six-bounded-contexts-in-five-layers.md) | Accepted |
 | 51 | History is kept 400 days; renders are kept by count, age and tag | Moved to [conventions](../design/conventions.md#retention) |
 | 52 | Three service levels: deploy p95, availability, drift detection | Moved to [conventions](../design/conventions.md#service-levels) |
 | 53 | Traces go to Tempo and logs to Loki, keyed by rollout id | Moved to [conventions](../design/conventions.md#telemetry) |
@@ -63,12 +63,12 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 55 | [Every Go and Python program is characterized before it is rewritten in Rust](0055-every-go-and-python-program-is-characterized-before-it-is-rewritten.md) | Accepted |
 | 56 | Agent files are short, and what must always hold is a check | Moved to [conventions](../design/conventions.md#agent-files) |
 | 57 | Configuration is flags, then environment, then file; secrets only by reference | Moved to [conventions](../design/conventions.md#configuration) |
-| 58 | [Flux is locked down per Project, and the service dry-runs as an identity that cannot write](0058-flux-is-locked-down-per-project-and-the-service-dry-runs-as-an-identity-that-cannot-write.md) | Accepted |
+| 58 | [Flux is locked down per Project, and Delivery dry-runs as an identity that cannot write](0058-flux-is-locked-down-per-project-and-delivery-dry-runs-as-an-identity-that-cannot-write.md) | Accepted |
 | 59 | [Vault unseal and the API server's datastore backup are decided in fleet-infra; estate-kit assumes them](0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md) | Proposed |
 | 60 | The API server's datastore is backed up off the provider, and its restore is drilled | Merged into 59 |
 | 61 | A rollback moves the tag back to the last Serving render without composing | Merged into 28 |
 | 62 | ghcr tags move with a machine account's token kept in Vault | Merged into 9 |
-| 63 | [The service has one writer and reconciles from observed state](0063-the-service-has-one-writer-and-reconciles-from-observed-state.md) | Accepted |
+| 63 | [Delivery has one writer and reconciles from observed state](0063-delivery-has-one-writer-and-reconciles-from-observed-state.md) | Accepted |
 | 64 | [Renders use a canonical YAML style specified on one page](0064-renders-use-a-canonical-yaml-style-specified-on-one-page.md) | Proposed |
 | 65 | The workspace is layered by crate, and a check holds the crate graph to the layer table | Merged into 50 |
 | 66 | Transformations are plain Rust: typed steps, one trace, an invariant table, and no DSL | Merged into 14 |
@@ -90,3 +90,32 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 82 | [Each Tenant is backed up as a Backup generation on its own schedule, and Mirrors refresh staging and development Tenants](0082-backups-are-per-tenant-generations-and-mirrors-refresh-staging-and-development.md) | Accepted |
 | 83 | [Secrets are scoped by environment in their Vault path, and Tenant secrets live beneath their Project](0083-secrets-are-scoped-by-environment-and-tenant-secrets-live-beneath-their-project.md) | Accepted |
 | 84 | [A Tenant sends mail as its product domain until it verifies its own domain](0084-a-tenant-sends-mail-as-its-product-domain-until-it-verifies-its-own.md) | Accepted |
+| 85 | General purpose means no estate fact in the core, the profiles or the compiler's code | Proposed |
+| 86 | The estate states its defaults for a low-attention week | Proposed |
+| 87 | Recovery time and recovery point are stated per durability class, and the drill measures them | Proposed |
+| 88 | The metamodel is layered: core, profiles and component kinds, provider facts, estate instance | Proposed |
+| 89 | Every persisted or externally read contract has its own identifier, major and supported range | Proposed |
+| 90 | Three generality tests run in CI | Proposed |
+| 91 | Platform Intent is split by concern, and each document validates alone | Proposed |
+| 92 | Capacity is in the Resolved Deployment; cost is estimated outside the render key and recorded from bills | Proposed |
+| 93 | The rollout plan is compiled, with checks bound to cohorts, a failsafe and a Held deadline | Proposed |
+| 94 | Flux stays the one applier, observed closely, and an estate-kit Applier waits for a review trigger | Proposed |
+| 95 | A Project renders as a chain of Flux Kustomizations, one per apply group | Proposed |
+| 96 | A deploy is an Operation that ends Serving, Held, Refused, Superseded or Observation lost | Proposed |
+| 97 | The publication point is named and tested, and a render that introduces a kind is published in two stages | Proposed |
+| 98 | The live pointer is an immutable Sequence tag that Flux selects by version | Proposed |
+| 99 | Renders and host tags live in an off-cluster registry chosen by its features | Proposed |
+| 100 | Each render carries a provenance statement that binds its Project, Environment, sequence and pinned inputs | Proposed |
+| 101 | A Rollout rolls forward when rolling back would run a migration backwards | Proposed |
+| 102 | Analysis is a pure verdict function, and an inconclusive verdict holds | Proposed |
+| 103 | A release reads every persisted format within its retention, and the previous release reads the new writes | Proposed |
+| 104 | Every reconciler estate-kit owns passes crash-point, stale-read and safety tests before it takes production responsibility | Proposed |
+| 105 | Removal is a Retire lifecycle with durable tombstones, and prune-protected kinds never prune | Proposed |
+| 106 | The control plane is restored in a dependency order that is tested, drilled and timed | Proposed |
+| 107 | Network policy moves from render-only through an audited window to enforcement | Proposed |
+| 108 | Active checks run in the owning components, Observation reads their results, and one heartbeat lives outside the cluster | Proposed |
+| 109 | A feasibility test decides whether one database per Tenant stands, and rendered objects do not grow with the Tenant count | Proposed |
+| 110 | A Purge erases Backup generations and Mirrors at the end of their retention, from an inventory of every copy | Proposed |
+| 111 | Decision status and enforcement status are separate, and each check names the mistake it catches | Proposed |
+| 112 | The write boundary is stated once | Proposed |
+| 113 | Every UI action is a CLI command with the same identifier | Proposed |

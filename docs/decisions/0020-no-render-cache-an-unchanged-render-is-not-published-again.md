@@ -21,15 +21,14 @@ finding model-compiler-6).
 
 There is no render cache. Every composition renders every admitted Project. The
 render key is still computed and kept as provenance with each published render.
-When a render's digest equals the digest already behind the Project's tag, the
-service publishes nothing, signs nothing and moves nothing, and records why.
+When a render's digest equals the digest already behind the Project's tag, Delivery publishes nothing, signs nothing and moves nothing, and records why.
 
 ## Alternatives
 
 | Option | Cost if taken | Why rejected |
 | --- | --- | --- |
 | A registry lookup by render key | A ghcr call per Project; misses on every release | It saves no time and adds a failure mode |
-| A cache on the service's disk | State that a restart or a second pod must agree on | Rendering is cheap |
+| A cache on Delivery's disk | State that a restart or a second pod must agree on | Rendering is cheap |
 
 ## Consequences
 

@@ -7,7 +7,7 @@ only a Proposed record, binds nothing yet. The
 
 ## Trust boundaries
 
-Vault, the edge, the service and the API server sit inside the cluster.
+Vault, the edge, Delivery and the API server sit inside the cluster.
 GitHub, the browser, ghcr and the binary cache sit outside it, and every
 crossing carries a verified identity.
 
@@ -23,12 +23,12 @@ crossing carries a verified identity.
 | Runner to edge | Repudiation: who deployed what | The event log records the token's claims; the GitHub Deployment records the run |
 | Browser to edge | Elevation: an operator action by a viewer | Roles from auth-api groups; every route has a row in the matrix below |
 | Browser to edge | Cross-site request forgery | Same-origin UI, SameSite cookies |
-| Service to Vault | Elevation: the service signs anything | The Transit keys may only sign; the service signs only after an accepted dry-run, and a test proves it. Renders and host tags have separate keys (D10) |
-| Service to Vault | Denial: Vault is sealed or lost | Auto-unseal through a cloud KMS and a VaultSealed alert (D6; assumed from fleet-infra, [record 59](../decisions/0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md)); rollback needs no signing (D7); an offline recovery key every verifier trusts (D10) |
-| Service to Vault | Disclosure: the signing key leaks | The key is not exportable |
-| Service to ghcr | Tampering: someone else moves a tag | Flux and the host appliers verify the signature; the tag is moved by a machine account's PAT, synced from Vault into a Secret the service mounts, with write only on the render and host packages and a check that fails on any other grant (D3) |
-| Service to API | Elevation: the dry-run identity writes | A ValidatingAdmissionPolicy refuses every request from the service's identity unless `dryRun` is set, except a write to its writer Lease `estate-kit-writer` and to ProjectControl objects ([record 58](../decisions/0058-flux-is-locked-down-per-project-and-the-service-dry-runs-as-an-identity-that-cannot-write.md)). The Release Gate writes under a service account of its own, limited to Jobs and its gate ConfigMap ([record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)) |
-| Observation to Alertmanager | Elevation: the read side deploys, pauses or rolls back | Observation is its own binary with no Vault, ghcr or signing credential; its one write creates and expires Silences, with a credential for that API alone ([record 50](../decisions/0050-five-bounded-contexts.md), [record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)) |
+| Delivery to Vault | Elevation: Delivery signs anything | The Transit keys may only sign; Delivery signs only after an accepted dry-run, and a test proves it. Renders and host tags have separate keys (D10) |
+| Delivery to Vault | Denial: Vault is sealed or lost | Auto-unseal through a cloud KMS and a VaultSealed alert (D6; assumed from fleet-infra, [record 59](../decisions/0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md)); rollback needs no signing (D7); an offline recovery key every verifier trusts (D10) |
+| Delivery to Vault | Disclosure: the signing key leaks | The key is not exportable |
+| Delivery to ghcr | Tampering: someone else moves a tag | Flux and the host appliers verify the signature; the tag is moved by a machine account's PAT, synced from Vault into a Secret Delivery mounts, with write only on the render and host packages and a check that fails on any other grant (D3) |
+| Delivery to API | Elevation: the dry-run identity writes | A ValidatingAdmissionPolicy refuses every request from Delivery's identity unless `dryRun` is set, except a write to its writer Lease `estate-kit-writer` and to ProjectControl objects ([record 58](../decisions/0058-flux-is-locked-down-per-project-and-delivery-dry-runs-as-an-identity-that-cannot-write.md)). The Release Gate writes under a service account of its own, limited to Jobs and its gate ConfigMap ([record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)) |
+| Observation to Alertmanager | Elevation: the read side deploys, pauses or rolls back | Observation is its own binary with no Vault, ghcr or signing credential; its one write creates and expires Silences, with a credential for that API alone ([record 50](../decisions/0050-six-bounded-contexts-in-five-layers.md), [record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)) |
 | Flux to API | Elevation: a signed render writes outside its Project | Flux lockdown; each Kustomization runs as its Project's service account in its target namespace; Pod Security and a digest-only image policy per Project (D4) |
 | Applier to cache | Tampering: a malicious closure | Nix signature checked against one trusted public key, whose private key is an environment-scoped secret limited to main with a reviewer (D10); the host tag is signed with the host signing key and binds the closure's store path |
 | Applier to API | Elevation: a node evicts other nodes' pods | Each node has its own credential, and a ValidatingAdmissionPolicy limits its evictions to pods whose `spec.nodeName` is its own node (D2); RBAC alone cannot |
@@ -46,7 +46,7 @@ Every route is one row here, and a test fails on a route without one.
 | Watch a rollout | own rollout | own run | own rollout | yes | yes | yes | no | no |
 | Pause, resume, roll back | no | no | no | no | yes | yes | no | no |
 | Change admissions | no | no | through Platform Intent | no | no | yes | no | no |
-| Answer a Release Gate webhook (the answer reads cluster state; the gate's writes are the service's own, [record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)) | no | no | no | no | no | no | yes | no |
+| Answer a Release Gate webhook (the answer reads cluster state; the gate's writes are Delivery's own, [record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)) | no | no | no | no | no | no | yes | no |
 | Register built image digests | own Project | no | platform | no | no | no | no | no |
 | Read its host tag | no | no | no | no | no | no | no | own node |
 | Read estate status | no | no | no | yes | yes | yes | no | no |

@@ -1,16 +1,16 @@
 <mxfile>
-  <diagram name="rust-service-crates" id="rust-service-crates">
+  <diagram name="rust-delivery-crates" id="rust-delivery-crates">
     <mxGraphModel grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="0" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="bin" parent="1" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="bins/estate-kit-service" vertex="1">
-          <mxGeometry height="68" width="214" x="775" y="12" as="geometry" />
+        <mxCell id="bin" parent="1" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="bins/estate-kit-delivery" vertex="1">
+          <mxGeometry height="68" width="222" x="771" y="12" as="geometry" />
         </mxCell>
         <mxCell id="api" parent="1" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="http-api: axum, SSE, problem+json" vertex="1">
           <mxGeometry height="78" width="240" x="12" y="290" as="geometry" />
         </mxCell>
-        <mxCell id="app" parent="1" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="service-app: use cases, ports, fakes" vertex="1">
+        <mxCell id="app" parent="1" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="delivery-app: use cases, ports, fakes" vertex="1">
           <mxGeometry height="78" width="240" x="762" y="578" as="geometry" />
         </mxCell>
         <mxCell id="rollout" parent="1" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="rollout: the decider" vertex="1">
@@ -40,10 +40,10 @@
         <mxCell id="pg" parent="1" style="shape=folder;tabWidth=50;tabHeight=12;tabPosition=left;spacingTop=8;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="adapter-postgres: sqlx" vertex="1">
           <mxGeometry height="68" width="207" x="1518" y="295" as="geometry" />
         </mxCell>
-        <mxCell id="e1" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.1262;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="api" value="">
+        <mxCell id="e1" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.1261;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="api" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="802" y="96" />
+              <mxPoint x="799" y="96" />
               <mxPoint x="356" y="96" />
               <mxPoint x="356" y="216" />
               <mxPoint x="132" y="216" />
@@ -86,9 +86,9 @@
         </mxCell>
         <mxCell id="e6" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.2523;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="oidc" value="wires">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-141" y="79" as="offset" />
+            <mxPoint x="-140" y="79" as="offset" />
             <Array as="points">
-              <mxPoint x="829" y="106" />
+              <mxPoint x="827" y="106" />
               <mxPoint x="384" y="106" />
             </Array>
           </mxGeometry>
@@ -102,11 +102,11 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e8" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.3738;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="ghcr" value="wires">
+        <mxCell id="e8" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.3739;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="ghcr" value="wires">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-42.5" y="69" as="offset" />
+            <mxPoint x="-42" y="69" as="offset" />
             <Array as="points">
-              <mxPoint x="855" y="116" />
+              <mxPoint x="854" y="116" />
               <mxPoint x="627" y="116" />
             </Array>
           </mxGeometry>
@@ -136,11 +136,11 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e12" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.6262;exitY=1;entryX=0.5025;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="kube" value="wires">
+        <mxCell id="e12" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.6261;exitY=1;entryX=0.5025;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="kube" value="wires">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="36.5" y="69" as="offset" />
+            <mxPoint x="36" y="69" as="offset" />
             <Array as="points">
-              <mxPoint x="909" y="116" />
+              <mxPoint x="910" y="116" />
               <mxPoint x="1125" y="116" />
             </Array>
           </mxGeometry>
@@ -156,9 +156,9 @@
         </mxCell>
         <mxCell id="e14" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.7523;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="github" value="wires">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="136" y="79" as="offset" />
+            <mxPoint x="135" y="79" as="offset" />
             <Array as="points">
-              <mxPoint x="936" y="106" />
+              <mxPoint x="938" y="106" />
               <mxPoint x="1371" y="106" />
             </Array>
           </mxGeometry>
@@ -172,11 +172,11 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e16" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.8738;exitY=1;entryX=0.5024;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="pg" value="wires">
+        <mxCell id="e16" edge="1" parent="1" source="bin" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=open;endSize=10;dashed=1;curved=0;exitX=0.8739;exitY=1;entryX=0.5024;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="pg" value="wires">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="238.5" y="89" as="offset" />
+            <mxPoint x="237" y="89" as="offset" />
             <Array as="points">
-              <mxPoint x="962" y="96" />
+              <mxPoint x="965" y="96" />
               <mxPoint x="1622" y="96" />
             </Array>
           </mxGeometry>
@@ -190,7 +190,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="header" value="Rust: the service's crates and what each depends on" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=light-dark(#1a1a1a,#e8e8e8);fontFamily=Helvetica;" vertex="1" parent="1">
+        <mxCell id="header" value="Rust: Delivery's crates and what each depends on" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=light-dark(#1a1a1a,#e8e8e8);fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="12" y="-52" width="1713" height="36" as="geometry" />
         </mxCell>
       </root>

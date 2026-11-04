@@ -1,10 +1,10 @@
-%% title: Deploy, step 1 of 3: the deploy job hands a release to the service
+%% title: Deploy, step 1 of 3: the deploy job hands a release to Delivery
 sequenceDiagram
     autonumber
     participant CI as deploy job
     participant R as compiler binary
     participant O as ghcr
-    participant S as estate-kit service
+    participant S as Delivery
     CI->>R: validate offline
     R-->>CI: no diagnostics
     CI->>O: promote digests, publish the Intent Fragment

@@ -5,13 +5,13 @@ rests-on: [2, 17, 25]
 lessons: [DO-1, TM-6]
 ---
 
-# Flux is locked down per Project, and the service dry-runs as an identity that cannot write
+# Flux is locked down per Project, and Delivery dry-runs as an identity that cannot write
 
 ## Context
 
 Without lockdown, Flux's kustomize-controller applies every render as
 cluster-admin, so isolation between Projects rests on the compiler alone. A
-server-side dry-run needs the same RBAC as a real write, so a service that
+server-side dry-run needs the same RBAC as a real write, so a process that
 dry-runs holds write access ([review](../research/review/README.md) D4).
 
 ## Decision
@@ -20,11 +20,11 @@ dry-runs holds write access ([review](../research/review/README.md) D4).
   `--no-remote-bases` and a default service account with no rights. Each
   Project's Kustomization names its own service account and target namespace,
   derived from the admitted Projects into the platform render.
-- **The service dry-runs as itself.** A ValidatingAdmissionPolicy refuses any
-  request from the service's identity whose `dryRun` is not set, so the API
+- **Delivery dry-runs as itself.** A ValidatingAdmissionPolicy refuses any
+  request from Delivery's identity whose `dryRun` is not set, so the API
   server itself prevents a real write. Spike #13 proves `request.dryRun` is
   reachable from the policy.
-- **Two exempt objects.** The service's identity may write without `dryRun`
+- **Two exempt objects.** Delivery's identity may write without `dryRun`
   only its writer Lease, by its name `estate-kit-writer`, and ProjectControl
   objects. The policy refuses every other non-dry-run request from that
   identity.
@@ -36,14 +36,14 @@ dry-runs holds write access ([review](../research/review/README.md) D4).
 
 | Option | Cost if taken | Why rejected |
 | --- | --- | --- |
-| Dry-run by impersonating each Project's account | The service holds write-equivalent rights through every account | A write-capable identity on the deploy path |
+| Dry-run by impersonating each Project's account | Delivery holds write-equivalent rights through every account | A write-capable identity on the deploy path |
 | No lockdown | Isolation rests on the compiler alone | D4 |
 
 ## Consequences
 
 - Easier: a compromised render can change only its own Project's namespace.
 - Harder: the dry-run does not exercise each Project's RBAC; Flux's apply does.
-- Forbidden: a cross-namespace reference; a write by the service's identity
+- Forbidden: a cross-namespace reference; a write by Delivery's identity
   without `dryRun` other than to its writer Lease, by its name, and to
   ProjectControl objects.
 
@@ -52,7 +52,7 @@ dry-runs holds write access ([review](../research/review/README.md) D4).
 The **Dry-run admission fixtures** on the ValidatingAdmissionPolicy, one per row, so widening
 an exemption fails a fixture:
 
-| Request from the service's identity | Verdict |
+| Request from Delivery's identity | Verdict |
 | --- | --- |
 | Create of a `Deployment` without `dryRun` | Refused |
 | Update of a Lease other than `estate-kit-writer` without `dryRun` | Refused |

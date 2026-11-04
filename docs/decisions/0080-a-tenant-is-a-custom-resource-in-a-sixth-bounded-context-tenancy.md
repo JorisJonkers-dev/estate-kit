@@ -19,20 +19,20 @@ Tenant's data. Adding, locking, moving or removing a Tenant touches the
 database catalog, identity, the mailbox, backups and secret grants, and a
 crash halfway must leave something to finish, not to repair.
 
-[Record 63](0063-the-service-has-one-writer-and-reconciles-from-observed-state.md)
-gives the estate-kit service the one write path to the cluster, and
+[Record 63](0063-delivery-has-one-writer-and-reconciles-from-observed-state.md)
+gives Delivery the one write path to the cluster, and
 [record 23](0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md)
 keeps a rollout as an append-only log on the shared platform-postgres.
-[Record 50](0050-five-bounded-contexts.md) names five bounded contexts, none of
-which owns the lifecycle of a Tenant. [Record 17](0017-the-service-runs-in-the-cluster-in-rust.md)
-puts the service in the cluster, where a custom resource and its reconcilers
+[Record 50](0050-six-bounded-contexts-in-five-layers.md) names five bounded contexts, none of
+which owns the lifecycle of a Tenant. [Record 17](0017-delivery-runs-in-the-cluster-in-rust.md)
+puts Delivery in the cluster, where a custom resource and its reconcilers
 are native.
 
 ## Decision
 
 A Tenant is a custom resource, one per Tenant in its Environment. Only the
-estate-kit service writes it, under the one-writer rule of
-[record 63](0063-the-service-has-one-writer-and-reconciles-from-observed-state.md).
+Delivery writes it, under the one-writer rule of
+[record 63](0063-delivery-has-one-writer-and-reconciles-from-observed-state.md).
 The platform components that hold the Tenant's data (database-catalog,
 identity, mailbox, backup and secret-grant) reconcile it, and each holds a
 finalizer on it. A Purge completes only when every participant has cleaned up
@@ -42,7 +42,7 @@ maintainer knowing.
 A sixth bounded context, tenancy, holds the Tenant model and the Tenant
 operations: create, add a Project, remove a Project, lock, unlock, suspend,
 resume, purge and move. This amends
-[record 50](0050-five-bounded-contexts.md): the workspace is six contexts, and
+[record 50](0050-six-bounded-contexts-in-five-layers.md): the workspace is six contexts, and
 the rest of that record, the layers and the check that holds them, stands. The
 tenancy context talks to the others through the same kinds of edge, and
 `crates/layers.toml` stays the one place the allowed edges are written.
@@ -52,7 +52,7 @@ full error output, goes to an append-only operation log on the shared
 platform-postgres, in the manner of
 [record 23](0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md).
 The operation log is kept 400 days, like the other history. The lifecycle API is
-part of the service's OpenAPI contract. The maintainer calls it from the estate
+part of Delivery's OpenAPI contract. The maintainer calls it from the estate
 UI or CLI, and a product's sign-up flow calls it with a machine identity.
 Operator and Admin roles for the lifecycle API come from identity groups, as
 they do today. A Tenant's resources live in an environment-scoped namespace.
@@ -76,10 +76,10 @@ shows the moves.
 
 | Option | Cost if taken | Why rejected |
 | --- | --- | --- |
-| Tenants as rows in the service's Postgres only | Each component polls or is called by the service, and a crash leaves no object that says what remains | A custom resource gives each component one object to reconcile and a finalizer to hold; the operation log still records the history |
-| A Tenant created by any component or by a sign-up flow directly | Two writers of one Tenant; a sign-up flow holds cluster credentials | One writer ([record 63](0063-the-service-has-one-writer-and-reconciles-from-observed-state.md)); the sign-up flow calls the service's API |
+| Tenants as rows in Delivery's Postgres only | Each component polls or is called by Delivery, and a crash leaves no object that says what remains | A custom resource gives each component one object to reconcile and a finalizer to hold; the operation log still records the history |
+| A Tenant created by any component or by a sign-up flow directly | Two writers of one Tenant; a sign-up flow holds cluster credentials | One writer ([record 63](0063-delivery-has-one-writer-and-reconciles-from-observed-state.md)); the sign-up flow calls Delivery's API |
 | Purge as one service call that deletes everywhere | A component that fails leaves its data behind with nothing to show it | Finalizers make a Purge complete only when every participant has finished |
-| Tenancy inside the Service context | The lifecycle and the rollout core share one model and one change rate | A separate context keeps the Tenant model and its deciders apart, with its own crates and edges |
+| Tenancy inside Delivery context | The lifecycle and the rollout core share one model and one change rate | A separate context keeps the Tenant model and its deciders apart, with its own crates and edges |
 | Hooks as a message on RabbitMQ | A lock cannot abort on failure; an Application needs a consumer | A hook must answer before data changes, so it is a call with a result |
 | Hooks every Application must implement | Each Application codes steps it has no use for | An Application implements only the hooks it declares |
 
@@ -90,9 +90,9 @@ shows the moves.
   second lifecycle.
 - Harder: the custom resource definition is a contract that each reconciling
   component follows; five components each carry a finalizer and must release
-  it correctly; the service gains a context, a log table and an API surface.
-- [Record 50](0050-five-bounded-contexts.md) is amended: its five contexts are now six, with tenancy as the sixth.
-- Forbidden: any writer of a Tenant other than the service; a Purge that
+  it correctly; Delivery gains a context, a log table and an API surface.
+- [Record 50](0050-six-bounded-contexts-in-five-layers.md) is amended: its five contexts are now six, with tenancy as the sixth.
+- Forbidden: any writer of a Tenant other than Delivery; a Purge that
   completes while a finalizer remains; a lock or prepare-restore that changes
   data after its hook failed; an update or delete of an operation log row.
 
@@ -102,7 +102,7 @@ The **Tenant finalizer Purge** check shows a Purge that completes only after
 every participant has released its finalizer. The **Tenant hook abort** check
 shows that a failed lock or prepare-restore hook stops the operation before any
 data changes. The **Tenant one writer** check shows that no identity other than
-the service's can write a Tenant. The **Operation log append-only** check shows
+Delivery's can write a Tenant. The **Operation log append-only** check shows
 that an update or delete of an operation log row is refused. The **Tenant lock
 page test** shows that the Gate serves the standard maintenance page to browsers
 and a 503 with Retry-After to API clients while a Tenant is under a Tenant lock. The

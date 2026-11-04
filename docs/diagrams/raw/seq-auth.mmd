@@ -3,14 +3,14 @@ sequenceDiagram
     autonumber
     participant CI as deploy job
     participant GO as GitHub OIDC
-    participant S as estate-kit service
+    participant S as Delivery
     CI->>GO: request an ID token, audience estate-kit
     GO-->>CI: JWT
     CI->>S: deploy, Bearer JWT
     S->>S: repository_id and owner id admitted?
     S->>S: claim policy: event_name, job_workflow_sha, ref_type, runner, environment
     S-->>CI: rollout id
-    CI->>GO: token expired or service restarted: request a fresh ID token
+    CI->>GO: token expired or Delivery restarted: request a fresh ID token
     GO-->>CI: JWT
     CI->>S: watch, resume after the last sequence, Bearer JWT
     S->>S: the same claim policy

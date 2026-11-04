@@ -23,8 +23,7 @@ must only move for a render that has passed.
 
 ## Decision
 
-Nothing is signed, tagged or applied unless the service's dry-run passed. The
-service composes, then sends every changed object to the live API server with
+Nothing is signed, tagged or applied unless Delivery's dry-run passed. Delivery composes, then sends every changed object to the live API server with
 `dryRun=All`, and a dry-run must pass twice: on the release pull request, and
 again right before any tag moves.
 
@@ -56,7 +55,7 @@ it leaves no Deployment record, so production history holds real deploys only
 ## Confirmation
 
 **Deploy dry-run**, the `estate-kit / deploy (dry-run)` check, is required on
-the release pull request. The **Sign-precondition test** asserts the service
+the release pull request. The **Sign-precondition test** asserts Delivery
 refuses to sign a render whose dry-run did not pass in the same deploy, and the
 **Digest registration test** that it refuses a digest that was not registered by the Project's
 own build ([record 8](0008-an-image-digest-is-sealed-into-the-fragment-and-registered-by-its-build.md)).

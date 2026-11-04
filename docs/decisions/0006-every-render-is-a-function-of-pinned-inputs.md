@@ -21,7 +21,7 @@ A render reads a closed set of pinned inputs and nothing else: the Project's
 fragment, Platform Intent, the ClusterState snapshot and the compiler version,
 each carried by digest. It never reads the live cluster, a secret value, the
 clock, a counter or state remembered from an earlier render. Live facts reach a
-render by one route only: the service captures them as a ClusterState snapshot,
+render by one route only: Delivery captures them as a ClusterState snapshot,
 which is digested and becomes an input.
 
 The same inputs give byte-identical output. Anything a new derivation needs is

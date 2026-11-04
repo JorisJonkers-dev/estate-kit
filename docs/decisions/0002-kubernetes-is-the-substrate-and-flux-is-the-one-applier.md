@@ -23,9 +23,9 @@ estate-kit keeps that, or replaces it with its own applier.
 ## Decision
 
 Kubernetes is the substrate for everything the estate runs as a workload, and
-Flux is the one applier of objects into the cluster. The service composes,
+Flux is the one applier of objects into the cluster. Delivery composes,
 dry-runs, signs and moves a tag; Flux pulls the tag and applies. Nothing else
-creates or changes an object in the cluster: not the service, not a Project's
+creates or changes an object in the cluster: not Delivery, not a Project's
 CI, not a person with `kubectl` outside a break-glass.
 
 The signed artifact is the seam, so a later record could replace Flux without
@@ -37,8 +37,8 @@ signed tag.
 
 | Option | Cost if taken | Why rejected |
 | --- | --- | --- |
-| The service applies, replacing Flux | A second applier with its own drift, pruning and credentials | Keeps one proven applier |
-| CI pushes and the service applies | A deploy credential outside the cluster | The boundary is that none exists |
+| Delivery applies, replacing Flux | A second applier with its own drift, pruning and credentials | Keeps one proven applier |
+| CI pushes and Delivery applies | A deploy credential outside the cluster | The boundary is that none exists |
 | Several appliers, each bounded by its own namespace | A credential, namespace and lease per applier | A second applier is what the design refuses |
 | Plain NixOS and systemd per node | Every adapter rewritten as a module generator | Loses the authorisation boundary and field ownership |
 | Nomad | A second orchestrator to operate | Buys scheduling the estate does not use, and has no field ownership |
@@ -50,12 +50,12 @@ signed tag.
 - Harder: the estate keeps paying Kubernetes' overhead and upgrades for two
   properties; Flux's reach must be narrowed to what a render carries.
 - Forbidden: a deploy credential outside the cluster; a second applier; a write
-  into the cluster by the service other than the exceptions its own record names;
+  into the cluster by Delivery other than the exceptions its own record names;
   citing rescheduling, HA or horizontal scale as a reason in a later record.
 
 ## Confirmation
 
 The lockdown record's per-Project Flux identities and its refusing admission
-policy ([record 58](0058-flux-is-locked-down-per-project-and-the-service-dry-runs-as-an-identity-that-cannot-write.md))
+policy ([record 58](0058-flux-is-locked-down-per-project-and-delivery-dry-runs-as-an-identity-that-cannot-write.md))
 carry the check (**Dry-run admission fixtures**), and the **E2E scenarios**
-assert that an object reaches the cluster only through Flux ([record 17](0017-the-service-runs-in-the-cluster-in-rust.md)).
+assert that an object reaches the cluster only through Flux ([record 17](0017-delivery-runs-in-the-cluster-in-rust.md)).

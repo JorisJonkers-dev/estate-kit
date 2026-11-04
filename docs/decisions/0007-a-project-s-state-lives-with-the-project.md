@@ -16,8 +16,7 @@ when it failed, and a consumer adding an edge once moved its provider's pin.
 
 ## Decision
 
-Code is central; state is per Project. estate-kit holds the compiler, the
-service and the toolchain configuration once. What a Project has released lives
+Code is central; state is per Project. estate-kit holds the compiler, Delivery and the toolchain configuration once. What a Project has released lives
 with that Project: its repository, its signed render tag, its own namespace and
 its own Deployments. What runs is recorded by the cluster itself, read live.
 
@@ -39,7 +38,7 @@ itself a Project. Where each fact lives is on
 ## Consequences
 
 - Easier: a Project deploys, pauses and rolls back alone; no shared unit to stall.
-- Harder: there is no single file to read for the estate's state, so the service
+- Harder: there is no single file to read for the estate's state, so Delivery
   and the dashboard read it from the cluster and the registry.
 - Forbidden: a committed list of deployed versions or digests; a lock file
   outside a Project; a Project's render depending on another Project's pin.
@@ -50,4 +49,4 @@ The **Pin scan** fails on a file in this repository or the estate repo that
 names a deployed digest or pin. The **E2E scenarios** include a two-Project
 test that changes one Project and asserts that nothing the other owns is
 re-rendered or applied
-([record 17](0017-the-service-runs-in-the-cluster-in-rust.md)).
+([record 17](0017-delivery-runs-in-the-cluster-in-rust.md)).

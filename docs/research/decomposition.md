@@ -39,7 +39,7 @@ private coursework repository.
 
 - **God-project.** The risk is real, but it sits in the repository and the
   version, not in the process. The design already runs seven kinds of process
-  ([record 50](../decisions/0050-five-bounded-contexts.md)); what it does not
+  ([record 50](../decisions/0050-six-bounded-contexts-in-five-layers.md)); what it does not
   have is any contract between them that could outlive one repository. The
   remedy is a few products with published contracts, not many microservices.
   One maintainer gets none of the team-autonomy benefit that drives
@@ -49,7 +49,7 @@ private coursework repository.
   learns late, by inference, and cannot say why Flux has not acted. Replacing
   Flux with an estate-kit applier gives the two-way conversation the
   maintainer asks for. It must stay a separate process with its own credential,
-  or the security split of [record 17](../decisions/0017-the-service-runs-in-the-cluster-in-rust.md)
+  or the security split of [record 17](../decisions/0017-delivery-runs-in-the-cluster-in-rust.md)
   is lost.
 - **Flagger.** Keep it for now and watch it far more closely: its Canary
   status, its events and the metrics it reads. Write our own switchover only
@@ -79,7 +79,7 @@ criteria, and estate-kit answers them differently.
 
 | Axis | Unit | What the design does today | What decides it |
 | --- | --- | --- | --- |
-| Code | Crate | About 70 crates in six contexts and five layers, held by `check-layers` ([record 50](../decisions/0050-five-bounded-contexts.md)) | Information hiding (Parnas 1972); compile and mutation cost |
+| Code | Crate | About 70 crates in six contexts and five layers, held by `check-layers` ([record 50](../decisions/0050-six-bounded-contexts-in-five-layers.md)) | Information hiding (Parnas 1972); compile and mutation cost |
 | Process | Binary and Deployment | CLI, service, Observation, host applier, six component binaries | Credential and trust boundary, failure isolation, where it must run |
 | Repository | Repository and version | One repository at one version ([record 34](../decisions/0034-every-part-of-estate-kit-lives-in-this-repository-at-one-version.md)) | Rate of change, who consumes it, whether a contract can be kept |
 
@@ -253,7 +253,7 @@ fails only for a real failure and never ends early.
 The deploy job already holds an SSE stream until the last Flagger promotion
 ([Releasing](../design/releasing.md)). The service moves the tag and then
 watches Kustomization, OCIRepository and Canary status to infer what Flux and
-Flagger did ([Inside the service](../design/inside-the-service.md#what-it-reads-from-the-cluster)).
+Flagger did ([Inside the service](../design/inside-delivery.md#what-it-reads-from-the-cluster)).
 That has four costs:
 
 1. **Latency.** Flux sees a moved tag on its interval or on a Receiver call,
@@ -274,7 +274,7 @@ That has four costs:
 | A. Keep Flux, drive and watch it closer | The Conductor calls a generic Receiver right after the tag move, then streams Kustomization inventory and per-object health, and Canary status | Opacity and two state machines remain | [Record 2](../decisions/0002-kubernetes-is-the-substrate-and-flux-is-the-one-applier.md) as it is |
 | B. An estate-kit Applier, in its own process | The Conductor writes a desired-render resource; the Applier pulls and verifies the signed render, applies in steps, and writes per-object status and events the Conductor folds into the rollout | A second program to write: pruning, drift, inventory, field ownership | One applier, signed pull, the credential split |
 | C. The Conductor applies | One process does everything | The signing and tag credentials share an address space with a write-everything credential | Nothing of the security split |
-| D. CI pushes | The deploy job applies | A deploy credential outside the cluster | Nothing of [record 58](../decisions/0058-flux-is-locked-down-per-project-and-the-service-dry-runs-as-an-identity-that-cannot-write.md) |
+| D. CI pushes | The deploy job applies | A deploy credential outside the cluster | Nothing of [record 58](../decisions/0058-flux-is-locked-down-per-project-and-delivery-dry-runs-as-an-identity-that-cannot-write.md) |
 
 C and D are what [record 2](../decisions/0002-kubernetes-is-the-substrate-and-flux-is-the-one-applier.md)
 already rejects, and the reasons still hold. B is the option the record left
@@ -291,7 +291,7 @@ without touching the compiler."
   the cluster.
 - **One applier still.** The Applier replaces Flux; it does not sit beside it.
   It runs with Flux's per-Project identities of
-  [record 58](../decisions/0058-flux-is-locked-down-per-project-and-the-service-dry-runs-as-an-identity-that-cannot-write.md),
+  [record 58](../decisions/0058-flux-is-locked-down-per-project-and-delivery-dry-runs-as-an-identity-that-cannot-write.md),
   and the Conductor keeps its dry-run-only identity.
 - **Steps, not one apply.** The render already says what must happen in
   order: CRDs and namespaces, then secrets and grants, then migration Jobs,
@@ -578,7 +578,7 @@ None of this binds until a record is written and accepted. In reading order:
 2. An estate-kit Applier replaces Flux, in its own process, pulling and
    verifying signed renders (supersedes
    [record 2](../decisions/0002-kubernetes-is-the-substrate-and-flux-is-the-one-applier.md)
-   and amends [record 17](../decisions/0017-the-service-runs-in-the-cluster-in-rust.md)).
+   and amends [record 17](../decisions/0017-delivery-runs-in-the-cluster-in-rust.md)).
 3. A rollout is reported through a Forge port, and Projects are named by a
    forge-neutral repository id (amends
    [record 8](../decisions/0008-an-image-digest-is-sealed-into-the-fragment-and-registered-by-its-build.md)).

@@ -74,7 +74,7 @@ Run a check locally with `python3 scripts/<check>.py`.
 
 ## Nested agent files
 
-Once code lands, each context folder under `crates/` (`compiler/`, `service/`,
+Once code lands, each context folder under `crates/` (`compiler/`, `delivery/`,
 `observation/`, `hosts/`, `components/`, `tenancy/`) and `ui/` gets a short `AGENTS.md`
 holding only what applies inside it. The workspace's layout and layer rules are
 in [`docs/design/rust-workspace.md`](docs/design/rust-workspace.md).

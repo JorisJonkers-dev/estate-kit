@@ -9,10 +9,10 @@ history by its own repository.
 | Fact | Today | estate-kit |
 | --- | --- | --- |
 | Image digests | `images.lock.yml` in estate, plus each build's share | Sealed into the signed Intent Fragment at release, each registered by the Project's own build; no file in git |
-| Current render of a Project | Pin commit in `estate/projects/<p>/source.yaml` | Signed registry tag `render/<p>:prod` that the service moves |
+| Current render of a Project | Pin commit in `estate/projects/<p>/source.yaml` | Signed registry tag `render/<p>:prod` that Delivery moves |
 | What runs | Flux status, read back via the estate repo | Flux and Kubernetes object status, read live |
-| Release history | Pin commits plus GitHub Deployments | GitHub Deployments on each Project's repository, and the service's event log on the shared platform-postgres |
-| Paused, rolled back to X | Pin commits by `pause.yml` and `rollback.yml` | One cluster object per Project, written only by the service; a missing object reads as Paused |
+| Release history | Pin commits plus GitHub Deployments | GitHub Deployments on each Project's repository, and Delivery's event log on the shared platform-postgres |
+| Paused, rolled back to X | Pin commits by `pause.yml` and `rollback.yml` | One cluster object per Project, written only by Delivery; a missing object reads as Paused |
 | ClusterState | `cluster-state.yml`, committed by the Collector | Read live; each snapshot digested into the render key, kept as provenance |
 | Which Projects may deploy | `participants.yml` | Admitted Projects, declared in Platform Intent |
 | Estate-wide policy | `platform.intent.yml` and the node contract in estate | Same, in the thin estate repo |
@@ -29,7 +29,7 @@ cluster.
 
 ## Inside the cluster
 
-The service talks to Vault, the API server, auth-api and the shared
+Delivery talks to Vault, the API server, auth-api and the shared
 platform-postgres. Flux alone applies, locked down so each Project's
 Kustomization runs as that Project's service account in its own namespace.
 
@@ -53,14 +53,14 @@ server, the Vault key, the `prod` tag, or Flagger's analysis.
 ## How Platform Intent arrives
 
 The estate repo is the platform Project. Its release workflow validates,
-publishes and calls the service over OIDC like any Project; the service keeps
+publishes and calls Delivery over OIDC like any Project; Delivery keeps
 the new copy as a cache.
 
 ![Sequence: Platform Intent is pushed](../diagrams/png/seq-platform-push.png)
 
 ## The nightly drift check
 
-The service compares three views of every admitted Project: the latest release
+Delivery compares three views of every admitted Project: the latest release
 on GitHub, the latest fragment and prod tag in ghcr, and its own cached copy. A
 difference is reported, never repaired silently.
 

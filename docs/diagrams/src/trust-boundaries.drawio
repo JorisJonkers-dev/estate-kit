@@ -14,19 +14,19 @@
           <mxGeometry height="56" width="176" x="10" y="136" as="geometry" />
         </mxCell>
         <mxCell id="cluster" parent="1" style="swimlane;startSize=30;rounded=1;arcSize=4;absoluteArcSize=1;container=1;collapsible=0;dashed=1;dashPattern=8 4;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fontStyle=1;fillColor=none;swimlaneFillColor=none;strokeColor=light-dark(#b85450,#d47a7a);fontFamily=Helvetica;" value="cluster" vertex="1">
-          <mxGeometry height="213" width="1027" x="503" y="22" as="geometry" />
+          <mxGeometry height="213" width="1011" x="503" y="22" as="geometry" />
         </mxCell>
         <mxCell id="edge" parent="cluster" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="Traefik edge" vertex="1">
           <mxGeometry height="56" width="160" x="10" y="116.83" as="geometry" />
         </mxCell>
-        <mxCell id="svc" parent="cluster" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="estate-kit service" vertex="1">
-          <mxGeometry height="56" width="176" x="378" y="116.83" as="geometry" />
+        <mxCell id="svc" parent="cluster" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="Delivery" vertex="1">
+          <mxGeometry height="56" width="160" x="378" y="116.83" as="geometry" />
         </mxCell>
         <mxCell id="vault" parent="cluster" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="Vault" vertex="1">
-          <mxGeometry height="56" width="160" x="857" y="51" as="geometry" />
+          <mxGeometry height="56" width="160" x="841" y="51" as="geometry" />
         </mxCell>
         <mxCell id="api" parent="cluster" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="Kubernetes API" vertex="1">
-          <mxGeometry height="56" width="160" x="857" y="147" as="geometry" />
+          <mxGeometry height="56" width="160" x="841" y="147" as="geometry" />
         </mxCell>
         <mxCell id="e3" edge="1" parent="cluster" source="edge" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="svc" value="TLS">
           <mxGeometry relative="1" as="geometry">
@@ -40,8 +40,8 @@
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="32.91" as="offset" />
             <Array as="points">
-              <mxPoint x="580" y="144.83" />
-              <mxPoint x="580" y="79" />
+              <mxPoint x="564" y="144.83" />
+              <mxPoint x="564" y="79" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -49,8 +49,8 @@
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="-3.42" as="offset" />
             <Array as="points">
-              <mxPoint x="783" y="158.83" />
-              <mxPoint x="783" y="165.67" />
+              <mxPoint x="767" y="158.83" />
+              <mxPoint x="767" y="165.67" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -61,7 +61,7 @@
           <mxGeometry height="56" width="160" x="10" y="40" as="geometry" />
         </mxCell>
         <mxCell id="outside" parent="1" style="swimlane;startSize=30;rounded=1;arcSize=4;absoluteArcSize=1;container=1;collapsible=0;dashed=1;dashPattern=8 4;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fontStyle=1;fillColor=none;swimlaneFillColor=none;strokeColor=light-dark(#b85450,#d47a7a);fontFamily=Helvetica;" value="outside the cluster" vertex="1">
-          <mxGeometry height="238" width="170" x="1850" y="100" as="geometry" />
+          <mxGeometry height="238" width="170" x="1834" y="100" as="geometry" />
         </mxCell>
         <mxCell id="ghcr" parent="outside" style="shape=cylinder3;size=10;boundedLbl=1;backgroundOutline=1;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="ghcr" vertex="1">
           <mxGeometry height="74" width="150" x="10" y="40" as="geometry" />
@@ -93,17 +93,17 @@
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="219.41" as="offset" />
             <Array as="points">
-              <mxPoint x="1073" y="152.83" />
-              <mxPoint x="1073" y="62" />
-              <mxPoint x="1771" y="62" />
-              <mxPoint x="1771" y="177" />
-              <mxPoint x="1845" y="177" />
+              <mxPoint x="1057" y="152.83" />
+              <mxPoint x="1057" y="62" />
+              <mxPoint x="1755" y="62" />
+              <mxPoint x="1755" y="177" />
+              <mxPoint x="1829" y="177" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="e7" edge="1" parent="1" source="node" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=1;exitY=0.3393;entryX=0;entryY=0.6666;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="api" value="node identity">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-370" y="59.67" as="offset" />
+            <mxPoint x="-362" y="59.67" as="offset" />
             <Array as="points">
               <mxPoint x="213" y="313" />
               <mxPoint x="229" y="313" />
@@ -121,12 +121,12 @@
               <mxPoint x="213" y="331" />
               <mxPoint x="239" y="331" />
               <mxPoint x="239" y="291" />
-              <mxPoint x="1845" y="291" />
+              <mxPoint x="1829" y="291" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="header" value="Trust boundaries: what crosses each one, and with which credential" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=light-dark(#1a1a1a,#e8e8e8);fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="12" y="-52" width="2008" height="36" as="geometry" />
+          <mxGeometry x="12" y="-52" width="1992" height="36" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

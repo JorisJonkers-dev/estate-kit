@@ -9,7 +9,7 @@ The design separates serving from delivery. Flux keeps applying the last signed 
 
 ## What the design gets right
 
-- Serving is decoupled from delivery: Flux keeps serving the last signed render when the service, Vault, GitHub or Postgres fails (overview.md Risks; inside-the-service.md One replica).
+- Serving is decoupled from delivery: Flux keeps serving the last signed render when the service, Vault, GitHub or Postgres fails (overview.md Risks; inside-delivery.md One replica).
 - Deploy calls are idempotent on the natural key (project, fragment digest), and the stream is at-least-once with resume by sequence, both with named tests (conventions.md Retries/Delivery; releasing.md Failure paths).
 - The host applier is level-triggered and resumes from the node's observed state. Its Lease has a TTL, and break-glass needs neither the cluster nor Vault (hosts.md When an applier crashes, When the cluster is down). This is the right model, and the service should copy it (see ops-3).
 - Renders live in ghcr, signed and named by digest, so a rebuilt cluster can still pull them, and the retention job refuses to delete a tagged render (choices.md Render store; conventions.md Retention).
@@ -90,7 +90,7 @@ Sources:
 | --- | --- | --- | --- | --- |
 | weakness | high | S6, S2 | confirmed | high |
 
-**Concerns:** inside-the-service.md One replica, The rollout core (in-memory coalescing queue); identity-and-access.md Authenticating a deploy job (rollout token)
+**Concerns:** inside-delivery.md One replica, The rollout core (in-memory coalescing queue); identity-and-access.md Authenticating a deploy job (rollout token)
 
 (a) A Kubernetes Deployment with one replica and the default RollingUpdate strategy rounds maxSurge 25% up to 1 and maxUnavailable down to 0. Every upgrade of the service therefore starts the new pod before the old one stops, and for a while two instances compose and move tags. A pod on an unreachable node is also not deleted automatically, so a partitioned old pod can outlive its replacement. ghcr offers no compare-and-swap on a tag, so the registry cannot stop the second writer. (b) The page says 'the event log says where each rollout stood', but appending an event and moving a tag are not atomic. A crash after MoveTag and before the 'tag moved' event leaves a log that says Signed while ghcr says Applying. The coalescing queue is in memory and is lost on restart. If the key that signs rollout tokens is generated at startup, every waiting deploy job loses its reconnect. The design does not say whether a rollout found unfinished at startup resumes or fails, and S6 requires one of the two, done cleanly.
 
@@ -102,7 +102,7 @@ Sources:
 | client-go leaderelection with a coordination.k8s.io Lease | Core client-go, used by every controller | About 30 lines; not true fencing, so the check must sit right before the tag move |
 | controller-runtime manager (leader election built in) | kubernetes-sigs, actively released | A larger dependency; worth it only if the service grows reconcilers |
 
-**Verification (confirmed).** inside-the-service.md 'One replica' says 'no leader election' and 'the event log says where each rollout stood'. It does not say whether an unfinished rollout resumes or fails, and S6 requires one of the two. A Deployment with one replica and default RollingUpdate rounds maxSurge up to 1 and maxUnavailable down to 0, so every upgrade briefly runs two pods. A pod on an unreachable node is not confirmed deleted, so a partitioned old pod can outlive its replacement. ghcr has no conditional tag write. Appending an event and moving a tag are separate operations, so the log can lag what ghcr holds. The host applier already recovers from observed state (hosts.md 'When an applier crashes mid-rollout'), and the service should do the same. The recommendation's core is cheap: Recreate or a Lease, a check right before MoveTag, and reconcile from observed state at startup. It fits the one-maintainer budget.
+**Verification (confirmed).** inside-delivery.md 'One replica' says 'no leader election' and 'the event log says where each rollout stood'. It does not say whether an unfinished rollout resumes or fails, and S6 requires one of the two. A Deployment with one replica and default RollingUpdate rounds maxSurge up to 1 and maxUnavailable down to 0, so every upgrade briefly runs two pods. A pod on an unreachable node is not confirmed deleted, so a partitioned old pod can outlive its replacement. ghcr has no conditional tag write. Appending an event and moving a tag are separate operations, so the log can lag what ghcr holds. The host applier already recovers from observed state (hosts.md 'When an applier crashes mid-rollout'), and the service should do the same. The recommendation's core is cheap: Recreate or a Lease, a check right before MoveTag, and reconcile from observed state at startup. It fits the one-maintainer budget.
 
 **Corrections.** redesign-practices.md gap 5 lists only 'a service restart mid-rollout', not 'two instances during an upgrade'. The design never names the workload kind, so the RollingUpdate surge is conditional on it being a Deployment. Do not combine a StatefulSet with a Lease. After a node loss a StatefulSet replacement waits for a manual force-delete or the Node object's deletion, which is manual work for one maintainer. strategy: Recreate plus a coordination Lease checked right before Sign and MoveTag gives automatic failover. The rollout-token key point is conditional, since identity-and-access.md does not say where that key lives.
 
@@ -207,7 +207,7 @@ Sources:
 | --- | --- | --- | --- | --- |
 | alternative | medium | S6, S5, S4, S15 | weakened | medium |
 
-**Concerns:** inside-the-service.md The event log; where-state-lives.md Inside the cluster ('its own Postgres'); conventions.md Contracts and their evolution (Events); choices.md Rollout log, Event evolution
+**Concerns:** inside-delivery.md The event log; where-state-lives.md Inside the cluster ('its own Postgres'); conventions.md Contracts and their evolution (Events); choices.md Rollout log, Event evolution
 
 'Its own Postgres' adds a second database instance to back up, upgrade and restore, and the fleet already has one with a daily pg_dumpall, a 30-day archive, PostgresDown alerts and a restore check that has been run (verify-backup-restore.sh). That check exists because a dump was once silently failing. The event log's real jobs are stream resume and the UI's history: S15 is also answered by GitHub Deployments. Recovery should not depend on it (ops-3). Upcasters kept for 400 days are code that grows with every event change, for an internal log with one reader. A new fact also confirms rejecting the Rollout custom resource: this cluster's kine/SQLite datastore already wedges on compaction, so streaming events through the API server would make things worse.
 

@@ -5,9 +5,9 @@ estate-dashboard. Every program in it is Rust, in one Cargo workspace; only
 the UI stays Vue ([record 13](../decisions/0013-every-program-is-rust.md)).
 The compiler implements deploy-kit's 1.0 specification, released on
 2026-10-27 ([record 67](../decisions/0067-the-compiler-is-written-to-the-1-0-contract.md)),
-and the in-cluster service links it to compose the estate. Flux stays the one
+and Delivery links it to compose the estate. Flux stays the one
 applier, locked down per Project, and each Project's state stays with the
-Project. The service runs in shadow beside production, and replaces the old
+Project. Delivery runs in shadow beside production, and replaces the old
 stack Project by Project. This reverses the order the
 [design review](../research/review/README.md) of 2026-10-22 set (D1): the
 model rewrite it waited for has shipped, and the TypeScript compiler is not
@@ -15,19 +15,18 @@ carried into estate-kit.
 
 ## At a glance
 
-![Context: Project CI, the service, ghcr and Flux](../diagrams/png/context.png)
+![Context: Project CI, Delivery, ghcr and Flux](../diagrams/png/context.png)
 
-A Project's CI asks the service to deploy. The service composes, dry-runs,
+A Project's CI asks Delivery to deploy. Delivery composes, dry-runs,
 signs and moves the Project's `prod` tag. Flux pulls the tag and applies it.
 Observation, the read side the dashboard serves today, is its own binary and
-Deployment, so the service's Vault, ghcr and signing credentials never share a
-process with it ([record 50](../decisions/0050-five-bounded-contexts.md)). Its
-one write is Alertmanager silences; the Release Gate's two writes belong to the
-service ([record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)).
+Deployment, so Delivery's Vault, ghcr and signing credentials never share a
+process with it ([record 50](../decisions/0050-six-bounded-contexts-in-five-layers.md)). Its
+one write is Alertmanager silences; the Release Gate's two writes belong to Delivery ([record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)).
 
 ## The parts of estate-kit
 
-Four programs (the CLI, the service, Observation and the host applier) and
+Four programs (the CLI, Delivery, Observation and the host applier) and
 six components, all Rust, in one repository at one
 version. The compiler is the only part that knows the model; the others act on
 what it renders. The [high-level design](high-level-design.md) shows the
@@ -76,7 +75,7 @@ The full plan, with budgets, exits and fallbacks per phase, is
    `emf/`. Import deploy-kit, delivery and estate-dashboard with history. Write
    the records and `docs/lessons.md`.
 3. **Walking skeleton.** The Rust workspace with every gate, and `minimal`
-   rendered end to end through the Rust compiler and the service into a shadow
+   rendered end to end through the Rust compiler and Delivery into a shadow
    tag.
 4. **Deploy path.** Flux lockdown, the dry-run identity, split signing keys,
    tag moves, provenance and the fast rollback.
@@ -111,6 +110,6 @@ The full plan, with budgets, exits and fallbacks per phase, is
   [#50](https://github.com/JorisJonkers-dev/estate-kit/issues/50) before the
   shadow starts.
 - **Proposed:** Pause and Rollback are one `ProjectControl` custom resource
-  per Project, written only by the service ([record 28](../decisions/0028-pause-and-rollback-are-a-cluster-object-per-project.md));
+  per Project, written only by Delivery ([record 28](../decisions/0028-pause-and-rollback-are-a-cluster-object-per-project.md));
   its record is not yet accepted.
 - **Open:** how a Mailbox is shared beyond its own Project, if ever.

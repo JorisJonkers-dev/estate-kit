@@ -27,7 +27,7 @@ the binary cache's signing key can sign root code for every node
   Intent, and nodes trust it through `trusted-public-keys`.
 - The cache's signing key is the environment-scoped key of
   [record 21](0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md).
-- The service moves the host tags only after the build and the VM tests pass.
+- Delivery moves the host tags only after the build and the VM tests pass.
 
 ## Alternatives
 

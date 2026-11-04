@@ -5,7 +5,7 @@ sequenceDiagram
     participant O as ghcr
     participant K as API server
     participant FG as Flagger
-    participant S as estate-kit service
+    participant S as Delivery
     participant CI as deploy job
     F->>O: pull the prod tag, verify its signature
     F->>K: apply
