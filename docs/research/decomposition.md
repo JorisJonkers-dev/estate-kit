@@ -1,5 +1,20 @@
 # Splitting estate-kit: use cases, domains and candidate services
 
+> **Superseded in part, 2026-11-04.** A multi-model architecture evaluation
+> reviewed this note. The maintainer then chose against three of its
+> leanings:
+>
+> - **Flux stays the one applier**, observed closely, and an estate-kit Applier
+>   (option B below) is built only if a measured review trigger fires.
+> - **One repository at one version** stays, not three.
+> - **The serverless host coordinator is dropped.** Each node runs its own host
+>   applier.
+>
+> The service is now called Delivery, not the Conductor. The records that
+> follow from the evaluation are rows 85 to 113 of
+> [the register](../decisions/register.md). Read this note as the question,
+> and the records as the answer.
+
 Research note, 2026-11-03. It is not normative: where it disagrees with a
 record, the record holds until a new record is written and accepted. The
 questions came from the maintainer:
