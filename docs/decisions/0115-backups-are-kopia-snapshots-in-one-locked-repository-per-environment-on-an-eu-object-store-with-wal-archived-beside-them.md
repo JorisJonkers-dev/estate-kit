@@ -1,5 +1,5 @@
 ---
-status: proposed  # proposed | accepted | locked | superseded
+status: accepted  # proposed | accepted | locked | superseded
 date: 2026-11-04
 rests-on: [59, 75, 82, 87, 106, 108, 110, 114, 116]
 lessons: [DR-1, DR-2]
