@@ -52,7 +52,7 @@ Enforcement status says whether the checks a record names hold it:
 | planned | The check is a row of the table of checks, with the issue that builds it, and no code yet |
 | implemented | The check runs, but outside the required `Pipeline Complete`, or without a negative fixture shown to fail it |
 | verified | The check runs inside `Pipeline Complete`, and its negative fixture fails it |
-| review | The Confirmation names no check, so the rule is held by review only |
+| review | The Confirmation names no check, or only retired ones, so the rule is held by review only |
 
 Enforcement status is derived, never written by hand. The Status column of the
 table of checks takes these three values, or retired, and a record's Enforcement

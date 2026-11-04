@@ -184,7 +184,7 @@ def register_rows(register: Path) -> tuple[dict[int, tuple[str, str]], bool]:
             status = header.index("Status") if "Status" in header else len(row)
             enforcement = header.index("Enforcement") if "Enforcement" in header else len(row)
             rows[int(row[0])] = (row[status] if status < len(row) else "", row[enforcement] if enforcement < len(row) else "")
-        elif line.startswith("|") and not SEPARATOR.match(line):
+        elif line.startswith("|") and not SEPARATOR.match(line) and not rows:
             header = cells(line)
     return rows, "Status" in header
 

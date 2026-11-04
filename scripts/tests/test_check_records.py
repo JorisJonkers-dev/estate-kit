@@ -718,6 +718,15 @@ class SeparatorsAndMissingColumns(unittest.TestCase):
         self.assertEqual(tree.keys().count("no-register-status"), 1)
 
 
+class OnlyTheRegistersFirstTableIsItsHeader(unittest.TestCase):
+    def test_a_later_table_does_not_replace_the_header(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        register = tree.decisions / "register.md"
+        register.write_text(register.read_text() + "\n| Term | Meaning |\n| --- | --- |\n| a | b |\n")
+        self.assertEqual(tree.keys(), [])
+
+
 class TheCommand(unittest.TestCase):
     def test_a_violation_fails(self) -> None:
         tree = Tree(self)
