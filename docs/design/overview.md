@@ -13,6 +13,19 @@ stack Project by Project. This reverses the order the
 model rewrite it waited for has shipped, and the TypeScript compiler is not
 carried into estate-kit.
 
+Flux is observed closely: Delivery watches every Project's Kustomizations,
+OCIRepository and Canary objects, Events in `flux-system` and the Project's
+namespaces, and every object in each step's inventory. It computes each
+object's health itself by the kstatus rules and folds each observation into a
+versioned Rollout event with a sequence number ([record 94](../decisions/0094-flux-stays-the-one-applier-observed-closely-and-an-estate-kit-applier-waits-for-a-review-trigger.md)).
+
+Backups are Kopia snapshots in one locked repository per Environment on an EU
+object store, with the WAL archive beside them ([record 115](../decisions/0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md)). Every store of estate data runs on an EU-controlled provider or on owned hardware, with ghcr as the named exception for renders and host tags until milestone M5 ([record 116](../decisions/0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md)).
+
+A multi-tenant Project keeps its Tenants in shared tables, separated by
+row-level security, with one database per Project per Environment
+([record 114](../decisions/0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md)).
+
 ## At a glance
 
 ![Context: Project CI, Delivery, ghcr and Flux](../diagrams/png/context.png)
