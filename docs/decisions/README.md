@@ -67,6 +67,18 @@ own records (engines, grants, exposure and the rest) are rewritten after the cut
   The Records job fails with `amends-no-backlink`, `amends-missing` or
   `supersedes-row` when an Accepted declaration is not carried into its target.
 
+- **A wording fix is a dated Revised line; a change of rule is an amending
+  record.** An Accepted record's wording (a typo, a clearer sentence, a
+  corrected link) is edited in place under a line
+  `Revised: YYYY-MM-DD: <what changed>` directly below its title. Anything that
+  would make a conforming implementation pass or fail differently needs an
+  amending record instead ([record 117](0117-a-wording-fix-is-a-dated-revised-line-a-change-of-rule-is-an-amending-record-and-a-locked-change-needs-the-contract-change-label.md)).
+  The Records job fails a Revised line with no date or no sentence. It cannot
+  see a silent edit, which leaves no line: review and the pull-request title
+  rule catch it. A pull request that changes a Locked record or a Locked
+  contract path needs the maintainer's `contract-change` label, and the
+  Contract gate fails it without.
+
 ## Rejected without a record
 
 Options turned down that no record's Alternatives and no design page holds. The

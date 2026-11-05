@@ -744,5 +744,31 @@ class TheCommand(unittest.TestCase):
         self.assertIn("the records keep the register's rules", out)
 
 
+
+
+class RevisedLineTests(unittest.TestCase):
+    def keys(self, line: str) -> list[str]:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        text = (tree.decisions / "0001-record-1.md").read_text()
+        tree.file(1, text.replace("# Record 1\n", f"# Record 1\n\n{line}\n"))
+        return [v.key for v in violations(tree.decisions, tree.lessons, tree.checks)]
+
+    def test_a_dated_revised_line_with_a_sentence_passes(self) -> None:
+        self.assertEqual(self.keys("Revised: 2026-11-05: Held names its 24-hour deadline."), [])
+
+    def test_a_revised_line_with_no_date_fails(self) -> None:
+        self.assertEqual(self.keys("Revised: Held names its 24-hour deadline."), ["revised-line 1"])
+
+    def test_a_revised_line_with_no_sentence_fails(self) -> None:
+        self.assertEqual(self.keys("Revised: 2026-11-05:"), ["revised-line 1"])
+
+    def test_a_revised_line_with_an_impossible_date_fails(self) -> None:
+        self.assertEqual(self.keys("Revised: 2026-13-45: A fix."), ["revised-line 1"])
+
+    def test_a_revised_line_in_a_code_fence_is_example_text(self) -> None:
+        self.assertEqual(self.keys("```\nRevised: nonsense\n```"), [])
+
+
 if __name__ == "__main__":
     unittest.main()

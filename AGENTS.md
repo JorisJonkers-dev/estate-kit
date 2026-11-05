@@ -26,13 +26,12 @@ what gets fixed.
 
 ## Stop and ask
 
-- **A Locked record is not yours to change.** A Locked record names the check
-  that enforces it. If your change needs a Locked record to bend, stop and ask
-  the maintainer; never work around it, weaken its check, or delete its
+- **A Locked record is not yours to change.** A [Locked record](CONTEXT.md#locked-record)
+  names the check that enforces it. If your change needs one to bend, stop and
+  ask the maintainer; never work around it, weaken its check, or delete its
   fixture.
-- **Contracts are Locked by default.** That covers the committed schemas, the
-  OpenAPI files, the error catalogue, the CLI's `--json` output schema, the schema corpus, the
-  oracles and the shadow's expected-differences ledger. Changing one needs the maintainer's approval in the pull request.
+- **Contracts are Locked by default.** A [Locked contract path](CONTEXT.md#locked-contract-path)
+  changes only with the maintainer's `contract-change` label on the pull request.
 - **A register row binds only through its record file.** A Proposed record
   binds nothing yet. Where a row has no file, it is planned, not binding.
 - **An unanswered design question is a Proposed record**, not an improvisation.
@@ -58,9 +57,10 @@ required check on `main`. It holds these rules:
 | --- | --- |
 | Diagrams are regenerated, never hand-edited | Diagrams (`scripts/check_diagrams.py`) |
 | A record is cited by link | Record citations (`scripts/check_record_citations.py`) |
-| A record's status matches the register; rests-on has no cycle, and Accepted rests only on Accepted; cited lessons were kept; Accepted rows have files; a Merged or Moved row has no file and nothing rests on it; a Superseded row keeps its file and names an Accepted record, and nothing rests on it; an Accepted record's `amends` and `supersedes` targets carry their back-links, and no Accepted record waits "when this record is accepted"; every record has a Confirmation, and each bold check name in it is a row of [the table of checks](docs/design/code-shape-and-speed.md#the-checks); the register's Enforcement column agrees with the table of checks | Records (`scripts/check_records.py`) |
+| A record's status matches the register; rests-on has no cycle, and Accepted rests only on Accepted; cited lessons were kept; Accepted rows have files; a Merged or Moved row has no file and nothing rests on it; a Superseded row keeps its file and names an Accepted record, and nothing rests on it; an Accepted record's `amends` and `supersedes` targets carry their back-links, and no Accepted record waits "when this record is accepted"; a Revised line has a date and a sentence; every record has a Confirmation, and each bold check name in it is a row of [the table of checks](docs/design/code-shape-and-speed.md#the-checks); the register's Enforcement column agrees with the table of checks | Records (`scripts/check_records.py`) |
 | No paper is committed | Hygiene |
 | Conventional-commit title, no agent attribution | PR title |
+| A pull request that changes a Locked record or a Locked contract path carries the maintainer's `contract-change` label | Contract gate (`scripts/check_contract_change.py`) |
 | Every relative link and anchor resolves | Links |
 
 Run a check locally with `python3 scripts/<check>.py`.

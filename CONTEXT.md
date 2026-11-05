@@ -357,6 +357,20 @@ _Avoid_: interface, service, driver
 
 ## Records and checks
 
+### Locked record
+
+A record whose front-matter status is `locked`: Accepted, and its Confirmation names a check that fails when the decision is broken. Only the maintainer changes it. A pull request that changes a Locked record, including one that unlocks it, needs the `contract-change` label, which is the maintainer's approval. The Contract gate detects it by the changed path and the status on the base.
+_Avoid_: frozen record, protected record
+
+### Locked contract path
+
+A path that is Locked by default: anything under `contracts/` (the committed schemas, the OpenAPI files, the error catalogue, the CLI's `--json` output schema, the schema corpus) or `oracles/`, and the shadow's expected-differences ledger (`shadow/expected-differences.yaml`). A pull request that changes one needs the `contract-change` label, which is the maintainer's approval. The Contract gate detects it by the changed path alone.
+_Avoid_: frozen path, protected file
+
+**Revised line**:
+The line `Revised: YYYY-MM-DD: <what changed>` that sits under the title of an Accepted record whose wording was fixed in place. A change of rule is never a Revised line: it needs an amending record.
+_Avoid_: edit note, changelog line
+
 **Enforcement status**:
 Whether the checks a record's Confirmation names hold it, as one of four values: planned (a check is a row of the table of checks, with the issue that builds it, and no code yet), implemented (every named check runs, but at least one runs outside `Pipeline Complete` or has no negative fixture shown to fail it), verified (every named check runs inside `Pipeline Complete` and its negative fixture fails it) or review (the Confirmation names no check, or only retired ones, so the rule is held by review only). It is the lowest status of the live checks the record names, planned < implemented < verified. The table of checks gives each check its own status: planned, implemented, verified, or retired, for a check a later record replaced or removed, kept as a row for history. Derived from the table of checks, never written by hand.
 _Avoid_: check status, lock status
