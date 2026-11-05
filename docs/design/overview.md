@@ -20,7 +20,7 @@ object's health itself by the kstatus rules and folds each observation into a
 versioned Rollout event with a sequence number ([record 94](../decisions/0094-flux-stays-the-one-applier-observed-closely-and-an-estate-kit-applier-waits-for-a-review-trigger.md)).
 
 Backups are Kopia snapshots in one locked repository per Environment on an EU
-object store, with the WAL archive beside them ([record 115](../decisions/0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md)). Every store of estate data runs on an EU-controlled provider or on owned hardware, with ghcr as the named exception for renders and host tags until milestone M5 ([record 116](../decisions/0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md)).
+object store, with the WAL archive beside them ([record 115](../decisions/0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md)). Every store of estate data runs on an EU-controlled provider or on owned hardware, and every exception — ghcr for renders and host tags, Project images and fragments, the forge, CI, DNS — carries a calendar exit date in the provider-and-exit table ([record 116](../decisions/0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md), amended by [record 133](../decisions/0133-ownership-decides-the-eu-rule-and-every-exception-ends-on-a-calendar-date.md)).
 
 A multi-tenant Project keeps its Tenants in shared tables, separated by
 row-level security, with one database per Project per Environment
@@ -35,7 +35,7 @@ signs and moves the Project's `prod` tag. Flux pulls the tag and applies it.
 Observation, the read side the dashboard serves today, is its own binary and
 Deployment, so Delivery's Vault, ghcr and signing credentials never share a
 process with it ([record 50](../decisions/0050-six-bounded-contexts-in-five-layers.md)). Its
-one write is Alertmanager silences; the Release Gate's two writes belong to Delivery ([record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)).
+writes are the ones [record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md) names, with the cost ledger's rows [record 92](../decisions/0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md) added; the Release Gate's two writes belong to Delivery ([record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)).
 
 ## The parts of estate-kit
 
@@ -122,7 +122,9 @@ The full plan, with budgets, exits and fallbacks per phase, is
 - **Open:** the shadow's exit rule, fixed in
   [#50](https://github.com/JorisJonkers-dev/estate-kit/issues/50) before the
   shadow starts.
-- **Proposed:** Pause and Rollback are one `ProjectControl` custom resource
-  per Project, written only by Delivery ([record 28](../decisions/0028-pause-and-rollback-are-a-cluster-object-per-project.md));
-  its record is not yet accepted.
+- One `ProjectControl` custom resource per Project and [Environment](../../CONTEXT.md),
+  written only by Delivery: whether the Project is Paused there, the digest
+  `rollbackTo` names while a Rollback runs, and a monotone `lastServing`
+  ([record 28](../decisions/0028-pause-and-rollback-are-a-cluster-object-per-project.md),
+  amended by [record 118](../decisions/0118-a-rollback-is-per-environment-and-targets-a-digest-that-reached-serving.md)).
 - **Open:** how a Mailbox is shared beyond its own Project, if ever.

@@ -8,6 +8,8 @@ lessons: [MS-10, CS-5]
 
 # Capacity is in the Resolved Deployment; cost is estimated outside the Render key and recorded from bills
 
+Revised: 2026-11-05: the Context's "as serverless as it can be" now names its meaning — operational offload, with by-use billing only where a priced model admits it — carried by [record 142](0142-the-goal-sentence-means-operational-offload-with-by-use-billing-only-where-a-priced-model-admits-it.md).
+
 ## Context
 
 The maintainer wants the estate cheap, and as serverless as it can be, on owned

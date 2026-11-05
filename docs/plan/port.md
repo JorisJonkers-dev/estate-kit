@@ -30,8 +30,8 @@ One repository, `JorisJonkers-dev/estate-kit`, holds one Cargo workspace
   in Vault Transit, pushes it to ghcr, moves the Project's `render/<p>:prod`
   tag, and reports GitHub Deployment status to the Project's repository;
 - the Observation views the dashboard serves today, in their own binary;
-- a host applier on each NixOS node that pulls its signed `host/<node>:prod`
-  tag and switches one node at a time;
+- a host applier on each NixOS node that pulls its node's highest numbered
+  signed host tag and switches one node at a time;
 - six components: migration runner, secret grant, database catalog, bucket
   catalog, backup and mailbox, ported after the cutover;
 - the Vue UI, with npm confined to building its static assets;
@@ -86,9 +86,10 @@ not touch (PR-4).
 
 ## Order of work
 
-Budgets are first estimates in maintainer hours, at a few hours a week. When a
-phase overruns its budget by half, stop and choose its fallback before going
-on.
+Budgets are first estimates in maintainer hours, at ten hours a week; the
+phases sum to 365 hours, about nine months to the cutover, and P1 and P2 items
+are cut against that total. When a phase overruns its budget by half, stop and
+choose its fallback before going on.
 
 | Phase | Work | Budget | Exit | Fallback |
 | --- | --- | --- | --- | --- |
@@ -96,11 +97,11 @@ on.
 | 2. Records, lessons, founding | #19 to #22 | 25 h | Records written; the specification, oracles and old code imported with history (after 2026-10-30) | Write only the records the next phase needs |
 | 3. Workspace and walking skeleton | W0, then a thin slice of W1 to W5 and W11 | 40 h | `minimal` rendered by the Rust compiler, composed by the Rust service against fakes, and written as a shadow tag on a test cluster; every gate in CI with a failing fixture (MD-5) | Narrow the slice, never skip a gate |
 | 4. The compiler to 1.0 | W1 to W3 | 95 h, split per chapter [below](#phase-4-budget) | Every language-neutral 1.0 oracle met; every rendered oracle met in structure | None to ship less; [record 67](../decisions/0067-the-compiler-is-written-to-the-1-0-contract.md)'s stop rule governs: deploy-kit takes no new concepts once the Rust compiler meets the oracles of its latest release, and handovers continue until then |
-| 5. Deploy path | W4 to W6, #30 to #39 | 45 h | A test cluster deploys, rolls back and pauses through the service, with Vault scaled to zero for rollback | None: if the phase overruns, it stops, and the maintainer chooses what to cut from the phase's issues; provenance registration stays in |
+| 5. Deploy path | W4 to W6, #30 to #39, and the destructive components' tests, written here on the shared test harness rather than held back to phase 10 | 45 h | A test cluster deploys, rolls back and pauses through the service, with Vault scaled to zero for rollback | None: if the phase overruns, it stops, and the maintainer chooses what to cut from the phase's issues; provenance registration stays in |
 | 6. Recovery on the running estate | #40 to #42 | 15 h | Vault unseals itself; a datastore restore has been drilled | None: these are production risks today |
 | 7. Observation | W7 | 15 h | The UI serves every page the dashboard does | Keep the old dashboard serving |
 | 8. Hosts | W9, #43 to #49 | 50 h | A host rollout switches the fleet one node at a time under the Lease | Stay on deploy-rs from generated targets (#44) |
-| 9. Shadow and switch (the cutover) | #50 to #53 | 30 h | Every Project on signed tags with no unexplained structural difference; old repositories archived | Revert the last switched Project and keep the old stack serving |
+| 9. Shadow and switch (the cutover) | #50 to #53 | 30 h | Every admitted Project switched through all its Environments on its own clean shadow run, with no unexplained structural difference; deploy-kit archived 30 days after the last Project switches | Revert the last switched Project and keep the old stack serving |
 | 10. Components, after cutover | W8 (#66 to #71), one at a time | 25 h | Each component passes its characterization and replaces its old image | Keep the old component running; nothing else waits for it |
 
 ### Phase 4 budget
@@ -122,13 +123,25 @@ meets every oracle of the latest deploy-kit release, deploy-kit keeps
 releasing additive changes for the #373 handovers, specification first; after
 that, it takes no new concepts.
 
-The shadow phase's exit rule (#50) is fixed before the shadow starts: the
-number of consecutive days with no unexplained difference, and which Projects
-they must cover.
+The shadow runs nightly, and its exit rule ([#50](https://github.com/JorisJonkers-dev/estate-kit/issues/50))
+is fixed before the shadow starts: a Project switches only on its own clean
+run of at least 20 distinct input digests, a run the maintainer may shorten
+with an override logged in the switch pull request that never excuses a
+difference, in the wording of
+[record 121](../decisions/0121-the-rewritten-oracles-have-one-independent-witness-a-project-switches-after-twenty-distinct-clean-input-digests-and-only-the-maintainer-adds-an-expected-differences-ledger-entry.md).
 
-The cutover is the switch of the first Project,
-[#51](https://github.com/JorisJonkers-dev/estate-kit/issues/51). Components are
-ported lazily after it ([record 13](../decisions/0013-every-program-is-rust.md)):
+The cutover is per Project
+([#51](https://github.com/JorisJonkers-dev/estate-kit/issues/51)), and each
+Project switches through all its Environments, development, then staging, then
+production, in the promotion order of
+[record 75](../decisions/0075-three-environments-run-in-the-one-cluster.md).
+The old and the new stack publish their tags to separate repositories, so
+neither stack can move the other's tags. Phase 9 waits for phase
+6's exit, or a dated accepted risk written here, and for phase 7's exit, before
+the first Project switches. deploy-kit is archived 30 days after the last
+Project switches.
+
+Components are ported lazily after it ([record 13](../decisions/0013-every-program-is-rust.md)):
 until a component's rewrite is due it keeps running as the Go or Python program
 it is today, built from its imported tree (so archiving the old repositories
 does not stop it), and the critical path is the compiler and

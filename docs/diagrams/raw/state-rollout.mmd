@@ -2,7 +2,7 @@
 %% layout: [{"layout":"elkLayered","config":{"elk.layered.crossingMinimization.forceNodeModelOrder":true,"elk.direction":"DOWN","elk.spacing.nodeNode":50,"elk.layered.spacing.nodeNodeBetweenLayers":70,"elk.spacing.edgeLabel":6,"elk.layered.nodePlacement.strategy":"NETWORK_SIMPLEX","elk.layered.considerModelOrder.strategy":"NODES_AND_EDGES","elk.hierarchyHandling":"INCLUDE_CHILDREN","elk.nodeSize.constraints":"","edgeStyle":"orthogonal","corners":"rounded"}}]
 stateDiagram-v2
     direction TB
-    [*] --> Accepted
+    *] --> Accepted
     Accepted --> Composing
     Composing --> DryRun: render changed
     Composing --> Serving: render unchanged
@@ -12,13 +12,17 @@ stateDiagram-v2
     Signed --> Applying: tag moved
     Applying --> Switching: Flux applied
     Switching --> Serving: all healthy
+    Applying --> Replaced: a newer Operation closes it
     Switching --> Held: analysis failed
+    Switching --> Replaced: a newer Operation closes it
+    Held --> [*]: 24-hour deadline: the tag still names the held render
     Serving --> [*]
     Refused --> [*]
-    Held --> [*]
+    Replaced --> [*]
     classDef bad fill:#0000a4,stroke:#0000b4
     classDef good fill:#0000a3,stroke:#0000b3
     classDef warn fill:#0000a5,stroke:#0000b5
     class Serving good
     class Refused bad
     class Held warn
+    class Replaced warn

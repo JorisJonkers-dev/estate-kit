@@ -18,13 +18,18 @@ use_case("uc3-deploy", "Use case 3: deploy a release", ["Project CI", "Environme
          secondary=[(2, "Vault Transit")])
 use_case("uc4-watch", "Use case 4: watch a rollout live", ["Application author", "Operator"],
          "Watch the rollout live", ["Resume from the last event"])
-use_case("uc5-pause", "Use case 5: pause or resume a Project", ["Operator"], "Pause or resume a Project",
-         ["Sign in through auth-api", "Write the Project object"])
-use_case("uc6-rollback", "Use case 6: roll back a Project, on the fast path", ["Operator"], "Roll back a Project",
-         ["Sign in through auth-api", "Dry-run the last Serving render", "Move the prod tag back",
-          "Set the Project to Paused", "Re-compose only if the dry-run fails"], secondary=[(1, "API server")])
+use_case("uc5-pause", "Use case 5: pause or resume a Project in one Environment", ["Operator"],
+         "Pause or resume a Project in one Environment",
+         ["Sign in through auth-api", "Name the Environment (--env, required)",
+          "Write the ProjectControl of that Environment"])
+use_case("uc6-rollback", "Use case 6: roll back a Project in one Environment, on the fast path", ["Operator"],
+         "Roll back a Project in one Environment",
+         ["Sign in through auth-api", "Name the Environment (--env, required)",
+          "Target the digest rollbackTo names", "Dry-run the target render", "Move the Environment's tag back",
+          "Set the Environment's ProjectControl to Paused", "Re-compose only if the dry-run fails"],
+         secondary=[(3, "API server")])
 use_case("uc7-admit", "Use case 7: admit a Project", ["Admin"], "Admit a Project",
-         ["Edit Platform Intent", "Derive the Flux source"])
+         ["Edit Platform Intent", "Create the namespace and Flux source in the platform render"])
 use_case("uc8-apply", "Use case 8: pull and apply a render", ["Flux"], "Pull and apply a render",
          ["Verify the signature", "Apply and prune"], secondary=[(0, "ghcr")])
 use_case("uc9-gate", "Use case 9: gate a traffic switch", ["Flagger"], "Gate a traffic switch",
@@ -33,10 +38,12 @@ use_case("uc10-declare-node", "Use case 10: declare a node", ["Admin"], "Declare
          ["Edit Infrastructure Intent", "Render host data", "Build and VM-test its class"])
 use_case("uc11-roll-out-hosts", "Use case 11: roll out a host change", ["Project CI", "Host applier"],
          "Roll out a host change",
-         ["Derive the node order", "Take the Lease, evict pods", "Switch the generation", "Reboot inside the window"],
-         secondary=[(1, "API server")])
-use_case("uc12-break-glass", "Use case 12: switch a node by hand", ["Operator"], "Switch a node by hand",
-         ["Verify the closure signature", "Switch without the Lease"], system="host applier")
+         ["Derive the node order from the change", "Wait for the predecessor, or a recorded skip",
+          "Take the Lease, evict pods", "Switch the generation", "Reboot inside the window"],
+         secondary=[(2, "API server")])
+use_case("uc12-break-glass", "Use case 12: switch a node by hand", ["Maintainer"], "Switch a node by hand",
+         ["Run deploy-rs under the maintainer's SSH credential", "Switch outside the cache signature, without the Lease"],
+         system="the node")
 use_case("uc13-mailbox", "Use case 13: declare a Mailbox", ["Application author"], "Declare a Mailbox",
          ["Generate its password", "Provision the account"], secondary=[(1, "Stalwart")])
 
@@ -67,7 +74,7 @@ sequence("seq-deploy-3-switch", "Deploy, step 3 of 3: Flux applies and Flagger s
           ("F", "K", "apply the chain of Kustomizations, one per Apply group"),
           ("S", "K", "watch, read-only: Kustomizations, Canaries, Events, inventoried objects"),
           ("FG", "S", "Release Gate webhook"), ("S", "FG", "promote once every member is healthy", "reply"),
-          ("S", "CI", "Operation stream: Serving, Held, Superseded or Observation lost", "reply")])
+          ("S", "CI", "Operation ends: Serving, Held, Refused, Superseded or Observation lost", "reply")])
 sequence("seq-dry-run", "Dry-run of a release pull request",
          [("CI", "deploy job, dry-run"), ("S", "Delivery"), ("K", "API server"), ("GH", "GitHub")],
          [("CI", "CI", "build candidate images"), ("CI", "S", "deploy, dry-run (GitHub OIDC token)"),
@@ -102,9 +109,10 @@ sequence("seq-cache", "Skip publishing an unchanged render",
 sequence("seq-host-rollout", "Roll out a host change, one node at a time",
          [("CI", "CI"), ("C", "binary cache"), ("S", "Delivery"), ("O", "ghcr"), ("A", "host applier"), ("K", "API server")],
          [("CI", "C", "push signed closures"), ("CI", "CI", "VM test per node class"),
-          ("CI", "S", "host rollout (GitHub OIDC token)"), ("S", "O", "move host/<node>:prod"),
-          ("A", "O", "poll the tag, verify it"), ("A", "C", "fetch and verify the closure"),
+          ("CI", "S", "host rollout (GitHub OIDC token)"), ("S", "O", "publish host/<node>:<n> with the order payload"),
+          ("A", "O", "poll, take the highest, verify it"), ("A", "C", "fetch and verify the closure"),
           ("A", "A", "reboot needed? stage with boot, wait for the window"),
+          ("A", "A", "wait for the predecessor's Node annotation, or a recorded skip"),
           ("A", "K", "take the Lease, evict pods"), ("A", "A", "switch or reboot, health check"),
           ("A", "K", "uncordon, release the Lease")])
 sequence("seq-mailbox", "Provision a Mailbox",
@@ -124,8 +132,8 @@ sequence("seq-drift-check", "Nightly drift check",
           ("opt", "they differ", [("S", "G", "report the drift as an issue or a check")])])
 sequence("seq-fail-retry", "Failure: the deploy response is lost and the job retries",
          [("CI", "deploy job"), ("S", "Delivery"), ("DB", "event log")],
-         [("CI", "S", "deploy (Project, fragment digest)"), ("S", "DB", "rollout created"),
-          ("S", "CI", "response lost (timeout)", "reply"), ("CI", "S", "retry: same Project and digest"),
+         [("CI", "S", "deploy (Operation id, fragment digest)"), ("S", "DB", "rollout created"),
+          ("S", "CI", "response lost (timeout)", "reply"), ("CI", "S", "retry: same Operation id and digest"),
           ("S", "DB", "find the existing rollout"), ("S", "CI", "same rollout id, no second run", "reply")])
 sequence("seq-fail-stream", "Failure: the event stream drops and resumes",
          [("CI", "deploy job"), ("S", "Delivery"), ("DB", "event log")],
@@ -148,19 +156,22 @@ sequence("seq-fail-host-crash", "Failure: the host applier crashes mid-switch an
 # ---------------------------------------------------------------------------------------------
 
 states("state-rollout", "State machine: a rollout",
-       [("[*]", "Accepted", ""), ("Accepted", "Composing", ""), ("Composing", "DryRun", "render changed"),
+       [("*]", "Accepted", ""), ("Accepted", "Composing", ""), ("Composing", "DryRun", "render changed"),
         ("Composing", "Serving", "render unchanged"), ("Composing", "Refused", "model error"),
         ("DryRun", "Signed", "accepted"), ("DryRun", "Refused", "rejected"), ("Signed", "Applying", "tag moved"),
         ("Applying", "Switching", "Flux applied"), ("Switching", "Serving", "all healthy"),
-        ("Switching", "Held", "analysis failed"), ("Serving", "[*]", ""), ("Refused", "[*]", ""), ("Held", "[*]", "")],
-       tones={"Serving": "good", "Refused": "bad", "Held": "warn"})
-states("state-project", "State machine: a Project",
+        ("Applying", "Replaced", "a newer Operation closes it"),
+        ("Switching", "Held", "analysis failed"), ("Switching", "Replaced", "a newer Operation closes it"),
+        ("Held", "[*]", "24-hour deadline: the tag still names the held render"),
+        ("Serving", "[*]", ""), ("Refused", "[*]", ""), ("Replaced", "[*]", "")],
+       tones={"Serving": "good", "Refused": "bad", "Held": "warn", "Replaced": "warn"})
+states("state-project", "State machine: a Project, in one Environment",
        [("[*]", "Active", "admitted"), ("Active", "Paused", "pause"), ("Paused", "Active", "resume"),
         ("Active", "RolledBack", "roll back"), ("RolledBack", "Active", "next release")])
 states("state-host-applier", "State machine: the host applier on one node",
-       [("[*]", "Current", ""), ("Current", "Fetched", "new host tag, closure verified"),
+       [("[*]", "Current", ""), ("Current", "Fetched", "higher host tag, closure verified"),
         ("Fetched", "Staged", "reboot needed: stage with boot"), ("Staged", "WaitingForLease", "window opens"),
-        ("Fetched", "WaitingForLease", "live change"), ("WaitingForLease", "Draining", "Lease held"),
+        ("Fetched", "WaitingForLease", "live change"), ("WaitingForLease", "Draining", "Lease held, predecessor satisfied or skipped"),
         ("Draining", "Switching", "pods evicted"), ("Switching", "HealthCheck", "switched with test, or rebooted"),
         ("HealthCheck", "CurrentNew", "healthy: boot default set"), ("HealthCheck", "RolledBack", "unhealthy"),
         ("CurrentNew", "[*]", ""), ("RolledBack", "[*]", "")],
@@ -170,7 +181,7 @@ states("state-host-applier", "State machine: the host applier on one node",
 states("state-tenant", "State machine: a Tenant",
        [("[*]", "Active", "create"), ("Active", "TenantLock", "lock, restore or Mirror load"), ("TenantLock", "Active", "unlock"),
         ("Active", "Suspended", "suspend"), ("Suspended", "Active", "resume"),
-        ("Suspended", "Purged", "grace period ends, every finalizer released"), ("Purged", "[*]", "")],
+        ("Suspended", "Purged", "grace period ends, Purge marker written and verified, every finalizer released"), ("Purged", "[*]", "")],
        labels={"TenantLock": "Tenant lock"},
        tones={"Suspended": "warn", "TenantLock": "warn", "Purged": "bad"})
 states("state-mailbox", "State machine: a Mailbox",
@@ -291,7 +302,7 @@ g.person("op", "Operator", "In a browser")
 g.group("ek", "estate-kit")
 g.system("cli", "estate-kit CLI", "Validates and plans offline", kind="container", tech="Rust, one binary", parent="ek")
 g.system("ui", "UI", "Rollouts, Projects, hosts", kind="container", tech="Vue, embedded in Observation", parent="ek")
-g.system("obs", "Observation", "Read-only views of what runs; creates and expires Silences", kind="container",
+g.system("obs", "Observation", "Read-only views of what runs; Silences and the cost ledger's rows", kind="container",
          tech="Rust, its own binary and Deployment", parent="ek")
 g.system("svc", "Delivery", "Composes, dry-runs, signs, streams rollouts, runs the Release Gate", kind="container",
          tech="Rust, links the compiler", parent="ek")
@@ -300,7 +311,7 @@ g.system("applier", "host applier", "Switches one node at a time", kind="contain
 g.system("comps", "components", "Six reconcilers: migrations, secret grants, database and bucket catalogs, backups, Mailboxes",
          kind="container", tech="Rust, one image each", parent="ek")
 g.system("api", "Kubernetes API", "Dry-runs and status", kind="external")
-g.system("ghcr", "ghcr", "Fragments, renders, tags; outside the EU rule until M5", kind="external")
+g.system("ghcr", "ghcr", "Fragments, renders, tags; the EU rule's exception until the registry move, 2027-05-31", kind="external")
 g.system("flux", "Flux", "The one applier, locked down per Project", kind="external")
 g.system("vault", "Vault Transit", "Signing key", kind="external")
 g.system("tel", "Prometheus, Loki, Alertmanager, Gatus", "Metrics, logs, alerts, checks", kind="external")
@@ -331,7 +342,7 @@ g = Graph("deploy-placement", "Deployment: where each part runs")
 g.group("github", "«execution environment» GitHub", kind="node")
 g.box("repos", "Project repositories and runners", parent="github")
 g.box("estate", "estate repository", parent="github")
-g.group("registry", "«device» registry: the EU exception until M5", kind="node")
+g.group("registry", "«device» registry: the EU rule's exception until 2027-05-31", kind="node")
 g.store("ghcr", "ghcr: fragments, renders, tags", parent="registry")
 g.group("cluster", "«execution environment» Kubernetes cluster", kind="node")
 g.box("edge", "Traefik edge", parent="cluster")
@@ -477,7 +488,7 @@ g.artifact("mods", "hand-written NixOS modules")
 g.box("comp", "compile: host data", tone="accent")
 g.box("build", "CI: build closures, VM tests", tone="accent")
 g.store("cache", "signed binary cache")
-g.box("svc", "Delivery: move host tags", tone="accent")
+g.box("svc", "Delivery: publish the next host tag", tone="accent")
 g.box("agent", "host applier", tone="accent")
 for a, b, label in [("ii", "comp", ""), ("pi", "comp", ""), ("ver", "comp", ""), ("comp", "build", "host data"),
                     ("mods", "build", ""), ("build", "cache", "pushes"), ("build", "svc", "passed"),
@@ -606,16 +617,61 @@ g.terminal("start", "host rollout accepted")
 g.decision("q", "k3s version changes?")
 g.box("cp1", "control plane, in its window, after a snapshot and approval", tone="warn")
 g.box("can1", "canary worker")
+g.box("soak1", "24-hour soak; a k3s change waits for its full window", tone="warn")
 g.box("w1", "remaining workers")
 g.box("can2", "canary worker")
+g.box("soak2", "24-hour soak", tone="warn")
 g.box("w2", "remaining workers")
 g.box("cp2", "control plane, in its window", tone="warn")
 g.terminal("end", "every node current", tone="good")
 g.edge("start", "q")
 g.edge("q", "cp1", "yes")
 g.edge("q", "can2", "no")
-for a, b in [("cp1", "can1"), ("can1", "w1"), ("w1", "end"), ("can2", "w2"), ("w2", "cp2"), ("cp2", "end")]:
+for a, b in [("cp1", "can1"), ("can1", "soak1"), ("soak1", "w1"), ("w1", "end"),
+             ("can2", "soak2"), ("soak2", "w2"), ("w2", "cp2"), ("cp2", "end")]:
     g.edge(a, b)
+g.done()
+
+g = Graph("flow-apply-chain", "Flow: how one render applies as a chain of Kustomizations, and what pruning never touches",
+          direction="DOWN", layer_gap=60)
+g.terminal("start", "the render is published; Flux reconciles its chain")
+g.decision("newkind", "the render introduces a kind or namespace?")
+g.box("stage1", "stage 1: the chain without the objects Unverifiable by construction", tone="warn")
+g.box("stage2", "the API server serves the new kind; stage 2 publishes the full chain, in the same Operation", tone="warn")
+g.box("chain", "the chain: one Kustomization per Apply group, joined by dependsOn and health checks; an empty group renders nothing",
+      tone="accent")
+g.box("g1", "group 1: grants and generated secrets")
+g.box("g2", "group 2: the migration Job, suspended until the Release Gate unsuspends it")
+g.box("g3", "group 3: workloads")
+g.box("g4", "group 4: routes")
+g.terminal("done", "every group healthy; Flagger promotes; the Rollout ends Serving", tone="good")
+g.box("prune", "each group prunes what it no longer names, except the prune-protected kinds: rendered CRDs, namespaces, claims, Mailboxes, buckets, databases",
+      tone="warn")
+g.box("crds", "a rendered CRD is prune-protected, so its custom resources and every Retirement tombstone survive a dropped kind",
+      tone="good")
+for a, b, label, kind in [("start", "newkind", "", "flow"), ("newkind", "stage1", "yes", "flow"),
+                          ("newkind", "chain", "no", "flow"), ("stage1", "stage2", "", "flow"),
+                          ("stage2", "chain", "", "flow"), ("chain", "g1", "", "flow"), ("g1", "g2", "", "flow"),
+                          ("g2", "g3", "the Job completed", "flow"),
+                          ("g3", "g4", "", "flow"), ("g4", "done", "", "flow"),
+                          ("chain", "prune", "every reconcile", "dashed"), ("prune", "crds", "", "dashed")]:
+    g.edge(a, b, label, kind=kind)
+g.done()
+
+g = Graph("flow-network-policy", "Flow: enforcing one namespace's network policy on kube-router", direction="DOWN", layer_gap=60)
+g.terminal("start", "least-connected namespace, named by the estate instance")
+g.box("rback", "declare the rollback: written beside the enforced mark, before enforcement", tone="warn")
+g.box("enforce", "the Project's render applies the namespace's NetworkPolicy objects; kube-router enforces at once", tone="accent")
+g.box("window", "window of at least 14 days: normal traffic, a backup, a restore, a maintenance window", tone="accent")
+g.decision("q", "an undeclared flow surfaces?")
+g.terminal("rollback", "the flow becomes an edge in the model; the rollback holds the namespace until the fix's render lands, and the window starts again", tone="warn")
+g.terminal("stays", "the namespace keeps its enforced mark; the next namespace's window opens", tone="good")
+g.edge("start", "rback")
+g.edge("rback", "enforce")
+g.edge("enforce", "window")
+g.edge("window", "q")
+g.edge("q", "rollback", "yes: a cut, an incident or a failing check")
+g.edge("q", "stays", "no")
 g.done()
 
 g = Graph("components", "Components: the parts of estate-kit (blue) and what each acts on", direction="DOWN", layer_gap=70)
@@ -881,6 +937,41 @@ for a, b, label in [("start", "read", ""), ("read", "ok", ""), ("ok", "compose",
                     ("dryok", "changed", "yes"), ("changed", "unchanged", "no"), ("changed", "sign", "yes"),
                     ("sign", "cas", ""), ("cas", "done", "yes"), ("cas", "reread", "no"), ("reread", "changed", "")]:
     g.edge(a, b, label)
+g.done()
+
+# ---------------------------------------------------------------------------------------------
+# Recovery: how each store is captured, and where the copies live.
+# ---------------------------------------------------------------------------------------------
+
+g = Graph("recovery", "Recovery: how each store is captured, and where the copies live", direction="DOWN", layer_gap=70)
+g.group("cluster", "«execution environment» Kubernetes cluster", kind="node")
+g.store("ds", "k3s datastore", parent="cluster")
+g.store("pg", "platform-postgres: event log, job table, Tenant operation log, Tenant catalogue cache", parent="cluster")
+g.store("dbs", "Project databases, one per Environment", parent="cluster")
+g.store("vol", "local-path volumes other than Postgres", parent="cluster")
+g.store("vault", "Vault", parent="cluster")
+g.box("backupc", "backup component", tone="accent", parent="cluster")
+g.group("provider", "«device» EU-controlled provider", kind="node")
+g.store("kopia", "Kopia repository, one per Environment: Tenant exports, volume contents, Purge markers; 30-day COMPLIANCE lock on every object", parent="provider")
+g.store("pgbr", "pgBackRest repository, one per Environment: base backups (7 daily, 4 weekly, 6 monthly) plus the WAL archive; every object 30-day COMPLIANCE locked", parent="provider")
+g.group("provider2", "«device» second EU provider", kind="node")
+g.store("second", "Second copy of the Critical set: the Vault snapshot, the signing and repository credentials, the datastore snapshot; each copy within its stated age", parent="provider2")
+g.box("fleet", "fleet-infra", tone="external")
+g.box("probe", "WAL archive freshness check: fails when no WAL object is under 15 minutes old, or the newest has under 7 days of its 30-day lock left", tone="plain")
+g.box("probe2", "Second-copy freshness check: fails when an item has no second copy, or its newest copy is older than the age its row states", tone="plain")
+g.artifact("open", "No datastore backup is written today: the open item datastore backup, due 2027-04-30")
+g.artifact("holder", "The second copy's holder is not yet chosen: an open item, due 2027-04-30; the credentials' copy comes from the custody procedure's offline store")
+g.edge("ds", "open", "fleet-infra's to write; excluded from the drill until it exists", kind="assoc")
+g.edge("pg", "backupc", "pgBackRest: base backups plus WAL archived continuously, segment every 5 minutes")
+g.edge("dbs", "backupc", "pgBackRest: base backups plus WAL archived continuously")
+g.edge("vol", "backupc", "a daily snapshot")
+g.edge("backupc", "kopia", "writes Tenant exports, volume snapshots and Purge markers; writer key writes, never deletes a version or shortens a lock")
+g.edge("backupc", "pgbr", "writes base backups and WAL; writer key writes, never deletes a version or shortens a lock")
+g.edge("probe", "pgbr", "reads each object's age and remaining lock", kind="assoc")
+g.edge("fleet", "second", "the Vault snapshot's and the datastore snapshot's second copies, written with each first copy, within 6 hours")
+g.edge("second", "holder", "kept reachable and usable by a named holder, an open item, due 2027-04-30", kind="assoc")
+g.edge("probe2", "second", "reads each item's newest copy and its age", kind="assoc")
+g.edge("fleet", "vault", "a raft snapshot every 6 hours, with an off-cluster copy")
 g.done()
 
 if __name__ == "__main__":

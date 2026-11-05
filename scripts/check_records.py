@@ -8,6 +8,12 @@ A row "Merged into N" has no file, nothing rests on it, and N is a row that is n
 A row "Superseded by N" keeps its file, whose status is superseded; N is Accepted, and nothing rests on
 the superseded row. A row "Moved to [page](link)" is retired: its rule lives on that page, so it has no file, is not
 Accepted, and nothing rests on it.
+A line that starts `Revised:` (a wording fix edited in place) reads `Revised: YYYY-MM-DD: <what changed>`,
+with a real date and a sentence. A silent edit leaves no line, so this check cannot see it: review and
+the pull-request title rule catch it.
+The two records a Purge holds (numbered 82 and 110) each state both Purge rules: a Purge writes
+and verifies its Purge marker in the locked repository before it deletes anything, and a restore
+does not un-purge the Tenant. A record text that omits either is reported.
 Every record file has a non-empty Confirmation, and each check it names, in bold, is a row of the
 checks table on the design page (the first column of the table under "## The checks").
 An Accepted or Locked record may declare in its front matter the records it amends (`amends`) and
@@ -26,6 +32,7 @@ from __future__ import annotations
 
 import argparse
 import re
+from datetime import date
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -37,7 +44,16 @@ MERGED = re.compile(r"^merged into (\d+)$")
 MOVED = re.compile(r"^moved to \[")
 SUPERSEDED = re.compile(r"^superseded by (\d+)$")
 CHECK_NAME = re.compile(r"\*\*([^*]+)\*\*")
+REVISED = re.compile(r"^Revised:")
+REVISED_LINE = re.compile(r"^Revised: (\d{4}-\d{2}-\d{2}): \S")
 PENDING = re.compile(r"when\s+this\s+record\s+is\s+accepted", re.IGNORECASE)
+PURGE_RULES = {
+    "purge-marker-first": re.compile(
+        r"writes and verifies its Purge marker in the locked repository before it deletes anything"
+    ),
+    "restore-not-un-purge": re.compile(r"A restore does not un-purge the Tenant"),
+}
+PURGE_RULE_RECORDS = (82, 110)
 
 
 @dataclass(frozen=True)
@@ -145,6 +161,23 @@ def cycles(edges: dict[int, list[int]]) -> list[list[int]]:
         if node not in index:
             visit(node)
     return sorted(found)
+
+
+def bad_revised_lines(text: str) -> list[str]:
+    """Each line that starts `Revised:` outside a code fence but is not `Revised: YYYY-MM-DD: <sentence>`
+    with a real date and a sentence."""
+    bad = []
+    fenced = False
+    for line in text.splitlines():
+        if line.startswith("```"):
+            fenced = not fenced
+        elif not fenced and REVISED.match(line):
+            match = REVISED_LINE.match(line)
+            try:
+                date.fromisoformat(match.group(1) if match else "")
+            except ValueError:
+                bad.append(line)
+    return bad
 
 
 def confirmation(text: str) -> str:
@@ -277,6 +310,19 @@ def violations(decisions: Path, lessons_file: Path, checks_page: Path) -> list[V
         body = confirmation(text)
         if not body:
             found.append(Violation(f"no-confirmation {number}", record.path, "has no Confirmation, or an empty one"))
+        for line in bad_revised_lines(text):
+            found.append(Violation(
+                f"revised-line {number}", record.path,
+                f"a Revised line must read 'Revised: YYYY-MM-DD: <what changed>', with a real date and a sentence; got {line!r}"))
+        if number in PURGE_RULE_RECORDS:
+            unwrapped = " ".join(text.split())
+            for rule_name, rule in PURGE_RULES.items():
+                if not rule.search(unwrapped):
+                    found.append(Violation(
+                        f"purge-rules {number} {rule_name}", record.path,
+                        f"record {number} omits the {rule_name} rule; a Purge writes and verifies its "
+                        "Purge marker in the locked repository before it deletes anything, and a "
+                        "restore does not un-purge the Tenant"))
         named = list(dict.fromkeys(" ".join(m.group(1).split()).strip("`") for m in CHECK_NAME.finditer(body)))
         if record.status in ACCEPTED and PENDING.search(text):
             found.append(Violation(

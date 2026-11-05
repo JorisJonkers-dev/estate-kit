@@ -16,7 +16,7 @@ folds each observation into a versioned Rollout event with a sequence number
 ([record 94](../decisions/0094-flux-stays-the-one-applier-observed-closely-and-an-estate-kit-applier-waits-for-a-review-trigger.md)).
 
 Backups are Kopia snapshots in one locked repository per Environment on an EU
-object store, with the WAL archive beside them ([record 115](../decisions/0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md)). Every store of estate data runs on an EU-controlled provider or on owned hardware, with ghcr as the named exception for renders and host tags until milestone M5 ([record 116](../decisions/0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md)).
+object store, with the WAL archive beside them ([record 115](../decisions/0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md)). Every store of estate data runs on an EU-controlled provider or on owned hardware, and every exception — ghcr for renders and host tags, Project images and fragments, the forge, CI, DNS — carries a calendar exit date in the provider-and-exit table ([record 116](../decisions/0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md), amended by [record 133](../decisions/0133-ownership-decides-the-eu-rule-and-every-exception-ends-on-a-calendar-date.md)).
 
 A multi-tenant Project keeps its Tenants in shared tables, separated by
 row-level security, with one database per Project per Environment

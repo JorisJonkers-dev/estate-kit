@@ -8,6 +8,8 @@ lessons: [MS-7, MS-4, DO-1]
 
 # Three environments run in the one cluster, with a signed tag and a namespace per Project per environment
 
+Amended by [record 132](0132-a-staging-rollout-that-ended-refused-held-on-a-failed-verdict-or-observation-lost-blocks-its-release-s-production-approval-and-a-quiet-held-does-not.md): a staging Rollout that ended Refused, Held on a failed Analysis verdict or Observation lost blocks its release's `production` approval until the maintainer confirms it served, and a quiet Project's Held blocks nothing.
+
 ## Context
 
 [Record 9](0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md)
@@ -36,6 +38,14 @@ release deploys to staging, then to production after the `production` approval,
 with the same digests in both. Nothing is rebuilt between staging and
 production.
 
+The staging Rollout of a release gates that release's `production` approval:
+a staging Rollout that ended Refused, Held on a failed
+[Analysis verdict](../../CONTEXT.md), or Observation lost blocks the approval
+until the maintainer confirms the staging Application served the release,
+while a staging Rollout Held on an inconclusive verdict, on a Project too
+quiet to gather a sample, blocks nothing
+([record 132](0132-a-staging-rollout-that-ended-refused-held-on-a-failed-verdict-or-observation-lost-blocks-its-release-s-production-approval-and-a-quiet-held-does-not.md)).
+
 A Project chooses its Environments, and production is required. Between
 Environments only replicas, domains and secret paths may differ, plus one env
 file per Environment. Any other override is refused.
@@ -54,7 +64,9 @@ file per Environment. Any other override is refused.
 ## Consequences
 
 - Easier: a change and a migration are rehearsed in development and staging
-  before production; a Rollback names the environment it moves.
+  before production; a Rollback names the environment it moves; a staging end
+  that did not serve blocks the same release's `production` approval until the
+  maintainer confirms it served.
 - Harder: three renders and three namespaces per Project, and a planned move of
   production out of `<project>-system`.
 - [Record 9](0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md) is amended: a Project has an Environment tag in each of its Environments.

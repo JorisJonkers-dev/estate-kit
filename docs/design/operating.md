@@ -1,6 +1,6 @@
 # Operating the estate
 
-Operators act through the UI or the CLI ([record 113](../decisions/0113-every-ui-action-is-a-cli-command-with-the-same-identifier.md)). Every rollout they start still shows up as a deploy run and a Deployment in the Project's own repository.
+Operators act through the UI or the CLI ([record 113](../decisions/0113-every-ui-action-is-a-cli-command-with-the-same-identifier.md)). Every rollout they start still shows up as a Deployment in the Project's own repository: a Project's workflow runs because the Project started it, never because Delivery dispatched it, for Delivery holds no `actions:write` ([record 144](../decisions/0144-delivery-holds-no-actions-write-and-dispatches-no-workflow-and-its-own-deployment-is-applied-by-a-bootstrap-step-that-verifies-the-render-signature.md)).
 
 ## Low-attention defaults
 
@@ -33,39 +33,69 @@ The defaults are this table. A new situation gets its row, and its default, in t
 
 ## Rollouts no Project run started
 
-A Platform Intent change, the nightly recompose or a Rollback from the UI: Delivery dispatches the Project's `deploy` workflow in watch mode, with a run
-name that says why (for example "Deploy notes: Platform Intent changed").
-Missed triggers heal on a timer that scans the registry for fragments newer
-than the last composition.
+A Platform Intent change, the nightly recompose or a Rollback from the UI:
+Delivery composes on its own and starts the Rollout itself, streaming it live
+to the UI, and writes nothing into any forge to start it: it dispatches no
+Project's workflow and its GitHub App holds no `actions:write`
+([record 144](../decisions/0144-delivery-holds-no-actions-write-and-dispatches-no-workflow-and-its-own-deployment-is-applied-by-a-bootstrap-step-that-verifies-the-render-signature.md)).
+The fragment scan that heals missed triggers runs on a short interval: a
+fragment newer than the last composition triggers the next composition queue
+row on its own
+([record 73](../decisions/0073-the-composition-queue-is-a-row-in-a-postgres-job-table.md)),
+and after the Publication point the Project's Flux Receiver call makes Flux
+fetch the new render at once, with the reconcile interval as the fallback
+([record 94](../decisions/0094-flux-stays-the-one-applier-observed-closely-and-an-estate-kit-applier-waits-for-a-review-trigger.md)).
+The Rollout shows as a Deployment through the forge projection, with no run,
+because Delivery never starts one ([record 144](../decisions/0144-delivery-holds-no-actions-write-and-dispatches-no-workflow-and-its-own-deployment-is-applied-by-a-bootstrap-step-that-verifies-the-render-signature.md)).
 
 ## UC-5 Pause or resume a Project
 
-An Operator pauses a Project in the UI. Delivery records it in the Project's
-cluster object and stops moving its tag until the Operator resumes. Outcome:
-Flux keeps serving the current render.
+An Operator pauses a Project in one Environment, through the UI or the CLI,
+naming the Environment: `--env` is required on every Pause, Resume and Rollback
+command in every Environment, and a call that omits it is refused
+([record 118](../decisions/0118-a-rollback-is-per-environment-and-targets-a-digest-that-reached-serving.md)).
+Delivery records it in that Environment's ProjectControl
+and stops moving that Environment's tag until the Operator resumes; pausing
+production never changes staging. Outcome: Flux keeps serving the current
+render in that Environment.
 
-![UC-5 Pause or resume a Project](../diagrams/png/uc5-pause.png)
+![UC-5 Pause or resume a Project in one Environment](../diagrams/png/uc5-pause.png)
 
 ## UC-6 Roll back a Project
 
-An Operator rolls a Project back. The fast path signs nothing and composes
-nothing ([review](../research/review/README.md) D7): Delivery dry-runs the last Serving render against today's
-cluster, moves `render/<p>:prod` back to it by read, verify, write under the writer Lease, and sets the
-Project to Paused, so no new release moves the tag until the Operator resumes.
-Only if that dry-run fails does Delivery re-compose at the earlier fragment
-and dispatch the deploy run in watch mode. Signatures are kept exactly as long
+An Operator rolls a Project back in one Environment, naming the Environment
+and, with it, the target: the digest `rollbackTo` names, which must be a digest
+that reached Serving in that Environment — the CLI and the API refuse any
+other, so a Held render that was published and never served cannot be the
+target ([record 118](../decisions/0118-a-rollback-is-per-environment-and-targets-a-digest-that-reached-serving.md)).
+The fast path signs nothing and composes
+nothing ([review](../research/review/README.md) D7): Delivery writes Paused and the target
+to that Environment's ProjectControl in one update, dry-runs the target render against today's
+cluster, moves that Environment's [Environment
+tag](../../CONTEXT.md)
+(`render/<p>:<env>`) to it by read, verify, write under the writer Lease, and sets that
+Environment's ProjectControl to Paused, so no new release moves that tag until the Operator resumes.
+Because the target already reached Serving, the Release Gate answers pass for
+its digest, and no analysis verdict holds the rollback. A Delivery restart
+finishes an interrupted Rollback from the ProjectControl, which still names
+the target. Only if that dry-run fails does Delivery re-compose at the earlier fragment
+and start that Rollout itself, streaming it live ([record 144](../decisions/0144-delivery-holds-no-actions-write-and-dispatches-no-workflow-and-its-own-deployment-is-applied-by-a-bootstrap-step-that-verifies-the-render-signature.md)). Signatures are kept exactly as long
 as their renders, so every render that ever served can serve again. Outcome:
-the previous render serves within five minutes, even with Vault down.
+the target render serves within five minutes, even with Vault down.
 
-![UC-6 Roll back a Project](../diagrams/png/uc6-rollback.png)
+![UC-6 Roll back a Project in one Environment](../diagrams/png/uc6-rollback.png)
 
 ![Sequence: roll back a Project](../diagrams/png/seq-rollback.png)
 
 ## UC-7 Admit a Project
 
 An Admin merges a Platform Intent change that admits a Project's
-`repository_id`. Delivery derives the Project's Flux source into the
-platform render. Outcome: the Project's CI may deploy from then on.
+`repository_id`. Delivery derives the Project's namespace and Flux source into
+the platform render: the platform render creates the Project's namespace in
+every Environment, and the Project's own render holds namespaced kinds only, so
+its first Apply group needs no cluster-scoped identity
+([record 143](../decisions/0143-the-platform-render-creates-every-project-namespace-and-a-project-render-holds-namespaced-kinds-only.md)).
+Outcome: the Project's CI may deploy from then on.
 
 ![UC-7 Admit a Project](../diagrams/png/uc7-admit.png)
 
@@ -89,11 +119,13 @@ together, or the release is Held.
 
 ## States of a Project
 
-A Project's state decides whether Delivery may move its tag. A Project
-with no cluster object at all is treated as Paused, so a lost object fails
-safe.
+A Project's state, in one Environment, decides whether Delivery may move that
+Environment's tag. A Project with no ProjectControl in that Environment is
+treated as Paused there, so a lost object fails safe, and the state machine is
+per Environment: pausing production never pauses staging
+([record 118](../decisions/0118-a-rollback-is-per-environment-and-targets-a-digest-that-reached-serving.md)).
 
-![States of a Project](../diagrams/png/state-project.png)
+![States of a Project, in one Environment](../diagrams/png/state-project.png)
 
 ## When something underneath fails
 
@@ -123,6 +155,16 @@ The control plane is restored in a dependency order that is tested, drilled and 
 
 The restore order is rehearsed in CI on every release, on a throwaway cluster. Once a year the procedure is drilled on the real estate and timed against the recovery time and point of each Recovery class ([record 87](../decisions/0087-recovery-time-and-recovery-point-are-stated-per-recovery-class.md)).
 
+## Break-glass custody
+
+Where the recovery key lives, who opens it if the maintainer cannot, what the offline store holds, and the loss case are written down here, and the yearly drill exercises them ([record 140](../decisions/0140-break-glass-custody-is-written-and-drilled-and-a-named-successor-holds-a-sealed-copy-of-the-recovery-key.md)).
+
+The recovery key lives sealed in the maintainer's offline store, with the other offline credentials the restore order names ([restore order](#restore-order-and-drill-cadence), step 1: the admin credential and the backup decryption keys). A recovery-key successor, a named person with their own sealed copy of the key, answers the loss case: with the maintainer absent, the successor opens their sealed copy and signs in a break-glass, so the estate survives its one maintainer's absence. The sealed copy is opened in no other case, and the key never leaves the offline store or the seal except to be used.
+
+Neither successor nor sealed copy exists yet: both are open items, due 2027-04-30. The yearly drill of [record 87](../decisions/0087-recovery-time-and-recovery-point-are-stated-per-recovery-class.md) verifies the sealed copy still opens the key it is a copy of and records the successor's rehearsal of its use; until the successor is named, the drill says so.
+
+The Second copy of the Critical set — the Vault snapshot, the signing and repository credentials and the datastore snapshot — sits at a second EU provider, kept reachable by a named holder who is not yet chosen either, an open item, due 2027-04-30 ([record 141](../decisions/0141-a-second-copy-exists-only-for-the-critical-set-at-a-second-eu-provider.md)). Its loss case is one provider's: losing the first provider's stores loses no key to the estate.
+
 ## Weekly restore rehearsal
 
 The backup component restores the latest snapshot of each store into throwaway containers once a week and checks what it reads back ([record 115](../decisions/0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md)). Each result is an active check result of [record 108](../decisions/0108-active-checks-run-in-the-owning-components-observation-reads-their-results-and-one-heartbeat-lives-outside-the-cluster.md): Observation reads it, and a pass also reaches the external heartbeat, so a rehearsal that stops running raises an alert from outside the cluster.
@@ -130,6 +172,10 @@ The backup component restores the latest snapshot of each store into throwaway c
 ## External heartbeat
 
 One heartbeat lives outside the cluster ([record 108](../decisions/0108-active-checks-run-in-the-owning-components-observation-reads-their-results-and-one-heartbeat-lives-outside-the-cluster.md)). It is Alertmanager's Watchdog alert, which always fires while the alerting pipeline works. Alertmanager sends it on a schedule to a hosted dead-man's switch from an EU-based provider, such as healthchecks.io, and when it stops arriving, that service raises the alert from outside. The service shares no machine with the control plane. The heartbeat holds no estate data, so the rule that a store of estate data runs on an EU-controlled provider or on owned hardware does not bind it; an EU-based service is still preferred.
+
+The dead-man switch's grace exceeds the estate's longest planned reboot and is stated in minutes, measured from a node's drain to its healthy new generation, so a host rollout never pages ([record 124](../decisions/0124-the-dead-man-grace-exceeds-the-longest-planned-reboot-and-a-phone-push-app-carries-the-second-alert-route.md)). No host reboot is measured yet: the first host rollout measures one by 2027-03-01 and the grace follows; until then the switch holds the longest grace its provider allows.
+
+Alerts also leave the estate on a second route: a phone push app on the maintainer's phone, run outside the estate, so an outage that takes the estate's Mailbox still reaches the maintainer ([record 124](../decisions/0124-the-dead-man-grace-exceeds-the-longest-planned-reboot-and-a-phone-push-app-carries-the-second-alert-route.md)). The yearly drill of [record 87](../decisions/0087-recovery-time-and-recovery-point-are-stated-per-recovery-class.md) sends a test alert on the second route, and the maintainer confirms by hand that it arrived.
 
 ## CLI command behind each UI action
 

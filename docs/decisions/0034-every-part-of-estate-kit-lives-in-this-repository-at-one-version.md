@@ -7,6 +7,10 @@ lessons: []
 
 # Every part of estate-kit, the components included, lives in this repository at one version
 
+Amended by [record 89](0089-every-persisted-or-externally-read-contract-has-its-own-identifier-contract-major-and-supported-range.md):
+this repository keeps one release version, but the major a reader checks is
+each contract's own identifier and Contract major, not the release version.
+
 ## Context
 
 estate-kit holds the compiler, Delivery, the host applier, the UI and six
@@ -20,7 +24,11 @@ version worked with which compiler.
 Components live in this repository, in the one Cargo workspace, and the whole
 repository has one version: every binary, image and reusable workflow ships
 under it. A change to the model lands in one pull request, and there is no
-compatibility matrix to keep. The layout is on
+compatibility matrix to keep. The version a reader checks, though, is not this
+one: each persisted or externally read contract has its own identifier,
+Contract major and supported range
+([record 89](0089-every-persisted-or-externally-read-contract-has-its-own-identifier-contract-major-and-supported-range.md)),
+and only estate-kit's own releases are versioned here. The layout is on
 [The Rust workspace](../design/rust-workspace.md) and the components on
 [Mail and components](../design/mail-and-components.md).
 

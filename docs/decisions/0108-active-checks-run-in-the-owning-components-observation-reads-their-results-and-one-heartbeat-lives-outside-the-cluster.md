@@ -7,12 +7,22 @@ lessons: [DO-4]
 
 # Active checks run in the owning components, Observation reads their results, and one heartbeat lives outside the cluster
 
+Amended by [record 124](0124-the-dead-man-grace-exceeds-the-longest-planned-reboot-and-a-phone-push-app-carries-the-second-alert-route.md):
+the dead-man switch's grace exceeds the longest planned reboot and is stated in
+minutes, and alerts also leave the estate on a phone push app whose delivery
+the yearly drill confirms by hand.
+
+Revised: 2026-11-05: Observation's writes are named, not counted as one: the Silences and, as [record 92](0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md) added it, the cost ledger's rows.
+
 ## Context
 
-Observation is its own process, reads, and has one named write: it creates and
-expires Alertmanager silences
-([record 50](0050-six-bounded-contexts-in-five-layers.md),
-[record 74](0074-the-release-gate-and-observation-each-have-a-named-write.md)).
+Observation is its own process, reads, and its named writes are the ones
+[record 74](0074-the-release-gate-and-observation-each-have-a-named-write.md)
+names, with
+[record 92](0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md)'s
+addition: it creates and expires Alertmanager silences, and appends the cost
+ledger's rows in its own schema
+([record 50](0050-six-bounded-contexts-in-five-layers.md)).
 It holds no credential that can deploy, pause or roll back.
 
 Some failures are silent. "Mutiny! How does Kubernetes fail, and what can we do
@@ -57,7 +67,13 @@ One heartbeat lives outside the cluster. It is Alertmanager's Watchdog alert,
 which always fires while the alerting pipeline works. Alertmanager sends it on
 a schedule to a hosted dead-man's switch from an EU-based provider, such as
 healthchecks.io, and when it stops arriving, that service raises the alert from
-outside. The service shares no machine with the control plane. The heartbeat
+outside. Its grace exceeds the estate's longest planned reboot and is stated in
+minutes, so a planned reboot never pages; it is fixed from the measured host
+reboot time, an open measurement until the first host rollout measures one.
+Alerts also leave the estate on a second route, a phone push app outside the
+estate, whose delivery the yearly drill confirms by hand
+([record 124](0124-the-dead-man-grace-exceeds-the-longest-planned-reboot-and-a-phone-push-app-carries-the-second-alert-route.md)).
+The service shares no machine with the control plane. The heartbeat
 holds no estate data, so the rule that a store of estate data runs on an
 EU-controlled provider or on owned hardware does not bind it; an EU-based
 service is still preferred.
@@ -76,7 +92,7 @@ service is still preferred.
 ## Consequences
 
 - Easier: a backup that cannot be restored, or mail that cannot be delivered, is
-  found on a schedule; Observation keeps one write; a silent cluster pages.
+  found on a schedule; Observation keeps only its named writes; a silent cluster pages.
 - Harder: `backup` and `mailbox` each schedule, run and publish a check; the
   heartbeat depends on a hosted service and its account.
 - Forbidden: an active check in Observation; a credential or a write for

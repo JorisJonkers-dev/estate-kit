@@ -1,8 +1,11 @@
 # Releasing a Project
 
-Every rollout is a GitHub Actions run in the Project's repository. Delivery
-does all the work, and the deploy job streams it live, from validation to the
-last Flagger promotion.
+Every rollout a Project starts is a GitHub Actions run in the Project's
+repository. Delivery does all the work, and the deploy job streams it live,
+from validation to the last Flagger promotion. A rollout no Project run
+started streams to the UI and projects as a Deployment with no run, because
+Delivery dispatches no Project's workflow and holds no `actions:write`
+([record 144](../decisions/0144-delivery-holds-no-actions-write-and-dispatches-no-workflow-and-its-own-deployment-is-applied-by-a-bootstrap-step-that-verifies-the-render-signature.md)).
 
 ## Names
 
@@ -14,9 +17,11 @@ check. A separate dry-run workflow or a compose workflow was rejected: Delivery 
 A dry-run records no Deployment, and a dry-run environment was rejected, so
 the production history holds real deploys only.
 
-The deploy job owns the Deployment and streams the rollout, so every rollout
-is a run with its approval gates. Deployments created by Delivery were
-rejected.
+The deploy job owns the Deployment and streams the rollout, so every rollout a
+Project starts is a run with its approval gates. Deployments created by
+Delivery were rejected for those runs; the forge projection of a rollout no
+Project run started is a Deployment with no run, and the event log stays the
+authority.
 
 ## What a dry-run is
 
@@ -37,7 +42,22 @@ release-please PR, and again right before any tag moves.
 | Release published | `deploy`, environment `production` | `estate-kit / deploy` | Promotes the candidate digests; Delivery checks every digest was registered by this Project (D8), dry-runs again, signs with the render signing key, moves `render/<p>:prod` by read, verify, write under the writer Lease, and streams the rollout |
 
 Cancelling a deploy job only detaches it; the rollout continues. Stopping a
-rollout is a Pause or a Rollback. A dropped stream resumes from its last event.
+rollout is a Pause or a Rollback, in one Environment: every Pause, Resume and
+Rollback command names its Environment (`--env`, required in every
+Environment, an omitted one is refused), and a Rollback targets a digest that
+reached Serving there
+([record 118](../decisions/0118-a-rollback-is-per-environment-and-targets-a-digest-that-reached-serving.md)).
+A dropped stream resumes from its last event.
+
+A published release deploys to staging with the same digests, and the staging
+Rollout gates what reaches production
+([record 75](../decisions/0075-three-environments-run-in-the-one-cluster.md)):
+a staging Rollout that ended Refused, Held on a failed Analysis verdict or
+Observation lost blocks the same release's `production` approval until the
+maintainer confirms the staging Application served it, and a staging Rollout
+Held on an inconclusive verdict — a Project too quiet to gather a sample —
+blocks nothing
+([record 132](../decisions/0132-a-staging-rollout-that-ended-refused-held-on-a-failed-verdict-or-observation-lost-blocks-its-release-s-production-approval-and-a-quiet-held-does-not.md)).
 
 ## UC-1 Validate a change
 
@@ -110,10 +130,16 @@ fallback if the call is lost
 Each Apply group is its own Flux Kustomization, joined by `dependsOn` and
 health checks, under the Project's one service account
 ([record 95](../decisions/0095-a-project-renders-as-a-chain-of-flux-kustomizations-one-per-apply-group.md)).
+Each group prunes what it no longer names, except the prune-protected kinds,
+rendered CRDs among them: a render that stops naming a CRD deletes nothing
+([record 105](../decisions/0105-removal-is-a-retire-lifecycle-with-durable-retirement-tombstones-and-declared-moves-and-prune-protected-kinds-never-prune.md),
+[record 119](../decisions/0119-a-rendered-crd-is-prune-protected-and-retirement-tombstones-survive-a-crd-drop.md)).
 Delivery watches, read-only, the Project's Kustomizations, OCIRepository and
 Canary objects, Events in `flux-system` and the Project's namespaces, and
 every object in each step's inventory. It computes each object's health itself
 by the kstatus rules and never takes Flux's summary as the truth.
+
+![How a published render applies as a chain of Kustomizations](../diagrams/png/flow-apply-chain.png)
 
 ## The Publication point and two-stage publication
 
@@ -185,16 +211,29 @@ the gate answers yes on the rollback hook, so Flagger reverts traffic, the old
 version keeps serving, and the Operation ends Held with the check's reason. An
 inconclusive verdict holds: the gate answers no on the confirm hooks, which
 pause the canary, and never gives it as an error on a hook that counts toward
-a rollback. Inconclusive never promotes, and a Rollout held past the plan's
-deadline pages the maintainer and stays held; time never promotes it.
+a rollback. Inconclusive never promotes, and a Rollout held on it waits out
+its plan's deadline — 24 hours unless the Project states another — then ends
+Held with the Environment tag still naming the held render, with the
+maintainer paged and nothing promoted by itself; an Operator promotes or rolls
+back, and a later render starts a new Rollout and cancels the pending
+deadline. Time never promotes it
+([record 131](../decisions/0131-a-held-rollout-on-a-quiet-project-ends-at-its-deadline-with-the-tag-unchanged.md)).
 
 ## States of a rollout
 
-A Rollout ends in exactly one of Serving, Held or Refused. The Operation that
-follows it can also end Superseded, when a newer Operation takes its place, or
-Observation lost, when Delivery stops seeing Flux and Flagger; the Rollout then
-goes on, and may still reach Serving
-([record 96](../decisions/0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md)).
+A Rollout ends in exactly one of Serving, Held, Refused, Replaced or Observation lost. Superseded is never a Rollout end: a newer Operation for the same Project and Environment that closes a
+Rollout which had begun ends it Replaced, and that older Operation ends
+Superseded, an Operation end only, one of the five outcomes whose exit codes
+the table holds
+([record 96](../decisions/0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md),
+[record 130](../decisions/0130-a-rollout-ends-serving-held-refused-replaced-or-observation-lost-and-superseded-is-an-operation-end-only.md)).
+Observation lost means Delivery stops seeing Flux and Flagger; the Rollout
+then goes on, and may still reach Serving. A Held Rollout ends at its
+deadline — 24 hours unless the Project states another — with the Environment
+tag still naming the held render: nothing is promoted by itself, an Operator
+promotes or rolls back, and a later render starts a new Rollout and cancels
+the pending deadline
+([record 131](../decisions/0131-a-held-rollout-on-a-quiet-project-ends-at-its-deadline-with-the-tag-unchanged.md)).
 
 ![States of a rollout](../diagrams/png/state-rollout.png)
 

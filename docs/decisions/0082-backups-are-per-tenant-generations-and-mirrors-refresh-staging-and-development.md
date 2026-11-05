@@ -24,6 +24,17 @@ Amended by [record 110](0110-a-purge-erases-backup-generations-and-mirrors-from-
 a Purge deletes the Tenant's exports at once and states its erasure date from
 the copy inventory. The text below says so.
 
+Amended by [record 127](0127-a-restore-names-the-projects-it-restores-takes-a-verified-safety-copy-first-and-never-crosses-into-a-lower-environment-unmasked.md):
+a restore takes a verified safety copy first, refuses an unmasked route into a
+lower Environment, and its scratch database is built from a schema dump.
+The text below says so.
+
+Amended by [record 128](0128-a-purge-writes-and-verifies-its-purge-marker-in-the-locked-repository-before-it-deletes-anything-and-a-restore-does-not-un-purge-the-tenant.md):
+a Purge writes and verifies its Purge marker in the locked repository before it
+deletes anything, the markers keep the Purged keys and the Tenant catalogue so
+a restore does not un-purge the Tenant, and the tombstones and the purge
+inventory carry opaque UUIDs. The text below says so.
+
 ## Context
 
 [Record 114](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md)
@@ -70,7 +81,12 @@ repository, which encrypts it and keeps it off the cluster in a locked bucket
 its Environment, its time and each export's revision.
 
 **A Backup generation may be restored into its own Tenant or into another Tenant
-of an equal or lower Environment,** under the target's `tenant_id`.
+of its own Environment,** under the target's `tenant_id`. A restore never
+crosses into a lower Environment unmasked: a restore whose target Environment
+is lower than its export's own masks before it leaves, by the masking rules a
+Mirror load uses, and one that would land unmasked in a lower Environment is
+refused
+([record 127](0127-a-restore-names-the-projects-it-restores-takes-a-verified-safety-copy-first-and-never-crosses-into-a-lower-environment-unmasked.md)).
 
 **Each Postgres server also keeps whole-database backups and archives WAL** for
 point-in-time recovery. The whole-database backups are snapshots in the same
@@ -79,25 +95,33 @@ to the same provider. This is for disaster only: the loss of a whole server. It
 restores a whole server into a new cluster and is never used to restore one
 Tenant.
 
-**A restore is a Tenant operation, and it names the Projects it restores.** It
-takes these steps in order:
+**A restore is a Tenant operation, and it names the Projects it restores.** A
+restore that names no Project is refused; no step of it reaches a Project it
+does not name. It takes these steps in order:
 
-1. Compare each export's revision with its Project database's. An export newer
+1. Write a safety copy of the Tenant's current rows — one export per Project
+   named, taken in one snapshot transaction, written to the Environment's
+   backup repository and read back verified
+   ([record 127](0127-a-restore-names-the-projects-it-restores-takes-a-verified-safety-copy-first-and-never-crosses-into-a-lower-environment-unmasked.md)).
+2. Compare each export's revision with its Project database's. An export newer
    than the database is refused, and the refusal names both revisions.
-2. Lock the Tenant, with a Tenant lock.
-3. Call the prepare-restore Tenant hook of each Application.
-4. In each Project named, delete the Tenant's rows and re-insert them from the
+3. Lock the Tenant, with a Tenant lock.
+4. Call the prepare-restore Tenant hook of each Application.
+5. In each Project named, delete the Tenant's rows and re-insert them from the
    export. An export at the database's revision is inserted directly. An older
-   one is first loaded into a scratch database at its own revision, migrated
-   forward there to the database's revision, and copied in from there.
-5. Call the after-restore hook of each Application.
-6. Unlock the Tenant.
+   one is first loaded into a scratch database built from a schema dump of the
+   Project database at its own revision — a dump of the schema and nothing
+   else — migrated forward there to the database's revision, and copied in
+   from there.
+6. Call the after-restore hook of each Application.
+7. Unlock the Tenant.
 
-A failed lock or prepare-restore hook aborts before any data changes, as
+A failed safety copy, lock or prepare-restore hook aborts before any data
+changes, as
 [record 80](0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md)
 sets out, and the Tenant is unlocked. A failure after the first delete leaves
 the Tenant locked, with the output in the operation log, until an Operator
-retries the restore.
+retries the restore, which retraces its steps from the safety copy.
 
 **A Mirror refreshes a staging or development Tenant from one production Tenant.**
 The Tenant resource names the production Tenant and a schedule. Production's
@@ -116,14 +140,26 @@ Mirror copies data, and creates no link in the other direction.
 - Each Project declares masking rules for its own tables. A Project that declares
   none is not loaded into a development Mirror.
 
+**A Purge writes and verifies its Purge marker in the locked repository
+before it deletes anything.** The marker, kept in the Environment's backup
+repository under the same object lock as every object there and named by an
+opaque UUID, holds the Tenant catalogue's entry for the Tenant and its key,
+and platform-postgres only caches what it holds. A Purge whose marker write or
+read-back fails aborts with a failure and deletes nothing. A restore does not
+un-purge the Tenant: a store restored to a time before a Purge is re-read its
+markers, and each Purged Tenant removed again, before it serves
+([record 128](0128-a-purge-writes-and-verifies-its-purge-marker-in-the-locked-repository-before-it-deletes-anything-and-a-restore-does-not-un-purge-the-tenant.md)).
+
 **A Purge deletes the Tenant's exports and empties its Mirrors at once.** It
 deletes the Tenant's rows, deletes its export snapshots from the backup
 repository and runs full maintenance on it, and empties every Mirror target of
 the Tenant. The Purge's entry in the operation log states the erasure date: the
 expiry of the last copy in the copy inventory of
-[record 110](0110-a-purge-erases-backup-generations-and-mirrors-from-an-inventory-of-every-copy.md).
-Whole-database backups are kept up to 6 months, WAL no longer than the oldest
-base backup kept, and the 30-day object lock bounds only the Tenant exports.
+[record 110](0110-a-purge-erases-backup-generations-and-mirrors-from-an-inventory-of-every-copy.md),
+which the Tenant is told, and which is the end of six months of
+whole-database retention. Whole-database backups are kept up to 6 months, WAL
+no longer than the oldest base backup kept, and the 30-day object lock bounds
+only the Tenant exports.
 
 **An unmasked staging Mirror makes staging hold production personal data.**
 Staging access must then be treated like production access: who may sign in,
@@ -173,10 +209,17 @@ revision or is not taken in one snapshot transaction, or the generation is
 catalogued before its encrypted copy is off the cluster. The **Restore order
 test** fails when a restore changes data before its lock and prepare-restore
 hooks succeed, skips a step, touches a Project it does not name, or unlocks the
-Tenant after a failure that changed data. The **Restore revision refusal** fails
+Tenant after a failure that changed data. The **Restore safety copy test**
+fails when a restore deletes or re-inserts a Tenant's rows before the safety
+copy of every Project it names is written and verified, or when a restore
+whose safety copy failed still changes data. The **Restore masking refusal**
+fails when an unmasked restore is accepted into a lower Environment, or a
+restore into a lower Environment masks by any rules but the Mirror's. The
+**Restore revision refusal** fails
 when an export newer than its database is restored, the refusal omits either
-revision, or an older export is copied in without being migrated forward in a
-scratch database. The **Mirror masking test** fails when a development Mirror is
+revision, an older export is copied in without being migrated forward in a
+scratch database, or its scratch database is built from anything but a schema
+dump. The **Mirror masking test** fails when a development Mirror is
 not masked, a staging Mirror that says it is masked is not, an unmasked export
 of a masked Mirror leaves production, a lower Environment holds production's
 backup credentials, or a Project with no masking rules is loaded into a

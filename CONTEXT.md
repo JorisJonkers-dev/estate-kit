@@ -24,39 +24,47 @@ The signed registry tag `render/<project>:<env>` that names a Project's current 
 _Avoid_: pin, live tag
 
 **Render key**:
-The digest of everything a Project's render depends on: its fragment, Platform Intent, the ClusterState snapshot, the compiler version, and the Surface declarations that Link reads from other Projects (each Surface its Applications consume or route to: its name, its port and the Project and Application that provide it). A change to a provider's Surface therefore changes the Render key of every Project that consumes it. It is kept as provenance with each published render and is never a cache key. It is not the key that signs: that is the Render signing key.
+The digest of everything a Project's render depends on, and of nothing else: its fragment, Platform Intent, the ClusterState snapshot, Provider facts (after the cutover), the compiler version, and the Surface declarations that Link reads from other Projects (each Surface its Applications consume or route to: its name, its port and the Project and Application that provide it). A change to a provider's Surface therefore changes the Render key of every Project that consumes it. It is kept as provenance with each published render and is never a cache key. It is not the key that signs: that is the Render signing key.
 _Avoid_: cache key, input hash, signing key
 
+**ClusterState snapshot**:
+The one route by which live facts reach a render: Delivery captures them, digests them, and the digest becomes a render input. It holds exactly four things: the kinds the cluster serves, the installed CRDs with their versions, the namespace names, and the Kubernetes version. Nothing else of the live cluster enters it.
+_Avoid_: cluster facts, live state, cluster inventory
+
 **Render signing key**:
-The Vault Transit key that signs `render/<project>:prod`. Flux verifies renders against it. Delivery's Vault policy may use it only for that path; it never signs a host tag.
+The Vault Transit key that signs each of a Project's Environment tags (`render/<project>:<env>`, production's among them). Flux verifies renders against it. Delivery's Vault policy may use it only for that tag pattern; it never signs a host tag.
 _Avoid_: render key, Transit key
 
 **Host signing key**:
-The Vault Transit key that signs `host/<node>:prod`. Host appliers verify host tags against it. It never signs a render.
+The Vault Transit key that signs each of a node's numbered host tags (`host/<node>:<number>`). Host appliers verify host tags against it. It never signs a render.
 _Avoid_: host key, Transit key
 
 **Recovery key**:
 The hardware-held key, kept offline, that Flux and every Host applier trust beside the online signing keys. It signs only in a break-glass, when Vault is gone.
 _Avoid_: backup key, root key
 
+**Recovery-key successor**:
+The named person who holds a sealed copy of the recovery key, so a break-glass survives the maintainer's absence. Not yet named: an open item with a date.
+_Avoid_: backup maintainer, escrow agent, deputy
+
 **Serving**:
-The outcome of a Rollout whose new version has been promoted and now takes the Project's traffic. A Rollout ends in exactly one of Serving, Held, Refused, Superseded or Observation lost.
+The outcome of a Rollout whose new version has been promoted and now takes the Project's traffic. A Rollout ends in exactly one of Serving, Held, Refused, Replaced or Observation lost.
 _Avoid_: live, deployed
 
 **Held**:
-The state of an Application whose release failed: its old version keeps serving while the Project's Prod tag names the new render, until a later render lands. The Rollout ends Held.
+The state of an Application whose release failed: its old version keeps serving while the Project's Prod tag names the new render, until a later render lands. The Rollout ends Held and records why: a failed analysis verdict, or an inconclusive one on a Project too quiet to gather a sample. A Held Rollout has a deadline, 24 hours unless the Project states another: at the deadline the tag keeps naming the held render, nothing is promoted by itself, and an Operator promotes or rolls back. A later render starts a new Rollout and cancels the deadline.
 _Avoid_: stuck, failed
 
 **Pause**:
-The state of a Project whose Prod tag Delivery does not move. Composition still checks it and Flux still applies the render the tag names. It is recorded in the Project's ProjectControl; a missing or unreadable ProjectControl reads as Paused. An Operator resumes it, and a Rollback leaves the Project Paused.
+The state of a Project, in one Environment, whose Prod tag Delivery does not move there. Composition still checks it and Flux still applies the render the tag names. It is recorded in that Environment's ProjectControl; a missing or unreadable ProjectControl reads as Paused. An Operator resumes it, and a Rollback leaves the Project Paused.
 _Avoid_: freeze, suspend
 
 **ProjectControl**:
-The custom resource, one per admitted Project in its own namespace, that records whether the Project is Paused and the render it is held at after a Rollback. Only Delivery writes it.
+The custom resource, one per admitted Project and Environment, in the Project's namespace and named by the Environment, that records whether the Project is Paused there, the render it is held at after a Rollback, and its monotone `lastServing`. Every read and write names the Environment. Only Delivery writes it.
 _Avoid_: control file, pause object
 
 **Rollout**:
-One Project's release, from the moment Delivery moves its Prod tag until it ends Serving, Held, Refused, Superseded or Observation lost. Delivery records it as an append-only log of Rollout events and reports it as a GitHub Deployment in the environment `production`. Not a Kubernetes `Deployment`.
+One Project's release, from the moment Delivery moves its Prod tag until it ends Serving, Held, Refused, Replaced or Observation lost. Delivery records it as an append-only log of Rollout events and reports it as a GitHub Deployment in the environment `production`. Not a Kubernetes `Deployment`.
 _Avoid_: deployment, release run
 
 **Release Gate**:
@@ -68,7 +76,7 @@ The coordination Lease in the API server that the one Delivery pod takes immedia
 _Avoid_: leader election, lock
 
 **Machine account**:
-The dedicated GitHub account whose classic token, synced from Vault into a Kubernetes Secret Delivery mounts, moves the `render/` and `host/` tags on ghcr. It has write access only on the render and host packages.
+The dedicated GitHub account whose classic token, synced from Vault into a Kubernetes Secret Delivery mounts, moves the `render/` and `host/` tags on ghcr. It has write access only on the render and host packages. The maintainer's CLI uses the same token to move the Environment tag of Delivery's own render.
 _Avoid_: bot, service token
 
 **Composition**:
@@ -91,8 +99,12 @@ _Avoid_: status update, log line
 A Rollout event that reconciliation appended after a crash, marked as reconstructed and naming the observation it was inferred from. Delivery did not see it happen.
 _Avoid_: backfill, replayed event
 
+**Predecessor digest**:
+The digest each Rollout event row carries of the stored content of the row before it in the same Rollout — its rollout id, sequence, type, version, time and payload; the first event of a Rollout carries the empty digest. An append is refused when it does not name the last row the writer read, so a gap or a reorder in the log is detected. It is written into the event schema before the schema is committed.
+_Avoid_: parent hash, chain hash, event hash
+
 **Observation**:
-The context that shows what runs and how it is doing: units, pods, containers, alerts and silences, logs, health and checks. It reads, except that it creates and expires Alertmanager silences with a credential for that API alone. It holds no credential that can deploy, pause or roll back.
+The context that shows what runs and how it is doing: units, pods, containers, alerts and silences, logs, health and checks. It reads, except for its named writes: it creates and expires Alertmanager silences with a credential for that API alone, and appends the cost ledger's rows in its own schema, each with a credential for that write alone ([record 74](docs/decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md), as [record 92](docs/decisions/0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md) added it). It holds no credential that can deploy, pause or roll back.
 _Avoid_: dashboard backend, monitoring
 
 **Viewer**:
@@ -116,12 +128,16 @@ The identifier of an Operation, unique within its Project and Environment. Each 
 _Avoid_: run id, request id, correlation id
 
 **Apply group**:
-A set of a Project's rendered objects that Flux applies as one Kustomization, after the groups it depends on are healthy. The compiler derives the groups and their order, for example cluster-scoped kinds and namespaces, then grants and secrets, then the migration Job, then workloads, then routes.
+A set of a Project's rendered objects that Flux applies as one Kustomization, after the groups it depends on are healthy. The compiler derives the groups and their order, for example grants and secrets, then the migration Job, then workloads, then routes. A Project's render holds namespaced kinds only; its namespaces and every cluster-scoped kind are objects of the platform render, so no group of its chain is cluster-scoped.
 _Avoid_: wave, stage, phase, reconcile unit
 
 **Superseded**:
-The end of a Rollout that a newer Operation for the same Project and Environment replaced before it reached Serving, Held or Refused.
-_Avoid_: cancelled, aborted, replaced
+The end of an Operation that a newer Operation for the same Project and Environment replaced before its Rollout ended. A Rollout that had begun ends Replaced. Superseded is never a Rollout end.
+_Avoid_: cancelled, aborted
+
+**Replaced**:
+The end of a Rollout that a newer Operation for the same Project and Environment closed before it reached Serving, Held or Refused. The Operation ends Superseded.
+_Avoid_: superseded (for a Rollout), cancelled, aborted
 
 **Observation lost**:
 The end of an Operation's stream when Delivery can no longer see what Flux or Flagger did, so it cannot say how the Rollout ended. It is not a failure of the Rollout, which may still reach Serving.
@@ -132,8 +148,12 @@ The step after which a render is visible to Flux: the moment its tag is created 
 _Avoid_: commit, push, release point
 
 **Sequence tag**:
-An immutable registry tag that names one published render of one Project in one Environment, numbered so that a later publication has a higher version. Flux follows the highest; the registry refuses to change a tag once created. A Rollback creates a new Sequence tag that names an older, already-signed digest.
+An immutable registry tag that names one published render of one Project in one Environment, numbered so that a later publication has a higher version. Flux follows the highest; the registry refuses to change a tag once created. A Rollback creates a new Sequence tag that names an older, already-signed digest. A Host tag is numbered the same way.
 _Avoid_: pin, live tag, moving tag
+
+**Bootstrap step**:
+The step that applies Delivery's own Deployment, the one rendered object Flux never applies: run from the maintainer's CLI with the offline admin credential, it reads the Environment tag that names Delivery's current render, verifies the signature on every manifest, and refuses an unverified render before it applies. Its rollback is a move of that Environment tag, which only the maintainer's CLI makes.
+_Avoid_: self-upgrade, Delivery applier, apply job
 
 **Roll-forward**:
 Recovering from a failed Rollout by publishing a new render that fixes it, when rolling back would run a migration backwards.
@@ -189,6 +209,14 @@ _Avoid_: unknown kind, skipped object
 A group of stored data with one stated recovery time and recovery point, such as the datastore, the registry, Project databases or the event log. Not deploy-kit's Durability Class, which says what a volume's data is worth.
 _Avoid_: durability class, tier, backup level
 
+**Critical set**:
+The small set of items whose loss takes the estate's keys to everything else: the Vault snapshot, the signing and repository credentials, and the datastore snapshot. It is the only set with a second copy.
+_Avoid_: critical items, key set, escape kit
+
+**Second copy**:
+The one copy of the Critical set held at a second EU provider, other than the provider of each first copy, written with it and held to the age its row in the recovery table states. Nothing else is copied twice.
+_Avoid_: mirror, backup of the backup, off-site copy
+
 ## Diagnostics and traceability
 
 **Model path**:
@@ -226,7 +254,7 @@ The agent on each NixOS node that pulls its signed generation and switches to it
 _Avoid_: deployer, updater
 
 **Host tag**:
-The signed registry tag `host/<node>:prod` that names the generation a node should run. Delivery moves it once the closures are built and the VM tests pass.
+The signed registry tag `host/<node>:<number>` that names the generation a node should run. Host tags are numbered and immutable, with the semantics of a Sequence tag: the Host applier takes the highest, and a rollback publishes a new, higher number that names an older generation. Delivery publishes one once the closures are built and the VM tests pass.
 _Avoid_: host pin, target generation
 
 **Node class**:
@@ -260,7 +288,7 @@ The domain a multi-tenant Application names, under which every Tenant host is de
 _Avoid_: base domain, root domain, vanity domain
 
 **Tenant host**:
-The host at which a Tenant's people reach an Application, derived as the Tenant handle, the environment suffix (none in production) and the Product domain. A host finds its Tenant through a lookup, never by parsing.
+The host at which a Tenant's people reach an Application, derived as the Tenant handle, the environment suffix (none in production) and the Product domain. The environment suffix is its own DNS label, so each Environment has its own wildcard certificate, one per Product domain and Environment suffix, issued by fleet-infra, whose expiry estate-kit's alert names. A host finds its Tenant through a lookup, never by parsing.
 _Avoid_: tenant url, subdomain, vanity host
 
 **Estate name**:
@@ -292,7 +320,7 @@ The brief state in which the platform stops a Tenant's traffic and work around a
 _Avoid_: maintenance mode, freeze, locked tenant
 
 **Tenant hook**:
-A call the tenancy context makes to a multi-tenant Application for one Tenant at one lifecycle step (after-create, lock, unlock, prepare-restore, after-restore), so the Application can do what the platform cannot see. An Application implements only the hooks it declares.
+A call the tenancy context makes to a multi-tenant Application for one Tenant at one lifecycle step (after-create, lock, unlock, prepare-restore, after-restore, export), so the Application can do what the platform cannot see. An Application implements only the hooks it declares.
 _Avoid_: webhook, callback, lifecycle event
 
 **Tenant Admin**:
@@ -320,8 +348,12 @@ The end of a Tenant: its rows in every Project database, its Tenant exports, its
 _Avoid_: delete, destroy, offboard
 
 **Tenant operation**:
-One lifecycle action on a Tenant: create, add a Project, remove a Project, lock, unlock, suspend, resume, purge or restore. The tenancy context runs it across every system that holds the Tenant's data, and records each step with its full error output in one operation log.
+One lifecycle action on a Tenant: create, add a Project, remove a Project, lock, unlock, suspend, resume, purge, restore or export. The tenancy context runs it across every system that holds the Tenant's data, and records each step with its full error output in one operation log.
 _Avoid_: job, task, workflow
+
+**Purge marker**:
+The record of one Purged Tenant in its Environment's locked repository: the Tenant catalogue's entry for it, its key and its erasure date, named by an opaque UUID. A Purge writes and verifies it before it deletes anything; platform-postgres only caches it, so a restore does not un-purge a Tenant.
+_Avoid_: deletion marker, tombstone
 
 **Mailbox**:
 An email address an Application declares by its local part. The same local part declared twice within one Project names one shared Mailbox; across Projects it is refused.
@@ -348,6 +380,20 @@ A trait in an application crate that names one thing the core needs from an outs
 _Avoid_: interface, service, driver
 
 ## Records and checks
+
+### Locked record
+
+A record whose front-matter status is `locked`: Accepted, and its Confirmation names a check that fails when the decision is broken. Only the maintainer changes it. A pull request that changes a Locked record, including one that unlocks it, needs the `contract-change` label, which is the maintainer's approval. The Contract gate detects it by the changed path and the status on the base.
+_Avoid_: frozen record, protected record
+
+### Locked contract path
+
+A path that is Locked by default: anything under `contracts/` (the committed schemas, the OpenAPI files, the error catalogue, the CLI's `--json` output schema, the schema corpus) or `oracles/`, and the shadow's expected-differences ledger (`shadow/expected-differences.yaml`). A pull request that changes one needs the `contract-change` label, which is the maintainer's approval. The Contract gate detects it by the changed path alone.
+_Avoid_: frozen path, protected file
+
+**Revised line**:
+The line `Revised: YYYY-MM-DD: <what changed>` that sits under the title of an Accepted record whose wording was fixed in place. A change of rule is never a Revised line: it needs an amending record.
+_Avoid_: edit note, changelog line
 
 **Enforcement status**:
 Whether the checks a record's Confirmation names hold it, as one of four values: planned (a check is a row of the table of checks, with the issue that builds it, and no code yet), implemented (every named check runs, but at least one runs outside `Pipeline Complete` or has no negative fixture shown to fail it), verified (every named check runs inside `Pipeline Complete` and its negative fixture fails it) or review (the Confirmation names no check, or only retired ones, so the rule is held by review only). It is the lowest status of the live checks the record names, planned < implemented < verified. The table of checks gives each check its own status: planned, implemented, verified, or retired, for a check a later record replaced or removed, kept as a row for history. Derived from the table of checks, never written by hand.

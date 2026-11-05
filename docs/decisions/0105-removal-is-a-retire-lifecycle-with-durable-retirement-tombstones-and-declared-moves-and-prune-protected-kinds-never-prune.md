@@ -8,6 +8,8 @@ lessons: [DO-2, DO-5]
 
 # Removal is a Retire lifecycle with durable Retirement tombstones and declared moves, and prune-protected kinds never prune
 
+Amended by [record 119](0119-a-rendered-crd-is-prune-protected-and-retirement-tombstones-survive-a-crd-drop.md): a rendered CRD is prune-protected like a namespace or a claim, and a Retirement tombstone survives a CRD drop.
+
 ## Context
 
 Flux prunes what a render no longer names
@@ -40,7 +42,9 @@ evaluation of 2026-11-04, sections 2.2 and 9.8).
 This record adopts
 [deploy-kit ADR 0142](https://github.com/JorisJonkers-dev/deploy-kit/blob/main/docs/adr/model/0142-a-rendered-namespace-is-never-pruned.md):
 prune-protected kinds never prune. They are namespaces, claims whose volume is
-declared `recoverable` or `irreplaceable`, Mailboxes, buckets and databases.
+declared `recoverable` or `irreplaceable`, Mailboxes, buckets, databases and
+rendered CRDs
+([record 119](0119-a-rendered-crd-is-prune-protected-and-retirement-tombstones-survive-a-crd-drop.md)).
 Every rendered object of those kinds carries the prune-disabled mark.
 
 When an Application, Process, volume, bucket, database or Mailbox leaves Intent,
@@ -54,8 +58,9 @@ grace period, verify a recovery copy, then let the owning component delete it
 and record the deletion. The grace period is 30 days unless the policy states
 another. Declaring the object again
 within the grace period cancels the retirement. A tombstone survives a render
-change, a lost render and a restore, and a component applies its tombstones
-before restored data serves, so a restore never brings back what was retired.
+change, a lost render, a restore and a CRD drop, and a component applies its
+tombstones before restored data serves, so a restore never brings back what
+was retired.
 
 Moves are declared, never inferred. A renamed Mailbox local part, or a volume
 moving to another Application, is a `moved_from` in Intent. A removal and an
@@ -94,11 +99,17 @@ lifecycle.
 ## Confirmation
 
 The **Prune protection test** fails when a rendered object of a prune-protected
-kind lacks the prune-disabled mark. The **Retire refusal fixtures** fail when
+kind lacks the prune-disabled mark, or when a render in which a rendered CRD
+disappeared leaves its custom resources removable
+([record 119](0119-a-rendered-crd-is-prune-protected-and-retirement-tombstones-survive-a-crd-drop.md)).
+The **Retire refusal fixtures** fail when
 the plan accepts a removal and an addition of the same kind under the same
 owner with no declared move or confirmed retirement, or treats a declared move
 as a retirement. The **Retirement tombstone tests** fail when a component
 deletes a durable object without a tombstone, before its grace period (30 days
 unless its policy says otherwise), or without a verified recovery copy; when a
-cancelled retirement still deletes; or when restored data serves before the
-tombstones are applied. The **Mailbox fixtures** keep their contention cases.
+cancelled retirement still deletes; when restored data serves before the
+tombstones are applied; or when a Retirement tombstone is removed with a
+dropped CRD
+([record 119](0119-a-rendered-crd-is-prune-protected-and-retirement-tombstones-survive-a-crd-drop.md)).
+The **Mailbox fixtures** keep their contention cases.

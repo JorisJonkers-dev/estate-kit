@@ -1,11 +1,13 @@
 ---
-status: proposed  # proposed | accepted | locked
+status: accepted  # proposed | accepted | locked
 date: 2026-10-29
 rests-on: [6, 67]
 lessons: [CS-5, TM-2]
 ---
 
 # Renders use a canonical YAML style specified on one page
+
+Revised: 2026-11-05: the key quoting bullet names the string rule instead of restating it.
 
 ## Context
 
@@ -22,7 +24,8 @@ Every YAML Deliverable is written in one canonical style, specified on one page
 in `contracts/` and implemented once in the `canonical` crate:
 
 - one document per file, after a fixed `# GENERATED` header line;
-- keys in the order the narrow object model declares them;
+- keys in the order the narrow object model declares them, and quoted by the
+  same rule as a string;
 - a string is plain only if it matches a short whitelist pattern and is not a
   YAML 1.1 or 1.2 special value; otherwise it is double-quoted with JSON
   escapes;
@@ -32,6 +35,14 @@ in `contracts/` and implemented once in the `canonical` crate:
 
 JSON Deliverables are RFC 8785 canonical JSON, with keys in UTF-16 code-unit
 order.
+
+The style has one independent witness, written down here: a rendered ConfigMap
+in the canonical style is written through the Kubernetes API server and read
+back, and the reading matches the rendered value. The API server is a real
+consumer of the format and neither `canonical` nor the compiler, so the
+specification is proved against a reader outside its own implementation, once,
+in the pull request that rewrites the rendered oracles
+([record 67](0067-the-compiler-is-written-to-the-1-0-contract.md)).
 
 ## Alternatives
 
@@ -50,4 +61,6 @@ order.
 ## Confirmation
 
 The **Canonical YAML tests** in `canonical` round-trip generated strings and
-objects, and check every rendered oracle against the specification's examples.
+objects, check every rendered oracle against the specification's examples, and
+witness the style once: the API server's reading of a rendered ConfigMap that
+differs from the rendered value fails them.

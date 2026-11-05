@@ -7,6 +7,8 @@ lessons: [DR-1]
 
 # Host data is rendered by the compiler for hand-written modules, and host closures are built on owned hardware into a signed static cache outside the cluster
 
+Revised: 2026-11-05: the cache's signing key lives on the owned builder, named as such, so signing works with the cluster down as fetching does.
+
 ## Context
 
 A node must be able to fetch its generation when the cluster is down, and must
@@ -44,10 +46,11 @@ control plane needs to recover.
   verifies its generation while the cluster is down. Nodes only read it and
   trust it through `trusted-public-keys`; only the closure builder writes it.
   Its location is named in Platform Intent.
-- **The cache's signing key is environment-scoped and held by the builder.**
-  Only the builder's signing job, in its environment, can use it, as
+- **The cache's signing key lives on the owned builder**, environment-scoped
+  to its signing job, as
   [record 21](0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md)
-  sets out. It never reaches a node or the cluster.
+  sets out: only the builder's signing job can use it, so signing works with
+  the cluster down as fetching does. It never reaches a node or the cluster.
 - Delivery moves the host tags only after the build and the VM tests pass.
 
 ## Alternatives

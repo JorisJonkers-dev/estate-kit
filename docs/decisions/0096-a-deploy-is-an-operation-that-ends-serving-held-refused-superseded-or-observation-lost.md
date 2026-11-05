@@ -8,6 +8,8 @@ lessons: [DO-4, DO-6]
 
 # A deploy is an Operation that ends Serving, Held, Refused, Superseded or Observation lost
 
+Amended by [record 130](0130-a-rollout-ends-serving-held-refused-replaced-or-observation-lost-and-superseded-is-an-operation-end-only.md): a Rollout ends in exactly one of Serving, Held, Refused, Replaced or Observation lost, and Superseded is an Operation end only.
+
 ## Context
 
 A deploy run holds an SSE stream until the last promotion
@@ -50,6 +52,16 @@ with that outcome's code:
 | Refused | Delivery stopped it before the Publication point: admission, digest registration, Pause, composition or dry-run; nothing changed | 11 |
 | Superseded | A newer Operation for the same Project and Environment was composed in its place or published over it before it ended | 12 |
 | Observation lost | Delivery has had no observation of Flux or Flagger for 10 minutes, so it cannot say how the Rollout ended; the Rollout goes on and may still reach Serving | 13 |
+
+A Rollout ends in exactly one of Serving, Held, Refused, Replaced or Observation lost. Superseded is never a Rollout end, and Replaced is never an
+Operation end: a newer Operation for the same Project and Environment that
+closes a Rollout which had begun and not reached Serving, Held or Refused
+ends that Rollout Replaced, and the older Operation ends Superseded
+([record 130](0130-a-rollout-ends-serving-held-refused-replaced-or-observation-lost-and-superseded-is-an-operation-end-only.md)).
+A Held Rollout ends at its deadline with the Environment tag still naming the
+held render
+([record 131](0131-a-held-rollout-on-a-quiet-project-ends-at-its-deadline-with-the-tag-unchanged.md)).
+The table above is the Operation's list, and its exit codes stand.
 
 Exit 1 means the watch itself failed (it could not authenticate or reach
 Delivery) and says nothing of the Operation; exit 2 is a usage error. An

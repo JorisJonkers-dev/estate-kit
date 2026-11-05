@@ -18,7 +18,7 @@ still work when the cluster is down.
 | Authored in | Project Intent | Infrastructure Intent (sites, nodes, maintenance windows) |
 | Compiler output | Kubernetes objects | Typed host data, consumed by hand-written NixOS modules |
 | Gate before applying | Server-side dry-run | Build every closure, plus a NixOS VM test per Node class |
-| Signed pointer | `render/<p>:prod` | `host/<node>:prod`, moved by Delivery |
+| Signed pointer | `render/<p>:prod` | `host/<node>:<number>`, published by Delivery as a numbered Sequence tag; the applier takes the highest |
 | Applier | Flux | Host applier on each node |
 
 ## Where each host input comes from
@@ -34,16 +34,25 @@ cache on object storage: narinfo and NAR files, with no process to run
 plane needs to recover, so a node fetches and verifies its generation while the
 cluster is down. Nodes only read it and trust it through
 `trusted-public-keys`; only the closure builder writes it. Its location is
-named in Platform Intent. The cache's signing key is environment-scoped and held
-by the builder; only the builder's signing job can use it
-([record 21](../decisions/0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md)),
-and it never reaches a node or the cluster. Delivery moves the host
-tags only after the build and the VM tests pass; each tag binds its closure's
-store path. Each applier fetches and verifies its closure first, which disrupts
+named in Platform Intent. The cache's signing key lives on the owned builder,
+environment-scoped so only the builder's signing job can use it, as
+[record 21](../decisions/0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md)
+and [record 31](../decisions/0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md)
+set out: signing works with the cluster down, as fetching does, and the key
+never reaches a node or the cluster. Delivery publishes each node's
+next numbered host tag only after the build and the VM tests pass; each tag
+binds its closure's store path, no tag is ever rewritten, and a rollback
+publishes a higher number naming an older generation
+([record 98](../decisions/0098-the-live-pointer-is-an-immutable-sequence-tag-that-flux-selects-by-version.md)).
+Each applier fetches and verifies its closure first, which disrupts
 nothing. Only the switch and the reboot are serialised, under a cluster-wide
 Lease, with pods leaving through the Eviction API so PodDisruptionBudgets hold.
-Each applier has its own credential, and a ValidatingAdmissionPolicy limits its
-evictions to its own node.
+Each applier has its own credential, static to its node: sops-nix delivers it
+with the node's host secrets, and it is replaced only at re-enrolment. A
+ValidatingAdmissionPolicy limits its evictions to its own node, and if the
+admission-policy spike fails, a unit-tested field-selector code rule in the
+applier refuses an eviction of any pod on another node
+([record 30](../decisions/0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md)).
 
 ![Sequence: a host rollout](../diagrams/png/seq-host-rollout.png)
 
@@ -84,7 +93,36 @@ a kubelet newer than the API server, or a minor version that jumps more than
 one step. The [k3s upgrade guide](https://docs.k3s.io/upgrades/automated)
 likewise upgrades servers before agents.
 
+Delivery publishes the compiled order with the host tags as the rollout's
+payload, and no applier paces another: order is an applier precondition. Each
+applier waits until its predecessor in the order reports running the new
+generation, through a Node annotation the predecessor's applier writes, or is
+recorded skipped; two adjacent nodes never switch together. A skipped node is
+recorded and counts as satisfied; a node that is down stalls the rollout
+until the maintainer skips it
+([record 30](../decisions/0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md)).
+
+After the canary worker runs the new generation, the rollout waits 24 hours
+before the next worker, and a change that bumps k3s waits for a full
+maintenance window before its next member.
+
 ![How the node order is derived](../diagrams/png/flow-host-order.png)
+
+## Windows and the underlay
+
+A maintenance window is stated in site-local IANA time: the site names its
+time zone in Infrastructure Intent, a node override names one too, and the
+window is computed in that zone, so the same declared hours mean the same
+local time through a daylight-saving change; hours are never unzoned and
+never UTC ([record 123](../decisions/0123-host-maintenance-windows-are-stated-in-site-local-iana-time-and-the-link-between-sites-is-fleet-infra-s.md)).
+
+The link between the estate's sites is fleet-infra's, decided there like Vault
+unseal and the datastore backup
+([record 59](../decisions/0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md)).
+estate-kit assumes it and treats reachability as a declared input: what each
+site can reach across the link is declared in Infrastructure Intent, and the
+compiler and the host appliers read that declaration. Nothing probes the
+network to learn it.
 
 ## Known limit: one control plane
 
@@ -101,10 +139,15 @@ three servers now or a one-member etcd.
 
 ## When the cluster is down
 
-The host tags cannot move, and the Lease cannot be taken. Break-glass uses
-deploy-rs, with targets generated from host data, to switch one node to a
-signed generation; nixos-anywhere enrols or rebuilds a node from the same
-targets.
+The host tags cannot move, and the Lease cannot be taken. Break-glass is
+deploy-rs, with targets generated from host data, run under the maintainer's
+SSH credential: the one documented path outside the cache signature
+([record 30](../decisions/0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md)).
+nixos-anywhere enrols or rebuilds a node from the same targets, and
+re-enrolment is what replaces the node's static applier credential. T6, the
+applier reduced to a stager that fetches and stages while a human applies, is
+a review trigger, not a designed fallback
+([record 30](../decisions/0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md)).
 
 ## Where the host parts run
 
@@ -130,16 +173,20 @@ host data is rendered, and its class is built and VM-tested.
 
 ## UC-11 Roll out a host change
 
-CI passes the host gate, and Delivery moves the host tags. Outcome: every
-node runs the new generation, one at a time, rebooting only in its window.
+CI passes the host gate, and Delivery publishes the next numbered host tag
+per node with its order payload. Outcome: every node runs the new
+generation, one at a time, each waiting on its predecessor, rebooting only in
+its window.
 
 ![UC-11 Roll out a host change](../diagrams/png/uc11-roll-out-hosts.png)
 
 ## UC-12 Switch a node by hand
 
-The cluster is down, so no tag can move and no Lease can be taken. An Operator
-switches one node to a signed generation by hand. Outcome: the node runs that
-generation; the Operator owns draining it.
+The cluster is down, so no tag can move and no Lease can be taken. The
+maintainer runs deploy-rs under their SSH credential, from targets generated
+from host data: the one documented path outside the cache signature
+([record 30](../decisions/0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md)).
+Outcome: the node runs that generation; the maintainer owns draining it.
 
 ![UC-12 Switch a node by hand](../diagrams/png/uc12-break-glass.png)
 

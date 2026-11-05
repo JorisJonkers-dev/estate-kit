@@ -1,8 +1,10 @@
 # The register, as planned
 
-The records, in reading order, with their current status. Each title becomes a file `NNNN-<slug>.md` here when written, from [the template](template.md). Records 42 onwards are placed into reading order when the register is written; the model's own records follow after the cutover. Rows 75 to 84 are the ten records of the [tenancy design](../design/tenancy.md), accepted on 2026-11-02. Rows 85 to 113 are the records the architecture evaluation of 2026-11-04 implies; each is planned, with no file yet, until its record is written, and the evaluation's amendments to records 8, 28, 30 and 31 are made in those records while they are Proposed.
-
-The [design review](../research/review/README.md) of 2026-10-22 changed or added the rows marked Proposed; they stay Proposed until their records are written and accepted ([#20](https://github.com/JorisJonkers-dev/estate-kit/issues/20)). The move to an all-Rust workspace on 2026-10-29 changed rows 13 to 18, 48, 50 and 55 and added 65 to 71; the records already written are linked. The maintainer accepted 13 to 18 (except 16, already accepted and now merged into 15), 48, 50, 55, 63 and 65 to 71 the same day.
+The records, in reading order, with their current status: a row binds only
+through its record file, and a row without one is planned, not binding. What a
+record must hold, which checks keep one honest, and how a wording or a rule
+changes — [the decision register's README](README.md), and records start from
+[the template](template.md).
 
 | # | Record | Status | Enforcement |
 | --- | --- | --- | --- |
@@ -33,7 +35,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 25 | [A dry-run must pass before anything is applied, and images are built once and promoted, so what dry-ran is what deploys](0025-a-dry-run-must-pass-before-anything-is-applied-and-what-dry-ran-is-what-deploys.md) | Accepted | planned |
 | 26 | Images are built once and promoted, so what dry-ran is what deploys | Merged into 25 |  |
 | 27 | A diagnostic names a model path, and the caller resolves the line | Merged into 71 |  |
-| 28 | [Pause and Rollback are a cluster object per Project; a missing object reads as Paused](0028-pause-and-rollback-are-a-cluster-object-per-project.md) | Accepted | planned |
+| 28 | [Pause and Rollback are a cluster object per Project and Environment; a missing object reads as Paused](0028-pause-and-rollback-are-a-cluster-object-per-project.md) | Accepted | planned |
 | 29 | The compiler renders host data; hand-written modules consume it | Merged into 31 |  |
 | 30 | [A host applier on each node pulls its signed host tag, decides a reboot before the Lease, and switches on its own only where its Node class's fallback is rehearsed](0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md) | Proposed | planned |
 | 31 | [Host data is rendered by the compiler for hand-written modules, and host closures are built on owned hardware into a signed static cache outside the cluster](0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md) | Accepted | planned |
@@ -69,7 +71,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 61 | A rollback moves the tag back to the last Serving render without composing | Merged into 28 |  |
 | 62 | ghcr tags move with a machine account's token kept in Vault | Merged into 9 |  |
 | 63 | [Delivery has one writer and reconciles from observed state](0063-delivery-has-one-writer-and-reconciles-from-observed-state.md) | Accepted | planned |
-| 64 | [Renders use a canonical YAML style specified on one page](0064-renders-use-a-canonical-yaml-style-specified-on-one-page.md) | Proposed | planned |
+| 64 | [Renders use a canonical YAML style specified on one page](0064-renders-use-a-canonical-yaml-style-specified-on-one-page.md) | Accepted | planned |
 | 65 | The workspace is layered by crate, and a check holds the crate graph to the layer table | Merged into 50 |  |
 | 66 | Transformations are plain Rust: typed steps, one trace, an invariant table, and no DSL | Merged into 14 |  |
 | 67 | [The Rust compiler implements the 1.0 specification, and the shadow compares structure](0067-the-compiler-is-written-to-the-1-0-contract.md) | Accepted | planned |
@@ -94,7 +96,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 86 | [The estate states its defaults for a low-attention week, and every default fails safe](0086-the-estate-states-its-defaults-for-a-low-attention-week.md) | Accepted | planned |
 | 87 | [Recovery time and recovery point are stated per Recovery class before the drill, and the drill measures them](0087-recovery-time-and-recovery-point-are-stated-per-recovery-class.md) | Accepted | planned |
 | 88 | [The metamodel is layered: core, profiles and Component kinds, Provider facts, Estate instance](0088-the-metamodel-is-layered-core-profiles-and-component-kinds-provider-facts-estate-instance.md) | Accepted | planned |
-| 89 | [Every persisted or externally read contract has its own identifier, Contract major and supported range](0089-every-persisted-or-externally-read-contract-has-its-own-identifier-contract-major-and-supported-range.md) | Proposed | planned |
+| 89 | [Every persisted or externally read contract has its own identifier, Contract major and supported range](0089-every-persisted-or-externally-read-contract-has-its-own-identifier-contract-major-and-supported-range.md) | Accepted | planned |
 | 90 | [Three Generality tests run in CI](0090-three-generality-tests-run-in-ci.md) | Accepted | planned |
 | 91 | [Platform Intent is split by concern, and each document validates alone](0091-platform-intent-is-split-by-concern-and-each-document-validates-alone.md) | Proposed | planned |
 | 92 | [Capacity is in the Resolved Deployment; cost is estimated outside the Render key and recorded from bills](0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md) | Accepted | planned |
@@ -122,3 +124,26 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 114 | [Multi-tenant Projects keep their Tenants in shared tables, separated by row-level security](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md) | Accepted | planned |
 | 115 | [Backups are Kopia snapshots in one locked repository per Environment on an EU object store, with WAL archived beside them](0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md) | Accepted | planned |
 | 116 | [Every store of estate data runs on an EU-controlled provider or on owned hardware](0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md) | Accepted | planned |
+| 117 | [A wording fix is a dated Revised line, a change of rule is an amending record, and a Locked change needs the contract-change label](0117-a-wording-fix-is-a-dated-revised-line-a-change-of-rule-is-an-amending-record-and-a-locked-change-needs-the-contract-change-label.md) | Accepted | verified |
+| 118 | [A Rollback is per Environment and targets a digest that reached Serving](0118-a-rollback-is-per-environment-and-targets-a-digest-that-reached-serving.md) | Accepted | planned |
+| 119 | [A rendered CRD is prune-protected, and Retirement tombstones survive a CRD drop](0119-a-rendered-crd-is-prune-protected-and-retirement-tombstones-survive-a-crd-drop.md) | Accepted | planned |
+| 120 | [Postgres is captured by pgBackRest base backups plus archived WAL, in a locked bucket, on every server](0120-postgres-is-captured-by-pgbackrest-base-backups-plus-archived-wal-in-a-locked-bucket-on-every-server.md) | Accepted | planned |
+| 121 | [The rewritten oracles have one independent witness, a Project switches after twenty distinct clean input digests, and only the maintainer adds an expected-differences ledger entry](0121-the-rewritten-oracles-have-one-independent-witness-a-project-switches-after-twenty-distinct-clean-input-digests-and-only-the-maintainer-adds-an-expected-differences-ledger-entry.md) | Proposed | planned |
+| 122 | [The Estate name scan runs in the estate repository's CI, and estate-kit's suite scans the second-estate fixture's names](0122-the-estate-name-scan-runs-in-the-estate-repository-s-ci-and-estate-kit-s-suite-scans-the-second-estate-fixture-s-names.md) | Proposed | planned |
+| 123 | [Host maintenance windows are stated in site-local IANA time, and the link between sites is fleet-infra's](0123-host-maintenance-windows-are-stated-in-site-local-iana-time-and-the-link-between-sites-is-fleet-infra-s.md) | Proposed | planned |
+| 124 | [The dead-man grace exceeds the longest planned reboot, and a phone push app carries the second alert route](0124-the-dead-man-grace-exceeds-the-longest-planned-reboot-and-a-phone-push-app-carries-the-second-alert-route.md) | Accepted | planned |
+| 125 | [Fleet-infra issues the wildcard certificate per Product domain and Environment suffix, and estate-kit names the expiry alert](0125-fleet-infra-issues-the-wildcard-certificate-per-product-domain-and-environment-suffix.md) | Accepted | planned |
+| 126 | [Network policy is enforced on kube-router, with a declared rollback, starting with the least-connected namespaces](0126-network-policy-is-enforced-on-kube-router-with-a-declared-rollback.md) | Accepted | planned |
+| 127 | [A restore names the Projects it restores, takes a verified safety copy first, and never crosses into a lower Environment unmasked](0127-a-restore-names-the-projects-it-restores-takes-a-verified-safety-copy-first-and-never-crosses-into-a-lower-environment-unmasked.md) | Accepted | planned |
+| 128 | [A Purge writes and verifies its Purge marker in the locked repository before it deletes anything, and a restore does not un-purge the Tenant](0128-a-purge-writes-and-verifies-its-purge-marker-in-the-locked-repository-before-it-deletes-anything-and-a-restore-does-not-un-purge-the-tenant.md) | Accepted | planned |
+| 129 | [The estate is a processor, the tenancy record gains a Tenant export hook, and the erasure date is stated to the Tenant](0129-the-estate-is-a-processor-record-80-gains-a-tenant-export-hook-and-the-erasure-date-is-stated-to-the-tenant.md) | Accepted | planned |
+| 130 | [A Rollout ends Serving, Held, Refused, Replaced or Observation lost, and Superseded is an Operation end only](0130-a-rollout-ends-serving-held-refused-replaced-or-observation-lost-and-superseded-is-an-operation-end-only.md) | Accepted | planned |
+| 131 | [A Held Rollout on a quiet Project ends at its deadline, with the tag unchanged](0131-a-held-rollout-on-a-quiet-project-ends-at-its-deadline-with-the-tag-unchanged.md) | Accepted | planned |
+| 132 | [A staging Rollout that ended Refused, Held on a failed verdict or Observation lost blocks its release's production approval, and a quiet Held does not](0132-a-staging-rollout-that-ended-refused-held-on-a-failed-verdict-or-observation-lost-blocks-its-release-s-production-approval-and-a-quiet-held-does-not.md) | Accepted | planned |
+| 133 | [Ownership decides the EU rule: the EEA and Switzerland count, key services are inside it, and every exception ends on a calendar date](0133-ownership-decides-the-eu-rule-and-every-exception-ends-on-a-calendar-date.md) | Accepted | planned |
+| 140 | [Break-glass custody is written and drilled, and a named successor holds a sealed copy of the recovery key](0140-break-glass-custody-is-written-and-drilled-and-a-named-successor-holds-a-sealed-copy-of-the-recovery-key.md) | Accepted | review |
+| 141 | [A second copy exists only for the Critical set, at a second EU provider](0141-a-second-copy-exists-only-for-the-critical-set-at-a-second-eu-provider.md) | Accepted | planned |
+| 142 | [The goal sentence means operational offload, with by-use billing only where a priced model admits it](0142-the-goal-sentence-means-operational-offload-with-by-use-billing-only-where-a-priced-model-admits-it.md) | Accepted | planned |
+| 143 | [The platform render creates every Project namespace, and a Project render holds namespaced kinds only](0143-the-platform-render-creates-every-project-namespace-and-a-project-render-holds-namespaced-kinds-only.md) | Accepted | planned |
+| 144 | [Delivery holds no `actions:write` and dispatches no workflow, and its own Deployment is applied by a bootstrap step that verifies the render signature](0144-delivery-holds-no-actions-write-and-dispatches-no-workflow-and-its-own-deployment-is-applied-by-a-bootstrap-step-that-verifies-the-render-signature.md) | Accepted | planned |
+| 145 | [Every Rollout event row carries a predecessor digest](0145-every-rollout-event-row-carries-a-predecessor-digest.md) | Accepted | planned |

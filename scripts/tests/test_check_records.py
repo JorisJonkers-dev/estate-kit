@@ -744,5 +744,80 @@ class TheCommand(unittest.TestCase):
         self.assertIn("the records keep the register's rules", out)
 
 
+
+
+class RevisedLineTests(unittest.TestCase):
+    def keys(self, line: str) -> list[str]:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        text = (tree.decisions / "0001-record-1.md").read_text()
+        tree.file(1, text.replace("# Record 1\n", f"# Record 1\n\n{line}\n"))
+        return [v.key for v in violations(tree.decisions, tree.lessons, tree.checks)]
+
+    def test_a_dated_revised_line_with_a_sentence_passes(self) -> None:
+        self.assertEqual(self.keys("Revised: 2026-11-05: Held names its 24-hour deadline."), [])
+
+    def test_a_revised_line_with_no_date_fails(self) -> None:
+        self.assertEqual(self.keys("Revised: Held names its 24-hour deadline."), ["revised-line 1"])
+
+    def test_a_revised_line_with_no_sentence_fails(self) -> None:
+        self.assertEqual(self.keys("Revised: 2026-11-05:"), ["revised-line 1"])
+
+    def test_a_revised_line_with_an_impossible_date_fails(self) -> None:
+        self.assertEqual(self.keys("Revised: 2026-13-45: A fix."), ["revised-line 1"])
+
+    def test_a_revised_line_in_a_code_fence_is_example_text(self) -> None:
+        self.assertEqual(self.keys("```\nRevised: nonsense\n```"), [])
+
+
+class PurgeRulesTests(unittest.TestCase):
+    """Records 82 and 110 state the marker-first rule and the restore-does-not-un-purge rule."""
+
+    MARKER_FIRST = "A Purge writes and verifies its Purge marker in the locked repository before it deletes anything."
+    RESTORE_NOT_UNPURGE = "A restore does not un-purge the Tenant: the markers are re-read before a restored store serves."
+
+    def purge_record(self, tree: Tree, number: int, body: str) -> None:
+        tree.record(number, "accepted")
+        text = (tree.decisions / f"{number:04d}-record-{number}.md").read_text()
+        tree.file(number, text.replace(f"# Record {number}\n", f"# Record {number}\n\n{body}\n"))
+
+    def test_records_stating_both_rules_pass(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        for number in (82, 110):
+            self.purge_record(tree, number, f"{self.MARKER_FIRST} {self.RESTORE_NOT_UNPURGE}")
+        self.assertEqual(tree.keys(), [])
+
+    def test_a_record_omitting_the_marker_first_rule_is_reported(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        self.purge_record(tree, 82, self.RESTORE_NOT_UNPURGE)
+        self.purge_record(tree, 110, f"{self.MARKER_FIRST} {self.RESTORE_NOT_UNPURGE}")
+        self.assertEqual(tree.keys(), ["purge-rules 82 purge-marker-first"])
+
+    def test_a_record_omitting_the_restore_rule_is_reported(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        self.purge_record(tree, 82, f"{self.MARKER_FIRST} {self.RESTORE_NOT_UNPURGE}")
+        self.purge_record(tree, 110, self.MARKER_FIRST)
+        self.assertEqual(tree.keys(), ["purge-rules 110 restore-not-un-purge"])
+
+    def test_a_rule_wrapped_over_two_lines_still_passes(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        self.purge_record(
+            tree, 82,
+            "A Purge writes and verifies its Purge marker in the locked repository\nbefore it deletes "
+            f"anything. {self.RESTORE_NOT_UNPURGE}",
+        )
+        self.purge_record(tree, 110, f"{self.MARKER_FIRST} {self.RESTORE_NOT_UNPURGE}")
+        self.assertEqual(tree.keys(), [])
+
+    def test_a_tree_without_the_purge_records_passes(self) -> None:
+        tree = Tree(self)
+        tree.record(1, "accepted")
+        self.assertEqual(tree.keys(), [])
+
+
 if __name__ == "__main__":
     unittest.main()

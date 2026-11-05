@@ -8,7 +8,7 @@ stateDiagram-v2
     TenantLock --> Active: unlock
     Active --> Suspended: suspend
     Suspended --> Active: resume
-    Suspended --> Purged: grace period ends, every finalizer released
+    Suspended --> Purged: grace period ends, Purge marker written and verified, every finalizer released
     Purged --> [*]
     classDef bad fill:#0000a4,stroke:#0000b4
     classDef warn fill:#0000a5,stroke:#0000b5

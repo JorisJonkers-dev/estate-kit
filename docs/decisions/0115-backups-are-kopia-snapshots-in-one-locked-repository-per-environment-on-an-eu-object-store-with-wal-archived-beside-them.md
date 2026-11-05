@@ -8,6 +8,12 @@ lessons: [DR-1, DR-2]
 
 # Backups are Kopia snapshots in one locked repository per Environment on an EU object store, with WAL archived beside them
 
+Amended by [record 120](0120-postgres-is-captured-by-pgbackrest-base-backups-plus-archived-wal-in-a-locked-bucket-on-every-server.md):
+every Postgres server, platform-postgres included, is captured by pgBackRest
+physical base backups plus its archived WAL, in a bucket locked like the
+repository, written by a key that cannot delete an object version or shorten a
+lock, and watched by the WAL archive freshness check. The text below says so.
+
 ## Context
 
 [Record 82](0082-backups-are-per-tenant-generations-and-mirrors-refresh-staging-and-development.md)
@@ -76,28 +82,35 @@ a lifecycle rule on the bucket or by a clean-up job whose key the backup
 component does not hold. That one locked bucket per Environment is the
 off-cluster copy; there is no second provider and no local copy.
 
-**What goes in.** Each Tenant export is its own Kopia source, kept for the
-retention set with its Tenant's schedule and stated in the copy inventory of
+**What goes in.** Each Tenant export and the contents of local-path volumes are
+each a Kopia source, taken by a scheduled job per source, with no two runs of
+one source at once, and each export kept for the retention set with its
+Tenant's schedule, stated in the copy inventory of
 [record 110](0110-a-purge-erases-backup-generations-and-mirrors-from-an-inventory-of-every-copy.md).
-Whole-database backups, platform-postgres and the contents of local-path
-volumes are each a source too, taken by a scheduled job per store, with no two
-runs of one source at once. Whole-database backups keep 7 daily, 4 weekly and
-6 monthly snapshots. The datastore's backup and Vault's snapshots stay
-fleet-infra's, as
+Every Postgres server's capture, whole-database backups and platform-postgres
+included, moved to [record 120](0120-postgres-is-captured-by-pgbackrest-base-backups-plus-archived-wal-in-a-locked-bucket-on-every-server.md)'s
+pgBackRest base backups, which keep 7 daily, 4 weekly and 6 monthly. The
+datastore's backup and Vault's snapshots stay fleet-infra's, as
 [record 59](0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md)
 says; the rule of
 [record 116](0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md)
 binds where they go.
 
-**WAL beside them.** Each Postgres server archives its WAL continuously to a
-bucket of its own Environment at the same provider, and switches segment at
-least every 5 minutes, so the 15-minute recovery point of
+**WAL beside them, in a locked bucket.** Every Postgres server archives its
+WAL continuously, through pgBackRest, to a bucket of its own Environment at
+the same provider, and switches segment at least every 5 minutes, so the
+15-minute recovery point of
 [record 87](0087-recovery-time-and-recovery-point-are-stated-per-recovery-class.md)
-holds on a quiet database. WAL is kept no longer than the oldest base backup
-kept.
+holds on a quiet database. Every object in the WAL bucket carries an object
+lock in COMPLIANCE mode for 30 days; the Environment's WAL writer key writes
+and cannot delete an object version or shorten a lock, a maintenance job
+extends the locks of the WAL objects still kept, and a lifecycle rule removes
+a WAL object once its lock has ended and it precedes the oldest base backup
+kept. WAL is kept no longer than the oldest base backup kept
+([record 120](0120-postgres-is-captured-by-pgbackrest-base-backups-plus-archived-wal-in-a-locked-bucket-on-every-server.md)).
 
 **A restore is rehearsed every week.** The backup component restores the
-latest snapshot of each store into throwaway containers once a week and checks
+latest capture of each store into throwaway containers once a week and checks
 what it reads back. Each result is an active check result of
 [record 108](0108-active-checks-run-in-the-owning-components-observation-reads-their-results-and-one-heartbeat-lives-outside-the-cluster.md):
 Observation reads it, and a pass also reaches the external heartbeat, so a
@@ -152,5 +165,7 @@ check** fails when a repository's objects lack a 30-day COMPLIANCE lock,
 maintenance does not extend locks, a writer key can delete an object version
 or shorten a lock, or nothing removes a noncurrent version once its lock has
 ended. The **WAL archive freshness check** fails when a production Postgres
-server's newest archived WAL segment is more than 15 minutes old. The **WAL
-recovery drill** still proves a recovery to a chosen time.
+server's newest archived WAL segment is more than 15 minutes old, or the
+newest WAL object has under 7 days of its 30-day COMPLIANCE lock left
+([record 120](0120-postgres-is-captured-by-pgbackrest-base-backups-plus-archived-wal-in-a-locked-bucket-on-every-server.md)).
+The **WAL recovery drill** still proves a recovery to a chosen time.

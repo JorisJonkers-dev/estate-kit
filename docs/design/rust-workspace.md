@@ -54,8 +54,10 @@ and its own port traits.
 The four earlier contexts stay and a fifth is added
 ([record 50](../decisions/0050-six-bounded-contexts-in-five-layers.md)): **Observation**, the read side the dashboard serves today. It ships as its own binary and
 Deployment with its own read-only adapters, and holds no Vault, ghcr or signing
-credential. Its one write is Alertmanager silences, with a credential for that
-API alone ([record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)). It holds
+credential. Its writes are the ones [record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md) names, with
+[record 92](../decisions/0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md)'s
+addition: Alertmanager silences under their own credential, and the cost
+ledger's rows under a role for that schema alone. It holds
 no credential that can deploy, pause or roll back, as estate-dashboard holds
 none now; keeping it out of Delivery's process keeps the rollout core free
 of Prometheus, Loki and Alertmanager, and keeps Delivery's credentials out
@@ -80,7 +82,7 @@ not wired to this context, as Observation keeps its own kube adapter.
 | --- | --- | --- | --- |
 | Compiler | The model: Intent in, Resolved Deployment, Deliverable Set out | Project; the Estate is the set of admitted Projects | Its application crate's use cases (`validate`, `plan`, `compose`, `render_hosts`, `generate`) |
 | Delivery | Rollouts, compositions, admission, Pause and Rollback, the close observation of Flux, the Release Gate (with its Job unsuspend and per-Application record, under the writer Lease: [record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)) | Rollout (event-sourced); Composition | The compiler's use cases, called in-process ([record 18](../decisions/0018-delivery-links-the-compiler.md)) |
-| Observation | What runs and how it is doing: units, pods, containers, alerts and silences, logs, health, checks | None: read models only, and Silences as its one write | Ports onto Prometheus, Loki, Alertmanager, Gatus and the cluster; rollout history from Delivery's API |
+| Observation | What runs and how it is doing: units, pods, containers, alerts and silences, logs, health, checks | None: read models only, and Silences and the cost ledger's rows as its writes | Ports onto Prometheus, Loki, Alertmanager, Gatus and the cluster; rollout history from Delivery's API |
 | Hosts | Generations and their rollout across nodes | NodeRollout | Signed host tags only; never a model type |
 | Components | Migration runs, secret grants, database and bucket catalogs, backups, Mailboxes | One per component: MigrationRun, SecretGrant, DatabaseGrant, BucketGrant, BackupGeneration, Mailbox | Rendered objects only |
 | Tenancy | Tenants and their Tenant operations, Tenant hooks, the operation log | Tenant | The Tenant custom resource, which the Components reconcile; the lifecycle API on Delivery's HTTP surface |
@@ -186,7 +188,7 @@ crates/
     observation-app/          application: the dashboard's read models and their ports
     adapter-prometheus/       health and rollout metrics (read only)
     adapter-loki/             logs and streams (read only)
-    adapter-alertmanager/     alerts and history, read; Silences, the one write, under its own credential
+    adapter-alertmanager/     alerts and history, read; Silences, under their own credential
     adapter-gatus/            checks (read only)
     adapter-observation-kube/ read-only watches of units, pods and containers, with its own service account; Delivery's adapter-kube is not wired to this context
     adapter-delivery-api/      rollout history and events, read from Delivery's HTTP API

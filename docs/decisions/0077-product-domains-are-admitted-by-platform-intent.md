@@ -7,6 +7,11 @@ lessons: [MS-4, MS-7]
 
 # Product domains are admitted by Platform Intent and named by a Project, and Tenant hosts are derived from them
 
+Amended by [record 125](0125-fleet-infra-issues-the-wildcard-certificate-per-product-domain-and-environment-suffix.md):
+the environment suffix is the Tenant host's own DNS label, each Environment has
+its own wildcard certificate issued by fleet-infra, and estate-kit names its
+expiry alert.
+
 ## Context
 
 Hosts are written by hand, one per Application. A multi-tenant Project has a
@@ -38,14 +43,15 @@ host is derived, never written:
 | Environment | Tenant host |
 | --- | --- |
 | production | `<handle>.<product domain>` |
-| staging | `<handle>-staging.<product domain>` |
-| development | `<handle>-dev.<product domain>` |
+| staging | `<handle>.staging.<product domain>` |
+| development | `<handle>.dev.<product domain>` |
 
-Every Tenant host sits one level below the Product domain, so one single-level
-wildcard certificate covers every Environment. A handle that ends in `-staging`
-or `-dev` is already refused by
-[record 76](0076-tenants-are-the-organisations-the-estate-serves.md), so no
-production host equals another Environment's host.
+The environment suffix is the Tenant host's own DNS label, so each Environment
+has its own wildcard certificate, one per Product domain and Environment
+suffix, issued by fleet-infra, whose expiry estate-kit's alert names
+([record 125](0125-fleet-infra-issues-the-wildcard-certificate-per-product-domain-and-environment-suffix.md)).
+A handle that ends in `-staging` or `-dev` is already refused by
+[record 76](0076-tenants-are-the-organisations-the-estate-serves.md).
 
 A per-environment override may name another Product domain, if Platform Intent
 admits it for the Project. Domains are one of the fields that
@@ -77,8 +83,8 @@ cluster or estate can use as its cluster ID and trust domain.
 ## Consequences
 
 - Easier: an Application names one domain and every Tenant host follows; a
-  takeover of a domain fails at compile time; one certificate per Product domain
-  serves every Environment.
+  takeover of a domain fails at compile time; one wildcard certificate per
+  Product domain and Environment suffix serves that Environment's Tenant hosts.
 - Harder: Platform Intent carries the estate's domains and which Projects use
   them, and the host lookup is a row per host that must stay in step with the
   Tenant handle.
@@ -93,8 +99,9 @@ The **Product domain admission** check refuses a Product domain that Platform
 Intent does not admit for the Project. The **Product domain contention** check
 refuses two Projects that claim one Product domain, with both locations. The
 **Tenant host derivation test** fails when a Tenant host differs from
-`<handle>.<product domain>` in production or from `<handle>-staging.<product domain>`
-or `<handle>-dev.<product domain>` elsewhere, or sits more than one level below
-its domain. The **Host lookup test** fails when a host resolves to a Tenant by
+`<handle>.<product domain>` in production or from `<handle>.<suffix>.<product domain>`
+elsewhere, or sits deeper than its Environment's wildcard certificate reaches
+([record 125](0125-fleet-infra-issues-the-wildcard-certificate-per-product-domain-and-environment-suffix.md)).
+The **Host lookup test** fails when a host resolves to a Tenant by
 any route but the lookup. The **Estate name check** refuses an estate name that
 is longer than 32 characters or is not DNS-style.

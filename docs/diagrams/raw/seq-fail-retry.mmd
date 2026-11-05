@@ -4,9 +4,9 @@ sequenceDiagram
     participant CI as deploy job
     participant S as Delivery
     participant DB as event log
-    CI->>S: deploy (Project, fragment digest)
+    CI->>S: deploy (Operation id, fragment digest)
     S->>DB: rollout created
     S-->>CI: response lost (timeout)
-    CI->>S: retry: same Project and digest
+    CI->>S: retry: same Operation id and digest
     S->>DB: find the existing rollout
     S-->>CI: same rollout id, no second run

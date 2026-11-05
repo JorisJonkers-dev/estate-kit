@@ -79,12 +79,18 @@ has, and can never replace one. Point 5's race window shrinks to that.
 
 The spike must pass first: OCIRepository semver selection together with cosign
 verification and the tag format, on the pinned Flux; and create-only tags on
-each candidate registry. Owner: the maintainer; due before M5 starts. Until
+each candidate registry. Owner: the maintainer; due before the registry move
+of [record 99](0099-renders-and-host-tags-live-in-an-off-cluster-registry-chosen-by-its-features.md)
+starts, completing by 2027-05-31. Until
 then the tag-move rule of
 [record 63](0063-delivery-has-one-writer-and-reconciles-from-observed-state.md)
-stands unchanged. If the spike fails, this record is rewritten. The tag
-format, and whether host tags follow the same rule ([record 30](0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md)),
-stay open.
+stands unchanged. If the spike fails, this record is rewritten. Host tags
+follow the same rule, resolved by the host applier rather than Flux: a host
+tag is a numbered, immutable Sequence tag `host/<node>:<number>`, one
+repository per node; the applier switches only to the highest and refuses a
+lower or replayed one, and a host rollback publishes a higher number at the
+signed digest of an older generation
+([record 30](0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md)).
 
 ## Alternatives
 
@@ -121,6 +127,9 @@ selection test** fails if the pinned Flux applies anything but the highest
 signed Sequence tag, or applies a lower, replayed or unsigned one. The
 **Sequence tag alert test** fails if a tag Delivery did not create, or an
 applied revision that trails the highest tag for 1 hour, raises no alert.
+The **Host sequence tag test** fails when a host applier switches to any tag
+but the highest number of its node, or accepts a lower, replayed or unsigned
+one ([record 30](0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md)).
 The **Single-writer tests** keep holding the Lease. The **E2E scenarios** roll
 a Project back with Vault sealed and assert a new tag at the old digest, and
 rebuild the test cluster and assert it finds every live render from the

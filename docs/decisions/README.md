@@ -13,7 +13,9 @@ register row, that every Accepted row has a file, that a Merged or Moved
 row has none and nothing rests on it, that a Superseded row keeps its file and
 names an Accepted record, and that an Accepted record's `amends` and
 `supersedes` targets carry their back-links and rows, and that no Accepted record
-still promises a change "when this record is accepted" (`scripts/check_records.py`).
+still promises a change "when this record is accepted" (`scripts/check_records.py`),
+and that records 82 and 110 state the Purge marker-first and
+restore-does-not-un-purge rules.
 The register's Enforcement column is derived from the table of checks and the Records job fails when it disagrees.
 
 Every record has a non-empty Confirmation, and a Confirmation names each check
@@ -66,6 +68,18 @@ own records (engines, grants, exposure and the rest) are rewritten after the cut
   record may declare its targets, but nothing is applied until it is accepted.
   The Records job fails with `amends-no-backlink`, `amends-missing` or
   `supersedes-row` when an Accepted declaration is not carried into its target.
+
+- **A wording fix is a dated Revised line; a change of rule is an amending
+  record.** An Accepted record's wording (a typo, a clearer sentence, a
+  corrected link) is edited in place under a line
+  `Revised: YYYY-MM-DD: <what changed>` directly below its title. Anything that
+  would make a conforming implementation pass or fail differently needs an
+  amending record instead ([record 117](0117-a-wording-fix-is-a-dated-revised-line-a-change-of-rule-is-an-amending-record-and-a-locked-change-needs-the-contract-change-label.md)).
+  The Records job fails a Revised line with no date or no sentence. It cannot
+  see a silent edit, which leaves no line: review and the pull-request title
+  rule catch it. A pull request that changes a Locked record or a Locked
+  contract path needs the maintainer's `contract-change` label, and the
+  Contract gate fails it without.
 
 ## Rejected without a record
 

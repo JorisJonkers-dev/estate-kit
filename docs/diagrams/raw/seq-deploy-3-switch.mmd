@@ -13,4 +13,4 @@ sequenceDiagram
     S->>K: watch, read-only: Kustomizations, Canaries, Events, inventoried objects
     FG->>S: Release Gate webhook
     S-->>FG: promote once every member is healthy
-    S-->>CI: Operation stream: Serving, Held, Superseded or Observation lost
+    S-->>CI: Operation ends: Serving, Held, Refused, Superseded or Observation lost

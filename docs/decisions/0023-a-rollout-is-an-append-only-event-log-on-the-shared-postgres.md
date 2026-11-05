@@ -9,6 +9,10 @@ lessons: [DR-4]
 
 Amended by [record 96](0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md): a deploy call is idempotent on the caller's Operation id, and an Operation ends Serving, Held, Refused, Superseded or Observation lost.
 
+Amended by [record 145](0145-every-rollout-event-row-carries-a-predecessor-digest.md): each row carries the digest of the row before it in the same Rollout, and an append whose predecessor digest does not name the last row the writer read is refused.
+
+Revised: 2026-11-05: the rejected `Idempotency-Key` alternative's reason now names the Operation id ([record 96](0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md)) as the key that is already there, not the project and fragment digest.
+
 ## Context
 
 A rollout is a deploy run that streams Delivery's work to the deploy job.
@@ -31,7 +35,10 @@ their own on the shared platform-postgres. A rollout's state is the fold of its
 events. Events are only appended: never updated, never rewritten, and never
 deleted except by the retention job after 400 days
 ([record 51](register.md)). The columns are on the
-[event log section of Delivery page](../design/inside-delivery.md#the-event-log).
+[event log section of Delivery page](../design/inside-delivery.md#the-event-log),
+plus the [predecessor digest](../../CONTEXT.md) each row carries of the row
+before it in the same Rollout, added before the schema is committed
+([record 145](0145-every-rollout-event-row-carries-a-predecessor-digest.md)).
 
 A deploy call is idempotent on the caller's Operation id, not the Project and
 the fragment digest: a retry with the same id and the same fragment digest
@@ -70,7 +77,7 @@ cluster and the registry.
 | Build the upcaster now | Code and tests for a lift nothing needs | There is one version; build it with the second |
 | One role for append and retention | Delivery could delete events | The append-only rule would rest on discipline, not a grant |
 | Reconstructed events look like any other | A reader cannot tell a seen event from an inferred one | The log's honesty after a crash is lost |
-| An `Idempotency-Key` header on deploy calls | A header standard whose draft expired, beside a key that already exists | The natural key, project and fragment digest, is already there |
+| An `Idempotency-Key` header on deploy calls | A header standard whose draft expired, beside a key that already exists | The Operation id the caller mints is already there ([record 96](0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md)) |
 | Rewrite events in place when their shape changes | History stops being immutable | Events are upcast on read and hold no personal data, so nothing needs erasing |
 
 ## Consequences

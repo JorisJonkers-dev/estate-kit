@@ -7,11 +7,11 @@ stateDiagram-v2
     state "Current (new generation)" as CurrentNew
     state "Rolled back to the previous generation" as RolledBack
     [*] --> Current
-    Current --> Fetched: new host tag, closure verified
+    Current --> Fetched: higher host tag, closure verified
     Fetched --> Staged: reboot needed: stage with boot
     Staged --> WaitingForLease: window opens
     Fetched --> WaitingForLease: live change
-    WaitingForLease --> Draining: Lease held
+    WaitingForLease --> Draining: Lease held, predecessor satisfied or skipped
     Draining --> Switching: pods evicted
     Switching --> HealthCheck: switched with test, or rebooted
     HealthCheck --> CurrentNew: healthy: boot default set
