@@ -45,7 +45,10 @@ strategy that disables automatic rollout.
   fetches and verifies the closure from the binary cache of
   [record 31](0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md).
   A host rollback publishes a higher number at the signed digest of an older
-  generation. Fetching disrupts nothing.
+  generation. Fetching disrupts nothing, and neither fetching nor signing
+  needs the cluster: the cache lives off it, and its signing key lives on the
+  owned builder
+  ([record 31](0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md)).
 - **Decide the reboot before the Lease.** It compares the fetched closure's
   kernel, initrd, modules, kernel parameters and device trees with the booted
   ones. A reboot change is staged with `switch-to-configuration boot`, and the
@@ -53,9 +56,14 @@ strategy that disables automatic rollout.
   change goes `test`, then a health check, then `boot`.
 - **One node at a time, each node only itself.** A cluster-wide Lease
   serialises switches and reboots; pods leave through the Eviction API so
-  PodDisruptionBudgets hold. Each node's applier has its own credential, and a
-  ValidatingAdmissionPolicy on `spec.nodeName` lets it cordon and evict only
-  its own node. No outside coordinator orders the nodes, and Delivery does not
+  PodDisruptionBudgets hold. Each node's applier has its own credential,
+  static to that node: sops-nix delivers it with the node's host secrets, and
+  it is replaced only at re-enrolment. A ValidatingAdmissionPolicy on
+  `spec.nodeName` lets it cordon and evict only its own node; if the
+  admission-policy spike fails, the same limit is held by a code rule in the
+  applier itself, unit-tested against a field selector on `spec.nodeName`,
+  that refuses an eviction of any pod on another node. No outside coordinator
+  orders the nodes, and Delivery does not
   pace them: order is an applier precondition. Each applier waits until its
   predecessor in the order reports running the new generation, through a Node
   annotation the predecessor's applier writes, or is recorded skipped; two
@@ -95,7 +103,13 @@ strategy that disables automatic rollout.
   a class's bootloader or strategy voids its rehearsal.
 - **No zero-downtime promise.** A Process with one replica on a switching node
   is down for that switch, and the plan says so.
-- **Break-glass stays on deploy-rs**, with targets generated from host data.
+- **Break-glass is deploy-rs under the maintainer's SSH credential**, with
+  targets generated from host data. It is the one documented path outside the
+  cache signature of
+  [record 31](0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md):
+  the only way a node runs a generation no applier verified against the
+  binary cache. T6, the applier reduced to a stager that fetches and stages
+  while a human applies, is a review trigger, not a designed fallback.
 
 The page is [Hosts](../design/hosts.md).
 
@@ -113,7 +127,10 @@ The page is [Hosts](../design/hosts.md).
 | Automatic rollout on every class at once, trusting the bootloader | A class whose fallback does not work leaves a headless node unbootable | Four of six nodes have no proved boot assessment |
 | Rely on the NixOS generation to undo a k3s minor bump | The datastore stays at the newer minor; k3s cannot start the old binary on it | The k3s rollback documentation requires a snapshot from the old minor |
 | Proceed after a stated wait past a down node | The rollout continues on the clock while a node nobody examined is down | A down node stalls the rollout until the maintainer records the skip (2026-11-04 review, question 22) |
-| RBAC to limit evictions to the node's own pods | Cannot be expressed: RBAC grants `pods/eviction` by namespace, not by node | The admission policy can |
+| RBAC to limit evictions to the node's own pods | Cannot be expressed: RBAC grants `pods/eviction` by namespace, not by node | The admission policy can, with a field-selector code rule behind it if the spike fails |
+| A short-lived applier credential, renewed on a schedule | Renewal machinery on the node, or a reachability the cluster's loss must not take from it | A static per-node credential, replaced only at re-enrolment |
+| agenix for the host secrets, or the node fetching them from Vault | A second tool to keep, or the cluster on the activation path | One tool: sops-nix decrypts the node's secrets on the node |
+| A designed T6 fallback, the applier reduced to a stager a human applies | A second mode to build, test and keep, and a fallback that quietly loses the admission-policy isolation | A review trigger; deploy-rs under the maintainer's SSH credential is the one path outside the cache signature |
 
 ## Consequences
 
@@ -124,7 +141,9 @@ The page is [Hosts](../design/hosts.md).
   rehearsal on real hardware before it rolls out on its own, and again after a
   bootloader change; a k3s minor bump waits for its snapshot.
 - Forbidden: a reboot outside the node's window; two nodes switching at once;
-  an applier that cordons or evicts on another node; automatic rollout on a
+  an applier that cordons or evicts on another node; any path outside the
+  cache signature but deploy-rs under the maintainer's SSH credential; a
+  designed fallback that reduces the applier to a stager; automatic rollout on a
   class with strategy `None` or no recorded rehearsal; a k3s minor switch of
   the control plane without a snapshot from the old minor; a host rollback
   that rewrites a tag instead of publishing a higher number; an applier that
@@ -135,8 +154,14 @@ The page is [Hosts](../design/hosts.md).
 The **Host VM tests**, one NixOS VM test per node class, run the applier
 through a live change and a reboot change; the **Node-order check** refuses a
 target that breaks the version skew policy; the **Eviction fixture** asserts
-the admission policy refuses a cordon or eviction on another node. The
-**Automatic rollout gate test** fails when the applier switches a node on its
+the admission policy refuses a cordon or eviction on another node, and the
+**Eviction code rule fixture** holds the same limit in the applier's code when
+the admission-policy spike fails: it fails when the field-selector code rule
+accepts an eviction of a pod on another node. The **Closure signature test**
+fails when the applier switches to a closure whose signature does not verify
+against the cache key: the deploy-rs break-glass under the maintainer's SSH
+credential is the one exception, named above. The **Automatic rollout gate
+test** fails when the applier switches a node on its
 own whose class has strategy `None` or no recorded rehearsal. The **Boot
 fallback rehearsal** fails when a node of a class does not return to its
 previous generation unaided after booting one that fails its health check. The

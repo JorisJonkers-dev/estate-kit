@@ -17,6 +17,10 @@ Amended by [record 110](0110-a-purge-erases-backup-generations-and-mirrors-from-
 a Purge works from a copy inventory of every copy that holds the Tenant's data
 and states its erasure date. The text below says so.
 
+Amended by [record 129](0129-the-estate-is-a-processor-record-80-gains-a-tenant-export-hook-and-the-erasure-date-is-stated-to-the-tenant.md):
+the estate is a processor, the Tenant hooks gain export, and the erasure date
+is stated to the Tenant. The text below says so.
+
 ## Context
 
 [Record 76](0076-tenants-are-the-organisations-the-estate-serves.md) makes the
@@ -53,11 +57,14 @@ purged. A Purge completes only when every participant has cleaned up
 and released its finalizer, so a Tenant is never half-purged without the
 maintainer knowing. Its entry in the operation log states the erasure date, the
 expiry of the last copy in the copy inventory of
-[record 110](0110-a-purge-erases-backup-generations-and-mirrors-from-an-inventory-of-every-copy.md).
+[record 110](0110-a-purge-erases-backup-generations-and-mirrors-from-an-inventory-of-every-copy.md),
+and the Tenant is told the date, which is the end of six months of
+whole-database retention
+([record 129](0129-the-estate-is-a-processor-record-80-gains-a-tenant-export-hook-and-the-erasure-date-is-stated-to-the-tenant.md)).
 
 A sixth bounded context, tenancy, holds the Tenant model and the Tenant
 operations: create, add a Project, remove a Project, lock, unlock, suspend,
-resume, restore and purge. This amends
+resume, restore, export and purge. This amends
 [record 50](0050-six-bounded-contexts-in-five-layers.md): the workspace is six contexts, and
 the rest of that record, the layers and the check that holds them, stands. The
 tenancy context talks to the others through the same kinds of edge, and
@@ -75,12 +82,20 @@ Operator and Admin roles for the lifecycle API come from identity groups, as
 they do today. A Tenant's resources live in an environment-scoped namespace.
 
 A multi-tenant Application takes part through the Tenant hooks it declares:
-after-create, lock, unlock, prepare-restore and after-restore. The tenancy
-context calls a hook over HTTP with a signed machine token, the Tenant key and
+after-create, lock, unlock, prepare-restore, after-restore and export. The
+tenancy context calls a hook over HTTP with a signed machine token, the Tenant key and
 an operation id. A failed lock or prepare-restore hook aborts the operation
 before any data changes. A failed after hook flags the Tenant and the
 operation log. A hook call has a timeout and retries, and an undeclared hook counts as a no-op
-success. An Application implements only the hooks it declares.
+success. An Application implements only the hooks it declares. The estate is a
+processor of a Tenant's people's data, so a Tenant may ask for its data: the
+tenancy context exports one export per Project database that holds the
+Tenant's rows,
+[record 82](0082-backups-are-per-tenant-generations-and-mirrors-refresh-staging-and-development.md)
+says how, and calls each Application's export hook, so the Application hands
+over the data it keeps where the platform cannot see it. Tenant exports are
+signed after the first Mirror has run
+([record 129](0129-the-estate-is-a-processor-record-80-gains-a-tenant-export-hook-and-the-erasure-date-is-stated-to-the-tenant.md)).
 
 During a Tenant lock the Gate serves a standard maintenance page and a 503
 with a Retry-After header, and the shared libraries hold the Tenant's work. The Tenant's Valkey keys can be
@@ -132,5 +147,10 @@ page test** shows that the Gate serves the standard maintenance page to browsers
 and a 503 with Retry-After to API clients while a Tenant is under a Tenant lock. The
 **Purge grace test** shows that a Suspended Tenant is purged 30 days after it
 was suspended, and not before, unless it is resumed. The
+**Tenant export hook check** shows that an export handed to a Tenant omits no
+Project database that holds its rows, a failed export hook flags the Tenant
+and enters the operation log, and an export handed over after the first
+Mirror is signed. The
+**Erasure date test** shows that the Tenant is told its erasure date. The
 **`cargo xtask check-layers`** check holds the tenancy context to its allowed
 edges.

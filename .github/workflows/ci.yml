@@ -102,6 +102,31 @@ jobs:
       - name: Check the records keep the register's rules
         run: python3 -B scripts/check_records.py
 
+  # AGENTS.md: one table of Rollout and Operation outcomes holds in the records and the pages.
+  outcomes:
+    name: Outcomes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check the outcome lists hold the settled ends
+        run: python3 -B scripts/check_rollout_outcomes.py
+
+  # docs/decisions/0116: every store of estate data and every key service holding key material is
+  # listed with its provider and a real calendar exit date.
+  provider-exits:
+    name: Provider-and-exit table
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check record 116's provider-and-exit table
+        run: python3 -B scripts/check_provider_exits.py
+
   # CONTEXT.md, Locked record and Locked contract path: a pull request that changes either needs the
   # maintainer's `contract-change` label. The label is the approval.
   contract-gate:
@@ -225,7 +250,7 @@ jobs:
   pipeline-complete:
     name: Pipeline Complete
     if: ${{ always() }}
-    needs: [site, links, diagrams, citations, records, contract-gate, check-tests, actionlint, secret-scan, hygiene, pr-title]
+    needs: [site, links, diagrams, citations, records, outcomes, provider-exits, contract-gate, check-tests, actionlint, secret-scan, hygiene, pr-title]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

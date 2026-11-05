@@ -8,6 +8,8 @@ lessons: [CS-1, TM-4]
 
 # The rollout plan is compiled, with checks bound to cohorts, a failsafe and a Held deadline
 
+Amended by [record 131](0131-a-held-rollout-on-a-quiet-project-ends-at-its-deadline-with-the-tag-unchanged.md): the deadline ends a Held Rollout — with the Environment tag still naming the held render, and an Operator's explicit promote or rollback — instead of only alerting.
+
 ## Context
 
 Flagger runs each switchover and asks the Release Gate before every traffic
@@ -53,9 +55,10 @@ The plan names:
 - the failsafe, declared before the rollout starts: on a fail verdict or an
   exception check such as a crash loop, traffic goes back, the old version keeps
   serving and the reason is recorded;
-- the Held deadline: how long the Rollout may stay Held before the maintainer
-  is alerted. A Held Rollout stays Held after its deadline; time never promotes,
-  and the alert is the only thing the deadline does.
+- the Held deadline: how long the Rollout may stay Held. A Held Rollout ends
+  at its deadline: the Environment tag keeps naming the held render, time never
+  promotes, the maintainer is alerted, and an Operator promotes or rolls back
+  ([record 131](0131-a-held-rollout-on-a-quiet-project-ends-at-its-deadline-with-the-tag-unchanged.md)).
 
 Checks come from templates in the Profiles, the Component kinds and Platform
 Intent's defaults, so an Application that declares nothing is still gated.
@@ -94,8 +97,7 @@ can be measured later. This extends records
   noisy check can be found from its kept verdicts.
 - Harder: a new step crate and a larger Resolved Deployment; every check
   template needs a cohort, sampling and horizon; an Application with fewer
-  than 100 requests in 10 minutes will often sit Held and alert after 24
-  hours.
+  than 100 requests in 10 minutes will often end Held at its 24-hour deadline.
 - Forbidden: a plan without a failsafe or a Held deadline; a check without a
   cohort, sampling or horizon; promotion on an inconclusive verdict or by time;
   a Project that removes a default check.

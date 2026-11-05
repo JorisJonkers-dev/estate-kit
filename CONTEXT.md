@@ -43,6 +43,10 @@ _Avoid_: host key, Transit key
 The hardware-held key, kept offline, that Flux and every Host applier trust beside the online signing keys. It signs only in a break-glass, when Vault is gone.
 _Avoid_: backup key, root key
 
+**Recovery-key successor**:
+The named person who holds a sealed copy of the recovery key, so a break-glass survives the maintainer's absence. Not yet named: an open item with a date.
+_Avoid_: backup maintainer, escrow agent, deputy
+
 **Serving**:
 The outcome of a Rollout whose new version has been promoted and now takes the Project's traffic. A Rollout ends in exactly one of Serving, Held, Refused, Replaced or Observation lost.
 _Avoid_: live, deployed
@@ -197,6 +201,14 @@ _Avoid_: unknown kind, skipped object
 A group of stored data with one stated recovery time and recovery point, such as the datastore, the registry, Project databases or the event log. Not deploy-kit's Durability Class, which says what a volume's data is worth.
 _Avoid_: durability class, tier, backup level
 
+**Critical set**:
+The small set of items whose loss takes the estate's keys to everything else: the Vault snapshot, the signing and repository credentials, and the datastore snapshot. It is the only set with a second copy.
+_Avoid_: critical items, key set, escape kit
+
+**Second copy**:
+The one copy of the Critical set held at a second EU provider, other than the provider of each first copy, written with it and held to the age its row in the recovery table states. Nothing else is copied twice.
+_Avoid_: mirror, backup of the backup, off-site copy
+
 ## Diagnostics and traceability
 
 **Model path**:
@@ -300,7 +312,7 @@ The brief state in which the platform stops a Tenant's traffic and work around a
 _Avoid_: maintenance mode, freeze, locked tenant
 
 **Tenant hook**:
-A call the tenancy context makes to a multi-tenant Application for one Tenant at one lifecycle step (after-create, lock, unlock, prepare-restore, after-restore), so the Application can do what the platform cannot see. An Application implements only the hooks it declares.
+A call the tenancy context makes to a multi-tenant Application for one Tenant at one lifecycle step (after-create, lock, unlock, prepare-restore, after-restore, export), so the Application can do what the platform cannot see. An Application implements only the hooks it declares.
 _Avoid_: webhook, callback, lifecycle event
 
 **Tenant Admin**:
@@ -328,8 +340,12 @@ The end of a Tenant: its rows in every Project database, its Tenant exports, its
 _Avoid_: delete, destroy, offboard
 
 **Tenant operation**:
-One lifecycle action on a Tenant: create, add a Project, remove a Project, lock, unlock, suspend, resume, purge or restore. The tenancy context runs it across every system that holds the Tenant's data, and records each step with its full error output in one operation log.
+One lifecycle action on a Tenant: create, add a Project, remove a Project, lock, unlock, suspend, resume, purge, restore or export. The tenancy context runs it across every system that holds the Tenant's data, and records each step with its full error output in one operation log.
 _Avoid_: job, task, workflow
+
+**Purge marker**:
+The record of one Purged Tenant in its Environment's locked repository: the Tenant catalogue's entry for it, its key and its erasure date, named by an opaque UUID. A Purge writes and verifies it before it deletes anything; platform-postgres only caches it, so a restore does not un-purge a Tenant.
+_Avoid_: deletion marker, tombstone
 
 **Mailbox**:
 An email address an Application declares by its local part. The same local part declared twice within one Project names one shared Mailbox; across Projects it is refused.

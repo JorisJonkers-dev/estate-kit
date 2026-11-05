@@ -73,10 +73,11 @@ The maintainer set the targets below on 2026-11-04. The column "How it is met" n
 | Volume contents | Local-path volumes other than Postgres | A daily snapshot in the Environment's Kopia repository; a datastore backup does not restore them | 24 h | 24 h |
 | Registry | Renders, their signatures and the tags that name them | Held by the registry provider, off the cluster, with a nightly copy; a render can be composed again from its pinned inputs, a tag cannot | 24 h | 24 h |
 | Binary cache | Host closures | Off the cluster; rebuilt in CI from the pinned source | 24 h | none: rebuildable |
+| Second copy of the Critical set | A copy of each item of the [Critical set](../../CONTEXT.md): the Vault snapshot, the signing and repository credentials, and the datastore snapshot ([record 141](../decisions/0141-a-second-copy-exists-only-for-the-critical-set-at-a-second-eu-provider.md)) | At a second EU provider, written with each first copy and held to a stated age: within 6 hours for the Vault snapshot and the datastore snapshot, within 24 hours of any change for a credential; its holder is not yet chosen, an open item, due 2027-04-30 | the copied class's | the copied class's |
 
 The k3s datastore stays SQLite, deliberately different from the applications' Postgres; its restore order is [record 106](../decisions/0106-the-control-plane-is-restored-in-a-dependency-order-that-is-tested-drilled-and-timed.md)'s.
 
-Mail, buckets and other component stores join a row, or get their own, when the restore order that orders all of them is written. The offline recovery key is not a store and has no row.
+Mail, buckets and other component stores join a row, or get their own, when the restore order that orders all of them is written. The offline recovery key is not a store and has no row: its custody, which a named recovery-key successor holds a sealed copy of, is [record 140](../decisions/0140-break-glass-custody-is-written-and-drilled-and-a-named-successor-holds-a-sealed-copy-of-the-recovery-key.md)'s, an open item, due 2027-04-30, until the successor is named.
 
 ## How each store is captured
 
@@ -86,7 +87,10 @@ backups plus the archived WAL for every Postgres server
 and Kopia snapshots for the Tenant exports and the volume contents
 ([record 115](../decisions/0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md)).
 Vault's snapshots and the datastore's backup stay fleet-infra's; no datastore
-backup is written today.
+backup is written today. Only the Critical set is copied twice: its
+[Second copy](../../CONTEXT.md) sits at a second EU provider, and the
+Second-copy freshness check of [record 141](../decisions/0141-a-second-copy-exists-only-for-the-critical-set-at-a-second-eu-provider.md)
+fails when an item's newest copy grows older than the age its row states.
 
 ![Recovery: how each store is captured](../diagrams/png/recovery.png)
 

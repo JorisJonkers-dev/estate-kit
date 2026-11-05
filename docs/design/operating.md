@@ -141,6 +141,16 @@ The control plane is restored in a dependency order that is tested, drilled and 
 
 The restore order is rehearsed in CI on every release, on a throwaway cluster. Once a year the procedure is drilled on the real estate and timed against the recovery time and point of each Recovery class ([record 87](../decisions/0087-recovery-time-and-recovery-point-are-stated-per-recovery-class.md)).
 
+## Break-glass custody
+
+Where the recovery key lives, who opens it if the maintainer cannot, what the offline store holds, and the loss case are written down here, and the yearly drill exercises them ([record 140](../decisions/0140-break-glass-custody-is-written-and-drilled-and-a-named-successor-holds-a-sealed-copy-of-the-recovery-key.md)).
+
+The recovery key lives sealed in the maintainer's offline store, with the other offline credentials the restore order names ([restore order](#restore-order-and-drill-cadence), step 1: the admin credential and the backup decryption keys). A recovery-key successor, a named person with their own sealed copy of the key, answers the loss case: with the maintainer absent, the successor opens their sealed copy and signs in a break-glass, so the estate survives its one maintainer's absence. The sealed copy is opened in no other case, and the key never leaves the offline store or the seal except to be used.
+
+Neither successor nor sealed copy exists yet: both are open items, due 2027-04-30. The yearly drill of [record 87](../decisions/0087-recovery-time-and-recovery-point-are-stated-per-recovery-class.md) verifies the sealed copy still opens the key it is a copy of and records the successor's rehearsal of its use; until the successor is named, the drill says so.
+
+The Second copy of the Critical set — the Vault snapshot, the signing and repository credentials and the datastore snapshot — sits at a second EU provider, kept reachable by a named holder who is not yet chosen either, an open item, due 2027-04-30 ([record 141](../decisions/0141-a-second-copy-exists-only-for-the-critical-set-at-a-second-eu-provider.md)). Its loss case is one provider's: losing the first provider's stores loses no key to the estate.
+
 ## Weekly restore rehearsal
 
 The backup component restores the latest snapshot of each store into throwaway containers once a week and checks what it reads back ([record 115](../decisions/0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md)). Each result is an active check result of [record 108](../decisions/0108-active-checks-run-in-the-owning-components-observation-reads-their-results-and-one-heartbeat-lives-outside-the-cluster.md): Observation reads it, and a pass also reaches the external heartbeat, so a rehearsal that stops running raises an alert from outside the cluster.

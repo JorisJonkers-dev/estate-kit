@@ -57,11 +57,13 @@ required check on `main`. It holds these rules:
 | --- | --- |
 | Diagrams are regenerated, never hand-edited | Diagrams (`scripts/check_diagrams.py`) |
 | A record is cited by link | Record citations (`scripts/check_record_citations.py`) |
-| A record's status matches the register; rests-on has no cycle, and Accepted rests only on Accepted; cited lessons were kept; Accepted rows have files; a Merged or Moved row has no file and nothing rests on it; a Superseded row keeps its file and names an Accepted record, and nothing rests on it; an Accepted record's `amends` and `supersedes` targets carry their back-links, and no Accepted record waits "when this record is accepted"; a Revised line has a date and a sentence; every record has a Confirmation, and each bold check name in it is a row of [the table of checks](docs/design/code-shape-and-speed.md#the-checks); the register's Enforcement column agrees with the table of checks | Records (`scripts/check_records.py`) |
+| A record's status matches the register; rests-on has no cycle, and Accepted rests only on Accepted; cited lessons were kept; Accepted rows have files; a Merged or Moved row has no file and nothing rests on it; a Superseded row keeps its file and names an Accepted record, and nothing rests on it; an Accepted record's `amends` and `supersedes` targets carry their back-links, and no Accepted record waits "when this record is accepted"; a Revised line has a date and a sentence; every record has a Confirmation, and each bold check name in it is a row of [the table of checks](docs/design/code-shape-and-speed.md#the-checks); the register's Enforcement column agrees with the table of checks; records 82 and 110 state the Purge marker-first and restore-does-not-un-purge rules | Records (`scripts/check_records.py`) |
 | No paper is committed | Hygiene |
 | Conventional-commit title, no agent attribution | PR title |
 | A pull request that changes a Locked record or a Locked contract path carries the maintainer's `contract-change` label | Contract gate (`scripts/check_contract_change.py`) |
 | Every relative link and anchor resolves | Links |
+| The Rollout and Operation outcome lists hold the settled ends | Outcomes (`scripts/check_rollout_outcomes.py`) |
+| Record 116's table lists every store of estate data and every key service with its provider and a real calendar exit date | Provider-and-exit table (`scripts/check_provider_exits.py`) |
 
 Run a check locally with `python3 scripts/<check>.py`.
 

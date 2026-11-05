@@ -9,7 +9,7 @@ Proposed records that the [register](../decisions/register.md) plans as rows
 what gets fixed. The terms are those of the [vocabulary](../vocabulary.md):
 Environment, Tenant, Tenant key, Tenant handle, Tenant export, Backup
 generation, Mirror, Membership, Canary Tenant, Tenant lock, Tenant hook, Tenant
-Admin, Suspended, Purge and Causation id.
+Admin, Suspended, Purge, Purge marker and Causation id.
 
 The whole design is the spec in
 [issue 137](https://github.com/JorisJonkers-dev/estate-kit/issues/137). Two
@@ -37,6 +37,8 @@ Decided in [record 75](../decisions/0075-three-environments-run-in-the-one-clust
 Development, staging and production run in the one cluster. Each Project in each Environment has its own signed Environment tag, `render/<project>:<env>`, and its own namespace, `<project>-<env letter>`: `-d`, `-s` and `-p`. Production moves once from `<project>-system` to `<project>-p` by a planned migration.
 
 A merge to `main` deploys a build of `main` to development. A published release deploys to staging, then to production after the `production` approval, with the same digests in both. A Project chooses its Environments, and production is required. Between Environments only replicas, domains and secret paths may differ, plus one env file per Environment. Any other override is refused.
+
+The staging Rollout of a release gates that release's `production` approval: one that ended Refused, Held on a failed [Analysis verdict](../../CONTEXT.md), or Observation lost blocks the approval until the maintainer confirms the staging Application served the release, while one Held on an inconclusive verdict, on a Project too quiet to gather a sample, blocks nothing ([record 132](../decisions/0132-a-staging-rollout-that-ended-refused-held-on-a-failed-verdict-or-observation-lost-blocks-its-release-s-production-approval-and-a-quiet-held-does-not.md)).
 
 ## Tenants
 
@@ -105,6 +107,8 @@ The tenancy context holds the Tenant model and the Tenant operations, listed in 
 
 A multi-tenant Application takes part through the Tenant hooks it declares, which [record 80](../decisions/0080-a-tenant-is-a-custom-resource-in-a-sixth-bounded-context-tenancy.md) lists. A hook is an HTTP call with a signed machine token, the Tenant key and an operation id. A failed lock or prepare-restore hook aborts before any data changes; a failed after hook flags the Tenant. During a Tenant lock the Gate serves a standard maintenance page and a 503 with Retry-After, and the libraries hold the Tenant's work. Ending a Tenant is Suspend, a grace period of 30 days, then Purge.
 
+The estate is a processor of a Tenant's people's data, so a Tenant asks for its data as the operation `export`: the tenancy context makes one export per Project database that holds the Tenant's rows and calls each Application's export hook, which hands over the data it keeps where the platform cannot see it; Tenant exports are signed after the first Mirror has run ([record 129](../decisions/0129-the-estate-is-a-processor-record-80-gains-a-tenant-export-hook-and-the-erasure-date-is-stated-to-the-tenant.md)).
+
 ![State machine: a Tenant](../diagrams/png/state-tenant.png)
 
 ## Migrations
@@ -121,17 +125,48 @@ Canary Tenants are only a targeting group for feature flags inside Applications:
 
 ## Backups and Mirrors
 
-Decided in [record 82](../decisions/0082-backups-are-per-tenant-generations-and-mirrors-refresh-staging-and-development.md), as [record 114](../decisions/0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md) amends it, the Purge in [record 110](../decisions/0110-a-purge-erases-backup-generations-and-mirrors-from-an-inventory-of-every-copy.md), and where the copies live in [record 115](../decisions/0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md).
+Decided in [record 82](../decisions/0082-backups-are-per-tenant-generations-and-mirrors-refresh-staging-and-development.md), as [record 114](../decisions/0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md) amends it, the Purge in [record 110](../decisions/0110-a-purge-erases-backup-generations-and-mirrors-from-an-inventory-of-every-copy.md), where the copies live in [record 115](../decisions/0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md), the restore's steps in [record 127](../decisions/0127-a-restore-names-the-projects-it-restores-takes-a-verified-safety-copy-first-and-never-crosses-into-a-lower-environment-unmasked.md) and the Purge marker in [record 128](../decisions/0128-a-purge-writes-and-verifies-its-purge-marker-in-the-locked-repository-before-it-deletes-anything-and-a-restore-does-not-un-purge-the-tenant.md).
 
 A Backup generation is the set of one Tenant's Tenant exports, taken on that Tenant's own schedule: one export per Project database, `COPY ... WHERE tenant_id` in one snapshot transaction, with that database's migration revision. The exports share no point in time, because Projects own their data and talk through APIs. Each export is its own source in the Environment's Kopia repository, which encrypts it and keeps it in a bucket on Scaleway Object Storage under a 30-day COMPLIANCE object lock; that bucket is the off-cluster copy. Each Environment has its own repository and password. The generation is listed in one central catalogue. This replaces the backup component's scope per Project for a multi-tenant Project. Each Postgres server also keeps whole-database backups in the same repository (7 daily, 4 weekly, 6 monthly) and archives WAL continuously to the same provider for point-in-time recovery, for disaster only. The latest snapshot of each store is restored into throwaway containers and checked every week.
 
-A restore names the Projects it restores. It refuses an export newer than its database and names both revisions, then locks the Tenant, runs the prepare-restore hook, deletes the Tenant's rows and re-inserts them, runs the after-restore hook and unlocks. An export at the database's revision goes in directly; an older one is loaded into a scratch database at its own revision, migrated forward there, then copied in. A failure after the first delete leaves the Tenant locked.
+A restore names the Projects it restores. It writes and verifies a safety copy
+of the Tenant's current rows first — one export per Project named, written to
+the Environment's backup repository — and a restore whose safety copy fails
+changes nothing
+([record 127](../decisions/0127-a-restore-names-the-projects-it-restores-takes-a-verified-safety-copy-first-and-never-crosses-into-a-lower-environment-unmasked.md)).
+It refuses an export newer than its database and names both revisions, then
+locks the Tenant, runs the prepare-restore hook, deletes the Tenant's rows and
+re-inserts them, runs the after-restore hook and unlocks. An export at the
+database's revision goes in directly; an older one is loaded into a scratch
+database built from a schema dump of the Project database at its own revision,
+migrated forward there, then copied in. A failure after the first delete leaves
+the Tenant locked, and the retry retraces its steps from the safety copy.
 
 A staging or development Tenant may Mirror one production Tenant on a schedule. Production's backup component reads the production exports, masks them when the Mirror requires it, and writes them into the target Environment's Kopia repository, whose password production holds; a lower Environment never holds production's credentials. The target Environment locks its Tenant, deletes its rows, imports the exports under its `tenant_id`, runs the after-restore hooks and unlocks. A failure leaves the Tenant locked. Development is always masked; staging is masked only when it says so. Each Project declares masking rules for its own tables, and a Project with none is not loaded into a development Mirror. Staging and production Tenants exist independently.
 
-A Purge deletes the Tenant's rows and its export snapshots, runs full maintenance on the backup repository, and empties every Mirror target of the Tenant at once. Its entry in the operation log states the erasure date: the expiry of the last copy in the copy inventory. Whole-database backups are kept up to 6 months and WAL no longer than the oldest base backup kept; the 30-day object lock bounds only the Tenant exports.
+A Purge writes and verifies the Tenant's Purge marker in the locked
+repository before it deletes anything, and a Purge whose marker write fails
+deletes nothing
+([record 128](../decisions/0128-a-purge-writes-and-verifies-its-purge-marker-in-the-locked-repository-before-it-deletes-anything-and-a-restore-does-not-un-purge-the-tenant.md)).
+The marker, named by an opaque UUID like the tombstones and the Purge inventory
+entries, holds the Tenant catalogue's entry for the Tenant and its key, and
+platform-postgres only caches what it holds. A restore does not un-purge a
+Tenant: a store restored to a time before a Purge is re-read its markers, and
+each Purged Tenant removed again, before it serves. A Purge then deletes the
+Tenant's rows and its export snapshots, runs full maintenance on the backup
+repository, and empties every Mirror target of the Tenant at once. Its entry
+in the operation log states the erasure date: the expiry of the last copy in
+the copy inventory, which is the end of six months of whole-database retention,
+and the Tenant is told the date
+([record 129](../decisions/0129-the-estate-is-a-processor-record-80-gains-a-tenant-export-hook-and-the-erasure-date-is-stated-to-the-tenant.md)).
+Whole-database backups are kept up to 6 months and WAL no longer than the
+oldest base backup kept; the 30-day object lock bounds only the Tenant exports.
 
-A Backup generation may be restored into its own Tenant or into another Tenant of an equal or lower Environment.
+A Backup generation may be restored into its own Tenant or into another Tenant
+of its own Environment. A restore never crosses into a lower Environment
+unmasked: a lower target masks before the export leaves, by the Mirror's rules
+and not the caller's choice, and a restore that would land unmasked in a lower
+Environment is refused.
 
 An unmasked staging Mirror puts production personal data in staging, so staging access must be treated like production access: who may sign in, where logs go, and how long data is kept.
 

@@ -79,7 +79,9 @@ has, and can never replace one. Point 5's race window shrinks to that.
 
 The spike must pass first: OCIRepository semver selection together with cosign
 verification and the tag format, on the pinned Flux; and create-only tags on
-each candidate registry. Owner: the maintainer; due before M5 starts. Until
+each candidate registry. Owner: the maintainer; due before the registry move
+of [record 99](0099-renders-and-host-tags-live-in-an-off-cluster-registry-chosen-by-its-features.md)
+starts, completing by 2027-05-31. Until
 then the tag-move rule of
 [record 63](0063-delivery-has-one-writer-and-reconciles-from-observed-state.md)
 stands unchanged. If the spike fails, this record is rewritten. Host tags

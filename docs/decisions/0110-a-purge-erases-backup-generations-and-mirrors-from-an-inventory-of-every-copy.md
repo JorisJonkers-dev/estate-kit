@@ -8,6 +8,12 @@ lessons: [DO-2, DR-1]
 
 # A Purge deletes a Tenant's exports and empties its Mirrors at once, and states its erasure date from an inventory of every copy
 
+Amended by [record 128](0128-a-purge-writes-and-verifies-its-purge-marker-in-the-locked-repository-before-it-deletes-anything-and-a-restore-does-not-un-purge-the-tenant.md):
+a Purge writes and verifies its Purge marker in the locked repository before
+it deletes anything, the markers keep the Purged keys and the Tenant catalogue
+with platform-postgres only caching them, and the tombstones and the purge
+inventory carry opaque UUIDs. The text below says so.
+
 ## Context
 
 A Purge removes a Tenant's rows, cache keys, stored objects, Tenant secrets,
@@ -53,6 +59,16 @@ expires. Whole-database backups are kept up to 6 months, WAL no longer than the
 oldest base backup kept, and the 30-day object lock bounds only the Tenant
 exports. The other lengths are the maintainer's to set in the inventory.
 
+**A Purge writes and verifies its Purge marker in the locked repository before
+it deletes anything.** The
+marker holds the Tenant catalogue's entry for the Tenant and its key, in the
+Environment's backup repository, kept while the Tenant key is never reused
+([record 115](0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md)
+and [record 76](0076-tenants-are-the-organisations-the-estate-serves.md));
+platform-postgres only caches what it holds. A Purge whose marker write or
+read-back fails aborts with a failure and deletes nothing
+([record 128](0128-a-purge-writes-and-verifies-its-purge-marker-in-the-locked-repository-before-it-deletes-anything-and-a-restore-does-not-un-purge-the-tenant.md)).
+
 **A Purge deletes the Tenant's exports at once.** The backup component deletes
 the Tenant's rows from each Project database, deletes the Tenant's export
 snapshots, and runs full maintenance on the repository, so no snapshot still
@@ -68,13 +84,23 @@ repository. The backup component releases its finalizer only after that.
 marks the Purged Tenant, and no restore or Mirror loads an export of it, into
 any Tenant. Delivery keeps the key of every Purged Tenant, which the key reuse
 rule of [record 76](0076-tenants-are-the-organisations-the-estate-serves.md)
-already needs. When a Postgres server, a bucket or Vault is restored to a time
-before a Purge, the rows, the key prefix and the secret path of each Purged key
-are removed again before the store serves.
+already needs. The key of every Purged Tenant, and the Tenant catalogue's
+entry for it, live as Purge markers in the locked repository, and
+platform-postgres only caches them. Each marker is named by an opaque UUID,
+never by a readable Tenant key or handle, and so is each entry this
+inventory's Purge copy keeps: nothing readable survives the Purge where a
+listing can reach it. A restore does not un-purge the Tenant: when a Postgres
+server, a bucket or Vault is restored to a time before a Purge, the
+Purged-key list is rebuilt from the markers, and the rows, the key prefix and
+the secret path of each Purged key are removed again before the store serves.
 
 **The Purge states its erasure date.** The operation log marks a Purge complete
 when the finalizers are released, as before. Its entry states the erasure date:
-the expiry of the last copy in the inventory. The Tenant is marked erased only
+the expiry of the last copy in the inventory. The Tenant is told the date too,
+as its processor owes
+([record 129](0129-the-estate-is-a-processor-record-80-gains-a-tenant-export-hook-and-the-erasure-date-is-stated-to-the-tenant.md)),
+and the date it is told is the end of six months of whole-database retention.
+The Tenant is marked erased only
 on that date, once that copy has expired.
 
 ## Alternatives
@@ -108,11 +134,19 @@ The **Copy inventory check** fails when a store a multi-tenant Project can use,
 or a copy [record 82](0082-backups-are-per-tenant-generations-and-mirrors-refresh-staging-and-development.md)
 makes, has no inventory entry, or an entry lacks its retention or how it
 expires. The **Purged restore refusal** fails when a restore or a Mirror loads
-an export of a Purged Tenant. The **Purge expiry test** fails when a Purged
-Tenant's rows, export snapshots or Mirror targets' rows and exports remain once
-the Purge completes, or a copy of it remains after its retention ends. The
+an export of a Purged Tenant, or a restored store serves before its
+Purged-key list is rebuilt from the markers. The **Purge expiry test** fails
+when a Purged Tenant's rows, export snapshots or Mirror targets' rows and
+exports remain once the Purge completes, or a copy of it remains after its
+retention ends. The
 **Erasure date test** fails when a Purge's entry states no erasure date, or one
-earlier than the expiry of the last copy in the inventory. The **Purge
-reapplication drill** fails when a WAL recovery to a time before a Purge lets
-the Purged Tenant's rows serve, or leaves them once the server is back. The
-**Tenant finalizer Purge** check still holds the Purge itself.
+earlier than the expiry of the last copy in the inventory, or the Tenant is not
+told the date. The **Purge reapplication drill** fails
+when a WAL recovery to a time before a Purge lets the Purged Tenant's rows
+serve, or leaves them once the server is back. The
+**Tenant finalizer Purge** check still holds the Purge itself, and fails when
+a Purge deletes anything before its Purge marker is written and verified, or
+a Purge whose marker write failed continues. The
+**Purge rules** check fails when the record text of
+[record 82](0082-backups-are-per-tenant-generations-and-mirrors-refresh-staging-and-development.md)
+or this record omits the marker-first or the restore-does-not-un-purge rule.

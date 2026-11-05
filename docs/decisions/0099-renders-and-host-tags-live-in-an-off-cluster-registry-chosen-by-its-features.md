@@ -38,19 +38,20 @@ move to Tangled once it has private repositories, or a self-hosted Forgejo
 behind a VPN with sign-in at Traefik. "Introducing Tangled" (2025) describes
 Git hosting on knots; it names no package registry. The maintainer counts
 cost; the evaluation prices the registry as object storage and perhaps one
-small VPS, and the move at about 40 to 80 hours in M5, after the cutover
-(sections 8 and 11.4).
+small VPS, and the move at about 40 to 80 hours, which the maintainer
+settled before the cutover on 2026-11-04 (sections 8 and 11.4).
 
 Project images and fragments are pushed by each Project's own CI, not by
 Delivery. The evaluation keeps Project images on ghcr for now (section 5).
 
 [record 116](0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md) puts every store of estate data on an EU-controlled provider or
-on owned hardware, for protection against US sanctions, and names ghcr as an
-exception for renders and host tags only until milestone M5.
+on owned hardware, for protection against US sanctions, and lists ghcr as an
+exception for renders and host tags until the registry move, dated
+2027-05-31 in its provider-and-exit table.
 
 ## Decision
 
-After the cutover, Delivery publishes renders and host tags to one OCI
+Before the cutover, Delivery publishes renders and host tags to one OCI
 registry outside the cluster, each a numbered, immutable Sequence tag
 ([record 98](0098-the-live-pointer-is-an-immutable-sequence-tag-that-flux-selects-by-version.md)),
 chosen by five features, each shown in the registry spike before a product is
@@ -73,8 +74,8 @@ chosen:
 This supersedes the registry half of
 [record 9](0009-the-live-render-is-a-signed-registry-tag-per-project-and-environment.md):
 the ghcr machine account, its classic token and the checks on it hold only
-until every Project has moved, and are then retired. The move is done in
-milestone M5, when the ghcr exception of
+until every Project has moved, and are then retired. The move completes
+before the cutover, on 2027-05-31, when the ghcr exception of
 [record 116](0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md) ends. Its other rules stand: the push credential reaches Delivery as a Kubernetes Secret that the
 Vault Secrets Operator syncs, so no tag creation reads Vault. The move goes
 one Project at a time, with renders and host tags mirrored first. The port is
@@ -93,7 +94,7 @@ forge move decides where they go.
 
 | Option | Cost if taken | Why rejected |
 | --- | --- | --- |
-| Stay on ghcr, with the Lease and read, verify, write | A classic token in the delivery path; no create-only tags, so no [record 98](0098-the-live-pointer-is-an-immutable-sequence-tag-that-flux-selects-by-version.md); a US-controlled provider | Both defects remain, and ghcr's exception under [record 116](0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md) ends at M5 |
+| Stay on ghcr, with the Lease and read, verify, write | A classic token in the delivery path; no create-only tags, so no [record 98](0098-the-live-pointer-is-an-immutable-sequence-tag-that-flux-selects-by-version.md); a US-controlled provider | Both defects remain, and ghcr's exception under [record 116](0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md) ends with the registry move, by 2027-05-31 |
 | zot on a small VPS at an EU-controlled provider or on owned hardware, object-storage back end at an EU-controlled provider, with a create-only access policy | One small process and VPS to run, patch and back up | Open: a candidate for the spike |
 | Distribution (the CNCF registry), placed as zot is, with a create-only policy in front | The policy is an extra layer to own | Open: a candidate for the spike |
 | Harbor, placed as zot is, with tag immutability rules | A database, a cache and several services to run for two kinds of artifact | Open: a candidate for the spike, heavier than the need |
@@ -129,5 +130,6 @@ scenarios** rebuilds the test cluster and asserts it pulls every live render
 from the registry alone ([record 69](0069-the-deploy-path-is-tested-end-to-end.md)).
 The **Provider register lint** fails when the registry or its storage is at a
 provider that is neither EU-controlled nor owned, or when ghcr still holds
-renders and host tags once M5 is closed. The **Token grant check** and
+renders and host tags once the registry move's exit date, 2027-05-31, has
+passed. The **Token grant check** and
 **Token rotation alert** hold until the classic token is retired.

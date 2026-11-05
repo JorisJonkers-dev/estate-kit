@@ -7,6 +7,8 @@ lessons: [DR-1, DR-2]
 
 # Signing keys: renders and host tags by separate Transit keys, closures by an environment-scoped key, and an offline recovery key
 
+Amended by [record 140](0140-break-glass-custody-is-written-and-drilled-and-a-named-successor-holds-a-sealed-copy-of-the-recovery-key.md): the recovery key's custody is written down and drilled, and a named recovery-key successor holds a sealed copy of it, so a break-glass survives the maintainer's absence; the successor is not yet named, an open item, due 2027-04-30.
+
 Revised: 2026-11-05: a host tag is now a numbered, immutable `host/<node>:<number>` tag, so the host signing key signs each publication, not a moving `:prod` tag.
 
 ## Context
@@ -32,7 +34,15 @@ any workflow could read it. How the closures are built and cached is
   `trusted-public-keys`.
 - **An offline recovery key.** A hardware-held key, kept offline, is trusted by
   Flux and by every host applier beside the online key. It signs only in a
-  break-glass, when Vault is gone.
+  break-glass, when Vault is gone. A named recovery-key successor holds a
+  sealed copy of it, so the break-glass survives the maintainer's absence; the
+  custody — where the key lives, who opens it if the maintainer cannot, what
+  the offline store holds, and the loss case — is written down and drilled. The
+  signing and repository credentials this key keeps company with have a second
+  copy at a second EU provider, whose holder is not yet chosen either, both
+  open items due 2027-04-30
+  ([record 140](0140-break-glass-custody-is-written-and-drilled-and-a-named-successor-holds-a-sealed-copy-of-the-recovery-key.md),
+  [record 141](0141-a-second-copy-exists-only-for-the-critical-set-at-a-second-eu-provider.md)).
 - **One signature format, fixed by a contract test.** The format (a cosign
   signature with transparency-log upload off, so repository names stay out of
   public Rekor) is signed by Delivery's signer and verified by the pinned

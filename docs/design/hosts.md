@@ -34,10 +34,12 @@ cache on object storage: narinfo and NAR files, with no process to run
 plane needs to recover, so a node fetches and verifies its generation while the
 cluster is down. Nodes only read it and trust it through
 `trusted-public-keys`; only the closure builder writes it. Its location is
-named in Platform Intent. The cache's signing key is environment-scoped and held
-by the builder; only the builder's signing job can use it
-([record 21](../decisions/0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md)),
-and it never reaches a node or the cluster. Delivery publishes each node's
+named in Platform Intent. The cache's signing key lives on the owned builder,
+environment-scoped so only the builder's signing job can use it, as
+[record 21](../decisions/0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md)
+and [record 31](../decisions/0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md)
+set out: signing works with the cluster down, as fetching does, and the key
+never reaches a node or the cluster. Delivery publishes each node's
 next numbered host tag only after the build and the VM tests pass; each tag
 binds its closure's store path, no tag is ever rewritten, and a rollback
 publishes a higher number naming an older generation
@@ -45,8 +47,12 @@ publishes a higher number naming an older generation
 Each applier fetches and verifies its closure first, which disrupts
 nothing. Only the switch and the reboot are serialised, under a cluster-wide
 Lease, with pods leaving through the Eviction API so PodDisruptionBudgets hold.
-Each applier has its own credential, and a ValidatingAdmissionPolicy limits its
-evictions to its own node.
+Each applier has its own credential, static to its node: sops-nix delivers it
+with the node's host secrets, and it is replaced only at re-enrolment. A
+ValidatingAdmissionPolicy limits its evictions to its own node, and if the
+admission-policy spike fails, a unit-tested field-selector code rule in the
+applier refuses an eviction of any pod on another node
+([record 30](../decisions/0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md)).
 
 ![Sequence: a host rollout](../diagrams/png/seq-host-rollout.png)
 
@@ -133,10 +139,15 @@ three servers now or a one-member etcd.
 
 ## When the cluster is down
 
-The host tags cannot move, and the Lease cannot be taken. Break-glass uses
-deploy-rs, with targets generated from host data, to switch one node to a
-signed generation; nixos-anywhere enrols or rebuilds a node from the same
-targets.
+The host tags cannot move, and the Lease cannot be taken. Break-glass is
+deploy-rs, with targets generated from host data, run under the maintainer's
+SSH credential: the one documented path outside the cache signature
+([record 30](../decisions/0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md)).
+nixos-anywhere enrols or rebuilds a node from the same targets, and
+re-enrolment is what replaces the node's static applier credential. T6, the
+applier reduced to a stager that fetches and stages while a human applies, is
+a review trigger, not a designed fallback
+([record 30](../decisions/0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md)).
 
 ## Where the host parts run
 
@@ -171,9 +182,11 @@ its window.
 
 ## UC-12 Switch a node by hand
 
-The cluster is down, so no tag can move and no Lease can be taken. An Operator
-switches one node to a signed generation by hand. Outcome: the node runs that
-generation; the Operator owns draining it.
+The cluster is down, so no tag can move and no Lease can be taken. The
+maintainer runs deploy-rs under their SSH credential, from targets generated
+from host data: the one documented path outside the cache signature
+([record 30](../decisions/0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md)).
+Outcome: the node runs that generation; the maintainer owns draining it.
 
 ![UC-12 Switch a node by hand](../diagrams/png/uc12-break-glass.png)
 

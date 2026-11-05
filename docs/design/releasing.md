@@ -44,6 +44,16 @@ reached Serving there
 ([record 118](../decisions/0118-a-rollback-is-per-environment-and-targets-a-digest-that-reached-serving.md)).
 A dropped stream resumes from its last event.
 
+A published release deploys to staging with the same digests, and the staging
+Rollout gates what reaches production
+([record 75](../decisions/0075-three-environments-run-in-the-one-cluster.md)):
+a staging Rollout that ended Refused, Held on a failed Analysis verdict or
+Observation lost blocks the same release's `production` approval until the
+maintainer confirms the staging Application served it, and a staging Rollout
+Held on an inconclusive verdict — a Project too quiet to gather a sample —
+blocks nothing
+([record 132](../decisions/0132-a-staging-rollout-that-ended-refused-held-on-a-failed-verdict-or-observation-lost-blocks-its-release-s-production-approval-and-a-quiet-held-does-not.md)).
+
 ## UC-1 Validate a change
 
 An Application author opens or updates an ordinary pull request. Outcome: the
@@ -196,16 +206,29 @@ the gate answers yes on the rollback hook, so Flagger reverts traffic, the old
 version keeps serving, and the Operation ends Held with the check's reason. An
 inconclusive verdict holds: the gate answers no on the confirm hooks, which
 pause the canary, and never gives it as an error on a hook that counts toward
-a rollback. Inconclusive never promotes, and a Rollout held past the plan's
-deadline pages the maintainer and stays held; time never promotes it.
+a rollback. Inconclusive never promotes, and a Rollout held on it waits out
+its plan's deadline — 24 hours unless the Project states another — then ends
+Held with the Environment tag still naming the held render, with the
+maintainer paged and nothing promoted by itself; an Operator promotes or rolls
+back, and a later render starts a new Rollout and cancels the pending
+deadline. Time never promotes it
+([record 131](../decisions/0131-a-held-rollout-on-a-quiet-project-ends-at-its-deadline-with-the-tag-unchanged.md)).
 
 ## States of a rollout
 
-A Rollout ends in exactly one of Serving, Held or Refused. The Operation that
-follows it can also end Superseded, when a newer Operation takes its place, or
-Observation lost, when Delivery stops seeing Flux and Flagger; the Rollout then
-goes on, and may still reach Serving
-([record 96](../decisions/0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md)).
+A Rollout ends in exactly one of Serving, Held, Refused, Replaced or Observation lost. Superseded is never a Rollout end: a newer Operation for the same Project and Environment that closes a
+Rollout which had begun ends it Replaced, and that older Operation ends
+Superseded, an Operation end only, one of the five outcomes whose exit codes
+the table holds
+([record 96](../decisions/0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md),
+[record 130](../decisions/0130-a-rollout-ends-serving-held-refused-replaced-or-observation-lost-and-superseded-is-an-operation-end-only.md)).
+Observation lost means Delivery stops seeing Flux and Flagger; the Rollout
+then goes on, and may still reach Serving. A Held Rollout ends at its
+deadline — 24 hours unless the Project states another — with the Environment
+tag still naming the held render: nothing is promoted by itself, an Operator
+promotes or rolls back, and a later render starts a new Rollout and cancels
+the pending deadline
+([record 131](../decisions/0131-a-held-rollout-on-a-quiet-project-ends-at-its-deadline-with-the-tag-unchanged.md)).
 
 ![States of a rollout](../diagrams/png/state-rollout.png)
 

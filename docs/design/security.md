@@ -17,24 +17,34 @@ crossing carries a verified identity.
 
 Every store of estate data runs on an EU-controlled provider or on owned
 hardware
-([record 116](../decisions/0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md)).
+([record 116](../decisions/0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md),
+amended by [record
+133](../decisions/0133-ownership-decides-the-eu-rule-and-every-exception-ends-on-a-calendar-date.md)).
 A store is any place the estate keeps its data: backups, the WAL archive, the
-render registry and the binary cache. An EU-controlled provider is incorporated
-in an EU member state and is not controlled by a company outside the EU; an EU
-region of a provider controlled from elsewhere does not count. Owned hardware is
-a machine the maintainer owns. The rule protects the estate's data against US
-sanctions.
+render registry and the binary cache — and the forge, CI and DNS are stores
+too, and a key service holding key material, such as Vault's unseal service,
+is inside the rule as well. Ownership, not location, decides: an
+EU-controlled provider is incorporated in an EU member state, a fellow EEA
+state or Switzerland and is controlled by no company outside them, wherever
+its servers stand; a provider incorporated in the United Kingdom counts as
+outside. Owned hardware is a machine the maintainer owns. The rule protects
+the estate's data against US sanctions.
 
-ghcr is the one named exception: it keeps renders and host tags until milestone
-M5. No other exception exists without a record. The forge, CI and DNS move off
-US providers over time, with no deadline, and Project images and fragments move
-with the forge and CI.
+Every store and key service is listed in the provider-and-exit table of
+[record 116](../decisions/0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md),
+each with its provider and a calendar exit date. ghcr is a listed
+exception for renders and host tags, and each Project's CI keeps its images
+and fragments there, until the registry move completes, by 2027-05-31,
+before the cutover; DNS moves with the registry, on the same date; the forge
+and CI follow, by 2027-12-31. No other exception exists without a record.
 
-Platform Intent lists each store with its provider, and the provider's Provider
-facts state its jurisdiction: EU-controlled, owned, or other. A new store gets
-its entry before it holds data. The Provider register lint fails a store whose
-provider is neither EU-controlled nor owned, other than ghcr, and fails a store
-in the copy inventory or a Recovery class that has no entry.
+Platform Intent lists each store of estate data and each key service holding
+key material with its provider, and the provider's Provider facts state its
+jurisdiction: EU-controlled, owned, or other. A new store gets its entry
+before it holds data. The Provider register lint fails a store whose provider
+is neither EU-controlled nor owned, other than the listed exceptions of the
+provider-and-exit table, and fails a store in the copy inventory
+or a Recovery class that has no entry.
 
 ## Threats per boundary (STRIDE)
 
@@ -51,7 +61,7 @@ in the copy inventory or a Recovery class that has no entry.
 | Delivery to Vault | Denial: Vault is sealed or lost | Auto-unseal through a cloud KMS and a VaultSealed alert (D6; assumed from fleet-infra, [record 59](../decisions/0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md)); rollback needs no signing (D7); an offline recovery key every verifier trusts (D10) |
 | Delivery to Vault | Disclosure: the signing key leaks | The key is not exportable |
 | Delivery to ghcr | Tampering: someone else moves a tag | Flux and the host appliers verify the signature; the tag is moved by a machine account's PAT, synced from Vault into a Secret Delivery mounts, with write only on the render and host packages and a check that fails on any other grant (D3) |
-| Estate to a provider | Disclosure: a store of estate data sits at a provider controlled from outside the EU | Every store runs on an EU-controlled provider or on owned hardware; ghcr is the one named exception until milestone M5; the Provider register lint fails a store outside the rule ([record 116](../decisions/0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md)) |
+| Estate to a provider | Disclosure: a store of estate data sits at a provider controlled from outside the EU | Every store runs on an EU-controlled provider or on owned hardware; each exception, ghcr for renders and host tags, Project images and fragments, the forge, CI and DNS, is a dated row of the provider-and-exit table; the Provider register lint fails a store outside the rule ([record 116](../decisions/0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md), [record 133](../decisions/0133-ownership-decides-the-eu-rule-and-every-exception-ends-on-a-calendar-date.md)) |
 | Delivery to API | Elevation: the dry-run identity writes | A ValidatingAdmissionPolicy refuses every request from Delivery's identity unless `dryRun` is set, except a write to its writer Lease `estate-kit-writer` and to ProjectControl objects ([record 58](../decisions/0058-flux-is-locked-down-per-project-and-delivery-dry-runs-as-an-identity-that-cannot-write.md)). The Release Gate writes under a service account of its own, limited to Jobs and its gate ConfigMap ([record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)) |
 | Application to Postgres | Elevation: an Application reads or changes another Tenant's rows | Shared tables with `tenant_id`, a row-level security policy on it and `FORCE ROW LEVEL SECURITY`; only the per-Project owner role has `BYPASSRLS`, used only by `migration-run` Jobs and the backup component; Application roles have no `BYPASSRLS` and own no table. The Tenant table lint, the Two-Tenant leak test and the Tenant role audit hold it ([record 114](../decisions/0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md)) |
 | Observation to Alertmanager | Elevation: the read side deploys, pauses or rolls back | Observation is its own binary with no Vault, ghcr or signing credential; its one write creates and expires Silences, with a credential for that API alone ([record 50](../decisions/0050-six-bounded-contexts-in-five-layers.md), [record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)) |

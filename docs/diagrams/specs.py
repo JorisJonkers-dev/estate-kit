@@ -41,8 +41,9 @@ use_case("uc11-roll-out-hosts", "Use case 11: roll out a host change", ["Project
          ["Derive the node order from the change", "Wait for the predecessor, or a recorded skip",
           "Take the Lease, evict pods", "Switch the generation", "Reboot inside the window"],
          secondary=[(2, "API server")])
-use_case("uc12-break-glass", "Use case 12: switch a node by hand", ["Operator"], "Switch a node by hand",
-         ["Verify the closure signature", "Switch without the Lease"], system="host applier")
+use_case("uc12-break-glass", "Use case 12: switch a node by hand", ["Maintainer"], "Switch a node by hand",
+         ["Run deploy-rs under the maintainer's SSH credential", "Switch outside the cache signature, without the Lease"],
+         system="the node")
 use_case("uc13-mailbox", "Use case 13: declare a Mailbox", ["Application author"], "Declare a Mailbox",
          ["Generate its password", "Provision the account"], secondary=[(1, "Stalwart")])
 
@@ -73,7 +74,7 @@ sequence("seq-deploy-3-switch", "Deploy, step 3 of 3: Flux applies and Flagger s
           ("F", "K", "apply the chain of Kustomizations, one per Apply group"),
           ("S", "K", "watch, read-only: Kustomizations, Canaries, Events, inventoried objects"),
           ("FG", "S", "Release Gate webhook"), ("S", "FG", "promote once every member is healthy", "reply"),
-          ("S", "CI", "Operation stream: Serving, Held, Superseded or Observation lost", "reply")])
+          ("S", "CI", "Operation ends: Serving, Held, Refused, Superseded or Observation lost", "reply")])
 sequence("seq-dry-run", "Dry-run of a release pull request",
          [("CI", "deploy job, dry-run"), ("S", "Delivery"), ("K", "API server"), ("GH", "GitHub")],
          [("CI", "CI", "build candidate images"), ("CI", "S", "deploy, dry-run (GitHub OIDC token)"),
@@ -155,12 +156,15 @@ sequence("seq-fail-host-crash", "Failure: the host applier crashes mid-switch an
 # ---------------------------------------------------------------------------------------------
 
 states("state-rollout", "State machine: a rollout",
-       [("[*]", "Accepted", ""), ("Accepted", "Composing", ""), ("Composing", "DryRun", "render changed"),
+       [("*]", "Accepted", ""), ("Accepted", "Composing", ""), ("Composing", "DryRun", "render changed"),
         ("Composing", "Serving", "render unchanged"), ("Composing", "Refused", "model error"),
         ("DryRun", "Signed", "accepted"), ("DryRun", "Refused", "rejected"), ("Signed", "Applying", "tag moved"),
         ("Applying", "Switching", "Flux applied"), ("Switching", "Serving", "all healthy"),
-        ("Switching", "Held", "analysis failed"), ("Serving", "[*]", ""), ("Refused", "[*]", ""), ("Held", "[*]", "")],
-       tones={"Serving": "good", "Refused": "bad", "Held": "warn"})
+        ("Applying", "Replaced", "a newer Operation closes it"),
+        ("Switching", "Held", "analysis failed"), ("Switching", "Replaced", "a newer Operation closes it"),
+        ("Held", "[*]", "24-hour deadline: the tag still names the held render"),
+        ("Serving", "[*]", ""), ("Refused", "[*]", ""), ("Replaced", "[*]", "")],
+       tones={"Serving": "good", "Refused": "bad", "Held": "warn", "Replaced": "warn"})
 states("state-project", "State machine: a Project, in one Environment",
        [("[*]", "Active", "admitted"), ("Active", "Paused", "pause"), ("Paused", "Active", "resume"),
         ("Active", "RolledBack", "roll back"), ("RolledBack", "Active", "next release")])
@@ -177,7 +181,7 @@ states("state-host-applier", "State machine: the host applier on one node",
 states("state-tenant", "State machine: a Tenant",
        [("[*]", "Active", "create"), ("Active", "TenantLock", "lock, restore or Mirror load"), ("TenantLock", "Active", "unlock"),
         ("Active", "Suspended", "suspend"), ("Suspended", "Active", "resume"),
-        ("Suspended", "Purged", "grace period ends, every finalizer released"), ("Purged", "[*]", "")],
+        ("Suspended", "Purged", "grace period ends, Purge marker written and verified, every finalizer released"), ("Purged", "[*]", "")],
        labels={"TenantLock": "Tenant lock"},
        tones={"Suspended": "warn", "TenantLock": "warn", "Purged": "bad"})
 states("state-mailbox", "State machine: a Mailbox",
@@ -307,7 +311,7 @@ g.system("applier", "host applier", "Switches one node at a time", kind="contain
 g.system("comps", "components", "Six reconcilers: migrations, secret grants, database and bucket catalogs, backups, Mailboxes",
          kind="container", tech="Rust, one image each", parent="ek")
 g.system("api", "Kubernetes API", "Dry-runs and status", kind="external")
-g.system("ghcr", "ghcr", "Fragments, renders, tags; outside the EU rule until M5", kind="external")
+g.system("ghcr", "ghcr", "Fragments, renders, tags; the EU rule's exception until the registry move, 2027-05-31", kind="external")
 g.system("flux", "Flux", "The one applier, locked down per Project", kind="external")
 g.system("vault", "Vault Transit", "Signing key", kind="external")
 g.system("tel", "Prometheus, Loki, Alertmanager, Gatus", "Metrics, logs, alerts, checks", kind="external")
@@ -338,7 +342,7 @@ g = Graph("deploy-placement", "Deployment: where each part runs")
 g.group("github", "«execution environment» GitHub", kind="node")
 g.box("repos", "Project repositories and runners", parent="github")
 g.box("estate", "estate repository", parent="github")
-g.group("registry", "«device» registry: the EU exception until M5", kind="node")
+g.group("registry", "«device» registry: the EU rule's exception until 2027-05-31", kind="node")
 g.store("ghcr", "ghcr: fragments, renders, tags", parent="registry")
 g.group("cluster", "«execution environment» Kubernetes cluster", kind="node")
 g.box("edge", "Traefik edge", parent="cluster")
@@ -943,24 +947,31 @@ g.done()
 g = Graph("recovery", "Recovery: how each store is captured, and where the copies live", direction="DOWN", layer_gap=70)
 g.group("cluster", "«execution environment» Kubernetes cluster", kind="node")
 g.store("ds", "k3s datastore", parent="cluster")
-g.store("pg", "platform-postgres: event log, job table, Tenant operation log", parent="cluster")
+g.store("pg", "platform-postgres: event log, job table, Tenant operation log, Tenant catalogue cache", parent="cluster")
 g.store("dbs", "Project databases, one per Environment", parent="cluster")
 g.store("vol", "local-path volumes other than Postgres", parent="cluster")
 g.store("vault", "Vault", parent="cluster")
 g.box("backupc", "backup component", tone="accent", parent="cluster")
 g.group("provider", "«device» EU-controlled provider", kind="node")
-g.store("kopia", "Kopia repository, one per Environment: Tenant exports, volume contents; 30-day COMPLIANCE lock on every object", parent="provider")
+g.store("kopia", "Kopia repository, one per Environment: Tenant exports, volume contents, Purge markers; 30-day COMPLIANCE lock on every object", parent="provider")
 g.store("pgbr", "pgBackRest repository, one per Environment: base backups (7 daily, 4 weekly, 6 monthly) plus the WAL archive; every object 30-day COMPLIANCE locked", parent="provider")
+g.group("provider2", "«device» second EU provider", kind="node")
+g.store("second", "Second copy of the Critical set: the Vault snapshot, the signing and repository credentials, the datastore snapshot; each copy within its stated age", parent="provider2")
 g.box("fleet", "fleet-infra", tone="external")
 g.box("probe", "WAL archive freshness check: fails when no WAL object is under 15 minutes old, or the newest has under 7 days of its 30-day lock left", tone="plain")
+g.box("probe2", "Second-copy freshness check: fails when an item has no second copy, or its newest copy is older than the age its row states", tone="plain")
 g.artifact("open", "No datastore backup is written today: the open item datastore backup, due 2027-04-30")
+g.artifact("holder", "The second copy's holder is not yet chosen: an open item, due 2027-04-30; the credentials' copy comes from the custody procedure's offline store")
 g.edge("ds", "open", "fleet-infra's to write; excluded from the drill until it exists", kind="assoc")
 g.edge("pg", "backupc", "pgBackRest: base backups plus WAL archived continuously, segment every 5 minutes")
 g.edge("dbs", "backupc", "pgBackRest: base backups plus WAL archived continuously")
 g.edge("vol", "backupc", "a daily snapshot")
-g.edge("backupc", "kopia", "writes Tenant exports and volume snapshots; writer key writes, never deletes a version or shortens a lock")
+g.edge("backupc", "kopia", "writes Tenant exports, volume snapshots and Purge markers; writer key writes, never deletes a version or shortens a lock")
 g.edge("backupc", "pgbr", "writes base backups and WAL; writer key writes, never deletes a version or shortens a lock")
 g.edge("probe", "pgbr", "reads each object's age and remaining lock", kind="assoc")
+g.edge("fleet", "second", "the Vault snapshot's and the datastore snapshot's second copies, written with each first copy, within 6 hours")
+g.edge("second", "holder", "kept reachable and usable by a named holder, an open item, due 2027-04-30", kind="assoc")
+g.edge("probe2", "second", "reads each item's newest copy and its age", kind="assoc")
 g.edge("fleet", "vault", "a raft snapshot every 6 hours, with an off-cluster copy")
 g.done()
 

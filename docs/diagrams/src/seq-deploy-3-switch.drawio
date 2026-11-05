@@ -31,7 +31,7 @@
         </UserObject>
         <UserObject label="deploy job" mermaidId="n:CI" mermaidBaseStyle="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;sequenceEdgeStyle&quot;,&quot;libavoidRouting&quot;:0,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" mermaidBaseValue="deploy job" id="7">
           <mxCell parent="1" style="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;sequenceEdgeStyle&quot;,&quot;libavoidRouting&quot;:0,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" vertex="1">
-            <mxGeometry height="472" width="150" x="1672" as="geometry" />
+            <mxGeometry height="472" width="150" x="1723" as="geometry" />
           </mxCell>
         </UserObject>
         <UserObject label="call the Project's Receiver after the Publication point" mermaidId="e:S-&gt;F#0" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;spacingBottom=2;edgeStyle=sequenceEdgeStyle;libavoidRouting=0;curved=0;rounded=0;fontSize=16;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" mermaidBaseValue="call the Project's Receiver after the Publication point" id="8">
@@ -118,14 +118,14 @@
         <mxCell id="19" parent="1" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;fontFamily=Helvetica;" value="6" vertex="1">
           <mxGeometry height="20" width="20" x="1222" y="331" as="geometry" />
         </mxCell>
-        <UserObject label="Operation stream: Serving, Held, Superseded or Observation lost" mermaidId="e:S-&gt;CI#0" mermaidBaseStyle="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;spacingBottom=2;edgeStyle=sequenceEdgeStyle;libavoidRouting=0;curved=0;rounded=0;fontSize=16;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" mermaidBaseValue="Operation stream: Serving, Held, Superseded or Observation lost" id="20">
+        <UserObject label="Operation ends: Serving, Held, Refused, Superseded or Observation lost" mermaidId="e:S-&gt;CI#0" mermaidBaseStyle="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;spacingBottom=2;edgeStyle=sequenceEdgeStyle;libavoidRouting=0;curved=0;rounded=0;fontSize=16;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" mermaidBaseValue="Operation ends: Serving, Held, Refused, Superseded or Observation lost" id="20">
           <mxCell edge="1" parent="1" source="6" style="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;spacingBottom=2;edgeStyle=sequenceEdgeStyle;libavoidRouting=0;curved=0;rounded=0;fontSize=16;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="7">
             <mxGeometry relative="1" as="geometry">
               <Array as="points">
-                <mxPoint x="1490" y="387" />
+                <mxPoint x="1515" y="387" />
               </Array>
               <mxPoint x="1232" y="387" as="sourcePoint" />
-              <mxPoint x="1747" y="387" as="targetPoint" />
+              <mxPoint x="1798" y="387" as="targetPoint" />
             </mxGeometry>
           </mxCell>
         </UserObject>
@@ -133,7 +133,7 @@
           <mxGeometry height="20" width="20" x="1222" y="377" as="geometry" />
         </mxCell>
         <mxCell id="header" value="Deploy, step 3 of 3: Flux applies and Flagger switches traffic" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=light-dark(#1a1a1a,#e8e8e8);fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="0" y="-64" width="1822" height="36" as="geometry" />
+          <mxGeometry x="0" y="-64" width="1873" height="36" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

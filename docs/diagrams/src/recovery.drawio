@@ -5,122 +5,164 @@
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="cluster" parent="1" style="swimlane;startSize=30;rounded=1;arcSize=4;absoluteArcSize=1;container=1;collapsible=0;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fontStyle=1;fillColor=none;swimlaneFillColor=none;strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="«execution environment» Kubernetes cluster" vertex="1">
-          <mxGeometry height="408" width="1272" x="73" y="243" as="geometry" />
+          <mxGeometry height="428" width="1374" x="581" y="313" as="geometry" />
         </mxCell>
         <mxCell id="ds" parent="cluster" style="shape=cylinder3;size=10;boundedLbl=1;backgroundOutline=1;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="k3s datastore" vertex="1">
-          <mxGeometry height="74" width="150" x="746.5" y="324" as="geometry" />
+          <mxGeometry height="74" width="150" x="731.5" y="344" as="geometry" />
         </mxCell>
-        <mxCell id="pg" parent="cluster" style="shape=cylinder3;size=10;boundedLbl=1;backgroundOutline=1;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="platform-postgres: event log, job table, Tenant operation log" vertex="1">
-          <mxGeometry height="114" width="381" x="839.5" y="40" as="geometry" />
+        <mxCell id="pg" parent="cluster" style="shape=cylinder3;size=10;boundedLbl=1;backgroundOutline=1;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="platform-postgres: event log, job table, Tenant operation log, Tenant catalogue cache" vertex="1">
+          <mxGeometry height="134" width="536" x="343" y="40" as="geometry" />
         </mxCell>
         <mxCell id="dbs" parent="cluster" style="shape=cylinder3;size=10;boundedLbl=1;backgroundOutline=1;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="Project databases, one per Environment" vertex="1">
-          <mxGeometry height="94" width="262" x="495" y="60" as="geometry" />
+          <mxGeometry height="94" width="262" x="41" y="80" as="geometry" />
         </mxCell>
         <mxCell id="vol" parent="cluster" style="shape=cylinder3;size=10;boundedLbl=1;backgroundOutline=1;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="local-path volumes other than Postgres" vertex="1">
-          <mxGeometry height="94" width="255" x="200" y="60" as="geometry" />
+          <mxGeometry height="94" width="255" x="919" y="80" as="geometry" />
         </mxCell>
         <mxCell id="vault" parent="cluster" style="shape=cylinder3;size=10;boundedLbl=1;backgroundOutline=1;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="Vault" vertex="1">
-          <mxGeometry height="74" width="150" x="10" y="40" as="geometry" />
+          <mxGeometry height="74" width="150" x="1214" y="40" as="geometry" />
         </mxCell>
         <mxCell id="backupc" parent="cluster" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#dae8fc,#1f3a5f);strokeColor=light-dark(#6c8ebf,#7aa7e0);fontFamily=Helvetica;" value="backup component" vertex="1">
-          <mxGeometry height="56" width="161" x="545.5" y="331.2" as="geometry" />
+          <mxGeometry height="56" width="161" x="530.5" y="351.2" as="geometry" />
         </mxCell>
-        <mxCell id="e2" edge="1" parent="cluster" source="pg" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.5;exitY=1;entryX=0.75;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="backupc" value="pgBackRest: base backups plus WAL archived continuously, segment every 5 minutes">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="154.48" y="-31" as="offset" />
-            <Array as="points">
-              <mxPoint x="1030" y="270" />
-              <mxPoint x="666.25" y="270" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="e3" edge="1" parent="cluster" source="dbs" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="backupc" value="pgBackRest: base backups plus WAL archived continuously">
+        <mxCell id="e2" edge="1" parent="cluster" source="pg" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="backupc" value="pgBackRest: base backups plus WAL archived continuously, segment every 5 minutes">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-3.6" as="offset" />
             <Array as="points">
-              <mxPoint x="626" y="242.6" />
+              <mxPoint x="611" y="262.6" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e4" edge="1" parent="cluster" source="vol" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.5;exitY=1;entryX=0.25;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="backupc" value="a daily snapshot">
+        <mxCell id="e3" edge="1" parent="cluster" source="dbs" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.5;exitY=1;entryX=0.25;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="backupc" value="pgBackRest: base backups plus WAL archived continuously">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-101.73" y="-31" as="offset" />
+            <mxPoint x="-171.98" y="-31" as="offset" />
             <Array as="points">
-              <mxPoint x="327.5" y="270" />
-              <mxPoint x="585.75" y="270" />
+              <mxPoint x="172" y="290" />
+              <mxPoint x="570.75" y="290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="cluster" source="vol" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.5;exitY=1;entryX=0.75;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="backupc" value="a daily snapshot">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="170.23" y="-31" as="offset" />
+            <Array as="points">
+              <mxPoint x="1046.5" y="290" />
+              <mxPoint x="651.25" y="290" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="provider" parent="1" style="swimlane;startSize=30;rounded=1;arcSize=4;absoluteArcSize=1;container=1;collapsible=0;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fontStyle=1;fillColor=none;swimlaneFillColor=none;strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="«device» EU-controlled provider" vertex="1">
-          <mxGeometry height="224" width="1766" x="100" y="831" as="geometry" />
+          <mxGeometry height="224" width="1865" x="12" y="921" as="geometry" />
         </mxCell>
-        <mxCell id="kopia" parent="provider" style="shape=cylinder3;size=10;boundedLbl=1;backgroundOutline=1;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="Kopia repository, one per Environment: Tenant exports, volume contents; 30-day COMPLIANCE lock on every object" vertex="1">
-          <mxGeometry height="134" width="734" x="10" y="40" as="geometry" />
+        <mxCell id="kopia" parent="provider" style="shape=cylinder3;size=10;boundedLbl=1;backgroundOutline=1;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="Kopia repository, one per Environment: Tenant exports, volume contents, Purge markers; 30-day COMPLIANCE lock on every object" vertex="1">
+          <mxGeometry height="154" width="833" x="10" y="40" as="geometry" />
         </mxCell>
         <mxCell id="pgbr" parent="provider" style="shape=cylinder3;size=10;boundedLbl=1;backgroundOutline=1;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="pgBackRest repository, one per Environment: base backups (7 daily, 4 weekly, 6 monthly) plus the WAL archive; every object 30-day COMPLIANCE locked" vertex="1">
-          <mxGeometry height="174" width="972" x="784" y="40" as="geometry" />
+          <mxGeometry height="174" width="972" x="883" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="provider2" parent="1" style="swimlane;startSize=30;rounded=1;arcSize=4;absoluteArcSize=1;container=1;collapsible=0;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fontStyle=1;fillColor=none;swimlaneFillColor=none;strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="«device» second EU provider" vertex="1">
+          <mxGeometry height="224" width="932" x="2000" y="381" as="geometry" />
+        </mxCell>
+        <mxCell id="second" parent="provider2" style="shape=cylinder3;size=10;boundedLbl=1;backgroundOutline=1;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="Second copy of the Critical set: the Vault snapshot, the signing and repository credentials, the datastore snapshot; each copy within its stated age" vertex="1">
+          <mxGeometry height="174" width="912" x="10" y="40" as="geometry" />
         </mxCell>
         <mxCell id="fleet" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#eeeeee,#303030);strokeColor=light-dark(#999999,#8a8a8a);fontFamily=Helvetica;" value="fleet-infra" vertex="1">
-          <mxGeometry height="56" width="160" x="78" y="12" as="geometry" />
+          <mxGeometry height="56" width="160" x="1817" y="82" as="geometry" />
         </mxCell>
         <mxCell id="probe" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="WAL archive freshness check: fails when no WAL object is under 15 minutes old, or the newest has under 7 days of its 30-day lock left" vertex="1">
-          <mxGeometry height="126" width="843" x="1385" y="525" as="geometry" />
+          <mxGeometry height="126" width="843" x="2972" y="615" as="geometry" />
+        </mxCell>
+        <mxCell id="probe2" parent="1" style="rounded=1;arcSize=10;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#f5f5f5,#2b2b2b);strokeColor=light-dark(#666666,#a8a8a8);fontFamily=Helvetica;" value="Second-copy freshness check: fails when an item has no second copy, or its newest copy is older than the age its row states" vertex="1">
+          <mxGeometry height="126" width="782" x="2337" y="12" as="geometry" />
         </mxCell>
         <mxCell id="open" parent="1" style="shape=note;size=14;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="No datastore backup is written today: the open item datastore backup, due 2027-04-30" vertex="1">
-          <mxGeometry height="86" width="549" x="1906" y="831" as="geometry" />
+          <mxGeometry height="86" width="549" x="1917" y="921" as="geometry" />
+        </mxCell>
+        <mxCell id="holder" parent="1" style="shape=note;size=14;html=1;whiteSpace=wrap;fontSize=14;fontColor=light-dark(#1a1a1a,#e8e8e8);fillColor=light-dark(#fff2cc,#3a3220);strokeColor=light-dark(#d6b656,#c9a74a);fontFamily=Helvetica;" value="The second copy's holder is not yet chosen: an open item, due 2027-04-30; the credentials' copy comes from the custody procedure's offline store" vertex="1">
+          <mxGeometry height="146" width="916" x="2506" y="921" as="geometry" />
         </mxCell>
         <mxCell id="e1" edge="1" parent="1" source="ds" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=none;curved=0;exitX=0.5033;exitY=1;entryX=0.5009;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="open" value="fleet-infra's to write; excluded from the drill until it exists">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="579" y="69" as="offset" />
+            <mxPoint x="348" y="59" as="offset" />
             <Array as="points">
-              <mxPoint x="895" y="656" />
-              <mxPoint x="895" y="672" />
-              <mxPoint x="2181" y="672" />
+              <mxPoint x="1388" y="746" />
+              <mxPoint x="1388" y="772" />
+              <mxPoint x="2192" y="772" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e5" edge="1" parent="1" source="backupc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.3323;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="kopia" value="writes Tenant exports and volume snapshots; writer key writes, never deletes a version or shortens a lock">
+        <mxCell id="e5" edge="1" parent="1" source="backupc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.3323;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="kopia" value="writes Tenant exports, volume snapshots and Purge markers; writer key writes, never deletes a version or shortens a lock">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-18.9" y="69" as="offset" />
+            <mxPoint x="-284.62" y="69" as="offset" />
             <Array as="points">
-              <mxPoint x="672" y="656" />
-              <mxPoint x="672" y="672" />
-              <mxPoint x="477" y="672" />
-              <mxPoint x="477" y="826" />
+              <mxPoint x="1165" y="746" />
+              <mxPoint x="1165" y="762" />
+              <mxPoint x="439" y="762" />
+              <mxPoint x="438.5" y="916" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="e6" edge="1" parent="1" source="backupc" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.6677;exitY=1;entryX=0.3333;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="pgbr" value="writes base backups and WAL; writer key writes, never deletes a version or shortens a lock">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="172.4" y="59" as="offset" />
+            <mxPoint y="-9.6" as="offset" />
             <Array as="points">
-              <mxPoint x="726" y="656" />
-              <mxPoint x="726" y="682" />
-              <mxPoint x="1208" y="682" />
-              <mxPoint x="1208" y="826" />
+              <mxPoint x="1219" y="746" />
+              <mxPoint x="1219" y="916" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="e7" edge="1" parent="1" source="probe" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=none;curved=0;exitX=0.5006;exitY=1;entryX=0.6667;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="pgbr" value="reads each object's age and remaining lock">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="126.5" y="-31" as="offset" />
+            <mxPoint x="-558.5" y="69" as="offset" />
             <Array as="points">
-              <mxPoint x="1807" y="772" />
-              <mxPoint x="1532" y="772" />
-              <mxPoint x="1532" y="826" />
+              <mxPoint x="3394" y="762" />
+              <mxPoint x="1821" y="762" />
+              <mxPoint x="1821" y="862" />
+              <mxPoint x="1543" y="862" />
+              <mxPoint x="1543" y="916" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e8" edge="1" parent="1" source="fleet" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="vault" value="a raft snapshot every 6 hours, with an off-cluster copy">
+        <mxCell id="e8" edge="1" parent="1" source="fleet" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.6688;exitY=1;entryX=0.3333;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="second" value="the Vault snapshot's and the datastore snapshot's second copies, written with each first copy, within 6 hours">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="69.5" y="69" as="offset" />
+            <Array as="points">
+              <mxPoint x="1924" y="154" />
+              <mxPoint x="2314" y="154" />
+              <mxPoint x="2314" y="376" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="second" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=none;curved=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="holder" value="kept reachable and usable by a named holder, an open item, due 2027-04-30">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="263" y="59" as="offset" />
+            <Array as="points">
+              <mxPoint x="2466" y="610" />
+              <mxPoint x="2466" y="772" />
+              <mxPoint x="2964" y="772" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="probe2" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=none;curved=0;exitX=0.5;exitY=1;entryX=0.6667;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="second" value="reads each item's newest copy and its age">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="80.5" y="-31" as="offset" />
+            <Array as="points">
+              <mxPoint x="2728" y="254" />
+              <mxPoint x="2618" y="254" />
+              <mxPoint x="2618" y="376" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="fleet" style="html=1;rounded=1;fontSize=14;fontSize=12;fontColor=light-dark(#1a1a1a,#e8e8e8);strokeColor=light-dark(#666666,#a8a8a8);endArrow=block;endFill=1;endSize=8;curved=0;exitX=0.3313;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="vault" value="a raft snapshot every 6 hours, with an off-cluster copy">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-22.5" as="offset" />
             <Array as="points">
-              <mxPoint x="158" y="238" />
+              <mxPoint x="1870" y="308" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="header" value="Recovery: how each store is captured, and where the copies live" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=light-dark(#1a1a1a,#e8e8e8);fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="73" y="-52" width="2382" height="36" as="geometry" />
+          <mxGeometry x="12" y="-52" width="3803" height="36" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

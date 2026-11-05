@@ -11,6 +11,9 @@ Accepted, and nothing rests on it.
 A line that starts `Revised:` (a wording fix edited in place) reads `Revised: YYYY-MM-DD: <what changed>`,
 with a real date and a sentence. A silent edit leaves no line, so this check cannot see it: review and
 the pull-request title rule catch it.
+The two records a Purge holds (numbered 82 and 110) each state both Purge rules: a Purge writes
+and verifies its Purge marker in the locked repository before it deletes anything, and a restore
+does not un-purge the Tenant. A record text that omits either is reported.
 Every record file has a non-empty Confirmation, and each check it names, in bold, is a row of the
 checks table on the design page (the first column of the table under "## The checks").
 An Accepted or Locked record may declare in its front matter the records it amends (`amends`) and
@@ -44,6 +47,13 @@ CHECK_NAME = re.compile(r"\*\*([^*]+)\*\*")
 REVISED = re.compile(r"^Revised:")
 REVISED_LINE = re.compile(r"^Revised: (\d{4}-\d{2}-\d{2}): \S")
 PENDING = re.compile(r"when\s+this\s+record\s+is\s+accepted", re.IGNORECASE)
+PURGE_RULES = {
+    "purge-marker-first": re.compile(
+        r"writes and verifies its Purge marker in the locked repository before it deletes anything"
+    ),
+    "restore-not-un-purge": re.compile(r"A restore does not un-purge the Tenant"),
+}
+PURGE_RULE_RECORDS = (82, 110)
 
 
 @dataclass(frozen=True)
@@ -304,6 +314,15 @@ def violations(decisions: Path, lessons_file: Path, checks_page: Path) -> list[V
             found.append(Violation(
                 f"revised-line {number}", record.path,
                 f"a Revised line must read 'Revised: YYYY-MM-DD: <what changed>', with a real date and a sentence; got {line!r}"))
+        if number in PURGE_RULE_RECORDS:
+            unwrapped = " ".join(text.split())
+            for rule_name, rule in PURGE_RULES.items():
+                if not rule.search(unwrapped):
+                    found.append(Violation(
+                        f"purge-rules {number} {rule_name}", record.path,
+                        f"record {number} omits the {rule_name} rule; a Purge writes and verifies its "
+                        "Purge marker in the locked repository before it deletes anything, and a "
+                        "restore does not un-purge the Tenant"))
         named = list(dict.fromkeys(" ".join(m.group(1).split()).strip("`") for m in CHECK_NAME.finditer(body)))
         if record.status in ACCEPTED and PENDING.search(text):
             found.append(Violation(
