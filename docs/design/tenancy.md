@@ -1,11 +1,9 @@
 # Tenancy
 
 The estate learns what a Tenant is: an organisation its Applications serve,
-within one Environment. This page is the home of that design. It holds one
-section per decision, and each section is filled when its record is written.
-Until then a section only says which ticket fills it. The decisions are the
-Proposed records that the [register](../decisions/register.md) plans as rows
-75 to 84; where a page and a record disagree, the record wins and the page is
+within one Environment. This page is the home of that design. Each section
+states one decision and links to the record that holds it; where a page and a
+record disagree, the record wins and the page is
 what gets fixed. The terms are those of the [vocabulary](../vocabulary.md):
 Environment, Tenant, Tenant key, Tenant handle, Tenant export, Backup
 generation, Mirror, Membership, Canary Tenant, Tenant lock, Tenant hook, Tenant

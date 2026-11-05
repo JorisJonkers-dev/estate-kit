@@ -1,8 +1,10 @@
 # The register, as planned
 
-The records, in reading order, with their current status. Each title becomes a file `NNNN-<slug>.md` here when written, from [the template](template.md). Records 42 onwards are placed into reading order when the register is written; the model's own records follow after the cutover. Rows 75 to 84 are the ten records of the [tenancy design](../design/tenancy.md), accepted on 2026-11-02. Rows 85 to 113 are the records the architecture evaluation of 2026-11-04 implies; each is planned, with no file yet, until its record is written, and the evaluation's amendments to records 8, 28, 30 and 31 are made in those records while they are Proposed.
-
-The [design review](../research/review/README.md) of 2026-10-22 changed or added the rows marked Proposed; they stay Proposed until their records are written and accepted ([#20](https://github.com/JorisJonkers-dev/estate-kit/issues/20)). The move to an all-Rust workspace on 2026-10-29 changed rows 13 to 18, 48, 50 and 55 and added 65 to 71; the records already written are linked. The maintainer accepted 13 to 18 (except 16, already accepted and now merged into 15), 48, 50, 55, 63 and 65 to 71 the same day.
+The records, in reading order, with their current status: a row binds only
+through its record file, and a row without one is planned, not binding. What a
+record must hold, which checks keep one honest, and how a wording or a rule
+changes — [the decision register's README](README.md), and records start from
+[the template](template.md).
 
 | # | Record | Status | Enforcement |
 | --- | --- | --- | --- |

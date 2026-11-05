@@ -14,6 +14,8 @@ Amended by [record 104](0104-every-reconciler-estate-kit-owns-passes-crash-point
 the foundation's `testkit` crate gains the crash-point harness that every
 reconciler passes before it takes production responsibility.
 
+Revised: 2026-11-05: Observation's writes are named, not counted as one: the Silences and, as [record 92](0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md) added it, the cost ledger's rows, each under its own narrow credential.
+
 ## Context
 
 The design named four contexts: compiler, service, host applier and
@@ -74,16 +76,18 @@ Observation ships as its own binary and its own Deployment, with its own
 read-only adapters: its own kube adapter, and adapters for Prometheus, Loki,
 Alertmanager and Gatus. It does not link Delivery's adapters. It holds no
 Vault, ghcr or signing credential and none that can deploy, pause or roll
-back. Its one write, creating and expiring Silences, uses the narrow
-credential that [record 74](0074-the-release-gate-and-observation-each-have-a-named-write.md)
-names. The boundary therefore holds at the process level as well as the crate
+back. Its writes are the ones [record 74](0074-the-release-gate-and-observation-each-have-a-named-write.md)
+names — as [record 92](0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md)
+added it, creating and expiring Silences, and appending the cost ledger's
+rows — each under its own narrow credential. The boundary therefore holds at
+the process level as well as the crate
 level.
 
 ## Alternatives
 
 | Option | Cost if taken | Why rejected |
 | --- | --- | --- |
-| Four contexts, the read views inside Delivery | Prometheus, Loki and Alertmanager clients beside the rollout core; read code near credentials that write | The read side holds no credential that can deploy; its one write is silences, under its own narrow credential |
+| Four contexts, the read views inside Delivery | Prometheus, Loki and Alertmanager clients beside the rollout core; read code near credentials that write | The read side holds no credential that can deploy; its writes are silences and the cost ledger's rows, each under its own narrow credential |
 | Observation a context but in Delivery's binary | Delivery's Vault, ghcr and signing credentials share a process with the read adapters; one Deployment, one set of mounted secrets | A crate boundary does not stop a credential being read in the same process |
 | One context | Nothing stops the host applier importing model types | The applier must work when the cluster and the compiler are not there |
 | One crate per binary, modules for layers | Visibility only by `pub(crate)`; every change rebuilds the binary's whole crate; mutants rebuild everything | The compile and mutation cost the maintainer named |

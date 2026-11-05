@@ -131,8 +131,10 @@ logs, health, checks) are a separate context in a separate process
 link `adapter-kube`, `adapter-vault` or `adapter-ghcr`; it has its own kube
 adapter, `adapter-observation-kube`, with a service account that can only read.
 It holds no Vault, ghcr or signing credential and none that can deploy, pause
-or roll back. It has one write: Alertmanager silences, with a credential for
-that API alone ([record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)).
+or roll back. Its writes are the ones [record 74](../decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md)
+names, with the cost ledger's rows [record 92](../decisions/0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md)
+added: Alertmanager silences, with a credential for
+that API alone, and the ledger's rows in its own schema.
 A source that is down greys out its panel without touching a rollout.
 
 Observation reads rollout history and events from Delivery's HTTP API

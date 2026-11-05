@@ -11,6 +11,8 @@ Amended by [record 140](0140-break-glass-custody-is-written-and-drilled-and-a-na
 
 Revised: 2026-11-05: a host tag is now a numbered, immutable `host/<node>:<number>` tag, so the host signing key signs each publication, not a moving `:prod` tag.
 
+Revised: 2026-11-05: the render signing key signs every Environment's `render/<project>:<env>` tag — production's among them ([record 28](0028-pause-and-rollback-are-a-cluster-object-per-project.md), amended by [record 118](0118-a-rollback-is-per-environment-and-targets-a-digest-that-reached-serving.md)); its Vault policy path is the Environment tag pattern, not only `:prod`.
+
 ## Context
 
 The first design signed renders and host tags with one Vault Transit key. A
@@ -24,10 +26,12 @@ any workflow could read it. How the closures are built and cached is
 
 ## Decision
 
-- **Two Transit keys.** The render signing key signs `render/<project>:prod`
-  artifacts; the host signing key signs each node's numbered
-  `host/<node>:<number>` tag. Delivery's Vault policy can use
-  each only for its own signing path.
+- **Two Transit keys.** The render signing key signs each Environment's
+  `render/<project>:<env>` tag, production's `render/<project>:prod` among
+  them ([record 28](0028-pause-and-rollback-are-a-cluster-object-per-project.md),
+  amended by [record 118](0118-a-rollback-is-per-environment-and-targets-a-digest-that-reached-serving.md));
+  the host signing key signs each node's numbered `host/<node>:<number>` tag.
+  Delivery's Vault policy can use each only for its own signing path.
 - **An environment-scoped cache signing key.** The key that signs the binary
   cache's closures is a GitHub environment secret, usable only on `main` and
   only after a reviewer approves the run. Nodes trust its public half through

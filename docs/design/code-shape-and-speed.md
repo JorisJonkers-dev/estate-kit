@@ -290,7 +290,7 @@ A rule that no check can hold, such as a review rule, is written without a bold 
 | Prune protection test | A rendered namespace, a claim whose volume is `recoverable` or `irreplaceable`, a Mailbox, a bucket, a database or a rendered CRD lacks the prune-disabled mark, or a render in which a rendered CRD disappeared leaves its custom resources removable | [105](../decisions/0105-removal-is-a-retire-lifecycle-with-durable-retirement-tombstones-and-declared-moves-and-prune-protected-kinds-never-prune.md), [119](../decisions/0119-a-rendered-crd-is-prune-protected-and-retirement-tombstones-survive-a-crd-drop.md) | Render test, every run | planned, [#63](https://github.com/JorisJonkers-dev/estate-kit/issues/63) |
 | Retire refusal fixtures | The plan accepts a removal and an addition of one kind under one owner with no declared move or confirmed retirement, or treats a declared move as a retirement | [105](../decisions/0105-removal-is-a-retire-lifecycle-with-durable-retirement-tombstones-and-declared-moves-and-prune-protected-kinds-never-prune.md) | Compiler test, every run | planned, [#62](https://github.com/JorisJonkers-dev/estate-kit/issues/62) |
 | Retirement tombstone tests | A component deletes a durable object without a tombstone, before its grace period (30 days unless its policy says otherwise), or without a verified recovery copy; a cancelled retirement still deletes; restored data serves before the tombstones are applied; or a Retirement tombstone is removed with a dropped CRD | [105](../decisions/0105-removal-is-a-retire-lifecycle-with-durable-retirement-tombstones-and-declared-moves-and-prune-protected-kinds-never-prune.md), [119](../decisions/0119-a-rendered-crd-is-prune-protected-and-retirement-tombstones-survive-a-crd-drop.md) | Each component's tests, every run | planned, [#69](https://github.com/JorisJonkers-dev/estate-kit/issues/69) |
-| Restore procedure graph check | A step of the restore procedure names a dependency that is no step, the steps form a cycle, or a Durability class has no restore step | [106](../decisions/0106-the-control-plane-is-restored-in-a-dependency-order-that-is-tested-drilled-and-timed.md) | CI | planned, [#72](https://github.com/JorisJonkers-dev/estate-kit/issues/72) |
+| Restore procedure graph check | A step of the restore procedure names a dependency that is no step, the steps form a cycle, or a Recovery class has no restore step | [106](../decisions/0106-the-control-plane-is-restored-in-a-dependency-order-that-is-tested-drilled-and-timed.md) | CI | planned, [#72](https://github.com/JorisJonkers-dev/estate-kit/issues/72) |
 | Restore order rehearsal | The restore procedure, run on a throwaway cluster from backups alone, does not bring every Project back to Serving, or unsuspends a data-holding Project before its volumes are restored | [106](../decisions/0106-the-control-plane-is-restored-in-a-dependency-order-that-is-tested-drilled-and-timed.md) | CI, on every release | planned, [#72](https://github.com/JorisJonkers-dev/estate-kit/issues/72) |
 | Cold-rebuild drill record | The last drill on the real estate is older than a year, or its recorded time or data loss exceeds the targets | [106](../decisions/0106-the-control-plane-is-restored-in-a-dependency-order-that-is-tested-drilled-and-timed.md) | Scheduled job, alerting | planned, [#72](https://github.com/JorisJonkers-dev/estate-kit/issues/72) |
 | Policy edge pairing test | A rendered policy allows an egress with no matching ingress at the other end, or the reverse | [107](../decisions/0107-network-policy-moves-from-render-only-through-a-staged-or-audited-window-to-enforcement.md), [126](../decisions/0126-network-policy-is-enforced-on-kube-router-with-a-declared-rollback.md) | Compiler test, every run | planned, [#63](https://github.com/JorisJonkers-dev/estate-kit/issues/63) |
@@ -333,9 +333,13 @@ on it, so the crate graph decides the cost:
   survivor.
 - **Turned on per crate.** A crate joins the 100% gate when its tests are in;
   until then it reports ([process-5](../research/review/process-and-plan.md)).
-- **An equivalent mutant is a design smell.** It is rewritten, not excluded.
-  An exclusion in `.cargo/mutants.toml` needs a reason and an issue, and the
-  number of exclusions is held at zero by the ratchet.
+- **An equivalent mutant is a design smell.** It is rewritten where the code
+  can be made clearer; where it cannot, it may be excluded: an exclusion in
+  `.cargo/mutants.toml` names the one mutant, says why it is equivalent, and
+  links the pull request that reviewed it
+  ([record 111](../decisions/0111-decision-status-and-enforcement-status-are-separate.md)),
+  and the weekly full run reports the count of exclusions instead of holding it
+  at zero.
 
 ## Speed budgets
 

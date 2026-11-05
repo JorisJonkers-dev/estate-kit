@@ -32,7 +32,7 @@ The one route by which live facts reach a render: Delivery captures them, digest
 _Avoid_: cluster facts, live state, cluster inventory
 
 **Render signing key**:
-The Vault Transit key that signs `render/<project>:prod`. Flux verifies renders against it. Delivery's Vault policy may use it only for that path; it never signs a host tag.
+The Vault Transit key that signs each of a Project's Environment tags (`render/<project>:<env>`, production's among them). Flux verifies renders against it. Delivery's Vault policy may use it only for that tag pattern; it never signs a host tag.
 _Avoid_: render key, Transit key
 
 **Host signing key**:
@@ -104,7 +104,7 @@ The digest each Rollout event row carries of the stored content of the row befor
 _Avoid_: parent hash, chain hash, event hash
 
 **Observation**:
-The context that shows what runs and how it is doing: units, pods, containers, alerts and silences, logs, health and checks. It reads, except that it creates and expires Alertmanager silences with a credential for that API alone. It holds no credential that can deploy, pause or roll back.
+The context that shows what runs and how it is doing: units, pods, containers, alerts and silences, logs, health and checks. It reads, except for its named writes: it creates and expires Alertmanager silences with a credential for that API alone, and appends the cost ledger's rows in its own schema, each with a credential for that write alone ([record 74](docs/decisions/0074-the-release-gate-and-observation-each-have-a-named-write.md), as [record 92](docs/decisions/0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md) added it). It holds no credential that can deploy, pause or roll back.
 _Avoid_: dashboard backend, monitoring
 
 **Viewer**:

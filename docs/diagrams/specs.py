@@ -132,8 +132,8 @@ sequence("seq-drift-check", "Nightly drift check",
           ("opt", "they differ", [("S", "G", "report the drift as an issue or a check")])])
 sequence("seq-fail-retry", "Failure: the deploy response is lost and the job retries",
          [("CI", "deploy job"), ("S", "Delivery"), ("DB", "event log")],
-         [("CI", "S", "deploy (Project, fragment digest)"), ("S", "DB", "rollout created"),
-          ("S", "CI", "response lost (timeout)", "reply"), ("CI", "S", "retry: same Project and digest"),
+         [("CI", "S", "deploy (Operation id, fragment digest)"), ("S", "DB", "rollout created"),
+          ("S", "CI", "response lost (timeout)", "reply"), ("CI", "S", "retry: same Operation id and digest"),
           ("S", "DB", "find the existing rollout"), ("S", "CI", "same rollout id, no second run", "reply")])
 sequence("seq-fail-stream", "Failure: the event stream drops and resumes",
          [("CI", "deploy job"), ("S", "Delivery"), ("DB", "event log")],
@@ -302,7 +302,7 @@ g.person("op", "Operator", "In a browser")
 g.group("ek", "estate-kit")
 g.system("cli", "estate-kit CLI", "Validates and plans offline", kind="container", tech="Rust, one binary", parent="ek")
 g.system("ui", "UI", "Rollouts, Projects, hosts", kind="container", tech="Vue, embedded in Observation", parent="ek")
-g.system("obs", "Observation", "Read-only views of what runs; creates and expires Silences", kind="container",
+g.system("obs", "Observation", "Read-only views of what runs; Silences and the cost ledger's rows", kind="container",
          tech="Rust, its own binary and Deployment", parent="ek")
 g.system("svc", "Delivery", "Composes, dry-runs, signs, streams rollouts, runs the Release Gate", kind="container",
          tech="Rust, links the compiler", parent="ek")

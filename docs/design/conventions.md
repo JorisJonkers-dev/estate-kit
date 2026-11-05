@@ -7,7 +7,7 @@ record, and a check enforces it.
 | --- | --- | --- |
 | Delivery API | OpenAPI 3.1 for every endpoint and SSE event type, referencing the committed JSON Schemas | A test that the axum routes and their request and response types match the committed document; the Vue client generated from it |
 | Errors | RFC 9457 problem+json; `type` names one code from the catalogue the compiler's diagnostics also use | A test that every code has a catalogue entry and a fixture |
-| Retries | A deploy call is idempotent on (project, fragment digest); no Idempotency-Key header | A test that a retry returns the same rollout |
+| Retries | A deploy call is idempotent on the caller's Operation id; no Idempotency-Key header | A test that a retry returns the same Operation, and that the same id with another digest is refused |
 | Ordering | Events are ordered by sequence within one rollout | The event log's unique (rollout id, sequence) key |
 | Delivery | The stream is at-least-once; clients resume by sequence and drop duplicates | A resume test |
 | Lists | Cursor pagination | The OpenAPI lint |

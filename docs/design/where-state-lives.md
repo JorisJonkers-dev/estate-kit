@@ -99,7 +99,7 @@ fails when an item's newest copy grows older than the age its row states.
 | Fact | Today | estate-kit |
 | --- | --- | --- |
 | Image digests | `images.lock.yml` in estate, plus each build's share | Sealed into the signed Intent Fragment at release, each registered by the Project's own build; no file in git |
-| Current render of a Project | Pin commit in `estate/projects/<p>/source.yaml` | Signed registry tag `render/<p>:prod` that Delivery moves |
+| Current render of a Project | Pin commit in `estate/projects/<p>/source.yaml` | Signed registry tag `render/<p>:<env>` — the Environment tag of each Environment; the Prod tag among them — that Delivery moves |
 | What runs | Flux status, read back via the estate repo | Flux and Kubernetes object status, read live |
 | Release history | Pin commits plus GitHub Deployments | GitHub Deployments on each Project's repository, and Delivery's event log on the shared platform-postgres |
 | Paused, rolled back to X | Pin commits by `pause.yml` and `rollback.yml` | One cluster object per Project, written only by Delivery; a missing object reads as Paused |
