@@ -7,6 +7,8 @@ lessons: [DR-1, DR-2]
 
 # Signing keys: renders and host tags by separate Transit keys, closures by an environment-scoped key, and an offline recovery key
 
+Revised: 2026-11-05: a host tag is now a numbered, immutable `host/<node>:<number>` tag, so the host signing key signs each publication, not a moving `:prod` tag.
+
 ## Context
 
 The first design signed renders and host tags with one Vault Transit key. A
@@ -21,7 +23,8 @@ any workflow could read it. How the closures are built and cached is
 ## Decision
 
 - **Two Transit keys.** The render signing key signs `render/<project>:prod`
-  artifacts; the host signing key signs `host/<node>:prod` tags. Delivery's Vault policy can use
+  artifacts; the host signing key signs each node's numbered
+  `host/<node>:<number>` tag. Delivery's Vault policy can use
   each only for its own signing path.
 - **An environment-scoped cache signing key.** The key that signs the binary
   cache's closures is a GitHub environment secret, usable only on `main` and

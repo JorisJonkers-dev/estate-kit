@@ -6,74 +6,74 @@
         <mxCell id="1" parent="0" />
         <UserObject label="Waiting for the Lease" mermaidId="n:WaitingForLease" mermaidBaseStyle="rounded=1;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;strokeWidth=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" mermaidBaseValue="Waiting for the Lease" id="2">
           <mxCell parent="1" style="rounded=1;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;strokeWidth=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" vertex="1">
-            <mxGeometry height="40" width="169" x="73" y="741" as="geometry" />
+            <mxGeometry height="40" width="169" x="89" y="741" as="geometry" />
           </mxCell>
         </UserObject>
         <UserObject label="Health check" mermaidId="n:HealthCheck" mermaidBaseStyle="rounded=1;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;strokeWidth=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" mermaidBaseValue="Health check" id="3">
           <mxCell parent="1" style="rounded=1;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;strokeWidth=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" vertex="1">
-            <mxGeometry height="40" width="110" x="103" y="1386" as="geometry" />
+            <mxGeometry height="40" width="110" x="119" y="1386" as="geometry" />
           </mxCell>
         </UserObject>
         <UserObject label="Current (new generation)" mermaidId="n:CurrentNew" mermaidBaseStyle="rounded=1;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;strokeWidth=1;fillColor=light-dark(#d5e8d4,#21402a);strokeColor=light-dark(#82b366,#7fc08c);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" mermaidBaseValue="Current (new generation)" id="4">
           <mxCell parent="1" style="rounded=1;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;strokeWidth=1;fillColor=light-dark(#d5e8d4,#21402a);strokeColor=light-dark(#82b366,#7fc08c);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" vertex="1">
-            <mxGeometry height="40" width="198" x="41" y="1601" as="geometry" />
+            <mxGeometry height="40" width="198" x="57" y="1601" as="geometry" />
           </mxCell>
         </UserObject>
         <UserObject label="Rolled back to the previous generation" mermaidId="n:RolledBack" mermaidBaseStyle="rounded=1;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;strokeWidth=1;fillColor=light-dark(#f8cecc,#4a2525);strokeColor=light-dark(#b85450,#d47a7a);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" mermaidBaseValue="Rolled back to the previous generation" id="5">
           <mxCell parent="1" style="rounded=1;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;strokeWidth=1;fillColor=light-dark(#f8cecc,#4a2525);strokeColor=light-dark(#b85450,#d47a7a);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" vertex="1">
-            <mxGeometry height="40" width="294" x="289" y="1601" as="geometry" />
+            <mxGeometry height="40" width="294" x="305" y="1601" as="geometry" />
           </mxCell>
         </UserObject>
         <UserObject label="" mermaidId="n:root_start" mermaidBaseStyle="ellipse;html=1;fillColor=light-dark(#333333,#cccccc);strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" mermaidBaseValue="" id="6">
           <mxCell parent="1" style="ellipse;html=1;fillColor=light-dark(#333333,#cccccc);strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" vertex="1">
-            <mxGeometry height="14" width="14" x="134" y="12" as="geometry" />
+            <mxGeometry height="14" width="14" x="150" y="12" as="geometry" />
           </mxCell>
         </UserObject>
         <UserObject label="Current" mermaidId="n:Current" mermaidBaseStyle="rounded=1;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;strokeWidth=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" mermaidBaseValue="Current" id="7">
           <mxCell parent="1" style="rounded=1;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;strokeWidth=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" vertex="1">
-            <mxGeometry height="40" width="71" x="105" y="96" as="geometry" />
+            <mxGeometry height="40" width="71" x="121" y="96" as="geometry" />
           </mxCell>
         </UserObject>
         <UserObject label="Fetched" mermaidId="n:Fetched" mermaidBaseStyle="rounded=1;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;strokeWidth=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" mermaidBaseValue="Fetched" id="8">
           <mxCell parent="1" style="rounded=1;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;strokeWidth=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" vertex="1">
-            <mxGeometry height="40" width="74" x="104" y="311" as="geometry" />
+            <mxGeometry height="40" width="74" x="120" y="311" as="geometry" />
           </mxCell>
         </UserObject>
         <UserObject label="Staged" mermaidId="n:Staged" mermaidBaseStyle="rounded=1;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;strokeWidth=1;fillColor=light-dark(#ffe6cc,#4a3820);strokeColor=light-dark(#d79b00,#d9a050);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" mermaidBaseValue="Staged" id="9">
           <mxCell parent="1" style="rounded=1;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;strokeWidth=1;fillColor=light-dark(#ffe6cc,#4a3820);strokeColor=light-dark(#d79b00,#d9a050);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" vertex="1">
-            <mxGeometry height="40" width="64" x="97" y="526" as="geometry" />
+            <mxGeometry height="40" width="64" x="113" y="526" as="geometry" />
           </mxCell>
         </UserObject>
         <UserObject label="Draining" mermaidId="n:Draining" mermaidBaseStyle="rounded=1;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;strokeWidth=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" mermaidBaseValue="Draining" id="10">
           <mxCell parent="1" style="rounded=1;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;strokeWidth=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" vertex="1">
-            <mxGeometry height="40" width="75" x="120" y="956" as="geometry" />
+            <mxGeometry height="40" width="75" x="136" y="956" as="geometry" />
           </mxCell>
         </UserObject>
         <UserObject label="Switching" mermaidId="n:Switching" mermaidBaseStyle="rounded=1;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;strokeWidth=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" mermaidBaseValue="Switching" id="11">
           <mxCell parent="1" style="rounded=1;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;strokeWidth=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" vertex="1">
-            <mxGeometry height="40" width="85" x="115" y="1171" as="geometry" />
+            <mxGeometry height="40" width="85" x="131" y="1171" as="geometry" />
           </mxCell>
         </UserObject>
         <UserObject label="" mermaidId="n:root_end" mermaidBaseStyle="ellipse;html=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#333333,#cccccc);strokeWidth=2;centerRadius=4;centerColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" mermaidBaseValue="" id="12">
           <mxCell parent="1" style="ellipse;html=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#333333,#cccccc);strokeWidth=2;centerRadius=4;centerColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontSize=16;fontFamily=Helvetica;" vertex="1">
-            <mxGeometry height="14" width="14" x="135" y="1711" as="geometry" />
+            <mxGeometry height="14" width="14" x="151" y="1711" as="geometry" />
           </mxCell>
         </UserObject>
         <UserObject label="" mermaidId="e:root_start-&gt;Current#0" mermaidBaseStyle="curved=1;startArrow=none;endArrow=classic;endSize=9;fillColor=none;strokeColor=light-dark(#333333,#cccccc);exitX=0.5;exitY=1;entryX=0.5;entryY=0;fontFamily=Helvetica;" mermaidBaseValue="" id="13">
           <mxCell edge="1" parent="1" source="6" style="curved=0;startArrow=none;endArrow=classic;endSize=9;fillColor=none;strokeColor=light-dark(#333333,#cccccc);rounded=1;exitX=0.5;exitY=1;entryX=0.507;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;" target="7">
             <mxGeometry relative="1" as="geometry">
               <Array as="points">
-                <mxPoint x="141" y="61" />
+                <mxPoint x="157" y="61" />
               </Array>
             </mxGeometry>
           </mxCell>
         </UserObject>
-        <UserObject label="new host tag, closure verified" mermaidId="e:Current-&gt;Fetched#0" mermaidBaseStyle="curved=1;startArrow=none;endArrow=classic;endSize=9;fillColor=none;strokeColor=light-dark(#333333,#cccccc);html=1;fontSize=16;fontColor=light-dark(#333333,#cccccc);exitX=0.5;exitY=1;entryX=0.5;entryY=0;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" mermaidBaseValue="new host tag, closure verified" id="14">
+        <UserObject label="higher host tag, closure verified" mermaidId="e:Current-&gt;Fetched#0" mermaidBaseStyle="curved=1;startArrow=none;endArrow=classic;endSize=9;fillColor=none;strokeColor=light-dark(#333333,#cccccc);html=1;fontSize=16;fontColor=light-dark(#333333,#cccccc);exitX=0.5;exitY=1;entryX=0.5;entryY=0;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" mermaidBaseValue="higher host tag, closure verified" id="14">
           <mxCell edge="1" parent="1" source="7" style="curved=0;startArrow=none;endArrow=classic;endSize=9;fillColor=none;strokeColor=light-dark(#333333,#cccccc);html=1;fontSize=16;fontColor=light-dark(#333333,#cccccc);rounded=1;exitX=0.507;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="8">
             <mxGeometry relative="1" as="geometry">
               <mxPoint as="offset" />
               <Array as="points">
-                <mxPoint x="141" y="223.5" />
+                <mxPoint x="157" y="223.5" />
               </Array>
             </mxGeometry>
           </mxCell>
@@ -83,7 +83,7 @@
             <mxGeometry relative="1" as="geometry">
               <mxPoint as="offset" />
               <Array as="points">
-                <mxPoint x="129" y="438.5" />
+                <mxPoint x="145" y="438.5" />
               </Array>
             </mxGeometry>
           </mxCell>
@@ -93,7 +93,7 @@
             <mxGeometry relative="1" as="geometry">
               <mxPoint as="offset" />
               <Array as="points">
-                <mxPoint x="129" y="653.5" />
+                <mxPoint x="145" y="653.5" />
               </Array>
             </mxGeometry>
           </mxCell>
@@ -103,20 +103,20 @@
             <mxGeometry relative="1" as="geometry">
               <mxPoint y="16.5" as="offset" />
               <Array as="points">
-                <mxPoint x="153" y="367" />
-                <mxPoint x="255" y="367" />
-                <mxPoint x="255" y="687" />
-                <mxPoint x="186" y="687" />
+                <mxPoint x="169" y="367" />
+                <mxPoint x="271" y="367" />
+                <mxPoint x="271" y="687" />
+                <mxPoint x="202" y="687" />
               </Array>
             </mxGeometry>
           </mxCell>
         </UserObject>
-        <UserObject label="Lease held" mermaidId="e:WaitingForLease-&gt;Draining#0" mermaidBaseStyle="curved=1;startArrow=none;endArrow=classic;endSize=9;fillColor=none;strokeColor=light-dark(#333333,#cccccc);html=1;fontSize=16;fontColor=light-dark(#333333,#cccccc);exitX=0.5;exitY=1;entryX=0.5;entryY=0;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" mermaidBaseValue="Lease held" id="18">
+        <UserObject label="Lease held, predecessor satisfied or skipped" mermaidId="e:WaitingForLease-&gt;Draining#0" mermaidBaseStyle="curved=1;startArrow=none;endArrow=classic;endSize=9;fillColor=none;strokeColor=light-dark(#333333,#cccccc);html=1;fontSize=16;fontColor=light-dark(#333333,#cccccc);exitX=0.5;exitY=1;entryX=0.5;entryY=0;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" mermaidBaseValue="Lease held, predecessor satisfied or skipped" id="18">
           <mxCell edge="1" parent="1" source="2" style="curved=0;startArrow=none;endArrow=classic;endSize=9;fillColor=none;strokeColor=light-dark(#333333,#cccccc);html=1;fontSize=16;fontColor=light-dark(#333333,#cccccc);rounded=1;exitX=0.503;exitY=1;entryX=0.5067;entryY=0;edgeStyle=orthogonalEdgeStyle;fontFamily=Helvetica;labelBackgroundColor=light-dark(#ffffff,#1e1e1e);" target="10">
             <mxGeometry relative="1" as="geometry">
               <mxPoint as="offset" />
               <Array as="points">
-                <mxPoint x="158" y="868.5" />
+                <mxPoint x="174" y="868.5" />
               </Array>
             </mxGeometry>
           </mxCell>
@@ -126,7 +126,7 @@
             <mxGeometry relative="1" as="geometry">
               <mxPoint as="offset" />
               <Array as="points">
-                <mxPoint x="158" y="1083.5" />
+                <mxPoint x="174" y="1083.5" />
               </Array>
             </mxGeometry>
           </mxCell>
@@ -136,7 +136,7 @@
             <mxGeometry relative="1" as="geometry">
               <mxPoint as="offset" />
               <Array as="points">
-                <mxPoint x="158" y="1298.5" />
+                <mxPoint x="174" y="1298.5" />
               </Array>
             </mxGeometry>
           </mxCell>
@@ -146,7 +146,7 @@
             <mxGeometry relative="1" as="geometry">
               <mxPoint as="offset" />
               <Array as="points">
-                <mxPoint x="140" y="1513.5" />
+                <mxPoint x="156" y="1513.5" />
               </Array>
             </mxGeometry>
           </mxCell>
@@ -156,8 +156,8 @@
             <mxGeometry relative="1" as="geometry">
               <mxPoint x="58.5" y="71.5" as="offset" />
               <Array as="points">
-                <mxPoint x="176" y="1442" />
-                <mxPoint x="436" y="1442" />
+                <mxPoint x="192" y="1442" />
+                <mxPoint x="452" y="1442" />
               </Array>
             </mxGeometry>
           </mxCell>
@@ -166,7 +166,7 @@
           <mxCell edge="1" parent="1" source="4" style="curved=0;startArrow=none;endArrow=classic;endSize=9;fillColor=none;strokeColor=light-dark(#333333,#cccccc);noEdgeStyle=1;orthogonal=1;rounded=1;exitX=0.5;exitY=1;entryX=0.3571;entryY=0.0208;fontFamily=Helvetica;" target="12">
             <mxGeometry relative="1" as="geometry">
               <Array as="points">
-                <mxPoint x="140" y="1711" />
+                <mxPoint x="156" y="1711" />
               </Array>
             </mxGeometry>
           </mxCell>
@@ -175,14 +175,14 @@
           <mxCell edge="1" parent="1" source="5" style="curved=0;startArrow=none;endArrow=classic;endSize=9;fillColor=none;strokeColor=light-dark(#333333,#cccccc);noEdgeStyle=1;orthogonal=1;rounded=1;exitX=0.5;exitY=1;entryX=0.6429;entryY=0.0208;fontFamily=Helvetica;" target="12">
             <mxGeometry relative="1" as="geometry">
               <Array as="points">
-                <mxPoint x="436" y="1657" />
-                <mxPoint x="144" y="1657" />
+                <mxPoint x="452" y="1657" />
+                <mxPoint x="160" y="1657" />
               </Array>
             </mxGeometry>
           </mxCell>
         </UserObject>
         <mxCell id="header" value="State machine: the host applier on one node" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=light-dark(#1a1a1a,#e8e8e8);fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="41" y="-52" width="542" height="36" as="geometry" />
+          <mxGeometry x="57" y="-52" width="542" height="36" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

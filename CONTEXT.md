@@ -36,7 +36,7 @@ The Vault Transit key that signs `render/<project>:prod`. Flux verifies renders 
 _Avoid_: render key, Transit key
 
 **Host signing key**:
-The Vault Transit key that signs `host/<node>:prod`. Host appliers verify host tags against it. It never signs a render.
+The Vault Transit key that signs each of a node's numbered host tags (`host/<node>:<number>`). Host appliers verify host tags against it. It never signs a render.
 _Avoid_: host key, Transit key
 
 **Recovery key**:
@@ -268,7 +268,7 @@ The domain a multi-tenant Application names, under which every Tenant host is de
 _Avoid_: base domain, root domain, vanity domain
 
 **Tenant host**:
-The host at which a Tenant's people reach an Application, derived as the Tenant handle, the environment suffix (none in production) and the Product domain. The environment suffix is its own DNS label, so each Environment has its own wildcard certificate under the Product domain. A host finds its Tenant through a lookup, never by parsing.
+The host at which a Tenant's people reach an Application, derived as the Tenant handle, the environment suffix (none in production) and the Product domain. The environment suffix is its own DNS label, so each Environment has its own wildcard certificate, one per Product domain and Environment suffix, issued by fleet-infra, whose expiry estate-kit's alert names. A host finds its Tenant through a lookup, never by parsing.
 _Avoid_: tenant url, subdomain, vanity host
 
 **Estate name**:

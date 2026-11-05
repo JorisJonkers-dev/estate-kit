@@ -7,6 +7,11 @@ lessons: [DO-4]
 
 # Active checks run in the owning components, Observation reads their results, and one heartbeat lives outside the cluster
 
+Amended by [record 124](0124-the-dead-man-grace-exceeds-the-longest-planned-reboot-and-a-phone-push-app-carries-the-second-alert-route.md):
+the dead-man switch's grace exceeds the longest planned reboot and is stated in
+minutes, and alerts also leave the estate on a phone push app whose delivery
+the yearly drill confirms by hand.
+
 ## Context
 
 Observation is its own process, reads, and has one named write: it creates and
@@ -57,7 +62,13 @@ One heartbeat lives outside the cluster. It is Alertmanager's Watchdog alert,
 which always fires while the alerting pipeline works. Alertmanager sends it on
 a schedule to a hosted dead-man's switch from an EU-based provider, such as
 healthchecks.io, and when it stops arriving, that service raises the alert from
-outside. The service shares no machine with the control plane. The heartbeat
+outside. Its grace exceeds the estate's longest planned reboot and is stated in
+minutes, so a planned reboot never pages; it is fixed from the measured host
+reboot time, an open measurement until the first host rollout measures one.
+Alerts also leave the estate on a second route, a phone push app outside the
+estate, whose delivery the yearly drill confirms by hand
+([record 124](0124-the-dead-man-grace-exceeds-the-longest-planned-reboot-and-a-phone-push-app-carries-the-second-alert-route.md)).
+The service shares no machine with the control plane. The heartbeat
 holds no estate data, so the rule that a store of estate data runs on an
 EU-controlled provider or on owned hardware does not bind it; an EU-based
 service is still preferred.

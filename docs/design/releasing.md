@@ -37,7 +37,12 @@ release-please PR, and again right before any tag moves.
 | Release published | `deploy`, environment `production` | `estate-kit / deploy` | Promotes the candidate digests; Delivery checks every digest was registered by this Project (D8), dry-runs again, signs with the render signing key, moves `render/<p>:prod` by read, verify, write under the writer Lease, and streams the rollout |
 
 Cancelling a deploy job only detaches it; the rollout continues. Stopping a
-rollout is a Pause or a Rollback. A dropped stream resumes from its last event.
+rollout is a Pause or a Rollback, in one Environment: every Pause, Resume and
+Rollback command names its Environment (`--env`, required in every
+Environment, an omitted one is refused), and a Rollback targets a digest that
+reached Serving there
+([record 118](../decisions/0118-a-rollback-is-per-environment-and-targets-a-digest-that-reached-serving.md)).
+A dropped stream resumes from its last event.
 
 ## UC-1 Validate a change
 
@@ -110,10 +115,16 @@ fallback if the call is lost
 Each Apply group is its own Flux Kustomization, joined by `dependsOn` and
 health checks, under the Project's one service account
 ([record 95](../decisions/0095-a-project-renders-as-a-chain-of-flux-kustomizations-one-per-apply-group.md)).
+Each group prunes what it no longer names, except the prune-protected kinds,
+rendered CRDs among them: a render that stops naming a CRD deletes nothing
+([record 105](../decisions/0105-removal-is-a-retire-lifecycle-with-durable-retirement-tombstones-and-declared-moves-and-prune-protected-kinds-never-prune.md),
+[record 119](../decisions/0119-a-rendered-crd-is-prune-protected-and-retirement-tombstones-survive-a-crd-drop.md)).
 Delivery watches, read-only, the Project's Kustomizations, OCIRepository and
 Canary objects, Events in `flux-system` and the Project's namespaces, and
 every object in each step's inventory. It computes each object's health itself
 by the kstatus rules and never takes Flux's summary as the truth.
+
+![How a published render applies as a chain of Kustomizations](../diagrams/png/flow-apply-chain.png)
 
 ## The Publication point and two-stage publication
 

@@ -37,21 +37,24 @@ a lifecycle rule on the bucket or by a clean-up job whose key the backup
 component does not hold. That one locked bucket per Environment is the
 off-cluster copy; there is no second provider and no local copy.
 
-**What goes in.** Each Tenant export is its own Kopia source, kept for the
-retention set with its Tenant's schedule and stated in the copy inventory of
+**What goes in.** Each Tenant export and the contents of local-path volumes are
+each a Kopia source, taken by a scheduled job per source, with no two runs of
+one source at once, and each export kept for the retention set with its
+Tenant's schedule and stated in the copy inventory of
 [record 110](../decisions/0110-a-purge-erases-backup-generations-and-mirrors-from-an-inventory-of-every-copy.md).
-Whole-database backups, platform-postgres and the contents of local-path
-volumes are each a source too, taken by a scheduled job per store, with no two
-runs of one source at once. Whole-database backups keep 7 daily, 4 weekly and
-6 monthly snapshots. The datastore's backup and Vault's snapshots stay
+Every Postgres server's capture, whole-database backups and platform-postgres
+included, moved to [record 120](../decisions/0120-postgres-is-captured-by-pgbackrest-base-backups-plus-archived-wal-in-a-locked-bucket-on-every-server.md)'s
+pgBackRest base backups, which keep 7 daily, 4 weekly and 6 monthly. The
+datastore's backup and Vault's snapshots stay
 fleet-infra's, as [record 59](../decisions/0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md) says; the rule of [record 116](../decisions/0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md) binds where they go.
 
-**WAL beside them.** Each Postgres server archives its WAL continuously to a
-bucket of its own Environment at the same provider, and switches segment at
-least every 5 minutes, so the 15-minute recovery point of [record 87](../decisions/0087-recovery-time-and-recovery-point-are-stated-per-recovery-class.md) holds on a quiet database. WAL is kept no longer than the oldest base backup kept.
+**WAL beside them, in a locked bucket.** Every Postgres server archives its
+WAL continuously, through pgBackRest, to a bucket of its own Environment at
+the same provider, and switches segment at least every 5 minutes, so the
+15-minute recovery point of [record 87](../decisions/0087-recovery-time-and-recovery-point-are-stated-per-recovery-class.md) holds on a quiet database. Every object in the WAL bucket carries an object lock in COMPLIANCE mode for 30 days; the Environment's WAL writer key writes and cannot delete an object version or shorten a lock, a maintenance job extends the locks of the WAL objects still kept, and a lifecycle rule removes a WAL object once its lock has ended and it precedes the oldest base backup kept. WAL is kept no longer than the oldest base backup kept ([record 120](../decisions/0120-postgres-is-captured-by-pgbackrest-base-backups-plus-archived-wal-in-a-locked-bucket-on-every-server.md)).
 
 **A restore is rehearsed every week.** The backup component restores the latest
-snapshot of each store into throwaway containers once a week and checks what it
+capture of each store into throwaway containers once a week and checks what it
 reads back. Each result is an active check result of [record 108](../decisions/0108-active-checks-run-in-the-owning-components-observation-reads-their-results-and-one-heartbeat-lives-outside-the-cluster.md): Observation reads it, and a pass also reaches the external heartbeat, so a rehearsal that stops running raises an alert from outside the cluster. The restore order is rehearsed in CI on every release, and a timed drill runs on the real estate once a year, as [record 106](../decisions/0106-the-control-plane-is-restored-in-a-dependency-order-that-is-tested-drilled-and-timed.md) sets out.
 
 ## Each store's Recovery class
@@ -59,14 +62,14 @@ reads back. Each result is an active check result of [record 108](../decisions/0
 Recovery time and recovery point are stated per Recovery class before the drill,
 and the drill measures them ([record 87](../decisions/0087-recovery-time-and-recovery-point-are-stated-per-recovery-class.md)). Each Recovery class has a recovery time objective (how long from loss until it serves again) and a recovery point objective (how much recent data may be lost), set by the maintainer before the first drill. The restore proof and the yearly drill measure each class against its targets and record the result; a miss is an issue, never a quiet change of the target. A new store is put in a class before it holds production data.
 
-The maintainer set the targets below on 2026-11-04. The column "How it is met" names the mechanism the drill measures; where it is estate-kit's, it is [record 115](../decisions/0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md)'s.
+The maintainer set the targets below on 2026-11-04. The column "How it is met" names the mechanism the drill measures; where it is estate-kit's, it is [record 115](../decisions/0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md)'s or [record 120](../decisions/0120-postgres-is-captured-by-pgbackrest-base-backups-plus-archived-wal-in-a-locked-bucket-on-every-server.md)'s.
 
 | Recovery class | What it holds | How it is met | RTO | RPO |
 | --- | --- | --- | --- | --- |
-| Datastore | The k3s datastore: every Kubernetes object, ProjectControl and Tenant resources included | fleet-infra's backup and restore ([record 59](../decisions/0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md)), taken at least every 6 hours; none is written today | 4 h | 6 h |
+| Datastore | The k3s datastore: every Kubernetes object, ProjectControl and Tenant resources included | fleet-infra's backup and restore ([record 59](../decisions/0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md)), taken at least every 6 hours; none is written today, carried as the open item [datastore backup](https://github.com/JorisJonkers-dev/estate-kit/issues/41), due 2027-04-30 | 4 h | 6 h |
 | Vault | Secrets, Transit keys, policies | A raft snapshot every 6 hours with an off-cluster copy | 4 h | 6 h |
-| Delivery's history | The Rollout event log, the job table and the Tenant operation log on the shared platform-postgres | A daily snapshot of platform-postgres in production's Kopia repository | 24 h | 24 h |
-| Tenant and Project databases | Every Project database, a multi-tenant Project's shared database included ([record 114](../decisions/0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md)) | Whole-database backups and WAL archived continuously, for a server; Tenant exports, for one Tenant ([record 82](../decisions/0082-backups-are-per-tenant-generations-and-mirrors-refresh-staging-and-development.md)) | 4 h | 15 min |
+| Delivery's history | The Rollout event log, the job table and the Tenant operation log on the shared platform-postgres | pgBackRest base backups of platform-postgres with its archived WAL ([record 120](../decisions/0120-postgres-is-captured-by-pgbackrest-base-backups-plus-archived-wal-in-a-locked-bucket-on-every-server.md)) | 24 h | 24 h |
+| Tenant and Project databases | Every Project database, a multi-tenant Project's shared database included ([record 114](../decisions/0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md)) | pgBackRest base backups and the WAL archived continuously, for a server; Tenant exports, for one Tenant ([record 82](../decisions/0082-backups-are-per-tenant-generations-and-mirrors-refresh-staging-and-development.md), [record 120](../decisions/0120-postgres-is-captured-by-pgbackrest-base-backups-plus-archived-wal-in-a-locked-bucket-on-every-server.md)) | 4 h | 15 min |
 | Volume contents | Local-path volumes other than Postgres | A daily snapshot in the Environment's Kopia repository; a datastore backup does not restore them | 24 h | 24 h |
 | Registry | Renders, their signatures and the tags that name them | Held by the registry provider, off the cluster, with a nightly copy; a render can be composed again from its pinned inputs, a tag cannot | 24 h | 24 h |
 | Binary cache | Host closures | Off the cluster; rebuilt in CI from the pinned source | 24 h | none: rebuildable |
@@ -74,6 +77,18 @@ The maintainer set the targets below on 2026-11-04. The column "How it is met" n
 The k3s datastore stays SQLite, deliberately different from the applications' Postgres; its restore order is [record 106](../decisions/0106-the-control-plane-is-restored-in-a-dependency-order-that-is-tested-drilled-and-timed.md)'s.
 
 Mail, buckets and other component stores join a row, or get their own, when the restore order that orders all of them is written. The offline recovery key is not a store and has no row.
+
+## How each store is captured
+
+One backup component captures every store the drill covers: pgBackRest base
+backups plus the archived WAL for every Postgres server
+([record 120](../decisions/0120-postgres-is-captured-by-pgbackrest-base-backups-plus-archived-wal-in-a-locked-bucket-on-every-server.md)),
+and Kopia snapshots for the Tenant exports and the volume contents
+([record 115](../decisions/0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md)).
+Vault's snapshots and the datastore's backup stay fleet-infra's; no datastore
+backup is written today.
+
+![Recovery: how each store is captured](../diagrams/png/recovery.png)
 
 ## Every fact, today and in estate-kit
 

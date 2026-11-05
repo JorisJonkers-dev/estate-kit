@@ -8,6 +8,14 @@ lessons: [DR-1, DR-2]
 
 # Recovery time and recovery point are stated per Recovery class before the drill, and the drill measures them
 
+Revised: 2026-11-05: the rehearsal sentence names the stores a drill covers and
+excludes the datastore until its backup exists, carrying it as the open item
+[datastore backup](https://github.com/JorisJonkers-dev/estate-kit/issues/41)
+due 2027-04-30; the Datastore, Delivery's history and Tenant and Project
+databases rows name the mechanisms that now meet them, including
+[record 120](0120-postgres-is-captured-by-pgbackrest-base-backups-plus-archived-wal-in-a-locked-bucket-on-every-server.md)'s
+pgBackRest capture.
+
 ## Context
 
 One control-plane node holds the k3s datastore, every local-path volume, Vault
@@ -51,10 +59,10 @@ met" names the mechanism the drill measures; where it is estate-kit's, it is
 
 | Recovery class | What it holds | How it is met | RTO | RPO |
 | --- | --- | --- | --- | --- |
-| Datastore | The k3s datastore: every Kubernetes object, ProjectControl and Tenant resources included | fleet-infra's backup and restore ([record 59](0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md)), taken at least every 6 hours; none is written today | 4 h | 6 h |
+| Datastore | The k3s datastore: every Kubernetes object, ProjectControl and Tenant resources included | fleet-infra's backup and restore ([record 59](0059-vault-unseal-and-datastore-backup-are-assumed-from-fleet-infra.md)), taken at least every 6 hours; none is written today, carried as the open item [datastore backup](https://github.com/JorisJonkers-dev/estate-kit/issues/41), due 2027-04-30 | 4 h | 6 h |
 | Vault | Secrets, Transit keys, policies | A raft snapshot every 6 hours with an off-cluster copy | 4 h | 6 h |
-| Delivery's history | The Rollout event log, the job table and the Tenant operation log on the shared platform-postgres | A daily snapshot of platform-postgres in production's Kopia repository | 24 h | 24 h |
-| Tenant and Project databases | Every Project database, a multi-tenant Project's shared database included ([record 114](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md)) | Whole-database backups and WAL archived continuously, for a server; Tenant exports, for one Tenant ([record 82](0082-backups-are-per-tenant-generations-and-mirrors-refresh-staging-and-development.md)) | 4 h | 15 min |
+| Delivery's history | The Rollout event log, the job table and the Tenant operation log on the shared platform-postgres | pgBackRest base backups of platform-postgres with its archived WAL ([record 120](0120-postgres-is-captured-by-pgbackrest-base-backups-plus-archived-wal-in-a-locked-bucket-on-every-server.md)) | 24 h | 24 h |
+| Tenant and Project databases | Every Project database, a multi-tenant Project's shared database included ([record 114](0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md)) | pgBackRest base backups and the WAL archived continuously, for a server; Tenant exports, for one Tenant ([record 82](0082-backups-are-per-tenant-generations-and-mirrors-refresh-staging-and-development.md), [record 120](0120-postgres-is-captured-by-pgbackrest-base-backups-plus-archived-wal-in-a-locked-bucket-on-every-server.md)) | 4 h | 15 min |
 | Volume contents | Local-path volumes other than Postgres | A daily snapshot in the Environment's Kopia repository; a datastore backup does not restore them | 24 h | 24 h |
 | Registry | Renders, their signatures and the tags that name them | Held by the registry provider, off the cluster, with a nightly copy; a render can be composed again from its pinned inputs, a tag cannot | 24 h | 24 h |
 | Binary cache | Host closures | Off the cluster; rebuilt in CI from the pinned source | 24 h | none: rebuildable |
@@ -89,7 +97,14 @@ is not a store and has no row.
 
 The **Recovery targets lint** fails when a row of the table above has no RTO or
 no RPO while this record is Accepted. The **Weekly restore rehearsal** proves
-each store restores, every week. The **Restore proof** fails when a backup
+each store a drill covers restores, every week: the Tenant exports,
+platform-postgres, every Project database and the volume contents, captured by
+[record 115](0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md)'s
+Kopia repository and
+[record 120](0120-postgres-is-captured-by-pgbackrest-base-backups-plus-archived-wal-in-a-locked-bucket-on-every-server.md)'s
+pgBackRest. The datastore is excluded until its backup exists: the open item
+[datastore backup](https://github.com/JorisJonkers-dev/estate-kit/issues/41),
+due 2027-04-30. The **Restore proof** fails when a backup
 of a Recovery class does not restore into the throwaway environment, or takes
 longer than its RTO, or loses more than its RPO. The **WAL recovery drill**
 already covers the recovery of one Postgres server to a chosen time. The yearly

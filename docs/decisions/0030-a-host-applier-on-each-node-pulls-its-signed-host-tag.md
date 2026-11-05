@@ -37,10 +37,15 @@ strategy that disables automatic rollout.
 ## Decision
 
 - **Pull, not push.** A Rust agent on each node, a systemd service beside k3s,
-  polls its signed `host/<node>:prod` tag, verifies it with the host key or the
-  recovery key, and fetches and verifies the closure from the binary cache of
+  polls its node's host tags, a numbered, immutable Sequence tag per
+  publication ([record 98](0098-the-live-pointer-is-an-immutable-sequence-tag-that-flux-selects-by-version.md),
+  extended to hosts). Delivery publishes the next `host/<node>:<number>`;
+  the applier switches only to the highest and refuses a lower or replayed
+  one, verifies the chosen tag with the host key or the recovery key, and
+  fetches and verifies the closure from the binary cache of
   [record 31](0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md).
-  Fetching disrupts nothing.
+  A host rollback publishes a higher number at the signed digest of an older
+  generation. Fetching disrupts nothing.
 - **Decide the reboot before the Lease.** It compares the fetched closure's
   kernel, initrd, modules, kernel parameters and device trees with the booted
   ones. A reboot change is staged with `switch-to-configuration boot`, and the
@@ -50,12 +55,25 @@ strategy that disables automatic rollout.
   serialises switches and reboots; pods leave through the Eviction API so
   PodDisruptionBudgets hold. Each node's applier has its own credential, and a
   ValidatingAdmissionPolicy on `spec.nodeName` lets it cordon and evict only
-  its own node. No outside coordinator orders the nodes.
-- **Node order is derived, not listed.** It follows from the change: a k3s
-  version change goes control plane first, then one canary worker, then the
-  rest; an OS-only change goes canary, workers, control plane last. A check
-  refuses any target that breaks the Kubernetes version skew policy. The page
-  gives the rules: [Order of nodes](../design/hosts.md#order-of-nodes).
+  its own node. No outside coordinator orders the nodes, and Delivery does not
+  pace them: order is an applier precondition. Each applier waits until its
+  predecessor in the order reports running the new generation, through a Node
+  annotation the predecessor's applier writes, or is recorded skipped; two
+  adjacent nodes never switch together. A skipped node is recorded and counts
+  as satisfied; a node that is down stalls the rollout until the maintainer
+  skips it.
+- **Node order is derived, then carried in the payload.** It follows from the
+  change: a k3s version change goes control plane first, then one canary
+  worker, then the rest; an OS-only change goes canary, workers, control
+  plane last. A check refuses any target that breaks the Kubernetes version
+  skew policy. The compiled order is published with the host tags as the
+  rollout payload, and each applier reads its place and its predecessor from
+  it. The page gives the rules: [Order of nodes](../design/hosts.md#order-of-nodes).
+- **Soak and windows pace the rollout.** After the canary worker runs the new
+  generation, the rollout waits 24 hours before the next worker; a change
+  that bumps k3s waits for a full maintenance window before its next member.
+  A node's window is stated in site-local IANA time
+  ([record 123](0123-host-maintenance-windows-are-stated-in-site-local-iana-time-and-the-link-between-sites-is-fleet-infra-s.md)).
 - **Snapshot before a k3s minor bump.** Before it switches the control-plane
   node to a new k3s minor, the applier takes a consistent datastore snapshot on
   the old minor, with the server token, copies it off the node beside the
@@ -90,10 +108,11 @@ The page is [Hosts](../design/hosts.md).
 | Lease, drain, switch, then wait for the window | A node sits drained for hours | D11 |
 | Node-to-node push of closures | A node holds credentials to other nodes | Each node pulls its own signed tag |
 | A fixed node order, or declared waves | The order goes stale when the change differs, and ignores the version skew rule | The order is derived from the change; k3s bumps go control plane first |
-| CI moves the host tag, or nodes follow main | A deploy credential in CI, or nodes that apply what nobody signed | Delivery moves the signed `host/<node>:prod` tag, as it does for Projects; the key stays in Vault |
+| CI moves the host tag, or nodes follow main | A deploy credential in CI, or nodes that apply what nobody signed | Delivery publishes the signed host tag, as it does for Projects; the key stays in Vault |
 | A serverless host coordinator outside the cluster, a scale-to-zero container at a provider that orders nodes and moves host tags ([decomposition research](../research/decomposition.md#host-updates-outside-the-cluster)) | The host signing key leaves Vault or needs a route to it, reopening [record 21](0021-renders-and-host-tags-are-signed-by-separate-keys-with-an-offline-recovery-key.md); durable rollout state and a provider account outside the estate; one more deployable | Dropped by the maintainer on 2026-11-04. Each node's own applier, held to its own node by the admission policy, and the cluster Lease already order the nodes, so a coordinator would add durable state and a second home for a signing key and catch no failure the Lease misses |
 | Automatic rollout on every class at once, trusting the bootloader | A class whose fallback does not work leaves a headless node unbootable | Four of six nodes have no proved boot assessment |
 | Rely on the NixOS generation to undo a k3s minor bump | The datastore stays at the newer minor; k3s cannot start the old binary on it | The k3s rollback documentation requires a snapshot from the old minor |
+| Proceed after a stated wait past a down node | The rollout continues on the clock while a node nobody examined is down | A down node stalls the rollout until the maintainer records the skip (2026-11-04 review, question 22) |
 | RBAC to limit evictions to the node's own pods | Cannot be expressed: RBAC grants `pods/eviction` by namespace, not by node | The admission policy can |
 
 ## Consequences
@@ -107,7 +126,9 @@ The page is [Hosts](../design/hosts.md).
 - Forbidden: a reboot outside the node's window; two nodes switching at once;
   an applier that cordons or evicts on another node; automatic rollout on a
   class with strategy `None` or no recorded rehearsal; a k3s minor switch of
-  the control plane without a snapshot from the old minor.
+  the control plane without a snapshot from the old minor; a host rollback
+  that rewrites a tag instead of publishing a higher number; an applier that
+  proceeds past a down node by itself, before the maintainer records a skip.
 
 ## Confirmation
 
@@ -124,4 +145,12 @@ k3s minor without a recorded snapshot from the old minor, or after the snapshot
 failed. The **Host rollout failure scenarios** fail when a blocked drain, a
 volume pinned to the node, too little spare capacity, loss of the control
 plane mid-rollout, or a Lease that expires while an earlier node is still down
-leaves a node drained, a second node switching, or the rollout continuing.
+leaves a node drained, a second node switching, or the rollout continuing. The
+**Host sequence tag test** fails when a host applier switches to any tag
+but the highest number of its node, or accepts a lower, replayed or unsigned
+one. The **Host rollout order check** fails when two adjacent nodes switch
+together, or a node proceeds before its predecessor reports running the new
+generation or a skip is recorded, or a recorded skip does not satisfy the
+next node. The **Host soak check** fails when a rollout proceeds before the
+24-hour soak after the canary worker ends, or a k3s change proceeds without
+a full maintenance window.

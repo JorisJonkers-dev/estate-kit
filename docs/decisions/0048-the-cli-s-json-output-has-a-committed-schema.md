@@ -7,6 +7,11 @@ lessons: [CS-6]
 
 # Every committed schema evolves additively within a major version, checked in CI, and the CLI's JSON output has one that the reusable workflows read
 
+Amended by [record 89](0089-every-persisted-or-externally-read-contract-has-its-own-identifier-contract-major-and-supported-range.md):
+the major this record's rule speaks of is the CLI's JSON contract's own
+Contract major, and a reader refuses a payload whose major falls outside its
+supported range.
+
 ## Context
 
 The estate's contracts are committed schemas, read by programs in other
@@ -32,7 +37,10 @@ breaks are on [Conventions](../design/conventions.md#contracts-and-their-evoluti
 `estate-kit <command> --json` prints one document that validates against a
 committed schema in `contracts/`. It carries the diagnostics with their
 locations, the render diff, and each changed object's provenance. The schema
-is one of those contracts and follows the same rule.
+is one of those contracts and follows the same rule. Its major is the
+contract's own, not the release's, and a workflow pinning a release refuses a
+payload whose Contract major falls outside its supported range, with a coded
+problem ([record 89](0089-every-persisted-or-externally-read-contract-has-its-own-identifier-contract-major-and-supported-range.md)).
 
 ## Alternatives
 

@@ -7,6 +7,8 @@ lessons: [PR-3, TM-1, TM-2, MD-1, MD-5]
 
 # The Rust compiler implements the 1.0 specification, and the shadow compares structure
 
+Revised: 2026-11-05: [record 64](0064-renders-use-a-canonical-yaml-style-specified-on-one-page.md) is accepted and cited by its file.
+
 ## Context
 
 deploy-kit released 1.0.0 on 2026-10-27. That release is the contract step of
@@ -48,7 +50,8 @@ production until the switch.
    rendered oracles are rewritten once in that format, in a reviewed pull
    request. That rewrite is the one place the format is proved: the pull
    request byte-compares the Rust output with the rewritten oracles. The
-   format is specified by [record 64](register.md), which is still Proposed;
+   format is specified by
+   [record 64](0064-renders-use-a-canonical-yaml-style-specified-on-one-page.md);
    this record cites it for that one rewrite and does not rest on it.
 4. **Oracles are never regenerated from an implementation.** This holds for
    the Rust compiler and for any further implementation, in any language: it

@@ -48,8 +48,8 @@ call the `compiler` crate.
    NixOS VM test per node class (`hosts/vm-tests`).
 2. `estate-kit render-hosts` (`compiler::render_hosts` → `step-outputs`)
    produced each node's host data, which the hand-written modules consume.
-3. Delivery moves each `host/<node>:prod` tag, signed with the host key
-   (`delivery-app` → `adapter-vault`, `adapter-ghcr`).
+3. Delivery publishes each node's next numbered `host/<node>:<n>` Sequence tag,
+   signed with the host key (`delivery-app` → `adapter-vault`, `adapter-ghcr`).
 4. Each node's applier (`bins/estate-kit-host-applier`) runs one reconcile
    step per tick (`host-applier-app` over `reconcile`): fetch and verify the
    closure (`adapter-nix`), decide whether it needs a reboot

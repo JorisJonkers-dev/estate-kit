@@ -61,6 +61,22 @@ in the copy inventory or a Recovery class that has no entry.
 | Applier to API | Denial: a Lease held forever | The Lease has a time-to-live |
 | Break-glass | Elevation: a hand-made switch | Needs local root on the node and a signed generation |
 
+## Network policy enforcement
+
+Network policy is default-deny, derived from the edges Projects declare, and it
+is enforced on k3s's bundled kube-router, one namespace at a time, starting
+with the least-connected namespaces
+([record 107](../decisions/0107-network-policy-moves-from-render-only-through-a-staged-or-audited-window-to-enforcement.md),
+[record 126](../decisions/0126-network-policy-is-enforced-on-kube-router-with-a-declared-rollback.md)).
+Each namespace's rollback is declared and written before its mark: the mark
+removed, the Project's next render omits the namespace's NetworkPolicy objects
+and kube-router stops selecting its pods. A namespace keeps its mark only
+after a window of at least 14 days that included normal traffic, a backup, a
+restore and a maintenance window, and surfaced no undeclared flow; every flow
+it surfaces is fixed in the model, never allowed by hand.
+
+![Flow: enforcing one namespace's network policy on kube-router](../diagrams/png/flow-network-policy.png)
+
 ## The write boundary
 
 Flux is the one applier of renders: no estate-kit binary applies a rendered

@@ -40,24 +40,40 @@ than the last composition.
 
 ## UC-5 Pause or resume a Project
 
-An Operator pauses a Project in the UI. Delivery records it in the Project's
-cluster object and stops moving its tag until the Operator resumes. Outcome:
-Flux keeps serving the current render.
+An Operator pauses a Project in one Environment, through the UI or the CLI,
+naming the Environment: `--env` is required on every Pause, Resume and Rollback
+command in every Environment, and a call that omits it is refused
+([record 118](../decisions/0118-a-rollback-is-per-environment-and-targets-a-digest-that-reached-serving.md)).
+Delivery records it in that Environment's ProjectControl
+and stops moving that Environment's tag until the Operator resumes; pausing
+production never changes staging. Outcome: Flux keeps serving the current
+render in that Environment.
 
-![UC-5 Pause or resume a Project](../diagrams/png/uc5-pause.png)
+![UC-5 Pause or resume a Project in one Environment](../diagrams/png/uc5-pause.png)
 
 ## UC-6 Roll back a Project
 
-An Operator rolls a Project back. The fast path signs nothing and composes
-nothing ([review](../research/review/README.md) D7): Delivery dry-runs the last Serving render against today's
-cluster, moves `render/<p>:prod` back to it by read, verify, write under the writer Lease, and sets the
-Project to Paused, so no new release moves the tag until the Operator resumes.
-Only if that dry-run fails does Delivery re-compose at the earlier fragment
+An Operator rolls a Project back in one Environment, naming the Environment
+and, with it, the target: the digest `rollbackTo` names, which must be a digest
+that reached Serving in that Environment — the CLI and the API refuse any
+other, so a Held render that was published and never served cannot be the
+target ([record 118](../decisions/0118-a-rollback-is-per-environment-and-targets-a-digest-that-reached-serving.md)).
+The fast path signs nothing and composes
+nothing ([review](../research/review/README.md) D7): Delivery writes Paused and the target
+to that Environment's ProjectControl in one update, dry-runs the target render against today's
+cluster, moves that Environment's [Environment
+tag](../../CONTEXT.md)
+(`render/<p>:<env>`) to it by read, verify, write under the writer Lease, and sets that
+Environment's ProjectControl to Paused, so no new release moves that tag until the Operator resumes.
+Because the target already reached Serving, the Release Gate answers pass for
+its digest, and no analysis verdict holds the rollback. A Delivery restart
+finishes an interrupted Rollback from the ProjectControl, which still names
+the target. Only if that dry-run fails does Delivery re-compose at the earlier fragment
 and dispatch the deploy run in watch mode. Signatures are kept exactly as long
 as their renders, so every render that ever served can serve again. Outcome:
-the previous render serves within five minutes, even with Vault down.
+the target render serves within five minutes, even with Vault down.
 
-![UC-6 Roll back a Project](../diagrams/png/uc6-rollback.png)
+![UC-6 Roll back a Project in one Environment](../diagrams/png/uc6-rollback.png)
 
 ![Sequence: roll back a Project](../diagrams/png/seq-rollback.png)
 
@@ -89,11 +105,13 @@ together, or the release is Held.
 
 ## States of a Project
 
-A Project's state decides whether Delivery may move its tag. A Project
-with no cluster object at all is treated as Paused, so a lost object fails
-safe.
+A Project's state, in one Environment, decides whether Delivery may move that
+Environment's tag. A Project with no ProjectControl in that Environment is
+treated as Paused there, so a lost object fails safe, and the state machine is
+per Environment: pausing production never pauses staging
+([record 118](../decisions/0118-a-rollback-is-per-environment-and-targets-a-digest-that-reached-serving.md)).
 
-![States of a Project](../diagrams/png/state-project.png)
+![States of a Project, in one Environment](../diagrams/png/state-project.png)
 
 ## When something underneath fails
 
@@ -130,6 +148,10 @@ The backup component restores the latest snapshot of each store into throwaway c
 ## External heartbeat
 
 One heartbeat lives outside the cluster ([record 108](../decisions/0108-active-checks-run-in-the-owning-components-observation-reads-their-results-and-one-heartbeat-lives-outside-the-cluster.md)). It is Alertmanager's Watchdog alert, which always fires while the alerting pipeline works. Alertmanager sends it on a schedule to a hosted dead-man's switch from an EU-based provider, such as healthchecks.io, and when it stops arriving, that service raises the alert from outside. The service shares no machine with the control plane. The heartbeat holds no estate data, so the rule that a store of estate data runs on an EU-controlled provider or on owned hardware does not bind it; an EU-based service is still preferred.
+
+The dead-man switch's grace exceeds the estate's longest planned reboot and is stated in minutes, measured from a node's drain to its healthy new generation, so a host rollout never pages ([record 124](../decisions/0124-the-dead-man-grace-exceeds-the-longest-planned-reboot-and-a-phone-push-app-carries-the-second-alert-route.md)). No host reboot is measured yet: the first host rollout measures one by 2027-03-01 and the grace follows; until then the switch holds the longest grace its provider allows.
+
+Alerts also leave the estate on a second route: a phone push app on the maintainer's phone, run outside the estate, so an outage that takes the estate's Mailbox still reaches the maintainer ([record 124](../decisions/0124-the-dead-man-grace-exceeds-the-longest-planned-reboot-and-a-phone-push-app-carries-the-second-alert-route.md)). The yearly drill of [record 87](../decisions/0087-recovery-time-and-recovery-point-are-stated-per-recovery-class.md) sends a test alert on the second route, and the maintainer confirms by hand that it arrived.
 
 ## CLI command behind each UI action
 

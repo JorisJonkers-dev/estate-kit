@@ -33,7 +33,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 25 | [A dry-run must pass before anything is applied, and images are built once and promoted, so what dry-ran is what deploys](0025-a-dry-run-must-pass-before-anything-is-applied-and-what-dry-ran-is-what-deploys.md) | Accepted | planned |
 | 26 | Images are built once and promoted, so what dry-ran is what deploys | Merged into 25 |  |
 | 27 | A diagnostic names a model path, and the caller resolves the line | Merged into 71 |  |
-| 28 | [Pause and Rollback are a cluster object per Project; a missing object reads as Paused](0028-pause-and-rollback-are-a-cluster-object-per-project.md) | Accepted | planned |
+| 28 | [Pause and Rollback are a cluster object per Project and Environment; a missing object reads as Paused](0028-pause-and-rollback-are-a-cluster-object-per-project.md) | Accepted | planned |
 | 29 | The compiler renders host data; hand-written modules consume it | Merged into 31 |  |
 | 30 | [A host applier on each node pulls its signed host tag, decides a reboot before the Lease, and switches on its own only where its Node class's fallback is rehearsed](0030-a-host-applier-on-each-node-pulls-its-signed-host-tag.md) | Proposed | planned |
 | 31 | [Host data is rendered by the compiler for hand-written modules, and host closures are built on owned hardware into a signed static cache outside the cluster](0031-host-closures-are-built-in-ci-and-cached-outside-the-cluster.md) | Accepted | planned |
@@ -69,7 +69,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 61 | A rollback moves the tag back to the last Serving render without composing | Merged into 28 |  |
 | 62 | ghcr tags move with a machine account's token kept in Vault | Merged into 9 |  |
 | 63 | [Delivery has one writer and reconciles from observed state](0063-delivery-has-one-writer-and-reconciles-from-observed-state.md) | Accepted | planned |
-| 64 | [Renders use a canonical YAML style specified on one page](0064-renders-use-a-canonical-yaml-style-specified-on-one-page.md) | Proposed | planned |
+| 64 | [Renders use a canonical YAML style specified on one page](0064-renders-use-a-canonical-yaml-style-specified-on-one-page.md) | Accepted | planned |
 | 65 | The workspace is layered by crate, and a check holds the crate graph to the layer table | Merged into 50 |  |
 | 66 | Transformations are plain Rust: typed steps, one trace, an invariant table, and no DSL | Merged into 14 |  |
 | 67 | [The Rust compiler implements the 1.0 specification, and the shadow compares structure](0067-the-compiler-is-written-to-the-1-0-contract.md) | Accepted | planned |
@@ -94,7 +94,7 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 86 | [The estate states its defaults for a low-attention week, and every default fails safe](0086-the-estate-states-its-defaults-for-a-low-attention-week.md) | Accepted | planned |
 | 87 | [Recovery time and recovery point are stated per Recovery class before the drill, and the drill measures them](0087-recovery-time-and-recovery-point-are-stated-per-recovery-class.md) | Accepted | planned |
 | 88 | [The metamodel is layered: core, profiles and Component kinds, Provider facts, Estate instance](0088-the-metamodel-is-layered-core-profiles-and-component-kinds-provider-facts-estate-instance.md) | Accepted | planned |
-| 89 | [Every persisted or externally read contract has its own identifier, Contract major and supported range](0089-every-persisted-or-externally-read-contract-has-its-own-identifier-contract-major-and-supported-range.md) | Proposed | planned |
+| 89 | [Every persisted or externally read contract has its own identifier, Contract major and supported range](0089-every-persisted-or-externally-read-contract-has-its-own-identifier-contract-major-and-supported-range.md) | Accepted | planned |
 | 90 | [Three Generality tests run in CI](0090-three-generality-tests-run-in-ci.md) | Accepted | planned |
 | 91 | [Platform Intent is split by concern, and each document validates alone](0091-platform-intent-is-split-by-concern-and-each-document-validates-alone.md) | Proposed | planned |
 | 92 | [Capacity is in the Resolved Deployment; cost is estimated outside the Render key and recorded from bills](0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md) | Accepted | planned |
@@ -123,3 +123,12 @@ The [design review](../research/review/README.md) of 2026-10-22 changed or added
 | 115 | [Backups are Kopia snapshots in one locked repository per Environment on an EU object store, with WAL archived beside them](0115-backups-are-kopia-snapshots-in-one-locked-repository-per-environment-on-an-eu-object-store-with-wal-archived-beside-them.md) | Accepted | planned |
 | 116 | [Every store of estate data runs on an EU-controlled provider or on owned hardware](0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md) | Accepted | planned |
 | 117 | [A wording fix is a dated Revised line, a change of rule is an amending record, and a Locked change needs the contract-change label](0117-a-wording-fix-is-a-dated-revised-line-a-change-of-rule-is-an-amending-record-and-a-locked-change-needs-the-contract-change-label.md) | Accepted | verified |
+| 118 | [A Rollback is per Environment and targets a digest that reached Serving](0118-a-rollback-is-per-environment-and-targets-a-digest-that-reached-serving.md) | Accepted | planned |
+| 119 | [A rendered CRD is prune-protected, and Retirement tombstones survive a CRD drop](0119-a-rendered-crd-is-prune-protected-and-retirement-tombstones-survive-a-crd-drop.md) | Accepted | planned |
+| 120 | [Postgres is captured by pgBackRest base backups plus archived WAL, in a locked bucket, on every server](0120-postgres-is-captured-by-pgbackrest-base-backups-plus-archived-wal-in-a-locked-bucket-on-every-server.md) | Accepted | planned |
+| 121 | [The rewritten oracles have one independent witness, a Project switches after twenty distinct clean input digests, and only the maintainer adds an expected-differences ledger entry](0121-the-rewritten-oracles-have-one-independent-witness-a-project-switches-after-twenty-distinct-clean-input-digests-and-only-the-maintainer-adds-an-expected-differences-ledger-entry.md) | Proposed | planned |
+| 122 | [The Estate name scan runs in the estate repository's CI, and estate-kit's suite scans the second-estate fixture's names](0122-the-estate-name-scan-runs-in-the-estate-repository-s-ci-and-estate-kit-s-suite-scans-the-second-estate-fixture-s-names.md) | Proposed | planned |
+| 123 | [Host maintenance windows are stated in site-local IANA time, and the link between sites is fleet-infra's](0123-host-maintenance-windows-are-stated-in-site-local-iana-time-and-the-link-between-sites-is-fleet-infra-s.md) | Proposed | planned |
+| 124 | [The dead-man grace exceeds the longest planned reboot, and a phone push app carries the second alert route](0124-the-dead-man-grace-exceeds-the-longest-planned-reboot-and-a-phone-push-app-carries-the-second-alert-route.md) | Accepted | planned |
+| 125 | [Fleet-infra issues the wildcard certificate per Product domain and Environment suffix, and estate-kit names the expiry alert](0125-fleet-infra-issues-the-wildcard-certificate-per-product-domain-and-environment-suffix.md) | Accepted | planned |
+| 126 | [Network policy is enforced on kube-router, with a declared rollback, starting with the least-connected namespaces](0126-network-policy-is-enforced-on-kube-router-with-a-declared-rollback.md) | Accepted | planned |

@@ -62,8 +62,13 @@ Adding a Project re-renders nothing else.
 
 When a Mailbox, or any other durable object, leaves Intent, it is not deleted
 by Flux. Prune-protected kinds (namespaces, claims with recoverable or
-irreplaceable volumes, Mailboxes, buckets, databases) carry the prune-disabled
-mark ([record 105](../decisions/0105-removal-is-a-retire-lifecycle-with-durable-retirement-tombstones-and-declared-moves-and-prune-protected-kinds-never-prune.md)).
+irreplaceable volumes, Mailboxes, buckets, databases, rendered CRDs) carry the
+prune-disabled mark ([record 105](../decisions/0105-removal-is-a-retire-lifecycle-with-durable-retirement-tombstones-and-declared-moves-and-prune-protected-kinds-never-prune.md)).
+A rendered CRD is protected like a namespace or a claim, so a render that stops
+naming one changes nothing: not the CRD, not one custom resource of its kind,
+and no Retirement tombstone ([record 119](../decisions/0119-a-rendered-crd-is-prune-protected-and-retirement-tombstones-survive-a-crd-drop.md)).
+A CRD leaves the cluster by the Retire lifecycle's stated policy, never by a
+render change alone.
 
 The owning component records a Retirement tombstone: what is retiring, since
 when, and under which policy. The tombstone is a custom resource of the owning
@@ -72,9 +77,9 @@ The policy is set per kind and per class of data: suspend the object, wait a
 grace period, verify a recovery copy, then let the owning component delete it
 and record the deletion. The grace period is 30 days unless the policy states
 another. Declaring the object again within the grace period cancels the
-retirement. A tombstone survives a render change, a lost render and a restore,
-and a component applies its tombstones before restored data serves, so a
-restore never brings back what was retired.
+retirement. A tombstone survives a render change, a lost render, a restore and
+a CRD drop, and a component applies its tombstones before restored data serves,
+so a restore never brings back what was retired.
 
 Moves are declared, never inferred. A renamed Mailbox local part is a
 `moved_from` in Intent. A removal and an addition of the same kind under the

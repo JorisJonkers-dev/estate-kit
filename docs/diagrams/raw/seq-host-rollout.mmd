@@ -10,10 +10,11 @@ sequenceDiagram
     CI->>C: push signed closures
     CI->>CI: VM test per node class
     CI->>S: host rollout (GitHub OIDC token)
-    S->>O: move host/#lt#59;node#gt#59;:prod
-    A->>O: poll the tag, verify it
+    S->>O: publish host/#lt#59;node#gt#59;:#lt#59;n#gt#59; with the order payload
+    A->>O: poll, take the highest, verify it
     A->>C: fetch and verify the closure
     A->>A: reboot needed? stage with boot, wait for the window
+    A->>A: wait for the predecessor's Node annotation, or a recorded skip
     A->>K: take the Lease, evict pods
     A->>A: switch or reboot, health check
     A->>K: uncordon, release the Lease

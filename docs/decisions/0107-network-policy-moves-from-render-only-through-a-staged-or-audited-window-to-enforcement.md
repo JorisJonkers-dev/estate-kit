@@ -7,6 +7,11 @@ lessons: [MS-9]
 
 # Network policy moves from render-only, through a staged or audited window, to enforcement
 
+Amended by [record 126](0126-network-policy-is-enforced-on-kube-router-with-a-declared-rollback.md):
+the chosen path is per-namespace enforcement on the existing kube-router, with
+a declared rollback written before the mark, starting with the least-connected
+namespaces.
+
 ## Context
 
 Network policy is default-deny, derived from the edges Projects declare, and
@@ -33,26 +38,28 @@ there (the architecture evaluation of 2026-11-04, sections 3.17 and 5).
 
 ## Decision
 
-Network policy moves from render-only to enforcement through a window in which
-policies are staged or audited but drop nothing, one namespace at a time:
+Network policy moves from render-only to enforcement on k3s's bundled
+kube-router, one namespace at a time, with a declared rollback written before
+the mark ([record 126](0126-network-policy-is-enforced-on-kube-router-with-a-declared-rollback.md)):
 
 1. The missing Postgres egress
    ([deploy-kit#737](https://github.com/JorisJonkers-dev/deploy-kit/issues/737))
    is fixed first, and the compiler checks every edge at both ends.
-2. Three paths are tried on a throwaway k3s with the Pis' memory: Cilium with
-   policy audit mode; Calico's staged network policies; and per-namespace
-   enforcement on the existing kube-router, least-connected namespaces first,
-   with a declared rollback. The third needs no plugin change, but it has no
-   audit stage, so it bends
+2. Enforcement runs on the existing kube-router, per-namespace,
+   least-connected namespaces first, with a declared rollback written beside the
+   enforced mark before the policies apply
+   ([record 126](0126-network-policy-is-enforced-on-kube-router-with-a-declared-rollback.md)).
+   A plugin may later replace kube-router, but segmentation waits on no trial;
+   on the kube-router path there is no audit stage, so the declared rollback
+   takes the place the audit stage would have held, and the path bends
    [deploy-kit ADR 0035](https://github.com/JorisJonkers-dev/deploy-kit/blob/main/docs/adr/model/0035-network-policy-is-default-deny-and-render-only.md)'s
-   audit prerequisite and must say so if chosen. The trial's measurements choose
-   the path.
-3. On the chosen path, each namespace's policies run through a window of at
-   least 14 days that includes normal traffic, a backup, a restore and a
-   maintenance window. Every observed flow that matches no rendered edge is
-   fixed in the model, not allowed by hand.
-4. A namespace is enforced only after its window saw no undeclared flow. The
-   estate instance records which namespaces are enforced, so the state of
+   audit prerequisite.
+3. Each namespace keeps its mark only through a window of at least 14 days
+   that includes normal traffic, a backup, a restore and a maintenance window.
+   An undeclared flow surfaces as a cut, an incident or a failing check; each
+   one is fixed in the model, not allowed by hand, and the declared rollback
+   holds the namespace while the fix's render lands.
+4. The estate instance records which namespaces are enforced, so the state of
    enforcement is never a guess.
 
 ## Alternatives
@@ -69,20 +76,23 @@ policies are staged or audited but drop nothing, one namespace at a time:
 ## Consequences
 
 - Easier: segmentation becomes real one namespace at a time; a missing edge is
-  found in the window, not in an outage; the enforced namespaces are written down.
-- Harder: a trial, a window per namespace including a backup and a restore, and
-  possibly a plugin migration.
-- Forbidden: enforcing a namespace without a window of at least 14 days that
-  included a backup, a restore and a maintenance window and saw no undeclared
-  flow; allowing a flow that is not an edge in the model; enforcing before the
-  missing Postgres egress is fixed.
+  surfaced in the window and fixed in the model; the enforced namespaces are
+  written down; the rollback is declared before it is needed.
+- Harder: a window per namespace including a backup and a restore, enforcement
+  before every undeclared flow is known, and possibly a plugin migration later.
+- Forbidden: enforcing a namespace whose declared rollback was not written
+  first, or that kept no window of at least 14 days that
+  included a backup, a restore and a maintenance window and surfaced no
+  undeclared flow; allowing a flow that is not an edge in the model; enforcing
+  before the missing Postgres egress is fixed.
 
 ## Confirmation
 
 The **Policy edge pairing test** fails when a rendered policy allows an egress
 with no matching ingress at the other end, or the reverse. The **Undeclared flow
 report** fails when a flow observed during a namespace's window matches no
-rendered edge. The **Enforcement promotion check** fails when the estate
-instance marks a namespace enforced without a recorded window that lasted at
-least 14 days, included a backup, a restore and a maintenance window, and saw
-no undeclared flow.
+rendered edge. The **Enforcement promotion check** fails when a namespace
+keeps its enforced mark without a declared rollback written before the mark and
+a recorded window that lasted at
+least 14 days, included a backup, a restore and a maintenance window, and
+surfaced no undeclared flow.

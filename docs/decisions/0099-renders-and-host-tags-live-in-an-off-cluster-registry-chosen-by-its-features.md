@@ -51,8 +51,10 @@ exception for renders and host tags only until milestone M5.
 ## Decision
 
 After the cutover, Delivery publishes renders and host tags to one OCI
-registry outside the cluster, chosen by five features, each shown in the
-registry spike before a product is chosen:
+registry outside the cluster, each a numbered, immutable Sequence tag
+([record 98](0098-the-live-pointer-is-an-immutable-sequence-tag-that-flux-selects-by-version.md)),
+chosen by five features, each shown in the registry spike before a product is
+chosen:
 
 1. **Create-only tags.** Delivery's push credential can create a tag and can
    neither update nor delete one.
