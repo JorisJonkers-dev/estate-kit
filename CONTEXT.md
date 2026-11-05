@@ -24,8 +24,12 @@ The signed registry tag `render/<project>:<env>` that names a Project's current 
 _Avoid_: pin, live tag
 
 **Render key**:
-The digest of everything a Project's render depends on: its fragment, Platform Intent, the ClusterState snapshot, the compiler version, and the Surface declarations that Link reads from other Projects (each Surface its Applications consume or route to: its name, its port and the Project and Application that provide it). A change to a provider's Surface therefore changes the Render key of every Project that consumes it. It is kept as provenance with each published render and is never a cache key. It is not the key that signs: that is the Render signing key.
+The digest of everything a Project's render depends on, and of nothing else: its fragment, Platform Intent, the ClusterState snapshot, Provider facts (after the cutover), the compiler version, and the Surface declarations that Link reads from other Projects (each Surface its Applications consume or route to: its name, its port and the Project and Application that provide it). A change to a provider's Surface therefore changes the Render key of every Project that consumes it. It is kept as provenance with each published render and is never a cache key. It is not the key that signs: that is the Render signing key.
 _Avoid_: cache key, input hash, signing key
+
+**ClusterState snapshot**:
+The one route by which live facts reach a render: Delivery captures them, digests them, and the digest becomes a render input. It holds exactly four things: the kinds the cluster serves, the installed CRDs with their versions, the namespace names, and the Kubernetes version. Nothing else of the live cluster enters it.
+_Avoid_: cluster facts, live state, cluster inventory
 
 **Render signing key**:
 The Vault Transit key that signs `render/<project>:prod`. Flux verifies renders against it. Delivery's Vault policy may use it only for that path; it never signs a host tag.
@@ -40,23 +44,23 @@ The hardware-held key, kept offline, that Flux and every Host applier trust besi
 _Avoid_: backup key, root key
 
 **Serving**:
-The outcome of a Rollout whose new version has been promoted and now takes the Project's traffic. A Rollout ends in exactly one of Serving, Held, Refused, Superseded or Observation lost.
+The outcome of a Rollout whose new version has been promoted and now takes the Project's traffic. A Rollout ends in exactly one of Serving, Held, Refused, Replaced or Observation lost.
 _Avoid_: live, deployed
 
 **Held**:
-The state of an Application whose release failed: its old version keeps serving while the Project's Prod tag names the new render, until a later render lands. The Rollout ends Held.
+The state of an Application whose release failed: its old version keeps serving while the Project's Prod tag names the new render, until a later render lands. The Rollout ends Held and records why: a failed analysis verdict, or an inconclusive one on a Project too quiet to gather a sample. A Held Rollout has a deadline, 24 hours unless the Project states another: at the deadline the tag keeps naming the held render, nothing is promoted by itself, and an Operator promotes or rolls back. A later render starts a new Rollout and cancels the deadline.
 _Avoid_: stuck, failed
 
 **Pause**:
-The state of a Project whose Prod tag Delivery does not move. Composition still checks it and Flux still applies the render the tag names. It is recorded in the Project's ProjectControl; a missing or unreadable ProjectControl reads as Paused. An Operator resumes it, and a Rollback leaves the Project Paused.
+The state of a Project, in one Environment, whose Prod tag Delivery does not move there. Composition still checks it and Flux still applies the render the tag names. It is recorded in that Environment's ProjectControl; a missing or unreadable ProjectControl reads as Paused. An Operator resumes it, and a Rollback leaves the Project Paused.
 _Avoid_: freeze, suspend
 
 **ProjectControl**:
-The custom resource, one per admitted Project in its own namespace, that records whether the Project is Paused and the render it is held at after a Rollback. Only Delivery writes it.
+The custom resource, one per admitted Project and Environment, in the Project's namespace and named by the Environment, that records whether the Project is Paused there, the render it is held at after a Rollback, and its monotone `lastServing`. Every read and write names the Environment. Only Delivery writes it.
 _Avoid_: control file, pause object
 
 **Rollout**:
-One Project's release, from the moment Delivery moves its Prod tag until it ends Serving, Held, Refused, Superseded or Observation lost. Delivery records it as an append-only log of Rollout events and reports it as a GitHub Deployment in the environment `production`. Not a Kubernetes `Deployment`.
+One Project's release, from the moment Delivery moves its Prod tag until it ends Serving, Held, Refused, Replaced or Observation lost. Delivery records it as an append-only log of Rollout events and reports it as a GitHub Deployment in the environment `production`. Not a Kubernetes `Deployment`.
 _Avoid_: deployment, release run
 
 **Release Gate**:
@@ -120,8 +124,12 @@ A set of a Project's rendered objects that Flux applies as one Kustomization, af
 _Avoid_: wave, stage, phase, reconcile unit
 
 **Superseded**:
-The end of a Rollout that a newer Operation for the same Project and Environment replaced before it reached Serving, Held or Refused.
-_Avoid_: cancelled, aborted, replaced
+The end of an Operation that a newer Operation for the same Project and Environment replaced before its Rollout ended. A Rollout that had begun ends Replaced. Superseded is never a Rollout end.
+_Avoid_: cancelled, aborted
+
+**Replaced**:
+The end of a Rollout that a newer Operation for the same Project and Environment closed before it reached Serving, Held or Refused. The Operation ends Superseded.
+_Avoid_: superseded (for a Rollout), cancelled, aborted
 
 **Observation lost**:
 The end of an Operation's stream when Delivery can no longer see what Flux or Flagger did, so it cannot say how the Rollout ended. It is not a failure of the Rollout, which may still reach Serving.
@@ -132,7 +140,7 @@ The step after which a render is visible to Flux: the moment its tag is created 
 _Avoid_: commit, push, release point
 
 **Sequence tag**:
-An immutable registry tag that names one published render of one Project in one Environment, numbered so that a later publication has a higher version. Flux follows the highest; the registry refuses to change a tag once created. A Rollback creates a new Sequence tag that names an older, already-signed digest.
+An immutable registry tag that names one published render of one Project in one Environment, numbered so that a later publication has a higher version. Flux follows the highest; the registry refuses to change a tag once created. A Rollback creates a new Sequence tag that names an older, already-signed digest. A Host tag is numbered the same way.
 _Avoid_: pin, live tag, moving tag
 
 **Roll-forward**:
@@ -226,7 +234,7 @@ The agent on each NixOS node that pulls its signed generation and switches to it
 _Avoid_: deployer, updater
 
 **Host tag**:
-The signed registry tag `host/<node>:prod` that names the generation a node should run. Delivery moves it once the closures are built and the VM tests pass.
+The signed registry tag `host/<node>:<number>` that names the generation a node should run. Host tags are numbered and immutable, with the semantics of a Sequence tag: the Host applier takes the highest, and a rollback publishes a new, higher number that names an older generation. Delivery publishes one once the closures are built and the VM tests pass.
 _Avoid_: host pin, target generation
 
 **Node class**:
@@ -260,7 +268,7 @@ The domain a multi-tenant Application names, under which every Tenant host is de
 _Avoid_: base domain, root domain, vanity domain
 
 **Tenant host**:
-The host at which a Tenant's people reach an Application, derived as the Tenant handle, the environment suffix (none in production) and the Product domain. A host finds its Tenant through a lookup, never by parsing.
+The host at which a Tenant's people reach an Application, derived as the Tenant handle, the environment suffix (none in production) and the Product domain. The environment suffix is its own DNS label, so each Environment has its own wildcard certificate under the Product domain. A host finds its Tenant through a lookup, never by parsing.
 _Avoid_: tenant url, subdomain, vanity host
 
 **Estate name**:
