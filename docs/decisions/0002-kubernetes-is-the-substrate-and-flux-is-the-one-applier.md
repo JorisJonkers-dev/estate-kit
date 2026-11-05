@@ -11,6 +11,8 @@ Amended by [record 94](0094-flux-stays-the-one-applier-observed-closely-and-an-e
 
 Amended by [record 95](0095-a-project-renders-as-a-chain-of-flux-kustomizations-one-per-apply-group.md): Flux applies a Project's render as a chain of Kustomizations, one per Apply group.
 
+Amended by [record 144](0144-delivery-holds-no-actions-write-and-dispatches-no-workflow-and-its-own-deployment-is-applied-by-a-bootstrap-step-that-verifies-the-render-signature.md): beside the host applier's, one further named exception applies inside the cluster — the bootstrap step that applies Delivery's own Deployment, from a render whose signature it verified.
+
 ## Context
 
 Kubernetes earns its place here for two properties, not for scheduling. The API
@@ -31,8 +33,11 @@ Flux is the one applier of objects into the cluster. Delivery composes,
 dry-runs, signs and moves a tag; Flux pulls the tag and applies, as a chain of
 Kustomizations, one per Apply group
 ([record 95](0095-a-project-renders-as-a-chain-of-flux-kustomizations-one-per-apply-group.md)).
-Nothing else creates or changes an object in the cluster: not Delivery, not a Project's
-CI, not a person with `kubectl` outside a break-glass.
+Nothing else creates or changes an object in the cluster: not Delivery, not a
+Project's CI, not a person with `kubectl` outside a break-glass. The one named
+exception inside the cluster is the bootstrap step that applies Delivery's own
+Deployment, from a render whose signature it verified first
+([record 144](0144-delivery-holds-no-actions-write-and-dispatches-no-workflow-and-its-own-deployment-is-applied-by-a-bootstrap-step-that-verifies-the-render-signature.md)).
 
 The signed artifact is the seam, so a later record could replace Flux without
 touching the compiler; an estate-kit Applier is built only when one of the

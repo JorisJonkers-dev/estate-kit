@@ -1,6 +1,6 @@
 # Operating the estate
 
-Operators act through the UI or the CLI ([record 113](../decisions/0113-every-ui-action-is-a-cli-command-with-the-same-identifier.md)). Every rollout they start still shows up as a deploy run and a Deployment in the Project's own repository.
+Operators act through the UI or the CLI ([record 113](../decisions/0113-every-ui-action-is-a-cli-command-with-the-same-identifier.md)). Every rollout they start still shows up as a Deployment in the Project's own repository: a Project's workflow runs because the Project started it, never because Delivery dispatched it, for Delivery holds no `actions:write` ([record 144](../decisions/0144-delivery-holds-no-actions-write-and-dispatches-no-workflow-and-its-own-deployment-is-applied-by-a-bootstrap-step-that-verifies-the-render-signature.md)).
 
 ## Low-attention defaults
 
@@ -33,10 +33,20 @@ The defaults are this table. A new situation gets its row, and its default, in t
 
 ## Rollouts no Project run started
 
-A Platform Intent change, the nightly recompose or a Rollback from the UI: Delivery dispatches the Project's `deploy` workflow in watch mode, with a run
-name that says why (for example "Deploy notes: Platform Intent changed").
-Missed triggers heal on a timer that scans the registry for fragments newer
-than the last composition.
+A Platform Intent change, the nightly recompose or a Rollback from the UI:
+Delivery composes on its own and starts the Rollout itself, streaming it live
+to the UI, and writes nothing into any forge to start it: it dispatches no
+Project's workflow and its GitHub App holds no `actions:write`
+([record 144](../decisions/0144-delivery-holds-no-actions-write-and-dispatches-no-workflow-and-its-own-deployment-is-applied-by-a-bootstrap-step-that-verifies-the-render-signature.md)).
+The fragment scan that heals missed triggers runs on a short interval: a
+fragment newer than the last composition triggers the next composition queue
+row on its own
+([record 73](../decisions/0073-the-composition-queue-is-a-row-in-a-postgres-job-table.md)),
+and after the Publication point the Project's Flux Receiver call makes Flux
+fetch the new render at once, with the reconcile interval as the fallback
+([record 94](../decisions/0094-flux-stays-the-one-applier-observed-closely-and-an-estate-kit-applier-waits-for-a-review-trigger.md)).
+The Rollout shows as a Deployment through the forge projection, with no run,
+because Delivery never starts one ([record 144](../decisions/0144-delivery-holds-no-actions-write-and-dispatches-no-workflow-and-its-own-deployment-is-applied-by-a-bootstrap-step-that-verifies-the-render-signature.md)).
 
 ## UC-5 Pause or resume a Project
 
@@ -69,7 +79,7 @@ Because the target already reached Serving, the Release Gate answers pass for
 its digest, and no analysis verdict holds the rollback. A Delivery restart
 finishes an interrupted Rollback from the ProjectControl, which still names
 the target. Only if that dry-run fails does Delivery re-compose at the earlier fragment
-and dispatch the deploy run in watch mode. Signatures are kept exactly as long
+and start that Rollout itself, streaming it live ([record 144](../decisions/0144-delivery-holds-no-actions-write-and-dispatches-no-workflow-and-its-own-deployment-is-applied-by-a-bootstrap-step-that-verifies-the-render-signature.md)). Signatures are kept exactly as long
 as their renders, so every render that ever served can serve again. Outcome:
 the target render serves within five minutes, even with Vault down.
 
@@ -80,8 +90,12 @@ the target render serves within five minutes, even with Vault down.
 ## UC-7 Admit a Project
 
 An Admin merges a Platform Intent change that admits a Project's
-`repository_id`. Delivery derives the Project's Flux source into the
-platform render. Outcome: the Project's CI may deploy from then on.
+`repository_id`. Delivery derives the Project's namespace and Flux source into
+the platform render: the platform render creates the Project's namespace in
+every Environment, and the Project's own render holds namespaced kinds only, so
+its first Apply group needs no cluster-scoped identity
+([record 143](../decisions/0143-the-platform-render-creates-every-project-namespace-and-a-project-render-holds-namespaced-kinds-only.md)).
+Outcome: the Project's CI may deploy from then on.
 
 ![UC-7 Admit a Project](../diagrams/png/uc7-admit.png)
 

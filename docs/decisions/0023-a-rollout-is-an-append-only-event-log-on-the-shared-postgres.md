@@ -9,6 +9,8 @@ lessons: [DR-4]
 
 Amended by [record 96](0096-a-deploy-is-an-operation-that-ends-serving-held-refused-superseded-or-observation-lost.md): a deploy call is idempotent on the caller's Operation id, and an Operation ends Serving, Held, Refused, Superseded or Observation lost.
 
+Amended by [record 145](0145-every-rollout-event-row-carries-a-predecessor-digest.md): each row carries the digest of the row before it in the same Rollout, and an append whose predecessor digest does not name the last row the writer read is refused.
+
 ## Context
 
 A rollout is a deploy run that streams Delivery's work to the deploy job.
@@ -31,7 +33,10 @@ their own on the shared platform-postgres. A rollout's state is the fold of its
 events. Events are only appended: never updated, never rewritten, and never
 deleted except by the retention job after 400 days
 ([record 51](register.md)). The columns are on the
-[event log section of Delivery page](../design/inside-delivery.md#the-event-log).
+[event log section of Delivery page](../design/inside-delivery.md#the-event-log),
+plus the [predecessor digest](../../CONTEXT.md) each row carries of the row
+before it in the same Rollout, added before the schema is committed
+([record 145](0145-every-rollout-event-row-carries-a-predecessor-digest.md)).
 
 A deploy call is idempotent on the caller's Operation id, not the Project and
 the fragment digest: a retry with the same id and the same fragment digest

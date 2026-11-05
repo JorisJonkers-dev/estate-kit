@@ -8,6 +8,8 @@ lessons: [DO-2, DO-3]
 
 # A Project renders as a chain of Flux Kustomizations, one per Apply group
 
+Amended by [record 143](0143-the-platform-render-creates-every-project-namespace-and-a-project-render-holds-namespaced-kinds-only.md): a Project's render holds namespaced kinds only; its namespaces and every cluster-scoped kind are objects of the platform render.
+
 ## Context
 
 A render must reach the cluster in order: cluster-scoped kinds and namespaces,
@@ -47,7 +49,11 @@ of the chain names the Project's one service account and target namespace, as
 [record 58](0058-flux-is-locked-down-per-project-and-delivery-dry-runs-as-an-identity-that-cannot-write.md)
 requires; the chain adds no identity. A group exists only where an order is
 required: an empty group is not rendered, and an optional edge never creates an
-order (DO-3). This extends [record 2](0002-kubernetes-is-the-substrate-and-flux-is-the-one-applier.md):
+order (DO-3). No group of a Project's chain is cluster-scoped: a Project's
+render holds namespaced kinds only, and its namespaces and every cluster-scoped
+kind are objects of the platform render
+([record 143](0143-the-platform-render-creates-every-project-namespace-and-a-project-render-holds-namespaced-kinds-only.md)),
+so the first group applies with the Project's own namespaced rights. This extends [record 2](0002-kubernetes-is-the-substrate-and-flux-is-the-one-applier.md):
 Flux still applies everything, now in steps that Delivery observes one by one
 ([record 94](0094-flux-stays-the-one-applier-observed-closely-and-an-estate-kit-applier-waits-for-a-review-trigger.md)).
 

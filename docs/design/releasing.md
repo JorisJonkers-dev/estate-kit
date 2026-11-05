@@ -1,8 +1,11 @@
 # Releasing a Project
 
-Every rollout is a GitHub Actions run in the Project's repository. Delivery
-does all the work, and the deploy job streams it live, from validation to the
-last Flagger promotion.
+Every rollout a Project starts is a GitHub Actions run in the Project's
+repository. Delivery does all the work, and the deploy job streams it live,
+from validation to the last Flagger promotion. A rollout no Project run
+started streams to the UI and projects as a Deployment with no run, because
+Delivery dispatches no Project's workflow and holds no `actions:write`
+([record 144](../decisions/0144-delivery-holds-no-actions-write-and-dispatches-no-workflow-and-its-own-deployment-is-applied-by-a-bootstrap-step-that-verifies-the-render-signature.md)).
 
 ## Names
 
@@ -14,9 +17,11 @@ check. A separate dry-run workflow or a compose workflow was rejected: Delivery 
 A dry-run records no Deployment, and a dry-run environment was rejected, so
 the production history holds real deploys only.
 
-The deploy job owns the Deployment and streams the rollout, so every rollout
-is a run with its approval gates. Deployments created by Delivery were
-rejected.
+The deploy job owns the Deployment and streams the rollout, so every rollout a
+Project starts is a run with its approval gates. Deployments created by
+Delivery were rejected for those runs; the forge projection of a rollout no
+Project run started is a Deployment with no run, and the event log stays the
+authority.
 
 ## What a dry-run is
 

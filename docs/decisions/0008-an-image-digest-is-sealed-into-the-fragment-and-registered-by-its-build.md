@@ -7,6 +7,8 @@ lessons: [CS-5, DR-1, DR-2, TM-4]
 
 # A Project's CI proves itself with a pinned-workflow OIDC token from an admitted issuer, and Delivery deploys only images its own build registered
 
+Amended by [record 144](0144-delivery-holds-no-actions-write-and-dispatches-no-workflow-and-its-own-deployment-is-applied-by-a-bootstrap-step-that-verifies-the-render-signature.md): the Release source port reads and never writes; Delivery holds no `actions:write` and dispatches no Project's workflow, so GitHub is load-bearing in four places.
+
 ## Context
 
 A Project's CI asks Delivery to deploy. The first design trusted the token's
@@ -26,11 +28,15 @@ Delivery can restart under it (Recreate,
 Whether a waiting job can request a fresh GitHub token is not known: spike #11
 settles it.
 
-GitHub is load-bearing in five places (OIDC identity, Deployments, check runs,
-workflow dispatch and release-please), none behind a port. The five are not
+GitHub is load-bearing in four places (OIDC identity, Deployments, check runs
+and release-please), none behind a port. The four are not
 equal: CI identity is a security boundary, the status shown on the forge is
 cosmetic, and finding a release is cheap (the architecture evaluation of
-2026-11-04, sections 3.21 and 5). Self-hosted forges are a normal shape ("The
+2026-11-04, sections 3.21 and 5). The fifth use, a workflow dispatch to start
+a deploy nobody called for, was dropped with the `actions:write` permission it
+needed
+([record 144](0144-delivery-holds-no-actions-write-and-dispatches-no-workflow-and-its-own-deployment-is-applied-by-a-bootstrap-step-that-verifies-the-render-signature.md)).
+Self-hosted forges are a normal shape ("The
 penumbra of open source", 2022; "Federated software forges with Forgejo",
 2025). The maintainer intends to depend less on GitHub: likely Tangled once it
 has private repositories, or a self-hosted Forgejo behind a VPN with sign-in
@@ -42,7 +48,10 @@ at Traefik.
   a caller's OIDC token against the claim policy. Rollout projection shows each
   Operation's state on the forge; the event log stays the authority, and a
   failed projection never fails a Rollout. Release source reads a merged
-  revision and dispatches a run. GitHub is the first adapter of each: CI
+  revision; a deploy is started by the Project's own release-published workflow
+  run, or by Delivery on its own triggers, and the port never writes
+  ([record 144](0144-delivery-holds-no-actions-write-and-dispatches-no-workflow-and-its-own-deployment-is-applied-by-a-bootstrap-step-that-verifies-the-render-signature.md)).
+  GitHub is the first adapter of each: CI
   identity in `adapter-oidc` (renamed from `adapter-github-oidc`), the other
   two in `adapter-forge-github` (renamed from `adapter-github`). The design
   pages use these names. A second adapter is written

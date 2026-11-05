@@ -111,6 +111,17 @@ In Postgres, a per-Project owner role with `BYPASSRLS` owns the tables, and only
 `migration-run` Jobs and the backup component use it; Application roles have no
 `BYPASSRLS` and own no table
 ([record 114](../decisions/0114-multi-tenant-projects-keep-their-tenants-in-shared-tables-separated-by-row-level-security.md)).
+Delivery's own Deployment is the one rendered object Flux does not apply: the
+[bootstrap step](../../CONTEXT.md) reads the Environment tag that names
+Delivery's current render, verifies the signature on every manifest, refuses
+the render when one does not verify, and applies it with the offline admin
+credential; its rollback is a move of that Environment tag, which only the
+maintainer's CLI makes, with the machine account's token and the writer Lease
+checked before the move ([record 144](../decisions/0144-delivery-holds-no-actions-write-and-dispatches-no-workflow-and-its-own-deployment-is-applied-by-a-bootstrap-step-that-verifies-the-render-signature.md)).
+Delivery never writes into a forge to trigger a deploy: its GitHub App holds no
+`actions:write` and dispatches no Project's workflow, and every Project
+namespace is created by the platform render, never by a Project's own render
+([record 143](../decisions/0143-the-platform-render-creates-every-project-namespace-and-a-project-render-holds-namespaced-kinds-only.md)).
 
 ## Authorization matrix
 

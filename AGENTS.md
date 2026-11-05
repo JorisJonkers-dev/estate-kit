@@ -63,7 +63,7 @@ required check on `main`. It holds these rules:
 | A pull request that changes a Locked record or a Locked contract path carries the maintainer's `contract-change` label | Contract gate (`scripts/check_contract_change.py`) |
 | Every relative link and anchor resolves | Links |
 | The Rollout and Operation outcome lists hold the settled ends | Outcomes (`scripts/check_rollout_outcomes.py`) |
-| Record 116's table lists every store of estate data and every key service with its provider and a real calendar exit date | Provider-and-exit table (`scripts/check_provider_exits.py`) |
+| [Record 116](docs/decisions/0116-every-store-of-estate-data-runs-on-an-eu-controlled-provider-or-on-owned-hardware.md)'s table lists every store of estate data and every key service with its provider and a real calendar exit date | Provider-and-exit table (`scripts/check_provider_exits.py`) |
 
 Run a check locally with `python3 scripts/<check>.py`.
 

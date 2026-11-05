@@ -51,10 +51,14 @@ composition carries its fragment.
 ## The event log
 
 One table of rollout events in a database on the shared platform-postgres:
-rollout id, sequence, type, version, time, payload, and, on an event that
+rollout id, sequence, type, version, time, payload, the [predecessor
+digest](../../CONTEXT.md) each row carries of the row before it in the same
+Rollout, and, on an event that
 reconciliation appended after a crash, a reconstructed marker naming the
-Observation it came from. A unique (rollout id, sequence) key refuses a
-duplicate. Two database roles touch it: Delivery's, which can insert and
+Observation it came from ([record 145](../decisions/0145-every-rollout-event-row-carries-a-predecessor-digest.md)).
+A unique (rollout id, sequence) key refuses a
+duplicate, and an append whose predecessor digest does not name the last row
+the writer read is refused, so a gap or a reorder is detected at the log. Two database roles touch it: Delivery's, which can insert and
 select only, and the retention job's, which can delete and is held by the job
 alone ([record 23](../decisions/0023-a-rollout-is-an-append-only-event-log-on-the-shared-postgres.md)). Its schema ships as a
 changelog in a migration image that alone holds the owner role, as every
@@ -71,7 +75,11 @@ stray second pod cannot write ([review](../research/review/README.md) D9,
 [record 63](../decisions/0063-delivery-has-one-writer-and-reconciles-from-observed-state.md)). On
 startup it does not trust the log alone: it rebuilds each unfinished rollout
 from the Project's tag in ghcr and from Flux and Flagger status, or ends it
-with an Abandoned event. Flux keeps serving the last tags meanwhile.
+with an Abandoned event. Flux keeps serving the last tags meanwhile. The one
+tag Delivery never moves is its own: the Environment tag of Delivery's own
+render moves only under the maintainer's CLI, and the [bootstrap
+step](../../CONTEXT.md), not Delivery, applies its Deployment
+([record 144](../decisions/0144-delivery-holds-no-actions-write-and-dispatches-no-workflow-and-its-own-deployment-is-applied-by-a-bootstrap-step-that-verifies-the-render-signature.md)).
 
 ## The compiler, in-process
 

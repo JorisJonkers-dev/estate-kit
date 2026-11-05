@@ -29,7 +29,7 @@ use_case("uc6-rollback", "Use case 6: roll back a Project in one Environment, on
           "Set the Environment's ProjectControl to Paused", "Re-compose only if the dry-run fails"],
          secondary=[(3, "API server")])
 use_case("uc7-admit", "Use case 7: admit a Project", ["Admin"], "Admit a Project",
-         ["Edit Platform Intent", "Derive the Flux source"])
+         ["Edit Platform Intent", "Create the namespace and Flux source in the platform render"])
 use_case("uc8-apply", "Use case 8: pull and apply a render", ["Flux"], "Pull and apply a render",
          ["Verify the signature", "Apply and prune"], secondary=[(0, "ghcr")])
 use_case("uc9-gate", "Use case 9: gate a traffic switch", ["Flagger"], "Gate a traffic switch",
@@ -640,11 +640,10 @@ g.box("stage1", "stage 1: the chain without the objects Unverifiable by construc
 g.box("stage2", "the API server serves the new kind; stage 2 publishes the full chain, in the same Operation", tone="warn")
 g.box("chain", "the chain: one Kustomization per Apply group, joined by dependsOn and health checks; an empty group renders nothing",
       tone="accent")
-g.box("g1", "group 1: cluster-scoped kinds and namespaces")
-g.box("g2", "group 2: grants and generated secrets")
-g.box("g3", "group 3: the migration Job, suspended until the Release Gate unsuspends it")
-g.box("g4", "group 4: workloads")
-g.box("g5", "group 5: routes")
+g.box("g1", "group 1: grants and generated secrets")
+g.box("g2", "group 2: the migration Job, suspended until the Release Gate unsuspends it")
+g.box("g3", "group 3: workloads")
+g.box("g4", "group 4: routes")
 g.terminal("done", "every group healthy; Flagger promotes; the Rollout ends Serving", tone="good")
 g.box("prune", "each group prunes what it no longer names, except the prune-protected kinds: rendered CRDs, namespaces, claims, Mailboxes, buckets, databases",
       tone="warn")
@@ -653,8 +652,8 @@ g.box("crds", "a rendered CRD is prune-protected, so its custom resources and ev
 for a, b, label, kind in [("start", "newkind", "", "flow"), ("newkind", "stage1", "yes", "flow"),
                           ("newkind", "chain", "no", "flow"), ("stage1", "stage2", "", "flow"),
                           ("stage2", "chain", "", "flow"), ("chain", "g1", "", "flow"), ("g1", "g2", "", "flow"),
-                          ("g2", "g3", "", "flow"), ("g3", "g4", "the Job completed", "flow"),
-                          ("g4", "g5", "", "flow"), ("g5", "done", "", "flow"),
+                          ("g2", "g3", "the Job completed", "flow"),
+                          ("g3", "g4", "", "flow"), ("g4", "done", "", "flow"),
                           ("chain", "prune", "every reconcile", "dashed"), ("prune", "crds", "", "dashed")]:
     g.edge(a, b, label, kind=kind)
 g.done()

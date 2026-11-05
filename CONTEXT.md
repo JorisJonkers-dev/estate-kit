@@ -76,7 +76,7 @@ The coordination Lease in the API server that the one Delivery pod takes immedia
 _Avoid_: leader election, lock
 
 **Machine account**:
-The dedicated GitHub account whose classic token, synced from Vault into a Kubernetes Secret Delivery mounts, moves the `render/` and `host/` tags on ghcr. It has write access only on the render and host packages.
+The dedicated GitHub account whose classic token, synced from Vault into a Kubernetes Secret Delivery mounts, moves the `render/` and `host/` tags on ghcr. It has write access only on the render and host packages. The maintainer's CLI uses the same token to move the Environment tag of Delivery's own render.
 _Avoid_: bot, service token
 
 **Composition**:
@@ -98,6 +98,10 @@ _Avoid_: status update, log line
 **Reconstructed event**:
 A Rollout event that reconciliation appended after a crash, marked as reconstructed and naming the observation it was inferred from. Delivery did not see it happen.
 _Avoid_: backfill, replayed event
+
+**Predecessor digest**:
+The digest each Rollout event row carries of the stored content of the row before it in the same Rollout — its rollout id, sequence, type, version, time and payload; the first event of a Rollout carries the empty digest. An append is refused when it does not name the last row the writer read, so a gap or a reorder in the log is detected. It is written into the event schema before the schema is committed.
+_Avoid_: parent hash, chain hash, event hash
 
 **Observation**:
 The context that shows what runs and how it is doing: units, pods, containers, alerts and silences, logs, health and checks. It reads, except that it creates and expires Alertmanager silences with a credential for that API alone. It holds no credential that can deploy, pause or roll back.
@@ -124,7 +128,7 @@ The identifier of an Operation, unique within its Project and Environment. Each 
 _Avoid_: run id, request id, correlation id
 
 **Apply group**:
-A set of a Project's rendered objects that Flux applies as one Kustomization, after the groups it depends on are healthy. The compiler derives the groups and their order, for example cluster-scoped kinds and namespaces, then grants and secrets, then the migration Job, then workloads, then routes.
+A set of a Project's rendered objects that Flux applies as one Kustomization, after the groups it depends on are healthy. The compiler derives the groups and their order, for example grants and secrets, then the migration Job, then workloads, then routes. A Project's render holds namespaced kinds only; its namespaces and every cluster-scoped kind are objects of the platform render, so no group of its chain is cluster-scoped.
 _Avoid_: wave, stage, phase, reconcile unit
 
 **Superseded**:
@@ -146,6 +150,10 @@ _Avoid_: commit, push, release point
 **Sequence tag**:
 An immutable registry tag that names one published render of one Project in one Environment, numbered so that a later publication has a higher version. Flux follows the highest; the registry refuses to change a tag once created. A Rollback creates a new Sequence tag that names an older, already-signed digest. A Host tag is numbered the same way.
 _Avoid_: pin, live tag, moving tag
+
+**Bootstrap step**:
+The step that applies Delivery's own Deployment, the one rendered object Flux never applies: run from the maintainer's CLI with the offline admin credential, it reads the Environment tag that names Delivery's current render, verifies the signature on every manifest, and refuses an unverified render before it applies. Its rollback is a move of that Environment tag, which only the maintainer's CLI makes.
+_Avoid_: self-upgrade, Delivery applier, apply job
 
 **Roll-forward**:
 Recovering from a failed Rollout by publishing a new render that fixes it, when rolling back would run a migration backwards.

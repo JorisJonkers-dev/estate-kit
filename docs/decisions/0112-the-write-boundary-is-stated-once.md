@@ -56,7 +56,8 @@ platform render installs write what they derive, as listed.
 | Writer | What it writes | Credential |
 | --- | --- | --- |
 | Flux, per Project | The objects of that Project's render, in its target namespaces | The Project's own service account, named by its Kustomization; Flux's default account has no rights |
-| Flux, for the platform | The platform render: namespaces, per-Project service accounts, Flux sources, CRDs and admission policies | The platform Kustomization's service account, the only one with cluster-scoped rights |
+| Flux, for the platform | The platform render: namespaces (one per Project per Environment), per-Project service accounts, Flux sources, CRDs and admission policies | The platform Kustomization's service account, the only one with cluster-scoped rights |
+| The bootstrap step | Delivery's own Deployment, from the render its Environment tag names, applied only after the signature on every manifest verifies | The maintainer's offline admin credential; nothing automated holds it |
 | Delivery | Every change with `dryRun`; without it, only the Lease `estate-kit-writer` and ProjectControl objects | Delivery's service account, held there by the ValidatingAdmissionPolicy |
 | Delivery's Release Gate | `spec.suspend` of a migration Job; one gate ConfigMap per Application | A service account of its own, limited by RBAC to those, under the writer Lease |
 | Delivery's tenancy context | The spec of Tenant resources | A service account of its own, limited to Tenant resources, under the writer Lease, as the Release Gate's is under [record 74](0074-the-release-gate-and-observation-each-have-a-named-write.md) |
@@ -74,10 +75,11 @@ Observation and a Project's CI write nothing into the API server.
 | Writer | What it writes | Credential |
 | --- | --- | --- |
 | Delivery | Renders, their signatures, and the `render/` and `host/` tags | The machine account's token, from a mounted Secret, with write only on the render and host packages |
+| The maintainer's CLI | The Environment tag of Delivery's own render, in a rollback by Environment tag or its next upgrade | The machine account's token, with the writer Lease checked before the move; no other mover exists |
 | Delivery | Signatures over renders and host tags | Vault Transit through Delivery's service account; each key only on its own path |
 | Delivery | Rollout events, registered digests, the job table and the Tenant operation log | Its database role: insert and select on the logs, and its own rows of the job table |
 | The retention job | Deletion of expired Rollout events | Its own database role, delete only |
-| Delivery | GitHub Deployment statuses and check runs | The GitHub App's installation token |
+| Delivery | GitHub Deployment statuses and check runs | The GitHub App's installation token, which holds no `actions:write` |
 | Observation | Silences in Alertmanager, its mirror of them and the cost ledger's rows in its own schema ([record 92](0092-capacity-is-in-the-resolved-deployment-cost-is-estimated-outside-the-render-key-and-recorded-from-bills.md)) | A credential for the silences API only, and a database role for its own schema only |
 | A Project's CI | Its images and its Intent Fragment in its own packages; digest registrations through Delivery's API | The job's own token; the GitHub OIDC token for Delivery |
 | estate-kit's CI on `main` | Signed host closures in the binary cache | The environment-scoped cache signing key, after a reviewer approves |
@@ -94,7 +96,16 @@ set for the Release Gate, not under a third exemption in the policy of
 for Delivery's identity. Flux applies the platform render under the platform
 Kustomization's service account, which this record names because no other
 does. The participants' row reads the **Tenant one writer** check as covering a
-Tenant's spec only.
+Tenant's spec only. Two writers belong to
+[record 144](0144-delivery-holds-no-actions-write-and-dispatches-no-workflow-and-its-own-deployment-is-applied-by-a-bootstrap-step-that-verifies-the-render-signature.md):
+the bootstrap step that applies Delivery's own Deployment after verifying the
+render signature, and the maintainer's CLI, the only mover of that render's
+Environment tag. And two rules close the table's edges: Delivery dispatches no
+Project's workflow and its GitHub App holds no `actions:write` on any
+repository ([record 144](0144-delivery-holds-no-actions-write-and-dispatches-no-workflow-and-its-own-deployment-is-applied-by-a-bootstrap-step-that-verifies-the-render-signature.md)),
+and every Project namespace is created by the platform render, never by a
+Project's own render
+([record 143](0143-the-platform-render-creates-every-project-namespace-and-a-project-render-holds-namespaced-kinds-only.md)).
 
 ## Alternatives
 
