@@ -154,6 +154,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - uses: JorisJonkers-dev/github-workflows/actions/setup-package-proxy@f8f0a5ae583913de18143bbbbe0db9ecab970435 # v0.45.0
+        with:
+          token: ${{ secrets.PACKAGES_PROXY_TOKEN }}
+          require-package-proxy: true
       - name: Test the checks with branch coverage
         run: |
           set -euo pipefail
@@ -215,7 +219,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
-    uses: JorisJonkers-dev/github-workflows/.github/workflows/repository-hygiene-guard.yml@618d5851b22d2c46d4234deaa07e0f1950e2b65d # v0.34.3
+    uses: JorisJonkers-dev/github-workflows/.github/workflows/repository-hygiene-guard.yml@f8f0a5ae583913de18143bbbbe0db9ecab970435 # v0.45.0
     with:
       deny-globs: |
         .specify/**
@@ -237,12 +241,15 @@ jobs:
         *.epub
         *.djvu
         HANDOFF.md
+      package-proxy-guard: enforce
+    secrets:
+      PACKAGES_PROXY_TOKEN: ${{ secrets.PACKAGES_PROXY_TOKEN }}
 
   # AGENTS.md: a conventional-commit title, and no agent attribution anywhere.
   pr-title:
     name: PR title
     if: ${{ github.event_name == 'pull_request' }}
-    uses: JorisJonkers-dev/github-workflows/.github/workflows/pr-title-check.yml@f2180a482b63756affde537233881fa12e65df70 # v0.35.0
+    uses: JorisJonkers-dev/github-workflows/.github/workflows/pr-title-check.yml@f8f0a5ae583913de18143bbbbe0db9ecab970435 # v0.45.0
 
   # The one required check. It runs whatever happened above and fails unless every job
   # succeeded. A job may be skipped only where its `if:` says so: the pull-request-only checks
