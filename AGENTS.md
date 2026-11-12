@@ -1,7 +1,7 @@
 # Agent contract
 
 The estate-wide conventions live in
-[`JorisJonkers-dev/workspace`'s CLAUDE.md](https://github.com/JorisJonkers-dev/workspace/blob/main/CLAUDE.md)
+[the workspace repository's CLAUDE.md](https://github.com/JorisJonkers-dev/workspace/blob/main/CLAUDE.md)
 and are not repeated here. This file holds only what the code cannot show you.
 
 ## What this repository is
@@ -17,7 +17,7 @@ estate-dashboard keep serving production until the cutover.
 | --- | --- | --- |
 | Vocabulary | [`CONTEXT.md`](CONTEXT.md) | Yes: names in code use these words unchanged |
 | Decisions | [`docs/decisions/`](docs/decisions/README.md) | Yes |
-| Contracts (schemas, OpenAPI, error catalogue) | `contracts/` (not yet written) | Yes, once written |
+| Contracts (schemas, OpenAPI, error catalogue) | The contracts folder (not yet written) | Yes, once written |
 | Design pages and diagrams | [`docs/design/`](docs/design/README.md), [`docs/diagrams/`](docs/diagrams/README.md) | No: they explain, decisions rule |
 | Research | [`docs/research/`](docs/research/README.md) | No |
 
@@ -50,7 +50,7 @@ what gets fixed.
 
 ## Checks
 
-`Pipeline Complete` in [`ci.yml`](.github/workflows/ci.yml) is the one
+`Pipeline Complete` in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) is the one
 required check on `main`. It holds these rules:
 
 | Rule | Job |
@@ -76,7 +76,7 @@ Run a check locally with `python3 scripts/<check>.py`.
 
 ## Nested agent files
 
-Once code lands, each context folder under `crates/` (`compiler/`, `delivery/`,
-`observation/`, `hosts/`, `components/`, `tenancy/`) and `ui/` gets a short `AGENTS.md`
+Once code lands, each context folder under crates (compiler, delivery,
+observation, hosts, components, tenancy) and the ui folder gets a short `AGENTS.md`
 holding only what applies inside it. The workspace's layout and layer rules are
 in [`docs/design/rust-workspace.md`](docs/design/rust-workspace.md).
