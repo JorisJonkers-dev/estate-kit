@@ -154,7 +154,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: JorisJonkers-dev/github-workflows/actions/setup-package-proxy@f8f0a5ae583913de18143bbbbe0db9ecab970435 # v0.45.0
+      - uses: JorisJonkers-dev/github-workflows/actions/setup-package-proxy@48fcba8b143567e12716f4b77b9a3ab211719ffd # v0.50.1
         with:
           token: ${{ secrets.PACKAGES_PROXY_TOKEN }}
           require-package-proxy: true
@@ -219,7 +219,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
-    uses: JorisJonkers-dev/github-workflows/.github/workflows/repository-hygiene-guard.yml@a68da7988585d307c147a320dbd53f76b19943c4 # v0.46.0
+    uses: JorisJonkers-dev/github-workflows/.github/workflows/repository-hygiene-guard.yml@48fcba8b143567e12716f4b77b9a3ab211719ffd # v0.50.1
     with:
       deny-globs: |
         .specify/**
@@ -249,7 +249,7 @@ jobs:
   pr-title:
     name: PR title
     if: ${{ github.event_name == 'pull_request' }}
-    uses: JorisJonkers-dev/github-workflows/.github/workflows/pr-title-check.yml@f8f0a5ae583913de18143bbbbe0db9ecab970435 # v0.45.0
+    uses: JorisJonkers-dev/github-workflows/.github/workflows/pr-title-check.yml@48fcba8b143567e12716f4b77b9a3ab211719ffd # v0.50.1
 
   # The one required check. It runs whatever happened above and fails unless every job
   # succeeded. A job may be skipped only where its `if:` says so: the pull-request-only checks
